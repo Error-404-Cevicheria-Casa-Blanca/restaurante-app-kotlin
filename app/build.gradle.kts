@@ -59,6 +59,7 @@ dependencies {
     debugImplementation(libs.okhttp.logging.interceptor)
 
     testImplementation(libs.junit)
+    testImplementation(libs.okhttp.logging.interceptor)
     testImplementation(libs.mockk)
     testImplementation(libs.kotlinx.coroutines.test)
 
