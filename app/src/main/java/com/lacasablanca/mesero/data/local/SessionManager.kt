@@ -20,11 +20,19 @@ class SessionManager(private val tokenStore: TokenStore) {
 
     suspend fun iniciar(nueva: Sesion) {
         sesion = nueva
-        tokenStore.guardar(nueva)
+        try {
+            tokenStore.guardar(nueva)
+        } catch (e: Exception) {
+            // Si falla la persistencia (p. ej. Keystore), la sesion sigue valida en memoria.
+        }
     }
 
     suspend fun cerrar() {
         sesion = null
-        tokenStore.limpiar()
+        try {
+            tokenStore.limpiar()
+        } catch (e: Exception) {
+            // El logout debe completarse aunque falle el borrado fisico.
+        }
     }
 }

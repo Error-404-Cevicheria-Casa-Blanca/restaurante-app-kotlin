@@ -28,6 +28,8 @@ class ComandaActivity : AppCompatActivity() {
         val ubicacion = intent.getStringExtra(EXTRA_MESA_UBICACION).orEmpty()
 
         if (mesaId <= 0L || numero <= 0) {
+            // Datos incompletos: se devuelve la mesa para no dejarla bloqueada en ATENDIDA.
+            setResult(RESULT_OK, Intent().putExtra(EXTRA_MESA_ID, mesaId))
             finish()
             return
         }
