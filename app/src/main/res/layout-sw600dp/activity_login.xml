@@ -157,6 +157,7 @@
                         android:padding="@dimen/espacio_xs"
                         app:tabBackground="@drawable/selector_tab_login"
                         app:tabGravity="fill"
+                        app:tabIconTint="@color/selector_texto_tab_login"
                         app:tabIndicatorHeight="0dp"
                         app:tabMode="fixed"
                         app:tabRippleColor="@null"
