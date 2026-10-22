@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Mapa de mesas (Stitch m_vil_mapa_de_mesas / tablet_mapa_de_mesas):
+    cabecera blanca, zonas en pildora teal, chips de filtro tipo pill,
+    tarjetas blancas con franja de estado y leyenda.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background"
+    android:orientation="vertical"
+    tools:context=".ui.mesas.MesasActivity">
+
+    <!-- Barra superior (variante con texto en tablet: layout-sw600dp/barra_mesas.xml) -->
+    <include
+        android:id="@+id/barra"
+        layout="@layout/barra_mesas"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingHorizontal="@dimen/espacio_l"
+        android:paddingTop="@dimen/espacio_m">
+
+        <!-- Zonas dinamicas desde 'ubicacion', en contenedor pill -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_contenedor_zonas"
+            android:padding="@dimen/espacio_xs">
+
+            <com.google.android.material.tabs.TabLayout
+                android:id="@+id/tabsZonas"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/transparent"
+                android:minHeight="@dimen/toque_minimo"
+                app:tabBackground="@drawable/selector_tab_zona"
+                app:tabIndicatorHeight="0dp"
+                app:tabMode="scrollable"
+                app:tabPaddingEnd="@dimen/espacio_l"
+                app:tabPaddingStart="@dimen/espacio_l"
+                app:tabRippleColor="@null"
+                app:tabTextAppearance="@style/Texto.PestanaZona"
+                app:tabTextColor="@color/selector_texto_tab_zona" />
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/espacio_l"
+            android:letterSpacing="0.1"
+            android:text="@string/mesas_filtro_titulo"
+            android:textAllCaps="true"
+            android:textColor="@color/on_surface_variant"
+            android:textSize="@dimen/texto_etiqueta"
+            android:textStyle="bold" />
+
+        <!-- Filtros por estado con contadores -->
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/espacio_xs"
+            android:paddingVertical="@dimen/espacio_xs"
+            android:scrollbars="none">
+
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/chipsEstados"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:chipSpacingHorizontal="@dimen/espacio_s"
+                app:chipSpacingVertical="@dimen/espacio_xs"
+                app:selectionRequired="true"
+                app:singleLine="true"
+                app:singleSelection="true" />
+        </HorizontalScrollView>
+    </LinearLayout>
+
+    <!-- Leyenda de 4 colores -->
+    <com.google.android.material.card.MaterialCardView
+        style="@style/Tarjeta.Superficie"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/espacio_l"
+        android:layout_marginTop="@dimen/espacio_m"
+        app:cardCornerRadius="@dimen/espacio_m">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="@dimen/espacio_m">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:letterSpacing="0.08"
+                android:text="@string/leyenda_titulo"
+                android:textAllCaps="true"
+                android:textColor="@color/on_surface_variant"
+                android:textSize="11sp"
+                android:textStyle="bold" />
+
+            <HorizontalScrollView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/espacio_xs"
+                android:scrollbars="none">
+
+                <LinearLayout
+                    android:id="@+id/leyendaEstados"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:contentDescription="@string/leyenda_titulo"
+                    android:orientation="horizontal" />
+            </HorizontalScrollView>
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerMesas"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:padding="@dimen/espacio_s"
+            tools:itemCount="4"
+            tools:listitem="@layout/item_mesa" />
+
+        <ProgressBar
+            android:id="@+id/progresoCarga"
+            android:layout_width="@dimen/toque_minimo"
+            android:layout_height="@dimen/toque_minimo"
+            android:layout_gravity="center"
+            android:indeterminate="true"
+            android:indeterminateTint="@color/primary" />
+
+        <LinearLayout
+            android:id="@+id/grupoVacio"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="@dimen/espacio_xl"
+            android:visibility="gone"
+            tools:visibility="visible">
+
+            <ImageView
+                android:layout_width="@dimen/icono_xl"
+                android:layout_height="@dimen/icono_xl"
+                android:contentDescription="@string/mesas_vacio"
+                android:src="@drawable/ic_inbox"
+                app:tint="@color/on_surface_variant" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/espacio_m"
+                android:gravity="center"
+                android:text="@string/mesas_vacio"
+                android:textColor="@color/on_surface"
+                android:textSize="@dimen/texto_cuerpo"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/espacio_xs"
+                android:gravity="center"
+                android:text="@string/mesas_vacio_ayuda"
+                android:textColor="@color/on_surface_variant"
+                android:textSize="@dimen/texto_secundario" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/grupoError"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="@dimen/espacio_xl"
+            android:visibility="gone"
+            tools:visibility="visible">
+
+            <ImageView
+                android:layout_width="@dimen/icono_xl"
+                android:layout_height="@dimen/icono_xl"
+                android:contentDescription="@string/mesas_error"
+                android:src="@drawable/ic_error_outline"
+                app:tint="@color/error" />
+
+            <TextView
+                android:id="@+id/textoErrorMesas"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/espacio_m"
+                android:gravity="center"
+                android:text="@string/mesas_error"
+                android:textColor="@color/on_surface"
+                android:textSize="@dimen/texto_cuerpo" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnReintentar"
+                style="@style/Boton.Primario"
+                android:layout_width="wrap_content"
+                android:layout_marginTop="@dimen/espacio_l"
+                android:paddingHorizontal="@dimen/espacio_xl"
+                android:text="@string/accion_reintentar" />
+        </LinearLayout>
+    </FrameLayout>
+</LinearLayout>

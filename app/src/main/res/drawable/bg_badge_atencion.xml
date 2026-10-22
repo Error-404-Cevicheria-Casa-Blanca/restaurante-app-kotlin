@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Badge "En atencion" del HTML de Stitch: tertiary-fixed #D3E4FF, texto tertiary #003866. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="@color/tertiary_fixed" />
+    <corners android:radius="@dimen/radio_pill" />
+</shape>

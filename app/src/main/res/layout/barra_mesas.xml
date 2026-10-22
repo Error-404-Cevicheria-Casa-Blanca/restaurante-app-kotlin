@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Cabecera movil del mapa de mesas: fondo blanco, logo pequeno y titulo teal (Stitch). -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/surface_container_lowest"
+    android:elevation="@dimen/elevacion_tarjeta"
+    android:gravity="center_vertical"
+    android:minHeight="@dimen/alto_barra_superior"
+    android:orientation="horizontal"
+    android:paddingHorizontal="@dimen/espacio_l"
+    android:paddingVertical="@dimen/espacio_s">
+
+    <ImageView
+        android:id="@+id/logoBarra"
+        android:layout_width="@dimen/logo_barra"
+        android:layout_height="@dimen/logo_barra"
+        android:contentDescription="@string/marca_descripcion_logo"
+        android:scaleType="fitCenter"
+        android:src="@drawable/logo_casa_blanca" />
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/espacio_m"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/textoTitulo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/mesas_titulo"
+            android:textColor="@color/stitch_primary"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/textoSaludo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:textColor="@color/on_surface_variant"
+            android:textSize="@dimen/texto_secundario"
+            android:visibility="visible"
+            tools:text="Hola, Mozo Demo" />
+
+    </LinearLayout>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnActualizar"
+        style="@style/Boton.BarraAccion"
+        android:layout_width="@dimen/toque_minimo"
+        android:layout_height="@dimen/toque_minimo"
+        android:layout_marginStart="@dimen/espacio_s"
+        android:contentDescription="@string/cd_actualizar"
+        android:minWidth="@dimen/toque_minimo"
+        android:padding="0dp"
+        app:icon="@drawable/ic_refresh"
+        app:iconPadding="0dp"
+        app:tooltipText="@string/accion_actualizar" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnCerrarSesion"
+        style="@style/Boton.BarraSalir"
+        android:layout_width="@dimen/toque_minimo"
+        android:layout_height="@dimen/toque_minimo"
+        android:layout_marginStart="@dimen/espacio_s"
+        android:contentDescription="@string/cd_cerrar_sesion"
+        android:minWidth="@dimen/toque_minimo"
+        android:padding="0dp"
+        app:icon="@drawable/ic_logout"
+        app:iconPadding="0dp"
+        app:tooltipText="@string/accion_cerrar_sesion" />
+</LinearLayout>

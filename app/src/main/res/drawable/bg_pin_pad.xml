@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Contenedor del teclado numerico PIN (HTML: rounded-2xl bg-surface-container-lowest). -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="@color/surface" />
+    <corners android:radius="@dimen/espacio_l" />
+    <stroke
+        android:width="@dimen/borde_tarjeta"
+        android:color="@color/borde_suave" />
+</shape>

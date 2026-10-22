@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Tarjeta de mesa (Stitch m_vil_mapa_de_mesas): fondo blanco con sombra,
+    franja superior de 4dp con el color del estado, numero grande y capacidad.
+-->
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/cardMesa"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="@dimen/margen_rejilla"
+    android:clickable="true"
+    android:focusable="true"
+    android:foreground="?attr/selectableItemBackground"
+    app:cardBackgroundColor="@color/surface_container_lowest"
+    app:cardCornerRadius="@dimen/radio_tarjeta"
+    app:cardElevation="@dimen/elevacion_tarjeta"
+    app:cardMaxElevation="@dimen/elevacion_tarjeta_login"
+    app:strokeWidth="0dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="132dp">
+
+        <!-- Franja de estado: 4dp, el adapter le aplica el color -->
+        <View
+            android:id="@+id/barraEstado"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/franja_estado"
+            android:background="@color/estado_libre"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="@dimen/espacio_m"
+            android:paddingTop="@dimen/espacio_m"
+            android:paddingBottom="@dimen/espacio_m"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/barraEstado">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/textoMesa"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:ellipsize="none"
+                    android:maxLines="2"
+                    android:textColor="@color/stitch_primary"
+                    android:textSize="22sp"
+                    android:textStyle="bold"
+                    tools:text="Mesa 7" />
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/espacio_xs"
+                    android:background="@drawable/bg_pill_superficie"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="@dimen/espacio_s"
+                    android:paddingVertical="@dimen/espacio_xs">
+
+                    <ImageView
+                        android:layout_width="@dimen/icono_pequeno"
+                        android:layout_height="@dimen/icono_pequeno"
+                        android:contentDescription="@string/cd_capacidad"
+                        android:src="@drawable/ic_people"
+                        app:tint="@color/on_surface_variant" />
+
+                    <TextView
+                        android:id="@+id/textoCapacidad"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/espacio_xs"
+                        android:textColor="@color/on_surface_variant"
+                        android:textSize="@dimen/texto_etiqueta"
+                        android:textStyle="bold"
+                        tools:text="Cap. 4 pers" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <Space
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/espacio_m" />
+
+            <LinearLayout
+                android:id="@+id/etiquetaEstado"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_etiqueta_estado"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingHorizontal="@dimen/espacio_s"
+                android:paddingVertical="@dimen/espacio_xs">
+
+                <ImageView
+                    android:id="@+id/iconoEstado"
+                    android:layout_width="@dimen/icono_pequeno"
+                    android:layout_height="@dimen/icono_pequeno"
+                    android:contentDescription="@string/estado_libre"
+                    android:src="@drawable/ic_check" />
+
+                <TextView
+                    android:id="@+id/textoEstado"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/espacio_xs"
+                    android:textColor="@color/texto_principal"
+                    android:textSize="@dimen/texto_etiqueta"
+                    android:textStyle="bold"
+                    tools:text="Libre" />
+            </LinearLayout>
+        </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</com.google.android.material.card.MaterialCardView>

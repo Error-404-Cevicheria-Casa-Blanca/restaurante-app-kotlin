@@ -1,3 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">La Casa Blanca Mesero</string>
+
+    <!-- Marca -->
+    <string name="marca_nombre">La Casa Blanca</string>
+    <string name="marca_lema">Sirviendo el mar con calidad</string>
+    <string name="marca_descripcion_logo">Logotipo de La Casa Blanca Restaurante</string>
+    <string name="marca_cevicheria">Cevichería Restaurante</string>
+    <string name="marca_sede">Sede Cajamarca · Salón Principal</string>
+
+    <!-- Login -->
+    <string name="login_titulo">Bienvenido</string>
+    <string name="login_subtitulo">Ingresa con tu usuario de mesero</string>
+    <string name="login_usuario">Usuario</string>
+    <string name="login_clave">Contraseña</string>
+    <string name="login_ingresar">Ingresar</string>
+    <string name="login_mostrar_clave">Mostrar contraseña</string>
+    <string name="login_ocultar_clave">Ocultar contraseña</string>
+    <string name="login_tab_credenciales">Credenciales</string>
+    <string name="login_tab_pin">PIN Rápido</string>
+    <string name="login_pin_titulo">Digita tu clave rápida asignada</string>
+    <string name="login_pin_limpiar">Limpiar PIN</string>
+    <string name="login_pin_borrar">Borrar último dígito</string>
+    <string name="login_pin_tecla">Tecla %1$s</string>
+    <string name="pin_0">0</string>
+    <string name="pin_1">1</string>
+    <string name="pin_2">2</string>
+    <string name="pin_3">3</string>
+    <string name="pin_4">4</string>
+    <string name="pin_5">5</string>
+    <string name="pin_6">6</string>
+    <string name="pin_7">7</string>
+    <string name="pin_8">8</string>
+    <string name="pin_9">9</string>
+    <string name="pin_tecla_limpiar">C</string>
+    <string name="login_pos_movil">POS Móvil</string>
+    <string name="login_error_campos">Ingresa tu usuario y contraseña</string>
+    <string name="login_error_credenciales">Usuario o contraseña incorrectos</string>
+    <string name="login_error_red">No se pudo conectar con el servidor. Revisa la red local e inténtalo de nuevo.</string>
+    <string name="login_error_rol">Este usuario no tiene acceso a la app de meseros</string>
+    <string name="login_error_generico">Ocurrió un error. Inténtalo de nuevo.</string>
+    <string name="login_version">Versión %1$s</string>
+    <string name="login_modo_demo">Modo demostración: datos de prueba, sin conexión al servidor.</string>
+    <string name="login_cargando">Ingresando…</string>
+
+    <!-- Mesas -->
+    <string name="mesas_titulo">Plano de Mesas</string>
+    <string name="mesas_saludo">Hola, %1$s</string>
+    <string name="mesas_filtro_titulo">Filtro rápido</string>
+    <string name="accion_actualizar">Actualizar</string>
+    <string name="accion_sincronizar">Sincronizar</string>
+    <string name="accion_cerrar_sesion">Cerrar sesión</string>
+    <string name="zona_todas">Todas</string>
+    <string name="chip_estado_con_contador">%1$s %2$d</string>
+    <string name="estado_libre">Libre</string>
+    <string name="estado_ocupada">Ocupada</string>
+    <string name="estado_atendida">Atendiendo</string>
+    <string name="estado_cuenta">Cuenta solicitada</string>
+    <string name="estado_desconocido">Estado desconocido</string>
+    <string name="estado_libre_plural">Libres</string>
+    <string name="estado_ocupada_plural">Ocupadas</string>
+    <string name="estado_atendida_plural">Atendidas</string>
+    <string name="estado_cuenta_plural">Cuenta solicitada</string>
+    <string name="leyenda_titulo">Estados de mesa</string>
+    <string name="mesa_titulo">Mesa %1$d</string>
+    <plurals name="mesa_capacidad">
+        <item quantity="one">%1$d persona</item>
+        <item quantity="other">%1$d personas</item>
+    </plurals>
+    <string name="mesa_capacidad_corta">Cap. %1$d pers</string>
+    <string name="mesa_descripcion">Mesa %1$d, %2$s, %3$s</string>
+    <string name="mesas_vacio">No hay mesas para estos filtros</string>
+    <string name="mesas_vacio_ayuda">Cambia la zona o el estado seleccionado.</string>
+    <string name="mesas_error">No se pudieron cargar las mesas</string>
+    <string name="accion_reintentar">Reintentar</string>
+    <string name="mesas_actualizadas">Mesas actualizadas</string>
+    <string name="mesa_no_libre">La mesa %1$d no está libre (estado: %2$s).</string>
+    <string name="mesa_tomada">La mesa %1$d acaba de ser tomada por otro mozo.</string>
+    <string name="sesion_expirada">Tu sesión expiró. Vuelve a ingresar.</string>
+    <string name="error_red">No se pudo conectar con el servidor. Revisa la red local.</string>
+    <string name="error_abrir_mesa">No se pudo abrir la mesa. Inténtalo de nuevo.</string>
+    <string name="error_liberar_mesa">No se pudo liberar la mesa %1$d.</string>
+    <string name="error_generico">Ocurrió un error. Inténtalo de nuevo.</string>
+
+    <!-- Avisos del mapa de mesas (dialogos Material y snackbar) -->
+    <string name="accion_aceptar">Aceptar</string>
+    <string name="dialogo_mesa_titulo">Mesa %1$d</string>
+    <string name="mesa_dialogo_ocupada">La mesa %1$d está ocupada por otros comensales. Espera a que se libere para abrir una comanda.</string>
+    <string name="mesa_dialogo_atendida">La mesa %1$d ya está siendo atendida. Por ahora no se puede abrir otra comanda.</string>
+    <string name="mesa_dialogo_cuenta">La mesa %1$d pidió la cuenta. Acércate a cobrar antes de abrir otra comanda.</string>
+    <string name="mesa_dialogo_no_libre">La mesa %1$d no está libre para una nueva comanda.</string>
+    <string name="mesa_tomada_titulo">Mesa ocupada</string>
+    <string name="error_abrir_mesa_titulo">No se pudo abrir la mesa</string>
+    <string name="error_liberar_mesa_titulo">No se pudo actualizar la mesa</string>
+    <string name="error_red_titulo">Sin conexión</string>
+    <string name="sesion_expirada_titulo">Sesión finalizada</string>
+
+    <!-- Comanda (base, el catálogo llega en la siguiente entrega) -->
+    <string name="comanda_barra_titulo">Detalle de Mesa y Pedido</string>
+    <string name="comanda_titulo">Mesa %1$d · %2$s</string>
+    <string name="comanda_badge">En atención</string>
+    <string name="comanda_catalogo_titulo">Catálogo</string>
+    <string name="comanda_catalogo_demo">Vista previa de diseño · datos de ejemplo</string>
+    <string name="comanda_categoria_entradas">Entradas</string>
+    <string name="comanda_categoria_fondos">Fondos</string>
+    <string name="comanda_categoria_bebidas">Bebidas</string>
+    <string name="comanda_categoria_postres">Postres</string>
+    <string name="comanda_buscar_placeholder">Buscar plato, ingrediente o código…</string>
+    <string name="comanda_plato_ceviche">Ceviche Clásico La Casa Blanca</string>
+    <string name="comanda_plato_ceviche_desc">Pescado del día, camote glaseado y choclo tierno.</string>
+    <string name="comanda_plato_tiradito">Tiradito al Ají Amarillo</string>
+    <string name="comanda_plato_tiradito_desc">Láminas de corvina, crema de ají amarillo y canchita.</string>
+    <string name="comanda_precio_ceviche">S/ 48.00</string>
+    <string name="comanda_precio_tiradito">S/ 46.00</string>
+    <string name="comanda_agregar">Agregar</string>
+    <string name="comanda_pedido_titulo">Pedido actual</string>
+    <string name="comanda_pedido_subtitulo">Comanda nueva</string>
+    <string name="comanda_pedido_vacio">Aún no hay platos en el pedido.</string>
+    <string name="comanda_subtotal">Subtotal</string>
+    <string name="comanda_monto_cero">S/ 0.00</string>
+    <string name="comanda_confirmar">Confirmar y enviar comanda</string>
+    <string name="comanda_confirmar_deshabilitado">Agrega al menos un plato para enviar la comanda.</string>
+    <string name="cd_agregar_ceviche">Agregar Ceviche Clásico a la comanda</string>
+    <string name="cd_agregar_tiradito">Agregar Tiradito al Ají Amarillo a la comanda</string>
+    <string name="cd_imagen_ceviche">Fotografía del Ceviche Clásico</string>
+    <string name="cd_imagen_tiradito">Fotografía del Tiradito al Ají Amarillo</string>
+
+    <!-- Accesibilidad -->
+    <string name="cd_actualizar">Actualizar la lista de mesas</string>
+    <string name="cd_cerrar_sesion">Cerrar sesión</string>
+    <string name="cd_capacidad">Capacidad de la mesa</string>
+    <string name="cd_volver">Volver</string>
 </resources>

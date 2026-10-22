@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Gradiente del panel de marca: #0B5563 (arriba) a #003D48 (abajo), como el HTML de Stitch. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <gradient
+        android:angle="270"
+        android:endColor="@color/login_hero_fin"
+        android:startColor="@color/login_hero_inicio"
+        android:type="linear" />
+</shape>
