@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Zona activa: pildora teal #003D48 con texto blanco; inactiva transparente. -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_selected="true">
+        <shape android:shape="rectangle">
+            <solid android:color="@color/stitch_primary" />
+            <corners android:radius="@dimen/radio_pill" />
+        </shape>
+    </item>
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="@color/transparent" />
+            <corners android:radius="@dimen/radio_pill" />
+        </shape>
+    </item>
+</selector>

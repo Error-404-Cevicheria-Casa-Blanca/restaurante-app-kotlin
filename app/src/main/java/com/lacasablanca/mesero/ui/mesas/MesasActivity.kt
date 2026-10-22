@@ -183,14 +183,24 @@ class MesasActivity : AppCompatActivity() {
         chip.isClickable = true
         chip.isCheckedIconVisible = false
         chip.isChecked = false
+        // Colores exactos de Stitch: activo teal #003D48 / inactivo blanco (pill).
         chip.chipBackgroundColor = ColorStateList(
             arrayOf(intArrayOf(android.R.attr.state_checked), intArrayOf()),
             intArrayOf(
-                ContextCompat.getColor(this, R.color.secondary_container),
-                ContextCompat.getColor(this, R.color.surface_variant)
+                ContextCompat.getColor(this, R.color.chip_filtro_activo),
+                ContextCompat.getColor(this, R.color.chip_filtro_inactivo)
             )
         )
-        chip.setTextColor(ContextCompat.getColor(this, R.color.texto_principal))
+        chip.setTextColor(
+            ContextCompat.getColorStateList(this, R.color.selector_texto_chip)
+        )
+        chip.chipIconTint =
+            ContextCompat.getColorStateList(this, R.color.selector_icono_chip)
+        chip.shapeAppearanceModel = chip.shapeAppearanceModel
+            .toBuilder()
+            .setAllCornerSizes(resources.getDimension(R.dimen.radio_pill))
+            .build()
+        chip.chipMinHeight = resources.getDimension(R.dimen.alto_chip_filtro)
         chip.contentDescription = buildString {
             append(texto)
             if (etiquetaEstado != null) {

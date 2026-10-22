@@ -1,19 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Cabecera tablet del mapa de mesas: fondo blanco, logo y titulo teal (Stitch). -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/primary"
+    android:background="@color/surface_container_lowest"
+    android:elevation="@dimen/elevacion_tarjeta"
     android:gravity="center_vertical"
     android:minHeight="@dimen/alto_barra_superior"
     android:orientation="horizontal"
     android:paddingHorizontal="@dimen/espacio_xl"
-    android:paddingVertical="@dimen/espacio_s">
+    android:paddingVertical="@dimen/espacio_m">
+
+    <ImageView
+        android:id="@+id/logoBarra"
+        android:layout_width="@dimen/logo_barra_tablet"
+        android:layout_height="@dimen/logo_barra_tablet"
+        android:contentDescription="@string/marca_descripcion_logo"
+        android:scaleType="fitCenter"
+        android:src="@drawable/logo_casa_blanca" />
 
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/espacio_m"
         android:layout_weight="1"
         android:orientation="vertical">
 
@@ -22,16 +33,16 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/mesas_titulo"
-            android:textColor="@color/texto_sobre_primario"
-            android:textSize="28sp"
+            android:textColor="@color/stitch_primary"
+            android:textSize="26sp"
             android:textStyle="bold" />
 
         <TextView
             android:id="@+id/textoSaludo"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@color/texto_sobre_primario_suave"
-            android:textSize="@dimen/texto_cuerpo"
+            android:textColor="@color/on_surface_variant"
+            android:textSize="@dimen/texto_secundario"
             android:visibility="gone"
             tools:text="Hola, Mozo Demo"
             tools:visibility="visible" />
@@ -39,17 +50,17 @@
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnActualizar"
-        style="@style/Boton.BarraSuperior"
+        style="@style/Boton.BarraAccion"
         android:layout_width="wrap_content"
         android:layout_height="@dimen/toque_minimo"
         android:paddingHorizontal="@dimen/espacio_m"
-        android:text="@string/accion_actualizar"
+        android:text="@string/accion_sincronizar"
         app:icon="@drawable/ic_refresh"
         app:iconGravity="textStart" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnCerrarSesion"
-        style="@style/Boton.BarraSuperior"
+        style="@style/Boton.BarraSalir"
         android:layout_width="wrap_content"
         android:layout_height="@dimen/toque_minimo"
         android:layout_marginStart="@dimen/espacio_m"

@@ -1,48 +1,92 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+    Login movil (Stitch: m_vil_login_mesero/code.html).
+    Hero teal con logo + tarjeta blanca de 24dp con pestanas Credenciales / PIN Rapido.
+-->
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/background"
+    android:clipToPadding="false"
     android:fillViewport="true"
     tools:context=".ui.login.LoginActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center_horizontal"
-        android:orientation="vertical"
-        android:padding="@dimen/espacio_xl">
+        android:clipChildren="false"
+        android:clipToPadding="false"
+        android:orientation="vertical">
 
-        <ImageView
-            android:id="@+id/logoLogin"
-            android:layout_width="@dimen/logo_movil"
-            android:layout_height="@dimen/logo_movil"
-            android:contentDescription="@string/marca_descripcion_logo"
-            android:src="@drawable/logo_la_casa_blanca" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/espacio_m"
-            android:text="@string/marca_nombre"
-            android:textColor="@color/primary"
-            android:textSize="26sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/marca_lema"
-            style="@style/Texto.Secundario" />
-
-        <com.google.android.material.card.MaterialCardView
-            style="@style/Tarjeta.Superficie"
+        <!-- HERO DE MARCA -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/espacio_xl"
-            app:cardCornerRadius="@dimen/radio_tarjeta_grande">
+            android:background="@drawable/bg_hero_login_movil"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:paddingHorizontal="@dimen/espacio_xl"
+            android:paddingTop="@dimen/espacio_xl"
+            android:paddingBottom="@dimen/espacio_xxl">
+
+            <FrameLayout
+                android:layout_width="112dp"
+                android:layout_height="112dp"
+                android:background="@drawable/bg_circulo_logo"
+                android:padding="@dimen/espacio_m">
+
+                <ImageView
+                    android:id="@+id/logoLogin"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:contentDescription="@string/marca_descripcion_logo"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/logo_casa_blanca" />
+            </FrameLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/espacio_m"
+                android:text="@string/marca_nombre"
+                style="@style/Texto.Marca" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:letterSpacing="0.12"
+                android:text="@string/marca_cevicheria"
+                android:textAllCaps="true"
+                android:textColor="@color/primary_fixed_dim"
+                android:textSize="@dimen/texto_etiqueta"
+                android:textStyle="bold" />
+
+            <View
+                android:layout_width="48dp"
+                android:layout_height="4dp"
+                android:layout_marginTop="@dimen/espacio_s"
+                android:background="@drawable/bg_pill_lima" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/espacio_s"
+                android:gravity="center"
+                android:text="@string/marca_lema"
+                style="@style/Texto.LemaMarca" />
+        </LinearLayout>
+
+        <!-- TARJETA DE AUTENTICACION -->
+        <com.google.android.material.card.MaterialCardView
+            style="@style/Tarjeta.Login"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="-24dp"
+            android:layout_marginHorizontal="@dimen/espacio_l"
+            app:cardCornerRadius="@dimen/radio_tarjeta_login"
+            app:cardElevation="@dimen/elevacion_tarjeta_login">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -50,78 +94,162 @@
                 android:orientation="vertical"
                 android:padding="@dimen/espacio_xl">
 
-                <TextView
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/login_titulo"
-                    style="@style/Texto.TituloPantalla" />
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/login_titulo"
+                        android:textColor="@color/on_surface"
+                        android:textSize="24sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_pill_superficie"
+                        android:paddingHorizontal="@dimen/espacio_s"
+                        android:paddingVertical="@dimen/espacio_xs"
+                        android:text="@string/login_pos_movil"
+                        android:textColor="@color/on_surface_variant"
+                        android:textSize="@dimen/texto_etiqueta"
+                        android:textStyle="bold" />
+                </LinearLayout>
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/espacio_xs"
                     android:text="@string/login_subtitulo"
-                    style="@style/Texto.Secundario" />
+                    android:textColor="@color/on_surface_variant"
+                    android:textSize="@dimen/texto_secundario" />
 
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/inputUsuario"
+                <!-- Pestanas Credenciales / PIN Rapido -->
+                <com.google.android.material.tabs.TabLayout
+                    android:id="@+id/tabsLoginModo"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/espacio_xl"
+                    android:layout_marginTop="@dimen/espacio_l"
+                    android:background="@drawable/bg_contenedor_tabs"
+                    android:padding="@dimen/espacio_xs"
+                    app:tabBackground="@drawable/selector_tab_login"
+                    app:tabGravity="fill"
+                    app:tabIndicatorHeight="0dp"
+                    app:tabMode="fixed"
+                    app:tabRippleColor="@null"
+                    app:tabTextAppearance="@style/Texto.PestanaLogin"
+                    app:tabTextColor="@color/selector_texto_tab_login">
+
+                    <com.google.android.material.tabs.TabItem
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:icon="@drawable/ic_badge"
+                        android:text="@string/login_tab_credenciales" />
+
+                    <com.google.android.material.tabs.TabItem
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:icon="@drawable/ic_dialpad"
+                        android:text="@string/login_tab_pin" />
+                </com.google.android.material.tabs.TabLayout>
+
+                <!-- Usuario -->
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/inputUsuario"
+                    style="@style/Widget.Material3.TextInputLayout.FilledBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/espacio_l"
                     android:hint="@string/login_usuario"
-                    app:boxBackgroundMode="outline"
+                    app:boxBackgroundColor="@color/login_campo_relleno"
+                    app:boxCornerRadiusBottomEnd="@dimen/espacio_l"
+                    app:boxCornerRadiusBottomStart="@dimen/espacio_l"
+                    app:boxCornerRadiusTopEnd="@dimen/espacio_l"
+                    app:boxCornerRadiusTopStart="@dimen/espacio_l"
+                    app:boxStrokeWidth="0dp"
+                    app:boxStrokeWidthFocused="0dp"
                     app:startIconContentDescription="@string/login_usuario"
-                    app:startIconDrawable="@drawable/ic_person">
+                    app:startIconDrawable="@drawable/ic_person"
+                    app:startIconTint="@color/primary">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/entradaUsuario"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_height="@dimen/alto_campo_login"
                         android:imeOptions="actionNext"
                         android:inputType="textPersonName"
-                        android:maxLines="1" />
+                        android:maxLines="1"
+                        android:textColor="@color/on_surface"
+                        android:textSize="@dimen/texto_cuerpo" />
                 </com.google.android.material.textfield.TextInputLayout>
 
+                <!-- Contrasena con boton de ver -->
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/inputClave"
+                    style="@style/Widget.Material3.TextInputLayout.FilledBox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/espacio_m"
                     android:hint="@string/login_clave"
-                    app:boxBackgroundMode="outline"
+                    app:boxBackgroundColor="@color/login_campo_relleno"
+                    app:boxCornerRadiusBottomEnd="@dimen/espacio_l"
+                    app:boxCornerRadiusBottomStart="@dimen/espacio_l"
+                    app:boxCornerRadiusTopEnd="@dimen/espacio_l"
+                    app:boxCornerRadiusTopStart="@dimen/espacio_l"
+                    app:boxStrokeWidth="0dp"
+                    app:boxStrokeWidthFocused="0dp"
                     app:endIconContentDescription="@string/login_mostrar_clave"
                     app:endIconDrawable="@drawable/ic_visibility"
                     app:endIconMode="custom"
+                    app:endIconTint="@color/on_surface_variant"
                     app:startIconContentDescription="@string/login_clave"
-                    app:startIconDrawable="@drawable/ic_lock">
+                    app:startIconDrawable="@drawable/ic_lock"
+                    app:startIconTint="@color/primary">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/entradaClave"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_height="@dimen/alto_campo_login"
                         android:imeOptions="actionDone"
                         android:inputType="textPassword"
-                        android:maxLines="1" />
+                        android:maxLines="1"
+                        android:textColor="@color/on_surface"
+                        android:textSize="@dimen/texto_cuerpo" />
                 </com.google.android.material.textfield.TextInputLayout>
 
+                <!-- Banner de error (la Activity lo muestra/oculta) -->
                 <TextView
                     android:id="@+id/textoError"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/espacio_m"
                     android:accessibilityLiveRegion="polite"
-                    android:textColor="@color/error"
+                    android:background="@drawable/bg_error_banner"
+                    android:drawableStart="@drawable/ic_error_outline"
+                    android:drawablePadding="@dimen/espacio_s"
+                    android:drawableTint="@color/error"
+                    android:padding="@dimen/espacio_m"
+                    android:textColor="@color/on_error_container"
                     android:textSize="@dimen/texto_secundario"
                     android:visibility="gone"
                     tools:text="@string/login_error_credenciales"
                     tools:visibility="visible" />
 
+                <!-- Boton principal 56dp / #0B5563 / radio 16dp -->
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnIngresar"
                     style="@style/Boton.Primario"
                     android:layout_width="match_parent"
                     android:layout_marginTop="@dimen/espacio_l"
-                    android:text="@string/login_ingresar" />
+                    android:text="@string/login_ingresar"
+                    app:icon="@drawable/ic_arrow_forward"
+                    app:iconGravity="textEnd"
+                    app:iconTint="@color/on_primary" />
 
                 <ProgressBar
                     android:id="@+id/progresoLogin"
@@ -130,17 +258,192 @@
                     android:layout_gravity="center_horizontal"
                     android:layout_marginTop="@dimen/espacio_s"
                     android:indeterminate="true"
+                    android:indeterminateTint="@color/primary"
                     android:visibility="gone"
                     tools:visibility="visible" />
+
+                <!-- Teclado PIN: oculto por defecto, tal como en el HTML -->
+                <LinearLayout
+                    android:id="@+id/pinPad"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/espacio_l"
+                    android:background="@drawable/bg_pin_pad"
+                    android:orientation="vertical"
+                    android:padding="@dimen/espacio_m"
+                    android:visibility="gone"
+                    tools:visibility="visible">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:text="@string/login_pin_titulo"
+                        android:textColor="@color/on_surface_variant"
+                        android:textSize="@dimen/texto_etiqueta" />
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_marginTop="@dimen/espacio_s"
+                        android:orientation="horizontal">
+
+                        <View
+                            android:layout_width="16dp"
+                            android:layout_height="16dp"
+                            android:layout_marginHorizontal="@dimen/espacio_s"
+                            android:background="@drawable/bg_punto_pin" />
+
+                        <View
+                            android:layout_width="16dp"
+                            android:layout_height="16dp"
+                            android:layout_marginHorizontal="@dimen/espacio_s"
+                            android:background="@drawable/bg_punto_pin" />
+
+                        <View
+                            android:layout_width="16dp"
+                            android:layout_height="16dp"
+                            android:layout_marginHorizontal="@dimen/espacio_s"
+                            android:background="@drawable/bg_punto_pin" />
+
+                        <View
+                            android:layout_width="16dp"
+                            android:layout_height="16dp"
+                            android:layout_marginHorizontal="@dimen/espacio_s"
+                            android:background="@drawable/bg_punto_pin" />
+                    </LinearLayout>
+
+                    <GridLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/espacio_m"
+                        android:columnCount="3"
+                        android:useDefaultMargins="false">
+
+                        <com.google.android.material.button.MaterialButton
+                            style="@style/Boton.PinTecla"
+                            android:layout_width="0dp"
+                            android:layout_height="@dimen/alto_pin_tecla"
+                            android:layout_columnWeight="1"
+                            android:layout_margin="@dimen/espacio_xs"
+                            android:contentDescription="@string/pin_1"
+                            android:text="@string/pin_1" />
+
+                        <com.google.android.material.button.MaterialButton
+                            style="@style/Boton.PinTecla"
+                            android:layout_width="0dp"
+                            android:layout_height="@dimen/alto_pin_tecla"
+                            android:layout_columnWeight="1"
+                            android:layout_margin="@dimen/espacio_xs"
+                            android:contentDescription="@string/pin_2"
+                            android:text="@string/pin_2" />
+
+                        <com.google.android.material.button.MaterialButton
+                            style="@style/Boton.PinTecla"
+                            android:layout_width="0dp"
+                            android:layout_height="@dimen/alto_pin_tecla"
+                            android:layout_columnWeight="1"
+                            android:layout_margin="@dimen/espacio_xs"
+                            android:contentDescription="@string/pin_3"
+                            android:text="@string/pin_3" />
+
+                        <com.google.android.material.button.MaterialButton
+                            style="@style/Boton.PinTecla"
+                            android:layout_width="0dp"
+                            android:layout_height="@dimen/alto_pin_tecla"
+                            android:layout_columnWeight="1"
+                            android:layout_margin="@dimen/espacio_xs"
+                            android:contentDescription="@string/pin_4"
+                            android:text="@string/pin_4" />
+
+                        <com.google.android.material.button.MaterialButton
+                            style="@style/Boton.PinTecla"
+                            android:layout_width="0dp"
+                            android:layout_height="@dimen/alto_pin_tecla"
+                            android:layout_columnWeight="1"
+                            android:layout_margin="@dimen/espacio_xs"
+                            android:contentDescription="@string/pin_5"
+                            android:text="@string/pin_5" />
+
+                        <com.google.android.material.button.MaterialButton
+                            style="@style/Boton.PinTecla"
+                            android:layout_width="0dp"
+                            android:layout_height="@dimen/alto_pin_tecla"
+                            android:layout_columnWeight="1"
+                            android:layout_margin="@dimen/espacio_xs"
+                            android:contentDescription="@string/pin_6"
+                            android:text="@string/pin_6" />
+
+                        <com.google.android.material.button.MaterialButton
+                            style="@style/Boton.PinTecla"
+                            android:layout_width="0dp"
+                            android:layout_height="@dimen/alto_pin_tecla"
+                            android:layout_columnWeight="1"
+                            android:layout_margin="@dimen/espacio_xs"
+                            android:contentDescription="@string/pin_7"
+                            android:text="@string/pin_7" />
+
+                        <com.google.android.material.button.MaterialButton
+                            style="@style/Boton.PinTecla"
+                            android:layout_width="0dp"
+                            android:layout_height="@dimen/alto_pin_tecla"
+                            android:layout_columnWeight="1"
+                            android:layout_margin="@dimen/espacio_xs"
+                            android:contentDescription="@string/pin_8"
+                            android:text="@string/pin_8" />
+
+                        <com.google.android.material.button.MaterialButton
+                            style="@style/Boton.PinTecla"
+                            android:layout_width="0dp"
+                            android:layout_height="@dimen/alto_pin_tecla"
+                            android:layout_columnWeight="1"
+                            android:layout_margin="@dimen/espacio_xs"
+                            android:contentDescription="@string/pin_9"
+                            android:text="@string/pin_9" />
+
+                        <com.google.android.material.button.MaterialButton
+                            style="@style/Boton.PinAccion"
+                            android:layout_width="0dp"
+                            android:layout_height="@dimen/alto_pin_tecla"
+                            android:layout_columnWeight="1"
+                            android:layout_margin="@dimen/espacio_xs"
+                            android:contentDescription="@string/login_pin_limpiar"
+                            android:text="@string/pin_tecla_limpiar" />
+
+                        <com.google.android.material.button.MaterialButton
+                            style="@style/Boton.PinTecla"
+                            android:layout_width="0dp"
+                            android:layout_height="@dimen/alto_pin_tecla"
+                            android:layout_columnWeight="1"
+                            android:layout_margin="@dimen/espacio_xs"
+                            android:contentDescription="@string/pin_0"
+                            android:text="@string/pin_0" />
+
+                        <com.google.android.material.button.MaterialButton
+                            style="@style/Boton.PinAccion"
+                            android:layout_width="0dp"
+                            android:layout_height="@dimen/alto_pin_tecla"
+                            android:layout_columnWeight="1"
+                            android:layout_margin="@dimen/espacio_xs"
+                            android:contentDescription="@string/login_pin_borrar"
+                            app:icon="@drawable/ic_backspace"
+                            app:iconGravity="textStart"
+                            app:iconPadding="0dp"
+                            app:iconTint="@color/on_surface_variant" />
+                    </GridLayout>
+                </LinearLayout>
 
                 <TextView
                     android:id="@+id/avisoDemo"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/espacio_l"
+                    android:background="@drawable/bg_banner_demo"
                     android:gravity="center"
+                    android:padding="@dimen/espacio_s"
                     android:text="@string/login_modo_demo"
-                    android:textColor="@color/texto_secundario"
+                    android:textColor="@color/on_secondary_fixed"
                     android:textSize="@dimen/texto_etiqueta"
                     android:visibility="gone"
                     tools:visibility="visible" />
@@ -149,10 +452,13 @@
 
         <TextView
             android:id="@+id/versionApp"
-            style="@style/Texto.Etiqueta"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/espacio_xl"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="@dimen/espacio_l"
+            android:layout_marginBottom="@dimen/espacio_xl"
+            android:textColor="@color/on_surface_variant"
+            android:textSize="@dimen/texto_etiqueta"
             tools:text="Versión 1.0" />
     </LinearLayout>
 </ScrollView>

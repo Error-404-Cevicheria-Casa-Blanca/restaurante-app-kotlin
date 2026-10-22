@@ -12,18 +12,26 @@
     <dimen name="toque_minimo">48dp</dimen>
     <dimen name="alto_boton_primario">56dp</dimen>
     <dimen name="alto_barra_superior">72dp</dimen>
+    <dimen name="alto_pin_tecla">52dp</dimen>
+    <dimen name="alto_chip_filtro">44dp</dimen>
+    <dimen name="alto_campo_login">56dp</dimen>
 
     <!-- Radios -->
     <dimen name="radio_boton">16dp</dimen>
     <dimen name="radio_tarjeta">16dp</dimen>
     <dimen name="radio_tarjeta_grande">20dp</dimen>
+    <dimen name="radio_tarjeta_login">24dp</dimen>
     <dimen name="radio_chip">24dp</dimen>
+    <dimen name="radio_pill">999dp</dimen>
+    <dimen name="radio_hero_movil">40dp</dimen>
 
     <!-- Tarjetas -->
     <dimen name="elevacion_tarjeta">2dp</dimen>
-    <dimen name="borde_estado">6dp</dimen>
+    <dimen name="elevacion_tarjeta_login">8dp</dimen>
+    <dimen name="borde_estado">4dp</dimen>
     <dimen name="borde_tarjeta">1dp</dimen>
-    <dimen name="margen_rejilla">6dp</dimen>
+    <dimen name="margen_rejilla">8dp</dimen>
+    <dimen name="franja_estado">4dp</dimen>
 
     <!-- Tipografia -->
     <dimen name="texto_titulo_pantalla">24sp</dimen>
@@ -33,10 +41,19 @@
     <dimen name="texto_etiqueta">12sp</dimen>
 
     <!-- Marca -->
-    <dimen name="logo_movil">120dp</dimen>
-    <dimen name="logo_tablet">190dp</dimen>
+    <dimen name="logo_movil">96dp</dimen>
+    <dimen name="logo_tablet">168dp</dimen>
+    <dimen name="logo_barra">40dp</dimen>
+    <dimen name="logo_barra_tablet">44dp</dimen>
 
     <!-- Iconos -->
     <dimen name="icono_pequeno">16dp</dimen>
+    <dimen name="icono_mediano">20dp</dimen>
     <dimen name="icono_grande">24dp</dimen>
+    <dimen name="icono_xl">48dp</dimen>
+
+    <!-- Comanda -->
+    <dimen name="alto_imagen_plato">80dp</dimen>
+    <dimen name="ancho_imagen_plato">80dp</dimen>
+    <dimen name="ancho_panel_login">360dp</dimen>
 </resources>

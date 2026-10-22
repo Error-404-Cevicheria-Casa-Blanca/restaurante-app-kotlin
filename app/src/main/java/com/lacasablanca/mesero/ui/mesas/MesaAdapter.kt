@@ -44,7 +44,8 @@ class MesaAdapter(
             binding.barraEstado.setBackgroundColor(color)
 
             binding.textoMesa.text = contexto.getString(R.string.mesa_titulo, mesa.numero)
-            binding.textoCapacidad.text = capacidad
+            binding.textoCapacidad.text =
+                contexto.getString(R.string.mesa_capacidad_corta, mesa.capacidad)
 
             binding.iconoEstado.setImageResource(mesa.estado.iconoRes())
             binding.iconoEstado.imageTintList = ColorStateList.valueOf(color)

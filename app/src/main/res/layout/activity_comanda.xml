@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+    Comanda movil (Stitch m_vil_vista_de_comanda/code.html).
+    Cabecera blanca, catalogo con imagenes de ejemplo y tarjeta de pedido.
+-->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -12,11 +16,13 @@
         android:id="@+id/barraComanda"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="@color/primary"
+        android:background="@color/surface_container_lowest"
+        android:elevation="@dimen/elevacion_tarjeta"
         app:navigationContentDescription="@string/cd_volver"
         app:navigationIcon="@drawable/ic_arrow_back"
+        app:navigationIconTint="@color/stitch_primary"
         app:title="@string/comanda_barra_titulo"
-        app:titleTextColor="@color/texto_sobre_primario" />
+        app:titleTextColor="@color/stitch_primary" />
 
     <ScrollView
         android:layout_width="match_parent"
@@ -28,73 +34,344 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="@dimen/espacio_l">
+            android:padding="@dimen/espacio_l"
+            android:paddingBottom="@dimen/espacio_xxl">
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:id="@+id/textoTitulo"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="@dimen/espacio_s"
-                    android:layout_weight="1"
-                    android:textColor="@color/texto_principal"
-                    android:textSize="@dimen/texto_titulo_tarjeta"
-                    android:textStyle="bold"
-                    tools:text="Mesa 7 · Primer piso" />
-
-                <TextView
-                    android:id="@+id/badgeEstado"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/bg_badge_atencion"
-                    android:paddingHorizontal="@dimen/espacio_m"
-                    android:paddingVertical="@dimen/espacio_xs"
-                    android:text="@string/comanda_badge"
-                    android:textColor="@color/texto_sobre_primario"
-                    android:textSize="@dimen/texto_secundario"
-                    android:textStyle="bold" />
-            </LinearLayout>
-
+            <!-- Contexto de la mesa -->
             <com.google.android.material.card.MaterialCardView
                 style="@style/Tarjeta.Superficie"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/espacio_l">
+                app:cardCornerRadius="@dimen/espacio_m">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:minHeight="180dp"
                     android:orientation="vertical"
-                    android:padding="@dimen/espacio_l">
+                    android:padding="@dimen/espacio_m">
 
-                    <TextView
-                        android:layout_width="wrap_content"
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="@string/comanda_catalogo_titulo"
-                        style="@style/Texto.TituloTarjeta" />
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/espacio_xs"
-                        android:gravity="center"
-                        android:text="@string/comanda_catalogo_placeholder"
-                        style="@style/Texto.Secundario" />
+                        <TextView
+                            android:id="@+id/textoTitulo"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="@dimen/espacio_s"
+                            android:layout_weight="1"
+                            android:ellipsize="none"
+                            android:maxLines="2"
+                            android:textColor="@color/stitch_primary"
+                            android:textSize="@dimen/texto_titulo_tarjeta"
+                            android:textStyle="bold"
+                            tools:text="Mesa 7 · Primer piso" />
+
+                        <TextView
+                            android:id="@+id/badgeEstado"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/bg_badge_atencion"
+                            android:drawableStart="@drawable/ic_edit"
+                            android:drawablePadding="@dimen/espacio_xs"
+                            android:drawableTint="@color/tertiary"
+                            android:paddingHorizontal="@dimen/espacio_m"
+                            android:paddingVertical="@dimen/espacio_xs"
+                            android:text="@string/comanda_badge"
+                            android:textColor="@color/tertiary"
+                            android:textSize="@dimen/texto_etiqueta"
+                            android:textStyle="bold" />
+                    </LinearLayout>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
+            <!-- Categorias (pills) -->
+            <HorizontalScrollView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/espacio_m"
+                android:scrollbars="none">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="44dp"
+                        android:background="@drawable/bg_categoria_activa"
+                        android:gravity="center"
+                        android:paddingHorizontal="@dimen/espacio_l"
+                        android:text="@string/comanda_categoria_entradas"
+                        android:textColor="@color/on_primary"
+                        android:textSize="@dimen/texto_secundario"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="44dp"
+                        android:layout_marginStart="@dimen/espacio_s"
+                        android:background="@drawable/bg_categoria_inactiva"
+                        android:gravity="center"
+                        android:paddingHorizontal="@dimen/espacio_l"
+                        android:text="@string/comanda_categoria_fondos"
+                        android:textColor="@color/on_surface"
+                        android:textSize="@dimen/texto_secundario" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="44dp"
+                        android:layout_marginStart="@dimen/espacio_s"
+                        android:background="@drawable/bg_categoria_inactiva"
+                        android:gravity="center"
+                        android:paddingHorizontal="@dimen/espacio_l"
+                        android:text="@string/comanda_categoria_bebidas"
+                        android:textColor="@color/on_surface"
+                        android:textSize="@dimen/texto_secundario" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="44dp"
+                        android:layout_marginStart="@dimen/espacio_s"
+                        android:background="@drawable/bg_categoria_inactiva"
+                        android:gravity="center"
+                        android:paddingHorizontal="@dimen/espacio_l"
+                        android:text="@string/comanda_categoria_postres"
+                        android:textColor="@color/on_surface"
+                        android:textSize="@dimen/texto_secundario" />
+                </LinearLayout>
+            </HorizontalScrollView>
+
+            <!-- Buscador visual -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="44dp"
+                android:layout_marginTop="@dimen/espacio_m"
+                android:background="@drawable/bg_campo_busqueda"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingHorizontal="@dimen/espacio_m">
+
+                <ImageView
+                    android:layout_width="@dimen/icono_mediano"
+                    android:layout_height="@dimen/icono_mediano"
+                    android:contentDescription="@string/comanda_buscar_placeholder"
+                    android:src="@drawable/ic_search"
+                    app:tint="@color/on_surface_variant" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/espacio_s"
+                    android:text="@string/comanda_buscar_placeholder"
+                    android:textColor="@color/outline"
+                    android:textSize="@dimen/texto_secundario" />
+            </LinearLayout>
+
+            <!-- Catalogo (vista previa del diseno, con imagenes solicitadas) -->
             <com.google.android.material.card.MaterialCardView
                 style="@style/Tarjeta.Superficie"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/espacio_l">
+                android:layout_marginTop="@dimen/espacio_m"
+                app:cardCornerRadius="@dimen/radio_tarjeta">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="@dimen/espacio_m">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/comanda_catalogo_titulo"
+                            android:textColor="@color/stitch_primary"
+                            android:textSize="@dimen/texto_titulo_tarjeta"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/bg_pill_lima"
+                            android:paddingHorizontal="@dimen/espacio_s"
+                            android:paddingVertical="@dimen/espacio_xs"
+                            android:text="@string/comanda_catalogo_demo"
+                            android:textColor="@color/on_secondary_fixed"
+                            android:textSize="10sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <!-- Plato 1: ceviche -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/espacio_m"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <com.google.android.material.card.MaterialCardView
+                            android:layout_width="@dimen/ancho_imagen_plato"
+                            android:layout_height="@dimen/alto_imagen_plato"
+                            app:cardBackgroundColor="@color/surface_container"
+                            app:cardCornerRadius="@dimen/espacio_m"
+                            app:cardElevation="0dp"
+                            app:strokeWidth="0dp">
+
+                            <ImageView
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:contentDescription="@string/cd_imagen_ceviche"
+                                android:scaleType="centerCrop"
+                                android:src="@drawable/img_ceviche" />
+                        </com.google.android.material.card.MaterialCardView>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/espacio_m"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:ellipsize="none"
+                                android:maxLines="2"
+                                android:text="@string/comanda_plato_ceviche"
+                                android:textColor="@color/on_surface"
+                                android:textSize="@dimen/texto_cuerpo"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:ellipsize="none"
+                                android:maxLines="2"
+                                android:text="@string/comanda_plato_ceviche_desc"
+                                android:textColor="@color/on_surface_variant"
+                                android:textSize="@dimen/texto_etiqueta" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="@dimen/espacio_xs"
+                                android:text="@string/comanda_precio_ceviche"
+                                android:textColor="@color/stitch_primary"
+                                android:textSize="@dimen/texto_titulo_tarjeta"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+
+                        <com.google.android.material.button.MaterialButton
+                            style="@style/Boton.AgregarPlato"
+                            android:layout_width="@dimen/toque_minimo"
+                            android:layout_height="@dimen/toque_minimo"
+                            android:layout_marginStart="@dimen/espacio_s"
+                            android:contentDescription="@string/cd_agregar_ceviche"
+                            android:padding="0dp"
+                            app:icon="@drawable/ic_add"
+                            app:iconGravity="textStart"
+                            app:iconPadding="0dp" />
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/borde_tarjeta"
+                        android:layout_marginVertical="@dimen/espacio_m"
+                        android:background="@color/surface_variant" />
+
+                    <!-- Plato 2: tiradito -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <com.google.android.material.card.MaterialCardView
+                            android:layout_width="@dimen/ancho_imagen_plato"
+                            android:layout_height="@dimen/alto_imagen_plato"
+                            app:cardBackgroundColor="@color/surface_container"
+                            app:cardCornerRadius="@dimen/espacio_m"
+                            app:cardElevation="0dp"
+                            app:strokeWidth="0dp">
+
+                            <ImageView
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:contentDescription="@string/cd_imagen_tiradito"
+                                android:scaleType="centerCrop"
+                                android:src="@drawable/img_tiradito" />
+                        </com.google.android.material.card.MaterialCardView>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/espacio_m"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:ellipsize="none"
+                                android:maxLines="2"
+                                android:text="@string/comanda_plato_tiradito"
+                                android:textColor="@color/on_surface"
+                                android:textSize="@dimen/texto_cuerpo"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:ellipsize="none"
+                                android:maxLines="2"
+                                android:text="@string/comanda_plato_tiradito_desc"
+                                android:textColor="@color/on_surface_variant"
+                                android:textSize="@dimen/texto_etiqueta" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="@dimen/espacio_xs"
+                                android:text="@string/comanda_precio_tiradito"
+                                android:textColor="@color/stitch_primary"
+                                android:textSize="@dimen/texto_titulo_tarjeta"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+
+                        <com.google.android.material.button.MaterialButton
+                            style="@style/Boton.AgregarPlato"
+                            android:layout_width="@dimen/toque_minimo"
+                            android:layout_height="@dimen/toque_minimo"
+                            android:layout_marginStart="@dimen/espacio_s"
+                            android:contentDescription="@string/cd_agregar_tiradito"
+                            android:padding="0dp"
+                            app:icon="@drawable/ic_add"
+                            app:iconGravity="textStart"
+                            app:iconPadding="0dp" />
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Pedido actual -->
+            <com.google.android.material.card.MaterialCardView
+                style="@style/Tarjeta.Superficie"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/espacio_m"
+                app:cardCornerRadius="@dimen/radio_tarjeta">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -102,25 +379,45 @@
                     android:orientation="vertical"
                     android:padding="@dimen/espacio_l">
 
-                    <TextView
-                        android:layout_width="wrap_content"
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="@string/comanda_pedido_titulo"
-                        style="@style/Texto.TituloTarjeta" />
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/comanda_pedido_titulo"
+                            android:textColor="@color/on_surface"
+                            android:textSize="@dimen/texto_titulo_tarjeta"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/comanda_pedido_subtitulo"
+                            android:textColor="@color/on_surface_variant"
+                            android:textSize="@dimen/texto_etiqueta" />
+                    </LinearLayout>
 
                     <TextView
                         android:id="@+id/textoPedidoVacio"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="@dimen/espacio_s"
+                        android:background="@drawable/bg_pill_superficie"
+                        android:padding="@dimen/espacio_m"
                         android:text="@string/comanda_pedido_vacio"
-                        style="@style/Texto.Secundario" />
+                        android:textColor="@color/on_surface_variant"
+                        android:textSize="@dimen/texto_secundario" />
 
                     <View
                         android:layout_width="match_parent"
                         android:layout_height="@dimen/borde_tarjeta"
                         android:layout_marginVertical="@dimen/espacio_m"
-                        android:background="@color/borde_suave" />
+                        android:background="@color/surface_variant" />
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -133,15 +430,16 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="@string/comanda_subtotal"
-                            style="@style/Texto.Cuerpo" />
+                            android:textColor="@color/on_surface_variant"
+                            android:textSize="@dimen/texto_cuerpo" />
 
                         <TextView
                             android:id="@+id/textoSubtotal"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/comanda_monto_cero"
-                            android:textColor="@color/texto_principal"
-                            android:textSize="@dimen/texto_titulo_tarjeta"
+                            android:textColor="@color/stitch_primary"
+                            android:textSize="24sp"
                             android:textStyle="bold" />
                     </LinearLayout>
 

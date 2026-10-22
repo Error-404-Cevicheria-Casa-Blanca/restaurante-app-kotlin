@@ -1,22 +1,60 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Marca (docs/diseno/DISENO-UI.md) -->
+    <!--
+        Tokens de color tomados de docs/diseno/stitch/.../code.html y
+        docs/diseno/stitch/cevicher_a_pos_design_system/DESIGN.md.
+        No usar colores por defecto de Android en los layouts.
+    -->
+
+    <!-- Marca (DISENO-UI.md + Stitch) -->
     <color name="primary">#0B5563</color>
     <color name="primary_dark">#003D48</color>
+    <color name="stitch_primary">#003D48</color>
     <color name="on_primary">#FFFFFF</color>
     <color name="primary_container">#0B5563</color>
+    <color name="on_primary_container">#8CC8D8</color>
+    <color name="primary_fixed">#AFECFD</color>
+    <color name="primary_fixed_dim">#93D0E0</color>
+    <color name="on_primary_fixed">#001F26</color>
+    <color name="secondary">#496800</color>
     <color name="secondary_container">#BCF157</color>
+    <color name="on_secondary_container">#4C6C00</color>
+    <color name="secondary_fixed">#BFF45A</color>
+    <color name="secondary_fixed_dim">#A4D740</color>
+    <color name="on_secondary_fixed">#131F00</color>
+    <color name="on_secondary_fixed_variant">#364E00</color>
     <color name="accent_lima">#A3D63F</color>
 
-    <!-- Superficies -->
+    <!-- Tertiario (badge "En atencion") -->
+    <color name="tertiary">#003866</color>
+    <color name="on_tertiary">#FFFFFF</color>
+    <color name="tertiary_container">#004F8C</color>
+    <color name="on_tertiary_container">#93C2FF</color>
+    <color name="tertiary_fixed">#D3E4FF</color>
+    <color name="tertiary_fixed_dim">#A2C9FF</color>
+    <color name="on_tertiary_fixed">#001C38</color>
+
+    <!-- Superficies Stitch -->
     <color name="background">#F7FAFA</color>
     <color name="surface">#FFFFFF</color>
-    <color name="surface_variant">#E8F1F2</color>
+    <color name="surface_container_lowest">#FFFFFF</color>
+    <color name="surface_container_low">#E6F6FD</color>
+    <color name="surface_container">#E0F1F7</color>
+    <color name="surface_container_high">#DAEBF2</color>
+    <color name="surface_container_highest">#D5E5EC</color>
+    <color name="surface_variant">#D5E5EC</color>
+    <color name="surface_dim">#CCDDE3</color>
+    <color name="inverse_surface">#243338</color>
+    <color name="inverse_on_surface">#E3F3FA</color>
     <color name="borde_suave">#DCE7E8</color>
+    <color name="outline">#70787B</color>
+    <color name="outline_variant">#BFC8CB</color>
 
     <!-- Texto -->
     <color name="texto_principal">#1B2A2F</color>
-    <color name="texto_secundario">#5A6B70</color>
+    <color name="on_surface">#0E1E22</color>
+    <color name="on_surface_variant">#40484B</color>
+    <color name="texto_secundario">#40484B</color>
     <color name="texto_sobre_primario">#FFFFFF</color>
     <color name="texto_sobre_primario_suave">#CCFFFFFF</color>
 
@@ -30,11 +68,24 @@
     <!-- Solo defensivo: datos invalidos del API no deben romper la pantalla -->
     <color name="estado_desconocido">#6B7B80</color>
 
+    <!-- Filtros (chips tipo pildora del HTML de Stitch) -->
+    <color name="chip_filtro_activo">#003D48</color>
+    <color name="chip_filtro_inactivo">#FFFFFF</color>
+    <color name="chip_pin_tecla">#E0F1F7</color>
+    <color name="chip_pin_accion">#D5E5EC</color>
+
+    <!-- Login -->
+    <color name="login_hero_inicio">#0B5563</color>
+    <color name="login_hero_fin">#003D48</color>
+    <color name="login_fondo_panel">#E6F6FD</color>
+    <color name="login_campo_relleno">#E6F6FD</color>
+
     <!-- Retroalimentacion -->
     <color name="error">#BA1A1A</color>
     <color name="error_container">#FFDAD6</color>
-    <color name="on_error_container">#410002</color>
+    <color name="on_error_container">#93000A</color>
 
     <!-- Utilitarios -->
     <color name="white">#FFFFFFFF</color>
+    <color name="transparent">#00000000</color>
 </resources>

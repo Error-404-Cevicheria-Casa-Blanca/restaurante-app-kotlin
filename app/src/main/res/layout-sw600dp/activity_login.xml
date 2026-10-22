@@ -1,188 +1,476 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+    Login tablet (>= 600dp) segun Stitch tablet_login_mesero/code.html:
+    panel izquierdo teal con logo/lema + tarjeta blanca de formulario a la derecha.
+-->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background"
     android:baselineAligned="false"
+    android:background="@color/background"
     android:orientation="horizontal"
     tools:context=".ui.login.LoginActivity">
 
-    <!-- Panel de marca (tablet, >= 600dp) -->
+    <!-- PANEL DE MARCA -->
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:layout_weight="1"
+        android:layout_weight="5"
         android:background="@drawable/bg_gradiente_marca"
         android:gravity="center"
         android:orientation="vertical"
         android:padding="@dimen/espacio_xxl">
 
-        <ImageView
-            android:id="@+id/logoLogin"
-            android:layout_width="@dimen/logo_tablet"
-            android:layout_height="@dimen/logo_tablet"
-            android:contentDescription="@string/marca_descripcion_logo"
-            android:src="@drawable/logo_la_casa_blanca" />
+        <FrameLayout
+            android:layout_width="184dp"
+            android:layout_height="184dp"
+            android:background="@drawable/bg_circulo_logo"
+            android:padding="@dimen/espacio_l">
+
+            <ImageView
+                android:id="@+id/logoLogin"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:contentDescription="@string/marca_descripcion_logo"
+                android:scaleType="fitCenter"
+                android:src="@drawable/logo_casa_blanca" />
+        </FrameLayout>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/espacio_l"
+            android:layout_marginTop="@dimen/espacio_xl"
             android:gravity="center"
             android:text="@string/marca_nombre"
-            android:textColor="@color/texto_sobre_primario"
-            android:textSize="32sp"
-            android:textStyle="bold" />
+            style="@style/Texto.MarcaTablet" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:letterSpacing="0.14"
+            android:text="@string/marca_cevicheria"
+            android:textAllCaps="true"
+            android:textColor="@color/primary_fixed_dim"
+            android:textSize="@dimen/texto_secundario"
+            android:textStyle="bold" />
+
+        <View
+            android:layout_width="56dp"
+            android:layout_height="4dp"
+            android:layout_marginTop="@dimen/espacio_m"
+            android:background="@drawable/bg_pill_lima" />
+
+        <TextView
+            android:layout_width="280dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/espacio_m"
             android:gravity="center"
             android:text="@string/marca_lema"
             android:textColor="@color/texto_sobre_primario_suave"
-            android:textSize="@dimen/texto_cuerpo" />
+            android:textSize="@dimen/texto_cuerpo"
+            android:textStyle="italic" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/espacio_xxl"
+            android:drawableStart="@drawable/ic_restaurant"
+            android:drawablePadding="@dimen/espacio_s"
+            android:drawableTint="@color/texto_sobre_primario_suave"
+            android:text="@string/marca_sede"
+            android:textColor="@color/texto_sobre_primario_suave"
+            android:textSize="@dimen/texto_etiqueta" />
     </LinearLayout>
 
-    <!-- Formulario -->
-    <FrameLayout
+    <!-- FORMULARIO -->
+    <ScrollView
         android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:layout_weight="1"
-        android:background="@color/background">
+        android:layout_weight="7"
+        android:background="@color/surface_container_low"
+        android:fillViewport="true">
 
-        <ScrollView
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:fillViewport="true">
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="@dimen/espacio_xxl">
 
-            <LinearLayout
+            <com.google.android.material.card.MaterialCardView
+                style="@style/Tarjeta.Login"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center"
-                android:orientation="vertical"
-                android:padding="@dimen/espacio_xxl">
+                android:layout_marginHorizontal="@dimen/espacio_xl"
+                app:cardCornerRadius="@dimen/radio_tarjeta_login"
+                app:cardElevation="@dimen/elevacion_tarjeta_login">
 
-                <com.google.android.material.card.MaterialCardView
-                    style="@style/Tarjeta.Superficie"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_margin="@dimen/espacio_l"
-                    app:cardCornerRadius="@dimen/radio_tarjeta_grande"
-                    app:cardElevation="@dimen/espacio_s">
+                    android:orientation="vertical"
+                    android:padding="@dimen/espacio_xxl">
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/login_titulo"
+                            android:textColor="@color/on_surface"
+                            android:textSize="28sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/bg_pill_superficie"
+                            android:paddingHorizontal="@dimen/espacio_m"
+                            android:paddingVertical="@dimen/espacio_xs"
+                            android:text="@string/login_pos_movil"
+                            android:textColor="@color/on_surface_variant"
+                            android:textSize="@dimen/texto_etiqueta"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/espacio_xs"
+                        android:text="@string/login_subtitulo"
+                        android:textColor="@color/on_surface_variant"
+                        android:textSize="@dimen/texto_cuerpo" />
+
+                    <com.google.android.material.tabs.TabLayout
+                        android:id="@+id/tabsLoginModo"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/espacio_l"
+                        android:background="@drawable/bg_contenedor_tabs"
+                        android:padding="@dimen/espacio_xs"
+                        app:tabBackground="@drawable/selector_tab_login"
+                        app:tabGravity="fill"
+                        app:tabIndicatorHeight="0dp"
+                        app:tabMode="fixed"
+                        app:tabRippleColor="@null"
+                        app:tabTextAppearance="@style/Texto.PestanaLogin"
+                        app:tabTextColor="@color/selector_texto_tab_login">
+
+                        <com.google.android.material.tabs.TabItem
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:icon="@drawable/ic_badge"
+                            android:text="@string/login_tab_credenciales" />
+
+                        <com.google.android.material.tabs.TabItem
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:icon="@drawable/ic_dialpad"
+                            android:text="@string/login_tab_pin" />
+                    </com.google.android.material.tabs.TabLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/inputUsuario"
+                        style="@style/Widget.Material3.TextInputLayout.FilledBox"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/espacio_l"
+                        android:hint="@string/login_usuario"
+                        app:boxBackgroundColor="@color/surface_container_lowest"
+                        app:boxCornerRadiusBottomEnd="@dimen/espacio_l"
+                        app:boxCornerRadiusBottomStart="@dimen/espacio_l"
+                        app:boxCornerRadiusTopEnd="@dimen/espacio_l"
+                        app:boxCornerRadiusTopStart="@dimen/espacio_l"
+                        app:boxStrokeWidth="0dp"
+                        app:boxStrokeWidthFocused="0dp"
+                        app:startIconContentDescription="@string/login_usuario"
+                        app:startIconDrawable="@drawable/ic_person"
+                        app:startIconTint="@color/primary">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/entradaUsuario"
+                            android:layout_width="match_parent"
+                            android:layout_height="@dimen/alto_campo_login"
+                            android:imeOptions="actionNext"
+                            android:inputType="textPersonName"
+                            android:maxLines="1"
+                            android:textColor="@color/on_surface"
+                            android:textSize="@dimen/texto_cuerpo" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/inputClave"
+                        style="@style/Widget.Material3.TextInputLayout.FilledBox"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/espacio_m"
+                        android:hint="@string/login_clave"
+                        app:boxBackgroundColor="@color/surface_container_lowest"
+                        app:boxCornerRadiusBottomEnd="@dimen/espacio_l"
+                        app:boxCornerRadiusBottomStart="@dimen/espacio_l"
+                        app:boxCornerRadiusTopEnd="@dimen/espacio_l"
+                        app:boxCornerRadiusTopStart="@dimen/espacio_l"
+                        app:boxStrokeWidth="0dp"
+                        app:boxStrokeWidthFocused="0dp"
+                        app:endIconContentDescription="@string/login_mostrar_clave"
+                        app:endIconDrawable="@drawable/ic_visibility"
+                        app:endIconMode="custom"
+                        app:endIconTint="@color/on_surface_variant"
+                        app:startIconContentDescription="@string/login_clave"
+                        app:startIconDrawable="@drawable/ic_lock"
+                        app:startIconTint="@color/primary">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/entradaClave"
+                            android:layout_width="match_parent"
+                            android:layout_height="@dimen/alto_campo_login"
+                            android:imeOptions="actionDone"
+                            android:inputType="textPassword"
+                            android:maxLines="1"
+                            android:textColor="@color/on_surface"
+                            android:textSize="@dimen/texto_cuerpo" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <TextView
+                        android:id="@+id/textoError"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/espacio_m"
+                        android:accessibilityLiveRegion="polite"
+                        android:background="@drawable/bg_error_banner"
+                        android:drawableStart="@drawable/ic_error_outline"
+                        android:drawablePadding="@dimen/espacio_s"
+                        android:drawableTint="@color/error"
+                        android:padding="@dimen/espacio_m"
+                        android:textColor="@color/on_error_container"
+                        android:textSize="@dimen/texto_secundario"
+                        android:visibility="gone"
+                        tools:text="@string/login_error_credenciales"
+                        tools:visibility="visible" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnIngresar"
+                        style="@style/Boton.Primario"
+                        android:layout_width="match_parent"
+                        android:layout_marginTop="@dimen/espacio_l"
+                        android:text="@string/login_ingresar"
+                        app:icon="@drawable/ic_arrow_forward"
+                        app:iconGravity="textEnd"
+                        app:iconTint="@color/on_primary" />
+
+                    <ProgressBar
+                        android:id="@+id/progresoLogin"
+                        android:layout_width="@dimen/icono_grande"
+                        android:layout_height="@dimen/icono_grande"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_marginTop="@dimen/espacio_s"
+                        android:indeterminate="true"
+                        android:indeterminateTint="@color/primary"
+                        android:visibility="gone"
+                        tools:visibility="visible" />
+
+                    <LinearLayout
+                        android:id="@+id/pinPad"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/espacio_l"
+                        android:background="@drawable/bg_pin_pad"
                         android:orientation="vertical"
-                        android:padding="@dimen/espacio_xxl">
+                        android:padding="@dimen/espacio_m"
+                        android:visibility="gone"
+                        tools:visibility="visible">
 
                         <TextView
-                            style="@style/Texto.TituloPantalla"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:text="@string/login_pin_titulo"
+                            android:textColor="@color/on_surface_variant"
+                            android:textSize="@dimen/texto_etiqueta" />
+
+                        <LinearLayout
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="@string/login_titulo" />
-
-                        <TextView
-                            style="@style/Texto.Secundario"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="@dimen/espacio_xs"
-                            android:text="@string/login_subtitulo" />
-
-                        <com.google.android.material.textfield.TextInputLayout
-                            android:id="@+id/inputUsuario"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="@dimen/espacio_xl"
-                            android:hint="@string/login_usuario"
-                            app:boxBackgroundMode="outline"
-                            app:startIconContentDescription="@string/login_usuario"
-                            app:startIconDrawable="@drawable/ic_person">
-
-                            <com.google.android.material.textfield.TextInputEditText
-                                android:id="@+id/entradaUsuario"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:imeOptions="actionNext"
-                                android:inputType="textPersonName"
-                                android:maxLines="1" />
-                        </com.google.android.material.textfield.TextInputLayout>
-
-                        <com.google.android.material.textfield.TextInputLayout
-                            android:id="@+id/inputClave"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="@dimen/espacio_m"
-                            android:hint="@string/login_clave"
-                            app:boxBackgroundMode="outline"
-                            app:endIconContentDescription="@string/login_mostrar_clave"
-                            app:endIconDrawable="@drawable/ic_visibility"
-                            app:endIconMode="custom"
-                            app:startIconContentDescription="@string/login_clave"
-                            app:startIconDrawable="@drawable/ic_lock">
-
-                            <com.google.android.material.textfield.TextInputEditText
-                                android:id="@+id/entradaClave"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:imeOptions="actionDone"
-                                android:inputType="textPassword"
-                                android:maxLines="1" />
-                        </com.google.android.material.textfield.TextInputLayout>
-
-                        <TextView
-                            android:id="@+id/textoError"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="@dimen/espacio_m"
-                            android:accessibilityLiveRegion="polite"
-                            android:textColor="@color/error"
-                            android:textSize="@dimen/texto_secundario"
-                            android:visibility="gone"
-                            tools:text="@string/login_error_credenciales"
-                            tools:visibility="visible" />
-
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btnIngresar"
-                            style="@style/Boton.Primario"
-                            android:layout_width="match_parent"
-                            android:layout_marginTop="@dimen/espacio_l"
-                            android:text="@string/login_ingresar" />
-
-                        <ProgressBar
-                            android:id="@+id/progresoLogin"
-                            android:layout_width="@dimen/icono_grande"
-                            android:layout_height="@dimen/icono_grande"
                             android:layout_gravity="center_horizontal"
                             android:layout_marginTop="@dimen/espacio_s"
-                            android:indeterminate="true"
-                            android:visibility="gone"
-                            tools:visibility="visible" />
+                            android:orientation="horizontal">
 
-                        <TextView
-                            android:id="@+id/avisoDemo"
+                            <View
+                                android:layout_width="16dp"
+                                android:layout_height="16dp"
+                                android:layout_marginHorizontal="@dimen/espacio_s"
+                                android:background="@drawable/bg_punto_pin" />
+
+                            <View
+                                android:layout_width="16dp"
+                                android:layout_height="16dp"
+                                android:layout_marginHorizontal="@dimen/espacio_s"
+                                android:background="@drawable/bg_punto_pin" />
+
+                            <View
+                                android:layout_width="16dp"
+                                android:layout_height="16dp"
+                                android:layout_marginHorizontal="@dimen/espacio_s"
+                                android:background="@drawable/bg_punto_pin" />
+
+                            <View
+                                android:layout_width="16dp"
+                                android:layout_height="16dp"
+                                android:layout_marginHorizontal="@dimen/espacio_s"
+                                android:background="@drawable/bg_punto_pin" />
+                        </LinearLayout>
+
+                        <GridLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="@dimen/espacio_l"
-                            android:gravity="center"
-                            android:text="@string/login_modo_demo"
-                            android:textColor="@color/texto_secundario"
-                            android:textSize="@dimen/texto_etiqueta"
-                            android:visibility="gone"
-                            tools:visibility="visible" />
-                    </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
+                            android:layout_marginTop="@dimen/espacio_m"
+                            android:columnCount="3"
+                            android:useDefaultMargins="false">
 
-                <TextView
-                    android:id="@+id/versionApp"
-                    style="@style/Texto.Etiqueta"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/espacio_l"
-                    tools:text="Versión 1.0" />
-            </LinearLayout>
-        </ScrollView>
-    </FrameLayout>
+                            <com.google.android.material.button.MaterialButton
+                                style="@style/Boton.PinTecla"
+                                android:layout_width="0dp"
+                                android:layout_height="@dimen/alto_pin_tecla"
+                                android:layout_columnWeight="1"
+                                android:layout_margin="@dimen/espacio_xs"
+                                android:contentDescription="@string/pin_1"
+                                android:text="@string/pin_1" />
+
+                            <com.google.android.material.button.MaterialButton
+                                style="@style/Boton.PinTecla"
+                                android:layout_width="0dp"
+                                android:layout_height="@dimen/alto_pin_tecla"
+                                android:layout_columnWeight="1"
+                                android:layout_margin="@dimen/espacio_xs"
+                                android:contentDescription="@string/pin_2"
+                                android:text="@string/pin_2" />
+
+                            <com.google.android.material.button.MaterialButton
+                                style="@style/Boton.PinTecla"
+                                android:layout_width="0dp"
+                                android:layout_height="@dimen/alto_pin_tecla"
+                                android:layout_columnWeight="1"
+                                android:layout_margin="@dimen/espacio_xs"
+                                android:contentDescription="@string/pin_3"
+                                android:text="@string/pin_3" />
+
+                            <com.google.android.material.button.MaterialButton
+                                style="@style/Boton.PinTecla"
+                                android:layout_width="0dp"
+                                android:layout_height="@dimen/alto_pin_tecla"
+                                android:layout_columnWeight="1"
+                                android:layout_margin="@dimen/espacio_xs"
+                                android:contentDescription="@string/pin_4"
+                                android:text="@string/pin_4" />
+
+                            <com.google.android.material.button.MaterialButton
+                                style="@style/Boton.PinTecla"
+                                android:layout_width="0dp"
+                                android:layout_height="@dimen/alto_pin_tecla"
+                                android:layout_columnWeight="1"
+                                android:layout_margin="@dimen/espacio_xs"
+                                android:contentDescription="@string/pin_5"
+                                android:text="@string/pin_5" />
+
+                            <com.google.android.material.button.MaterialButton
+                                style="@style/Boton.PinTecla"
+                                android:layout_width="0dp"
+                                android:layout_height="@dimen/alto_pin_tecla"
+                                android:layout_columnWeight="1"
+                                android:layout_margin="@dimen/espacio_xs"
+                                android:contentDescription="@string/pin_6"
+                                android:text="@string/pin_6" />
+
+                            <com.google.android.material.button.MaterialButton
+                                style="@style/Boton.PinTecla"
+                                android:layout_width="0dp"
+                                android:layout_height="@dimen/alto_pin_tecla"
+                                android:layout_columnWeight="1"
+                                android:layout_margin="@dimen/espacio_xs"
+                                android:contentDescription="@string/pin_7"
+                                android:text="@string/pin_7" />
+
+                            <com.google.android.material.button.MaterialButton
+                                style="@style/Boton.PinTecla"
+                                android:layout_width="0dp"
+                                android:layout_height="@dimen/alto_pin_tecla"
+                                android:layout_columnWeight="1"
+                                android:layout_margin="@dimen/espacio_xs"
+                                android:contentDescription="@string/pin_8"
+                                android:text="@string/pin_8" />
+
+                            <com.google.android.material.button.MaterialButton
+                                style="@style/Boton.PinTecla"
+                                android:layout_width="0dp"
+                                android:layout_height="@dimen/alto_pin_tecla"
+                                android:layout_columnWeight="1"
+                                android:layout_margin="@dimen/espacio_xs"
+                                android:contentDescription="@string/pin_9"
+                                android:text="@string/pin_9" />
+
+                            <com.google.android.material.button.MaterialButton
+                                style="@style/Boton.PinAccion"
+                                android:layout_width="0dp"
+                                android:layout_height="@dimen/alto_pin_tecla"
+                                android:layout_columnWeight="1"
+                                android:layout_margin="@dimen/espacio_xs"
+                                android:contentDescription="@string/login_pin_limpiar"
+                                android:text="@string/pin_tecla_limpiar" />
+
+                            <com.google.android.material.button.MaterialButton
+                                style="@style/Boton.PinTecla"
+                                android:layout_width="0dp"
+                                android:layout_height="@dimen/alto_pin_tecla"
+                                android:layout_columnWeight="1"
+                                android:layout_margin="@dimen/espacio_xs"
+                                android:contentDescription="@string/pin_0"
+                                android:text="@string/pin_0" />
+
+                            <com.google.android.material.button.MaterialButton
+                                style="@style/Boton.PinAccion"
+                                android:layout_width="0dp"
+                                android:layout_height="@dimen/alto_pin_tecla"
+                                android:layout_columnWeight="1"
+                                android:layout_margin="@dimen/espacio_xs"
+                                android:contentDescription="@string/login_pin_borrar"
+                                app:icon="@drawable/ic_backspace"
+                                app:iconGravity="textStart"
+                                app:iconPadding="0dp"
+                                app:iconTint="@color/on_surface_variant" />
+                        </GridLayout>
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/avisoDemo"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/espacio_l"
+                        android:background="@drawable/bg_banner_demo"
+                        android:gravity="center"
+                        android:padding="@dimen/espacio_s"
+                        android:text="@string/login_modo_demo"
+                        android:textColor="@color/on_secondary_fixed"
+                        android:textSize="@dimen/texto_etiqueta"
+                        android:visibility="gone"
+                        tools:visibility="visible" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <TextView
+                android:id="@+id/versionApp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/espacio_l"
+                android:textColor="@color/on_surface_variant"
+                android:textSize="@dimen/texto_etiqueta"
+                tools:text="Versión 1.0" />
+        </LinearLayout>
+    </ScrollView>
 </LinearLayout>
