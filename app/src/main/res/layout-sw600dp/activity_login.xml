@@ -177,105 +177,112 @@
                             android:text="@string/login_tab_pin" />
                     </com.google.android.material.tabs.TabLayout>
 
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/inputUsuario"
-                        style="@style/Widget.Material3.TextInputLayout.FilledBox"
+                    <!-- Formulario de credenciales: se oculta al elegir la pestana PIN -->
+                    <LinearLayout
+                        android:id="@+id/contenedorCredenciales"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/espacio_l"
-                        android:hint="@string/login_usuario"
-                        app:boxBackgroundColor="@color/surface_container_lowest"
-                        app:boxCornerRadiusBottomEnd="@dimen/espacio_l"
-                        app:boxCornerRadiusBottomStart="@dimen/espacio_l"
-                        app:boxCornerRadiusTopEnd="@dimen/espacio_l"
-                        app:boxCornerRadiusTopStart="@dimen/espacio_l"
-                        app:boxStrokeWidth="0dp"
-                        app:boxStrokeWidthFocused="0dp"
-                        app:startIconContentDescription="@string/login_usuario"
-                        app:startIconDrawable="@drawable/ic_person"
-                        app:startIconTint="@color/primary">
+                        android:orientation="vertical">
 
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/entradaUsuario"
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:id="@+id/inputUsuario"
+                            style="@style/Widget.Material3.TextInputLayout.FilledBox"
                             android:layout_width="match_parent"
-                            android:layout_height="@dimen/alto_campo_login"
-                            android:imeOptions="actionNext"
-                            android:inputType="textPersonName"
-                            android:maxLines="1"
-                            android:textColor="@color/on_surface"
-                            android:textSize="@dimen/texto_cuerpo" />
-                    </com.google.android.material.textfield.TextInputLayout>
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/espacio_l"
+                            android:hint="@string/login_usuario"
+                            app:boxBackgroundColor="@color/surface_container_lowest"
+                            app:boxCornerRadiusBottomEnd="@dimen/espacio_l"
+                            app:boxCornerRadiusBottomStart="@dimen/espacio_l"
+                            app:boxCornerRadiusTopEnd="@dimen/espacio_l"
+                            app:boxCornerRadiusTopStart="@dimen/espacio_l"
+                            app:boxStrokeWidth="0dp"
+                            app:boxStrokeWidthFocused="0dp"
+                            app:startIconContentDescription="@string/login_usuario"
+                            app:startIconDrawable="@drawable/ic_person"
+                            app:startIconTint="@color/primary">
 
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/inputClave"
-                        style="@style/Widget.Material3.TextInputLayout.FilledBox"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/espacio_m"
-                        android:hint="@string/login_clave"
-                        app:boxBackgroundColor="@color/surface_container_lowest"
-                        app:boxCornerRadiusBottomEnd="@dimen/espacio_l"
-                        app:boxCornerRadiusBottomStart="@dimen/espacio_l"
-                        app:boxCornerRadiusTopEnd="@dimen/espacio_l"
-                        app:boxCornerRadiusTopStart="@dimen/espacio_l"
-                        app:boxStrokeWidth="0dp"
-                        app:boxStrokeWidthFocused="0dp"
-                        app:endIconContentDescription="@string/login_mostrar_clave"
-                        app:endIconDrawable="@drawable/ic_visibility"
-                        app:endIconMode="custom"
-                        app:endIconTint="@color/on_surface_variant"
-                        app:startIconContentDescription="@string/login_clave"
-                        app:startIconDrawable="@drawable/ic_lock"
-                        app:startIconTint="@color/primary">
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/entradaUsuario"
+                                android:layout_width="match_parent"
+                                android:layout_height="@dimen/alto_campo_login"
+                                android:imeOptions="actionNext"
+                                android:inputType="textPersonName"
+                                android:maxLines="1"
+                                android:textColor="@color/on_surface"
+                                android:textSize="@dimen/texto_cuerpo" />
+                        </com.google.android.material.textfield.TextInputLayout>
 
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/entradaClave"
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:id="@+id/inputClave"
+                            style="@style/Widget.Material3.TextInputLayout.FilledBox"
                             android:layout_width="match_parent"
-                            android:layout_height="@dimen/alto_campo_login"
-                            android:imeOptions="actionDone"
-                            android:inputType="textPassword"
-                            android:maxLines="1"
-                            android:textColor="@color/on_surface"
-                            android:textSize="@dimen/texto_cuerpo" />
-                    </com.google.android.material.textfield.TextInputLayout>
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/espacio_m"
+                            android:hint="@string/login_clave"
+                            app:boxBackgroundColor="@color/surface_container_lowest"
+                            app:boxCornerRadiusBottomEnd="@dimen/espacio_l"
+                            app:boxCornerRadiusBottomStart="@dimen/espacio_l"
+                            app:boxCornerRadiusTopEnd="@dimen/espacio_l"
+                            app:boxCornerRadiusTopStart="@dimen/espacio_l"
+                            app:boxStrokeWidth="0dp"
+                            app:boxStrokeWidthFocused="0dp"
+                            app:endIconContentDescription="@string/login_mostrar_clave"
+                            app:endIconDrawable="@drawable/ic_visibility"
+                            app:endIconMode="custom"
+                            app:endIconTint="@color/on_surface_variant"
+                            app:startIconContentDescription="@string/login_clave"
+                            app:startIconDrawable="@drawable/ic_lock"
+                            app:startIconTint="@color/primary">
 
-                    <TextView
-                        android:id="@+id/textoError"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/espacio_m"
-                        android:accessibilityLiveRegion="polite"
-                        android:background="@drawable/bg_error_banner"
-                        android:drawableStart="@drawable/ic_error_outline"
-                        android:drawablePadding="@dimen/espacio_s"
-                        android:drawableTint="@color/error"
-                        android:padding="@dimen/espacio_m"
-                        android:textColor="@color/on_error_container"
-                        android:textSize="@dimen/texto_secundario"
-                        android:visibility="gone"
-                        tools:text="@string/login_error_credenciales"
-                        tools:visibility="visible" />
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/entradaClave"
+                                android:layout_width="match_parent"
+                                android:layout_height="@dimen/alto_campo_login"
+                                android:imeOptions="actionDone"
+                                android:inputType="textPassword"
+                                android:maxLines="1"
+                                android:textColor="@color/on_surface"
+                                android:textSize="@dimen/texto_cuerpo" />
+                        </com.google.android.material.textfield.TextInputLayout>
 
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnIngresar"
-                        style="@style/Boton.Primario"
-                        android:layout_width="match_parent"
-                        android:layout_marginTop="@dimen/espacio_l"
-                        android:text="@string/login_ingresar"
-                        app:icon="@drawable/ic_arrow_forward"
-                        app:iconGravity="textEnd"
-                        app:iconTint="@color/on_primary" />
+                        <TextView
+                            android:id="@+id/textoError"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/espacio_m"
+                            android:accessibilityLiveRegion="polite"
+                            android:background="@drawable/bg_error_banner"
+                            android:drawableStart="@drawable/ic_error_outline"
+                            android:drawablePadding="@dimen/espacio_s"
+                            android:drawableTint="@color/error"
+                            android:padding="@dimen/espacio_m"
+                            android:textColor="@color/on_error_container"
+                            android:textSize="@dimen/texto_secundario"
+                            android:visibility="gone"
+                            tools:text="@string/login_error_credenciales"
+                            tools:visibility="visible" />
 
-                    <ProgressBar
-                        android:id="@+id/progresoLogin"
-                        android:layout_width="@dimen/icono_grande"
-                        android:layout_height="@dimen/icono_grande"
-                        android:layout_gravity="center_horizontal"
-                        android:layout_marginTop="@dimen/espacio_s"
-                        android:indeterminate="true"
-                        android:indeterminateTint="@color/primary"
-                        android:visibility="gone"
-                        tools:visibility="visible" />
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnIngresar"
+                            style="@style/Boton.Primario"
+                            android:layout_width="match_parent"
+                            android:layout_marginTop="@dimen/espacio_l"
+                            android:text="@string/login_ingresar"
+                            app:icon="@drawable/ic_arrow_forward"
+                            app:iconGravity="textEnd" />
+
+                        <ProgressBar
+                            android:id="@+id/progresoLogin"
+                            android:layout_width="@dimen/icono_grande"
+                            android:layout_height="@dimen/icono_grande"
+                            android:layout_gravity="center_horizontal"
+                            android:layout_marginTop="@dimen/espacio_s"
+                            android:indeterminate="true"
+                            android:indeterminateTint="@color/primary"
+                            android:visibility="gone"
+                            tools:visibility="visible" />
+                    </LinearLayout>
 
                     <LinearLayout
                         android:id="@+id/pinPad"
