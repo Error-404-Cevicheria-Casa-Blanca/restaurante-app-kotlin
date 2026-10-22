@@ -1,5 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="black">#FF000000</color>
+    <!-- Marca (docs/diseno/DISENO-UI.md) -->
+    <color name="primary">#0B5563</color>
+    <color name="primary_dark">#003D48</color>
+    <color name="on_primary">#FFFFFF</color>
+    <color name="primary_container">#0B5563</color>
+    <color name="secondary_container">#BCF157</color>
+    <color name="accent_lima">#A3D63F</color>
+
+    <!-- Superficies -->
+    <color name="background">#F7FAFA</color>
+    <color name="surface">#FFFFFF</color>
+    <color name="surface_variant">#E8F1F2</color>
+    <color name="borde_suave">#DCE7E8</color>
+
+    <!-- Texto -->
+    <color name="texto_principal">#1B2A2F</color>
+    <color name="texto_secundario">#5A6B70</color>
+    <color name="texto_sobre_primario">#FFFFFF</color>
+    <color name="texto_sobre_primario_suave">#CCFFFFFF</color>
+
+    <!-- Estados de mesa (SEMANTICA FIJA, DISENO-UI.md) -->
+    <color name="estado_libre">#2E9E5B</color>
+    <color name="estado_ocupada">#D64545</color>
+    <color name="estado_cuenta">#F2B01E</color>
+    <color name="estado_atencion">#1E88E5</color>
+    <!-- Variante del badge "En atencion" para que el texto blanco cumpla contraste AA -->
+    <color name="estado_atencion_oscuro">#1565C0</color>
+    <!-- Solo defensivo: datos invalidos del API no deben romper la pantalla -->
+    <color name="estado_desconocido">#6B7B80</color>
+
+    <!-- Retroalimentacion -->
+    <color name="error">#BA1A1A</color>
+    <color name="error_container">#FFDAD6</color>
+    <color name="on_error_container">#410002</color>
+
+    <!-- Utilitarios -->
     <color name="white">#FFFFFFFF</color>
 </resources>

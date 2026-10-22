@@ -1,9 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
-    <style name="Base.Theme.LaCasaBlancaMesero" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+
+    <!-- La app del mesero usa SOLO tema claro (docs/diseno/DISENO-UI.md). -->
+    <style name="Base.Theme.LaCasaBlancaMesero" parent="Theme.Material3.Light.NoActionBar">
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorOnPrimary">@color/on_primary</item>
+        <item name="colorPrimaryContainer">@color/primary_container</item>
+        <item name="colorOnPrimaryContainer">@color/on_primary</item>
+        <item name="colorSecondary">@color/accent_lima</item>
+        <item name="colorSecondaryContainer">@color/secondary_container</item>
+        <item name="colorOnSecondaryContainer">@color/primary_dark</item>
+        <item name="android:colorBackground">@color/background</item>
+        <item name="colorSurface">@color/surface</item>
+        <item name="colorOnSurface">@color/texto_principal</item>
+        <item name="colorOnSurfaceVariant">@color/texto_secundario</item>
+        <item name="colorError">@color/error</item>
+        <item name="colorErrorContainer">@color/error_container</item>
+        <item name="colorOnErrorContainer">@color/on_error_container</item>
+        <item name="android:statusBarColor">@color/primary</item>
+        <item name="android:navigationBarColor">@color/background</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightNavigationBar">true</item>
+        <item name="android:forceDarkAllowed" tools:targetApi="q">false</item>
     </style>
 
     <style name="Theme.LaCasaBlancaMesero" parent="Base.Theme.LaCasaBlancaMesero" />
+
+    <!-- Tipografia -->
+    <style name="Texto.TituloPantalla" parent="TextAppearance.Material3.HeadlineSmall">
+        <item name="android:textColor">@color/texto_principal</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="Texto.TituloTarjeta" parent="TextAppearance.Material3.TitleLarge">
+        <item name="android:textColor">@color/texto_principal</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="Texto.Cuerpo" parent="TextAppearance.Material3.BodyMedium">
+        <item name="android:textColor">@color/texto_principal</item>
+    </style>
+
+    <style name="Texto.Secundario" parent="TextAppearance.Material3.BodyMedium">
+        <item name="android:textColor">@color/texto_secundario</item>
+    </style>
+
+    <style name="Texto.Etiqueta" parent="TextAppearance.Material3.LabelMedium">
+        <item name="android:textColor">@color/texto_secundario</item>
+    </style>
+
+    <!-- Botones -->
+    <style name="Boton.Primario" parent="Widget.Material3.Button">
+        <item name="android:layout_height">@dimen/alto_boton_primario</item>
+        <item name="cornerRadius">@dimen/radio_boton</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">@dimen/texto_cuerpo</item>
+    </style>
+
+    <style name="Boton.BarraSuperior" parent="Widget.Material3.Button.TextButton">
+        <item name="android:layout_height">@dimen/toque_minimo</item>
+        <item name="android:minWidth">@dimen/toque_minimo</item>
+        <item name="android:textColor">@color/texto_sobre_primario</item>
+        <item name="iconTint">@color/texto_sobre_primario</item>
+        <item name="android:textAllCaps">false</item>
+    </style>
+
+    <!-- Tarjetas -->
+    <style name="Tarjeta.Superficie" parent="Widget.Material3.CardView.Elevated">
+        <item name="cardCornerRadius">@dimen/radio_tarjeta</item>
+        <item name="cardElevation">@dimen/elevacion_tarjeta</item>
+        <item name="cardBackgroundColor">@color/surface</item>
+        <item name="strokeColor">@color/borde_suave</item>
+        <item name="strokeWidth">@dimen/borde_tarjeta</item>
+    </style>
+
 </resources>

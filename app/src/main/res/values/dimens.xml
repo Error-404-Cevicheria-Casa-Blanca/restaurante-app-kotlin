@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Espaciado -->
+    <dimen name="espacio_xs">4dp</dimen>
+    <dimen name="espacio_s">8dp</dimen>
+    <dimen name="espacio_m">12dp</dimen>
+    <dimen name="espacio_l">16dp</dimen>
+    <dimen name="espacio_xl">24dp</dimen>
+    <dimen name="espacio_xxl">32dp</dimen>
+
+    <!-- Objetivos tactiles y botones -->
+    <dimen name="toque_minimo">48dp</dimen>
+    <dimen name="alto_boton_primario">56dp</dimen>
+    <dimen name="alto_barra_superior">72dp</dimen>
+
+    <!-- Radios -->
+    <dimen name="radio_boton">16dp</dimen>
+    <dimen name="radio_tarjeta">16dp</dimen>
+    <dimen name="radio_tarjeta_grande">20dp</dimen>
+    <dimen name="radio_chip">24dp</dimen>
+
+    <!-- Tarjetas -->
+    <dimen name="elevacion_tarjeta">2dp</dimen>
+    <dimen name="borde_estado">6dp</dimen>
+    <dimen name="borde_tarjeta">1dp</dimen>
+    <dimen name="margen_rejilla">6dp</dimen>
+
+    <!-- Tipografia -->
+    <dimen name="texto_titulo_pantalla">24sp</dimen>
+    <dimen name="texto_titulo_tarjeta">20sp</dimen>
+    <dimen name="texto_cuerpo">16sp</dimen>
+    <dimen name="texto_secundario">14sp</dimen>
+    <dimen name="texto_etiqueta">12sp</dimen>
+
+    <!-- Marca -->
+    <dimen name="logo_movil">120dp</dimen>
+    <dimen name="logo_tablet">190dp</dimen>
+
+    <!-- Iconos -->
+    <dimen name="icono_pequeno">16dp</dimen>
+    <dimen name="icono_grande">24dp</dimen>
+</resources>

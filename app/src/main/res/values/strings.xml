@@ -1,3 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">La Casa Blanca Mesero</string>
+
+    <!-- Marca -->
+    <string name="marca_nombre">La Casa Blanca</string>
+    <string name="marca_lema">Servicio de salón</string>
+    <string name="marca_descripcion_logo">Logotipo de La Casa Blanca Restaurante</string>
+
+    <!-- Login -->
+    <string name="login_titulo">Iniciar sesión</string>
+    <string name="login_subtitulo">Ingresa con tu usuario y contraseña</string>
+    <string name="login_usuario">Usuario</string>
+    <string name="login_clave">Contraseña</string>
+    <string name="login_ingresar">Ingresar</string>
+    <string name="login_mostrar_clave">Mostrar contraseña</string>
+    <string name="login_ocultar_clave">Ocultar contraseña</string>
+    <string name="login_error_campos">Ingresa tu usuario y contraseña</string>
+    <string name="login_error_credenciales">Usuario o contraseña incorrectos</string>
+    <string name="login_error_red">No se pudo conectar con el servidor. Revisa la red local e inténtalo de nuevo.</string>
+    <string name="login_error_rol">Este usuario no tiene acceso a la app de meseros</string>
+    <string name="login_error_generico">Ocurrió un error. Inténtalo de nuevo.</string>
+    <string name="login_version">Versión %1$s</string>
+    <string name="login_modo_demo">Modo demostración: datos de prueba, sin conexión al servidor.</string>
+    <string name="login_cargando">Ingresando…</string>
+
+    <!-- Mesas -->
+    <string name="mesas_titulo">Mesas</string>
+    <string name="mesas_saludo">Hola, %1$s</string>
+    <string name="accion_actualizar">Actualizar</string>
+    <string name="accion_cerrar_sesion">Cerrar sesión</string>
+    <string name="zona_todas">Todas</string>
+    <string name="chip_estado_con_contador">%1$s %2$d</string>
+    <string name="estado_libre">Libre</string>
+    <string name="estado_ocupada">Ocupada</string>
+    <string name="estado_atendida">Atendiendo</string>
+    <string name="estado_cuenta">Cuenta solicitada</string>
+    <string name="estado_desconocido">Estado desconocido</string>
+    <string name="estado_libre_plural">Libres</string>
+    <string name="estado_ocupada_plural">Ocupadas</string>
+    <string name="estado_atendida_plural">Atendidas</string>
+    <string name="estado_cuenta_plural">Cuenta solicitada</string>
+    <string name="leyenda_titulo">Estados de mesa</string>
+    <string name="mesa_titulo">Mesa %1$d</string>
+    <plurals name="mesa_capacidad">
+        <item quantity="one">%1$d persona</item>
+        <item quantity="other">%1$d personas</item>
+    </plurals>
+    <string name="mesa_descripcion">Mesa %1$d, %2$s, %3$s</string>
+    <string name="mesas_vacio">No hay mesas para estos filtros</string>
+    <string name="mesas_vacio_ayuda">Cambia la zona o el estado seleccionado.</string>
+    <string name="mesas_error">No se pudieron cargar las mesas</string>
+    <string name="accion_reintentar">Reintentar</string>
+    <string name="mesas_actualizadas">Mesas actualizadas</string>
+    <string name="mesa_no_libre">La mesa %1$d no está libre (estado: %2$s).</string>
+    <string name="mesa_tomada">La mesa %1$d acaba de ser tomada por otro mozo.</string>
+    <string name="sesion_expirada">Tu sesión expiró. Vuelve a ingresar.</string>
+    <string name="error_red">No se pudo conectar con el servidor. Revisa la red local.</string>
+    <string name="error_abrir_mesa">No se pudo abrir la mesa. Inténtalo de nuevo.</string>
+    <string name="error_liberar_mesa">No se pudo liberar la mesa %1$d.</string>
+    <string name="error_generico">Ocurrió un error. Inténtalo de nuevo.</string>
+
+    <!-- Comanda (base, el catálogo llega en la siguiente entrega) -->
+    <string name="comanda_barra_titulo">Comanda</string>
+    <string name="comanda_titulo">Mesa %1$d · %2$s</string>
+    <string name="comanda_badge">En atención</string>
+    <string name="comanda_catalogo_titulo">Catálogo</string>
+    <string name="comanda_catalogo_placeholder">Aquí se mostrará la carta con sus categorías.</string>
+    <string name="comanda_pedido_titulo">Pedido actual</string>
+    <string name="comanda_pedido_vacio">Aún no hay platos en el pedido.</string>
+    <string name="comanda_subtotal">Subtotal</string>
+    <string name="comanda_monto_cero">S/ 0.00</string>
+    <string name="comanda_confirmar">Confirmar y enviar</string>
+    <string name="comanda_confirmar_deshabilitado">Agrega al menos un plato para enviar la comanda.</string>
+
+    <!-- Accesibilidad -->
+    <string name="cd_actualizar">Actualizar la lista de mesas</string>
+    <string name="cd_cerrar_sesion">Cerrar sesión</string>
+    <string name="cd_capacidad">Capacidad de la mesa</string>
+    <string name="cd_volver">Volver</string>
 </resources>
