@@ -11,7 +11,7 @@ enum class ErrorMesas {
     DESCONOCIDO
 }
 
-/** Avisos puntuales que la Activity muestra como Toast. */
+/** Avisos puntuales que la Activity muestra como dialogo Material o snackbar. */
 enum class AvisoMesas {
     ACTUALIZADAS,
     MESA_NO_LIBRE,

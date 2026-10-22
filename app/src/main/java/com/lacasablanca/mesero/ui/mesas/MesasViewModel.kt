@@ -42,8 +42,20 @@ class MesasViewModel(
         cargar(mostrarAviso = true)
     }
 
-    fun cargar(mostrarAviso: Boolean = false) {
-        _estado.update { it.copy(cargando = true, error = null) }
+    /**
+     * Refresco silencioso al volver a la pantalla (por ejemplo, desde la comanda).
+     * No muestra el indicador de carga para no ocultar la cuadricula ya pintada.
+     */
+    fun recargarAlVolver() {
+        cargar(mostrarAviso = false, mostrarCargando = false)
+    }
+
+    fun cargar(mostrarAviso: Boolean = false, mostrarCargando: Boolean = true) {
+        if (mostrarCargando) {
+            _estado.update { it.copy(cargando = true, error = null) }
+        } else {
+            _estado.update { it.copy(error = null) }
+        }
         viewModelScope.launch(ioDispatcher) {
             when (val resultado = mesaRepository.listarMesas()) {
                 is Resultado.Exito -> {

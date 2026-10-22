@@ -83,6 +83,19 @@
     <string name="error_liberar_mesa">No se pudo liberar la mesa %1$d.</string>
     <string name="error_generico">Ocurrió un error. Inténtalo de nuevo.</string>
 
+    <!-- Avisos del mapa de mesas (dialogos Material y snackbar) -->
+    <string name="accion_aceptar">Aceptar</string>
+    <string name="dialogo_mesa_titulo">Mesa %1$d</string>
+    <string name="mesa_dialogo_ocupada">La mesa %1$d está ocupada por otros comensales. Espera a que se libere para abrir una comanda.</string>
+    <string name="mesa_dialogo_atendida">La mesa %1$d ya está siendo atendida. Por ahora no se puede abrir otra comanda.</string>
+    <string name="mesa_dialogo_cuenta">La mesa %1$d pidió la cuenta. Acércate a cobrar antes de abrir otra comanda.</string>
+    <string name="mesa_dialogo_no_libre">La mesa %1$d no está libre para una nueva comanda.</string>
+    <string name="mesa_tomada_titulo">Mesa ocupada</string>
+    <string name="error_abrir_mesa_titulo">No se pudo abrir la mesa</string>
+    <string name="error_liberar_mesa_titulo">No se pudo actualizar la mesa</string>
+    <string name="error_red_titulo">Sin conexión</string>
+    <string name="sesion_expirada_titulo">Sesión finalizada</string>
+
     <!-- Comanda (base, el catálogo llega en la siguiente entrega) -->
     <string name="comanda_barra_titulo">Detalle de Mesa y Pedido</string>
     <string name="comanda_titulo">Mesa %1$d · %2$s</string>

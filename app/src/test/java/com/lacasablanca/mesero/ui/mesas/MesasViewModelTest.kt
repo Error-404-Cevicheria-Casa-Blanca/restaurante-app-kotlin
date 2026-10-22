@@ -209,6 +209,30 @@ class MesasViewModelTest {
     }
 
     @Test
+    fun `recargar al volver refresca el estado sin mostrar el progreso`() = runTest(testDispatcher) {
+        val libre = mesas.first { it.estaLibre }
+        val atendida = libre.copy(estado = EstadoMesa.ATENDIDA)
+        coEvery { mesaRepository.listarMesas() } returnsMany listOf(
+            Resultado.Exito(mesas),
+            Resultado.Exito(mesas.map { if (it.id == libre.id) atendida else it })
+        )
+
+        val viewModel = crearViewModel()
+        advanceUntilIdle()
+        assertFalse(viewModel.estado.value.cargando)
+
+        viewModel.recargarAlVolver()
+        assertFalse(viewModel.estado.value.cargando)
+        advanceUntilIdle()
+
+        assertEquals(
+            EstadoMesa.ATENDIDA,
+            viewModel.estado.value.mesas.first { it.id == libre.id }.estado
+        )
+        coVerify(exactly = 2) { mesaRepository.listarMesas() }
+    }
+
+    @Test
     fun `liberar una mesa atendida la devuelve a libre`() = runTest(testDispatcher) {
         val atendida = mesas.first { it.estado == EstadoMesa.ATENDIDA }
         coEvery { mesaRepository.listarMesas() } returns Resultado.Exito(mesas)

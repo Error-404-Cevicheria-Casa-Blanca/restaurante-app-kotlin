@@ -3,10 +3,9 @@ package com.lacasablanca.mesero.ui.mesas
 import android.content.Intent
 import android.content.res.ColorStateList
 import android.os.Bundle
-import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.annotation.StringRes
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
@@ -15,6 +14,8 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.GridLayoutManager
 import com.google.android.material.chip.Chip
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.tabs.TabLayout
 import com.lacasablanca.mesero.MeseroApp
 import com.lacasablanca.mesero.R
@@ -51,15 +52,8 @@ class MesasActivity : AppCompatActivity() {
     private var actualizandoTabs = false
     private var firmaTabs = ""
     private var firmaChips = ""
-
-    private val lanzadorComanda = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) { resultado ->
-        if (resultado.resultCode == RESULT_OK) {
-            val idMesa = resultado.data?.getLongExtra(ComandaActivity.EXTRA_MESA_ID, -1L) ?: -1L
-            if (idMesa > 0) viewModel.liberarMesa(idMesa)
-        }
-    }
+    private var primeraReanudacion = true
+    private var dialogoAbierto: AlertDialog? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -84,6 +78,23 @@ class MesasActivity : AppCompatActivity() {
                 launch { viewModel.eventos.collect(::manejarEvento) }
             }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (primeraReanudacion) {
+            primeraReanudacion = false
+        } else {
+            // Al volver de la comanda (o de segundo plano) el mapa se sincroniza
+            // con el repositorio: la mesa abierta debe verse en azul (ATENDIDA).
+            viewModel.recargarAlVolver()
+        }
+    }
+
+    override fun onDestroy() {
+        dialogoAbierto?.dismiss()
+        dialogoAbierto = null
+        super.onDestroy()
     }
 
     private fun configurarPestanas() {
@@ -235,33 +246,97 @@ class MesasActivity : AppCompatActivity() {
         when (evento) {
             is MesasEvento.IrAComanda -> abrirComanda(evento.mesa)
             is MesasEvento.Aviso -> mostrarAviso(evento)
-            MesasEvento.SesionExpirada -> {
-                Toast.makeText(this, R.string.sesion_expirada, Toast.LENGTH_LONG).show()
-                irALogin()
-            }
-
+            MesasEvento.SesionExpirada -> mostrarDialogoSesionExpirada()
             MesasEvento.SesionCerrada -> irALogin()
         }
     }
 
+    /**
+     * Avisos del mapa: los estados de mesa y los errores se explican con un
+     * MaterialAlertDialog; la confirmacion de refresco usa un Snackbar de marca.
+     */
     private fun mostrarAviso(evento: MesasEvento.Aviso) {
         val mesa = evento.mesa
-        val texto = when (evento.tipo) {
-            AvisoMesas.ACTUALIZADAS -> getString(R.string.mesas_actualizadas)
-            AvisoMesas.MESA_NO_LIBRE -> mesa?.let {
-                getString(R.string.mesa_no_libre, it.numero, getString(it.estado.etiquetaRes()))
-            } ?: getString(R.string.error_generico)
+        when (evento.tipo) {
+            AvisoMesas.ACTUALIZADAS -> mostrarSnackbar(getString(R.string.mesas_actualizadas))
 
-            AvisoMesas.MESA_TOMADA -> mesa?.let { getString(R.string.mesa_tomada, it.numero) }
-                ?: getString(R.string.error_generico)
+            AvisoMesas.MESA_NO_LIBRE -> if (mesa == null) {
+                mostrarDialogo(
+                    titulo = getString(R.string.mesas_titulo),
+                    mensaje = getString(R.string.error_generico)
+                )
+            } else {
+                // Las mesas amarillas y azules tambien responden al toque (D12).
+                mostrarDialogo(
+                    titulo = getString(R.string.dialogo_mesa_titulo, mesa.numero),
+                    mensaje = getString(mesa.mensajeEstadoRes(), mesa.numero)
+                )
+            }
 
-            AvisoMesas.ERROR_ABRIR -> getString(R.string.error_abrir_mesa)
-            AvisoMesas.ERROR_LIBERAR -> mesa?.let { getString(R.string.error_liberar_mesa, it.numero) }
-                ?: getString(R.string.error_generico)
+            AvisoMesas.MESA_TOMADA -> mostrarDialogo(
+                titulo = getString(R.string.mesa_tomada_titulo),
+                mensaje = mesa?.let { getString(R.string.mesa_tomada, it.numero) }
+                    ?: getString(R.string.error_generico)
+            )
 
-            AvisoMesas.ERROR_RED -> getString(R.string.error_red)
+            AvisoMesas.ERROR_ABRIR -> mostrarDialogo(
+                titulo = getString(R.string.error_abrir_mesa_titulo),
+                mensaje = getString(R.string.error_abrir_mesa)
+            )
+
+            AvisoMesas.ERROR_LIBERAR -> mostrarDialogo(
+                titulo = getString(R.string.error_liberar_mesa_titulo),
+                mensaje = mesa?.let { getString(R.string.error_liberar_mesa, it.numero) }
+                    ?: getString(R.string.error_generico)
+            )
+
+            AvisoMesas.ERROR_RED -> mostrarDialogo(
+                titulo = getString(R.string.error_red_titulo),
+                mensaje = getString(R.string.error_red)
+            )
         }
-        Toast.makeText(this, texto, Toast.LENGTH_SHORT).show()
+    }
+
+    @StringRes
+    private fun Mesa.mensajeEstadoRes(): Int = when (estado) {
+        EstadoMesa.OCUPADA -> R.string.mesa_dialogo_ocupada
+        EstadoMesa.ATENDIDA -> R.string.mesa_dialogo_atendida
+        EstadoMesa.CUENTA_SOLICITADA -> R.string.mesa_dialogo_cuenta
+        else -> R.string.mesa_dialogo_no_libre
+    }
+
+    private fun mostrarDialogo(
+        titulo: CharSequence,
+        mensaje: CharSequence,
+        cancelable: Boolean = true,
+        alAceptar: (() -> Unit)? = null
+    ) {
+        dialogoAbierto?.dismiss()
+        val dialogo = MaterialAlertDialogBuilder(this)
+            .setTitle(titulo)
+            .setMessage(mensaje)
+            .setCancelable(cancelable)
+            .setPositiveButton(R.string.accion_aceptar) { _, _ -> alAceptar?.invoke() }
+            .create()
+        dialogo.setOnDismissListener { if (dialogoAbierto === dialogo) dialogoAbierto = null }
+        dialogo.show()
+        dialogoAbierto = dialogo
+    }
+
+    private fun mostrarDialogoSesionExpirada() {
+        mostrarDialogo(
+            titulo = getString(R.string.sesion_expirada_titulo),
+            mensaje = getString(R.string.sesion_expirada),
+            cancelable = false,
+            alAceptar = ::irALogin
+        )
+    }
+
+    private fun mostrarSnackbar(texto: String) {
+        val snackbar = Snackbar.make(binding.root, texto, Snackbar.LENGTH_SHORT)
+        snackbar.setTextColor(ContextCompat.getColor(this, R.color.on_primary))
+        snackbar.show()
+        snackbar.view.background = ContextCompat.getDrawable(this, R.drawable.bg_snackbar)
     }
 
     private fun abrirComanda(mesa: Mesa) {
@@ -270,7 +345,7 @@ class MesasActivity : AppCompatActivity() {
             putExtra(ComandaActivity.EXTRA_MESA_NUMERO, mesa.numero)
             putExtra(ComandaActivity.EXTRA_MESA_UBICACION, mesa.ubicacion)
         }
-        lanzadorComanda.launch(intent)
+        startActivity(intent)
     }
 
     private fun irALogin() {

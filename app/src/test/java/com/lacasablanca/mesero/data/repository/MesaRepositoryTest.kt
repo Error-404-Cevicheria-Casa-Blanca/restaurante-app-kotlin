@@ -113,6 +113,18 @@ class MesaRepositoryTest {
         assertEquals(ErrorApp.CONFLICTO, (resultado as Resultado.Fallo).error)
     }
 
+    @Test
+    fun `el repositorio fake conserva el cambio de estado`() = runTest {
+        val repositorio = FakeMesaRepository(latenciaMs = 0)
+        val libre = (repositorio.listarMesas() as Resultado.Exito).datos.first { it.estaLibre }
+
+        val cambio = repositorio.cambiarEstado(libre.id, EstadoMesa.ATENDIDA)
+        assertTrue(cambio is Resultado.Exito)
+
+        val despues = (repositorio.listarMesas() as Resultado.Exito).datos.first { it.id == libre.id }
+        assertEquals(EstadoMesa.ATENDIDA, despues.estado)
+    }
+
     private fun errorHttp(codigo: Int): HttpException {
         val cuerpo = "{\"mensaje\":\"error\"}".toResponseBody("application/json".toMediaType())
         return HttpException(Response.error<Any>(codigo, cuerpo))
