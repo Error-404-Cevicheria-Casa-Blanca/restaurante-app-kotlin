@@ -41,11 +41,12 @@
             android:id="@+id/textoSaludo"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
             android:textColor="@color/on_surface_variant"
-            android:textSize="@dimen/texto_etiqueta"
-            android:visibility="gone"
-            tools:text="Hola, Mozo Demo"
-            tools:visibility="visible" />
+            android:textSize="@dimen/texto_secundario"
+            android:visibility="visible"
+            tools:text="Hola, Mozo Demo" />
+
     </LinearLayout>
 
     <com.google.android.material.button.MaterialButton
@@ -53,12 +54,13 @@
         style="@style/Boton.BarraAccion"
         android:layout_width="@dimen/toque_minimo"
         android:layout_height="@dimen/toque_minimo"
+        android:layout_marginStart="@dimen/espacio_s"
         android:contentDescription="@string/cd_actualizar"
         android:minWidth="@dimen/toque_minimo"
         android:padding="0dp"
         app:icon="@drawable/ic_refresh"
         app:iconPadding="0dp"
-        app:tooltipText="@string/accion_sincronizar" />
+        app:tooltipText="@string/accion_actualizar" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnCerrarSesion"

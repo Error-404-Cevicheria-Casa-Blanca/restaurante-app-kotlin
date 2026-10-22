@@ -17,6 +17,7 @@
         <item name="colorError">@color/error</item>
         <item name="colorErrorContainer">@color/error_container</item>
         <item name="colorOnErrorContainer">@color/on_error_container</item>
+        <item name="materialAlertDialogTheme">@style/ThemeOverlay.LaCasaBlanca.Dialogo</item>
         <item name="android:statusBarColor">@color/primary</item>
         <item name="android:navigationBarColor">@color/background</item>
         <item name="android:windowLightStatusBar">false</item>
@@ -82,12 +83,28 @@
         <item name="android:textStyle">bold</item>
     </style>
 
+    <!-- Dialogos Material 3: esquinas redondeadas y boton de aceptar en color de marca -->
+    <style name="ThemeOverlay.LaCasaBlanca.Dialogo" parent="ThemeOverlay.Material3.MaterialAlertDialog">
+        <item name="alertDialogStyle">@style/MaterialAlertDialog.LaCasaBlanca</item>
+    </style>
+
+    <style name="MaterialAlertDialog.LaCasaBlanca" parent="MaterialAlertDialog.Material3">
+        <item name="shapeAppearance">@style/ShapeAppearance.LaCasaBlanca.Dialogo</item>
+        <item name="shapeAppearanceOverlay">@null</item>
+    </style>
+
+    <style name="ShapeAppearance.LaCasaBlanca.Dialogo" parent="ShapeAppearance.Material3.MediumComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">24dp</item>
+    </style>
+
     <!-- Botones -->
     <style name="Boton.Primario" parent="Widget.Material3.Button">
         <item name="android:layout_height">@dimen/alto_boton_primario</item>
         <item name="cornerRadius">@dimen/radio_boton</item>
-        <item name="backgroundTint">@color/primary</item>
-        <item name="android:textColor">@color/on_primary</item>
+        <item name="backgroundTint">@color/selector_fondo_boton_primario</item>
+        <item name="android:textColor">@color/selector_texto_boton_primario</item>
+        <item name="iconTint">@color/selector_texto_boton_primario</item>
         <item name="android:textAllCaps">false</item>
         <item name="android:textStyle">bold</item>
         <item name="android:textSize">@dimen/texto_cuerpo</item>
@@ -106,10 +123,14 @@
     <style name="Boton.BarraAccion" parent="Widget.Material3.Button.TextButton">
         <item name="android:layout_height">@dimen/toque_minimo</item>
         <item name="android:minWidth">@dimen/toque_minimo</item>
-        <item name="android:textColor">@color/primary</item>
-        <item name="iconTint">@color/primary</item>
-        <item name="backgroundTint">@color/surface_container_high</item>
-        <item name="cornerRadius">@dimen/espacio_m</item>
+        <item name="android:minHeight">@dimen/toque_minimo</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+        <item name="android:textColor">@color/stitch_primary</item>
+        <item name="android:textSize">@dimen/texto_secundario</item>
+        <item name="iconTint">@color/stitch_primary</item>
+        <item name="backgroundTint">@color/barra_accion_fondo</item>
+        <item name="cornerRadius">@dimen/radio_boton</item>
         <item name="android:textAllCaps">false</item>
         <item name="android:textStyle">bold</item>
     </style>
@@ -117,10 +138,14 @@
     <style name="Boton.BarraSalir" parent="Widget.Material3.Button.TextButton">
         <item name="android:layout_height">@dimen/toque_minimo</item>
         <item name="android:minWidth">@dimen/toque_minimo</item>
+        <item name="android:minHeight">@dimen/toque_minimo</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
         <item name="android:textColor">@color/on_error_container</item>
+        <item name="android:textSize">@dimen/texto_secundario</item>
         <item name="iconTint">@color/on_error_container</item>
-        <item name="backgroundTint">@color/error_container</item>
-        <item name="cornerRadius">@dimen/espacio_m</item>
+        <item name="backgroundTint">@color/barra_salir_fondo</item>
+        <item name="cornerRadius">@dimen/radio_boton</item>
         <item name="android:textAllCaps">false</item>
         <item name="android:textStyle">bold</item>
     </style>
@@ -132,9 +157,9 @@
         <item name="android:insetTop">0dp</item>
         <item name="android:insetBottom">0dp</item>
         <item name="cornerRadius">@dimen/espacio_m</item>
-        <item name="backgroundTint">@color/secondary_container</item>
-        <item name="android:textColor">@color/on_secondary_fixed</item>
-        <item name="iconTint">@color/on_secondary_fixed</item>
+        <item name="backgroundTint">@color/selector_fondo_boton_agregar</item>
+        <item name="android:textColor">@color/selector_texto_boton_agregar</item>
+        <item name="iconTint">@color/selector_texto_boton_agregar</item>
         <item name="android:textAllCaps">false</item>
         <item name="android:textStyle">bold</item>
     </style>

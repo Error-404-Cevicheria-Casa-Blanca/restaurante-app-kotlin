@@ -41,11 +41,11 @@
             android:id="@+id/textoSaludo"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
             android:textColor="@color/on_surface_variant"
             android:textSize="@dimen/texto_secundario"
-            android:visibility="gone"
-            tools:text="Hola, Mozo Demo"
-            tools:visibility="visible" />
+            android:visibility="visible"
+            tools:text="Hola, Mozo Demo" />
     </LinearLayout>
 
     <com.google.android.material.button.MaterialButton
@@ -53,19 +53,22 @@
         style="@style/Boton.BarraAccion"
         android:layout_width="wrap_content"
         android:layout_height="@dimen/toque_minimo"
-        android:paddingHorizontal="@dimen/espacio_m"
-        android:text="@string/accion_sincronizar"
+        android:layout_marginStart="@dimen/espacio_l"
+        android:paddingHorizontal="@dimen/espacio_l"
+        android:text="@string/accion_actualizar"
         app:icon="@drawable/ic_refresh"
-        app:iconGravity="textStart" />
+        app:iconGravity="textStart"
+        app:iconPadding="@dimen/espacio_xs" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnCerrarSesion"
         style="@style/Boton.BarraSalir"
         android:layout_width="wrap_content"
         android:layout_height="@dimen/toque_minimo"
-        android:layout_marginStart="@dimen/espacio_m"
-        android:paddingHorizontal="@dimen/espacio_m"
+        android:layout_marginStart="@dimen/espacio_l"
+        android:paddingHorizontal="@dimen/espacio_l"
         android:text="@string/accion_cerrar_sesion"
         app:icon="@drawable/ic_logout"
-        app:iconGravity="textStart" />
+        app:iconGravity="textStart"
+        app:iconPadding="@dimen/espacio_xs" />
 </LinearLayout>

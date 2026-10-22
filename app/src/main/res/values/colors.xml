@@ -74,6 +74,10 @@
     <color name="chip_pin_tecla">#E0F1F7</color>
     <color name="chip_pin_accion">#D5E5EC</color>
 
+    <!-- Acciones de la cabecera del mapa: fondos claros con texto oscuro -->
+    <color name="barra_accion_fondo">#D6EEF8</color>
+    <color name="barra_salir_fondo">#FCE4EC</color>
+
     <!-- Login -->
     <color name="login_hero_inicio">#0B5563</color>
     <color name="login_hero_fin">#003D48</color>
