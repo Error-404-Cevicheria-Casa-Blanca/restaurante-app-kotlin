@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/primary"
+    android:gravity="center_vertical"
+    android:minHeight="@dimen/alto_barra_superior"
+    android:orientation="horizontal"
+    android:paddingHorizontal="@dimen/espacio_xl"
+    android:paddingVertical="@dimen/espacio_s">
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/textoTitulo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/mesas_titulo"
+            android:textColor="@color/texto_sobre_primario"
+            android:textSize="28sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/textoSaludo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/texto_sobre_primario_suave"
+            android:textSize="@dimen/texto_cuerpo"
+            android:visibility="gone"
+            tools:text="Hola, Mozo Demo"
+            tools:visibility="visible" />
+    </LinearLayout>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnActualizar"
+        style="@style/Boton.BarraSuperior"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/toque_minimo"
+        android:paddingHorizontal="@dimen/espacio_m"
+        android:text="@string/accion_actualizar"
+        app:icon="@drawable/ic_refresh"
+        app:iconGravity="textStart" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnCerrarSesion"
+        style="@style/Boton.BarraSuperior"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/toque_minimo"
+        android:layout_marginStart="@dimen/espacio_m"
+        android:paddingHorizontal="@dimen/espacio_m"
+        android:text="@string/accion_cerrar_sesion"
+        app:icon="@drawable/ic_logout"
+        app:iconGravity="textStart" />
+</LinearLayout>

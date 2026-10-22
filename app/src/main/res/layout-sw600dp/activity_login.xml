@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background"
+    android:baselineAligned="false"
+    android:orientation="horizontal"
+    tools:context=".ui.login.LoginActivity">
+
+    <!-- Panel de marca (tablet, >= 600dp) -->
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:background="@drawable/bg_gradiente_marca"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="@dimen/espacio_xxl">
+
+        <ImageView
+            android:id="@+id/logoLogin"
+            android:layout_width="@dimen/logo_tablet"
+            android:layout_height="@dimen/logo_tablet"
+            android:contentDescription="@string/marca_descripcion_logo"
+            android:src="@drawable/logo_la_casa_blanca" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/espacio_l"
+            android:gravity="center"
+            android:text="@string/marca_nombre"
+            android:textColor="@color/texto_sobre_primario"
+            android:textSize="32sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="@string/marca_lema"
+            android:textColor="@color/texto_sobre_primario_suave"
+            android:textSize="@dimen/texto_cuerpo" />
+    </LinearLayout>
+
+    <!-- Formulario -->
+    <FrameLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:background="@color/background">
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fillViewport="true">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="@dimen/espacio_xxl">
+
+                <com.google.android.material.card.MaterialCardView
+                    style="@style/Tarjeta.Superficie"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/espacio_l"
+                    app:cardCornerRadius="@dimen/radio_tarjeta_grande"
+                    app:cardElevation="@dimen/espacio_s">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="@dimen/espacio_xxl">
+
+                        <TextView
+                            style="@style/Texto.TituloPantalla"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/login_titulo" />
+
+                        <TextView
+                            style="@style/Texto.Secundario"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/espacio_xs"
+                            android:text="@string/login_subtitulo" />
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:id="@+id/inputUsuario"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/espacio_xl"
+                            android:hint="@string/login_usuario"
+                            app:boxBackgroundMode="outline"
+                            app:startIconContentDescription="@string/login_usuario"
+                            app:startIconDrawable="@drawable/ic_person">
+
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/entradaUsuario"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:imeOptions="actionNext"
+                                android:inputType="textPersonName"
+                                android:maxLines="1" />
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:id="@+id/inputClave"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/espacio_m"
+                            android:hint="@string/login_clave"
+                            app:boxBackgroundMode="outline"
+                            app:endIconContentDescription="@string/login_mostrar_clave"
+                            app:endIconDrawable="@drawable/ic_visibility"
+                            app:endIconMode="custom"
+                            app:startIconContentDescription="@string/login_clave"
+                            app:startIconDrawable="@drawable/ic_lock">
+
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/entradaClave"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:imeOptions="actionDone"
+                                android:inputType="textPassword"
+                                android:maxLines="1" />
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                        <TextView
+                            android:id="@+id/textoError"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/espacio_m"
+                            android:accessibilityLiveRegion="polite"
+                            android:textColor="@color/error"
+                            android:textSize="@dimen/texto_secundario"
+                            android:visibility="gone"
+                            tools:text="@string/login_error_credenciales"
+                            tools:visibility="visible" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnIngresar"
+                            style="@style/Boton.Primario"
+                            android:layout_width="match_parent"
+                            android:layout_marginTop="@dimen/espacio_l"
+                            android:text="@string/login_ingresar" />
+
+                        <ProgressBar
+                            android:id="@+id/progresoLogin"
+                            android:layout_width="@dimen/icono_grande"
+                            android:layout_height="@dimen/icono_grande"
+                            android:layout_gravity="center_horizontal"
+                            android:layout_marginTop="@dimen/espacio_s"
+                            android:indeterminate="true"
+                            android:visibility="gone"
+                            tools:visibility="visible" />
+
+                        <TextView
+                            android:id="@+id/avisoDemo"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/espacio_l"
+                            android:gravity="center"
+                            android:text="@string/login_modo_demo"
+                            android:textColor="@color/texto_secundario"
+                            android:textSize="@dimen/texto_etiqueta"
+                            android:visibility="gone"
+                            tools:visibility="visible" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <TextView
+                    android:id="@+id/versionApp"
+                    style="@style/Texto.Etiqueta"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/espacio_l"
+                    tools:text="Versión 1.0" />
+            </LinearLayout>
+        </ScrollView>
+    </FrameLayout>
+</LinearLayout>

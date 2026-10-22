@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/cardMesa"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="@dimen/margen_rejilla"
+    android:clickable="true"
+    android:focusable="true"
+    android:foreground="?attr/selectableItemBackground"
+    app:cardBackgroundColor="@color/surface"
+    app:cardCornerRadius="@dimen/radio_tarjeta"
+    app:cardElevation="@dimen/elevacion_tarjeta"
+    app:strokeColor="@color/borde_suave"
+    app:strokeWidth="@dimen/borde_tarjeta">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="128dp">
+
+        <View
+            android:id="@+id/barraEstado"
+            android:layout_width="@dimen/borde_estado"
+            android:layout_height="0dp"
+            android:background="@color/estado_libre"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="@dimen/espacio_m"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/barraEstado"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <TextView
+                android:id="@+id/textoMesa"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/texto_principal"
+                android:textSize="@dimen/texto_titulo_tarjeta"
+                android:textStyle="bold"
+                tools:text="Mesa 7" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/espacio_xs"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:layout_width="@dimen/icono_pequeno"
+                    android:layout_height="@dimen/icono_pequeno"
+                    android:contentDescription="@string/cd_capacidad"
+                    android:src="@drawable/ic_people" />
+
+                <TextView
+                    android:id="@+id/textoCapacidad"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/espacio_xs"
+                    android:textColor="@color/texto_secundario"
+                    android:textSize="@dimen/texto_secundario"
+                    tools:text="4 personas" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/etiquetaEstado"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/espacio_s"
+                android:background="@drawable/bg_etiqueta_estado"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingHorizontal="@dimen/espacio_s"
+                android:paddingVertical="@dimen/espacio_xs">
+
+                <ImageView
+                    android:id="@+id/iconoEstado"
+                    android:layout_width="@dimen/icono_pequeno"
+                    android:layout_height="@dimen/icono_pequeno"
+                    android:contentDescription="@string/estado_libre"
+                    android:src="@drawable/ic_check" />
+
+                <TextView
+                    android:id="@+id/textoEstado"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/espacio_xs"
+                    android:textSize="@dimen/texto_etiqueta"
+                    android:textStyle="bold"
+                    tools:text="Libre" />
+            </LinearLayout>
+        </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</com.google.android.material.card.MaterialCardView>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:gravity="center_vertical"
+    android:orientation="horizontal">
+
+    <View
+        android:id="@+id/puntoEstado"
+        android:layout_width="@dimen/espacio_m"
+        android:layout_height="@dimen/espacio_m"
+        android:background="@drawable/bg_punto_estado" />
+
+    <TextView
+        android:id="@+id/textoLeyenda"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/espacio_xs"
+        android:textColor="@color/texto_secundario"
+        android:textSize="@dimen/texto_etiqueta" />
+</LinearLayout>

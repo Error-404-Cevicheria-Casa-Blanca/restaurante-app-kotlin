@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background"
+    android:orientation="vertical"
+    tools:context=".ui.mesas.MesasActivity">
+
+    <!-- Barra superior (variante con texto en tablet: layout-sw600dp/barra_mesas.xml) -->
+    <include
+        android:id="@+id/barra"
+        layout="@layout/barra_mesas"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+
+    <!-- Zonas (pestanas dinamicas desde 'ubicacion') -->
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/tabsZonas"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/surface"
+        app:tabGravity="fill"
+        app:tabIndicatorColor="@color/primary"
+        app:tabIndicatorFullWidth="false"
+        app:tabMode="scrollable"
+        app:tabSelectedTextColor="@color/primary"
+        app:tabTextColor="@color/texto_secundario" />
+
+    <!-- Filtros por estado con contadores -->
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/surface"
+        android:paddingHorizontal="@dimen/espacio_l"
+        android:paddingVertical="@dimen/espacio_s"
+        android:scrollbars="none">
+
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/chipsEstados"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:chipSpacingHorizontal="@dimen/espacio_s"
+            app:selectionRequired="true"
+            app:singleLine="true"
+            app:singleSelection="true" />
+    </HorizontalScrollView>
+
+    <!-- Leyenda de 4 colores -->
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/surface"
+        android:paddingHorizontal="@dimen/espacio_l"
+        android:paddingBottom="@dimen/espacio_m"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:id="@+id/leyendaEstados"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/leyenda_titulo"
+            android:orientation="horizontal" />
+    </HorizontalScrollView>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/borde_tarjeta"
+        android:background="@color/borde_suave" />
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerMesas"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:padding="@dimen/espacio_s"
+            tools:itemCount="4"
+            tools:listitem="@layout/item_mesa" />
+
+        <ProgressBar
+            android:id="@+id/progresoCarga"
+            android:layout_width="@dimen/toque_minimo"
+            android:layout_height="@dimen/toque_minimo"
+            android:layout_gravity="center"
+            android:indeterminate="true" />
+
+        <LinearLayout
+            android:id="@+id/grupoVacio"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="@dimen/espacio_xl"
+            android:visibility="gone"
+            tools:visibility="visible">
+
+            <ImageView
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:contentDescription="@string/mesas_vacio"
+                android:src="@drawable/ic_inbox" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/espacio_m"
+                android:gravity="center"
+                android:text="@string/mesas_vacio"
+                android:textColor="@color/texto_principal"
+                android:textSize="@dimen/texto_cuerpo"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/espacio_xs"
+                android:gravity="center"
+                android:text="@string/mesas_vacio_ayuda"
+                android:textColor="@color/texto_secundario"
+                android:textSize="@dimen/texto_secundario" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/grupoError"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="@dimen/espacio_xl"
+            android:visibility="gone"
+            tools:visibility="visible">
+
+            <ImageView
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:contentDescription="@string/mesas_error"
+                android:src="@drawable/ic_error_outline" />
+
+            <TextView
+                android:id="@+id/textoErrorMesas"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/espacio_m"
+                android:gravity="center"
+                android:text="@string/mesas_error"
+                android:textColor="@color/texto_principal"
+                android:textSize="@dimen/texto_cuerpo" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnReintentar"
+                style="@style/Boton.Primario"
+                android:layout_width="wrap_content"
+                android:layout_marginTop="@dimen/espacio_l"
+                android:paddingHorizontal="@dimen/espacio_xl"
+                android:text="@string/accion_reintentar" />
+        </LinearLayout>
+    </FrameLayout>
+</LinearLayout>

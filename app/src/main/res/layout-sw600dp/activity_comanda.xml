@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background"
+    android:orientation="vertical"
+    tools:context=".ui.comanda.ComandaActivity">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/barraComanda"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/primary"
+        app:navigationContentDescription="@string/cd_volver"
+        app:navigationIcon="@drawable/ic_arrow_back"
+        app:title="@string/comanda_barra_titulo"
+        app:titleTextColor="@color/texto_sobre_primario" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="@dimen/espacio_xl"
+        android:paddingTop="@dimen/espacio_l">
+
+        <TextView
+            android:id="@+id/textoTitulo"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/espacio_m"
+            android:layout_weight="1"
+            android:textColor="@color/texto_principal"
+            android:textSize="@dimen/texto_titulo_pantalla"
+            android:textStyle="bold"
+            tools:text="Mesa 7 · Primer piso" />
+
+        <TextView
+            android:id="@+id/badgeEstado"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_badge_atencion"
+            android:paddingHorizontal="@dimen/espacio_m"
+            android:paddingVertical="@dimen/espacio_xs"
+            android:text="@string/comanda_badge"
+            android:textColor="@color/texto_sobre_primario"
+            android:textSize="@dimen/texto_secundario"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="horizontal"
+        android:padding="@dimen/espacio_xl">
+
+        <!-- Panel izquierdo: catalogo (placeholder de esta entrega) -->
+        <com.google.android.material.card.MaterialCardView
+            style="@style/Tarjeta.Superficie"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="3">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="@dimen/espacio_xl">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/comanda_catalogo_titulo"
+                    style="@style/Texto.TituloPantalla" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/espacio_s"
+                    android:gravity="center"
+                    android:text="@string/comanda_catalogo_placeholder"
+                    style="@style/Texto.Secundario" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Panel derecho: pedido actual -->
+        <com.google.android.material.card.MaterialCardView
+            style="@style/Tarjeta.Superficie"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginStart="@dimen/espacio_l"
+            android:layout_weight="2">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:padding="@dimen/espacio_xl">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/comanda_pedido_titulo"
+                    style="@style/Texto.TituloPantalla" />
+
+                <TextView
+                    android:id="@+id/textoPedidoVacio"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_marginTop="@dimen/espacio_s"
+                    android:layout_weight="1"
+                    android:text="@string/comanda_pedido_vacio"
+                    style="@style/Texto.Secundario" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/borde_tarjeta"
+                    android:layout_marginVertical="@dimen/espacio_m"
+                    android:background="@color/borde_suave" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/comanda_subtotal"
+                        style="@style/Texto.Cuerpo" />
+
+                    <TextView
+                        android:id="@+id/textoSubtotal"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/comanda_monto_cero"
+                        android:textColor="@color/texto_principal"
+                        android:textSize="@dimen/texto_titulo_pantalla"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnConfirmar"
+                    style="@style/Boton.Primario"
+                    android:layout_width="match_parent"
+                    android:layout_marginTop="@dimen/espacio_m"
+                    android:enabled="false"
+                    android:text="@string/comanda_confirmar" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+    </LinearLayout>
+</LinearLayout>
