@@ -88,12 +88,8 @@ class MesasViewModel(
         _estado.update { it.copy(estadoSeleccionado = estado) }
     }
 
-    /** Tocar una mesa LIBRE o ATENDIDA: abrir comanda. Tocar otra: aviso (D12). */
+    /** Tocar una mesa LIBRE: PATCH ATENDIDA y abrir comanda. Tocar otra: aviso (D12). */
     fun seleccionarMesa(mesa: Mesa) {
-        if (mesa.estado == EstadoMesa.ATENDIDA) {
-            _eventos.trySend(MesasEvento.IrAComanda(mesa))
-            return
-        }
         if (mesa.estado != EstadoMesa.LIBRE) {
             _eventos.trySend(MesasEvento.Aviso(AvisoMesas.MESA_NO_LIBRE, mesa))
             return
