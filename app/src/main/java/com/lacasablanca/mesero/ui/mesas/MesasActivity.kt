@@ -316,8 +316,12 @@ class MesasActivity : AppCompatActivity() {
             .setTitle(titulo)
             .setMessage(mensaje)
             .setCancelable(cancelable)
-            .setPositiveButton(R.string.accion_aceptar) { _, _ -> alAceptar?.invoke() }
+            .setPositiveButton(R.string.accion_aceptar) { dialog, _ ->
+                dialog.dismiss()
+                alAceptar?.invoke()
+            }
             .create()
+        dialogo.setCanceledOnTouchOutside(cancelable)
         dialogo.setOnDismissListener { if (dialogoAbierto === dialogo) dialogoAbierto = null }
         dialogo.show()
         dialogoAbierto = dialogo
