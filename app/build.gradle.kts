@@ -10,7 +10,7 @@ android {
 
     defaultConfig {
         applicationId = "com.lacasablanca.mesero"
-        minSdk = 26
+        minSdk = 35
         targetSdk = 37
         versionCode = 1
         versionName = "1.0"
@@ -20,8 +20,8 @@ android {
 
     buildTypes {
         debug {
-            buildConfigField("String", "BASE_URL", "\"http://192.168.1.7:8080/\"")
-            buildConfigField("boolean", "USE_FAKE_DATA", "false")
+            buildConfigField("String", "BASE_URL", "\"http://10.0.2.2:8080/\"")
+            buildConfigField("boolean", "USE_FAKE_DATA", "true")
         }
         release {
             optimization {
