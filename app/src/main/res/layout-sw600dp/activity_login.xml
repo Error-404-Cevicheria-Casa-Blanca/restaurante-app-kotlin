@@ -42,13 +42,17 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/espacio_xl"
+            android:breakStrategy="simple"
             android:gravity="center"
+            android:hyphenationFrequency="none"
             android:text="@string/marca_nombre"
             style="@style/Texto.MarcaTablet" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:breakStrategy="simple"
+            android:hyphenationFrequency="none"
             android:letterSpacing="0.14"
             android:text="@string/marca_cevicheria"
             android:textAllCaps="true"
@@ -66,7 +70,9 @@
             android:layout_width="280dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/espacio_m"
+            android:breakStrategy="simple"
             android:gravity="center"
+            android:hyphenationFrequency="none"
             android:text="@string/marca_lema"
             android:textColor="@color/texto_sobre_primario_suave"
             android:textSize="@dimen/texto_cuerpo"
@@ -76,16 +82,18 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/espacio_xxl"
+            android:breakStrategy="simple"
             android:drawableStart="@drawable/ic_restaurant"
             android:drawablePadding="@dimen/espacio_s"
             android:drawableTint="@color/texto_sobre_primario_suave"
+            android:hyphenationFrequency="none"
             android:text="@string/marca_sede"
             android:textColor="@color/texto_sobre_primario_suave"
             android:textSize="@dimen/texto_etiqueta" />
     </LinearLayout>
 
     <!-- FORMULARIO -->
-    <ScrollView
+    <androidx.core.widget.NestedScrollView
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="7"
@@ -123,6 +131,8 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
+                            android:breakStrategy="simple"
+                            android:hyphenationFrequency="none"
                             android:text="@string/login_titulo"
                             android:textColor="@color/on_surface"
                             android:textSize="28sp"
@@ -144,6 +154,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="@dimen/espacio_xs"
+                        android:breakStrategy="simple"
+                        android:hyphenationFrequency="none"
                         android:text="@string/login_subtitulo"
                         android:textColor="@color/on_surface_variant"
                         android:textSize="@dimen/texto_cuerpo" />
@@ -253,9 +265,11 @@
                             android:layout_marginTop="@dimen/espacio_m"
                             android:accessibilityLiveRegion="polite"
                             android:background="@drawable/bg_error_banner"
+                            android:breakStrategy="simple"
                             android:drawableStart="@drawable/ic_error_outline"
                             android:drawablePadding="@dimen/espacio_s"
                             android:drawableTint="@color/error"
+                            android:hyphenationFrequency="none"
                             android:padding="@dimen/espacio_m"
                             android:textColor="@color/on_error_container"
                             android:textSize="@dimen/texto_secundario"
@@ -298,7 +312,9 @@
                         <TextView
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:breakStrategy="simple"
                             android:gravity="center"
+                            android:hyphenationFrequency="none"
                             android:text="@string/login_pin_titulo"
                             android:textColor="@color/on_surface_variant"
                             android:textSize="@dimen/texto_etiqueta" />
@@ -461,7 +477,9 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="@dimen/espacio_l"
                         android:background="@drawable/bg_banner_demo"
+                        android:breakStrategy="simple"
                         android:gravity="center"
+                        android:hyphenationFrequency="none"
                         android:padding="@dimen/espacio_s"
                         android:text="@string/login_modo_demo"
                         android:textColor="@color/on_secondary_fixed"
@@ -480,5 +498,5 @@
                 android:textSize="@dimen/texto_etiqueta"
                 tools:text="Versión 1.0" />
         </LinearLayout>
-    </ScrollView>
+    </androidx.core.widget.NestedScrollView>
 </LinearLayout>
