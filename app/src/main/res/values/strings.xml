@@ -121,10 +121,19 @@
     <string name="comanda_monto_cero">S/ 0.00</string>
     <string name="comanda_confirmar">Confirmar y enviar comanda</string>
     <string name="comanda_confirmar_deshabilitado">Agrega al menos un plato para enviar la comanda.</string>
+    <string name="comanda_salir_sin_liberar">Salir sin liberar</string>
     <string name="cd_agregar_ceviche">Agregar Ceviche Clásico a la comanda</string>
     <string name="cd_agregar_tiradito">Agregar Tiradito al Ají Amarillo a la comanda</string>
     <string name="cd_imagen_ceviche">Fotografía del Ceviche Clásico</string>
     <string name="cd_imagen_tiradito">Fotografía del Tiradito al Ají Amarillo</string>
+
+    <!-- Liberar mesa (PRB-39) -->
+    <string name="dialogo_liberar_titulo">¿Liberar mesa?</string>
+    <string name="dialogo_liberar_mensaje">Si sales ahora, la mesa quedará disponible para otros meseros. ¿Estás seguro?</string>
+    <string name="dialogo_liberar_confirmar">Sí, liberar</string>
+    <string name="dialogo_liberar_cancelar">Cancelar</string>
+    <string name="dialogo_liberar_progreso">Liberando mesa…</string>
+    <string name="dialogo_liberar_icono_cd">Advertencia: la mesa quedará disponible para otros meseros</string>
 
     <!-- Accesibilidad -->
     <string name="cd_actualizar">Actualizar la lista de mesas</string>

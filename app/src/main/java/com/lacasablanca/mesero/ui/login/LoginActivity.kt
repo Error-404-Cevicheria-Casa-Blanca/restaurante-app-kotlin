@@ -8,7 +8,10 @@ import android.view.inputmethod.InputMethodManager
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.annotation.StringRes
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
+import androidx.core.view.updatePadding
 import androidx.core.widget.doAfterTextChanged
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -42,6 +45,7 @@ class LoginActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        configurarInsetsTeclado()
 
         binding.versionApp.text = getString(R.string.login_version, BuildConfig.VERSION_NAME)
         binding.avisoDemo.isVisible = BuildConfig.USE_FAKE_DATA
@@ -75,6 +79,25 @@ class LoginActivity : AppCompatActivity() {
                     }
                 }
             }
+        }
+    }
+
+    /**
+     * Con targetSdk 37 Android 15 aplica edge-to-edge: `adjustResize` deja de
+     * encoger la ventana y el teclado puede tapar los campos. Se reserva el
+     * inset inferior (barra de navegacion o IME) para que el NestedScrollView
+     * tenga espacio real y pueda desplazarse hasta el campo enfocado.
+     */
+    private fun configurarInsetsTeclado() {
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { vista, insets ->
+            val barras = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            val teclado = insets.getInsets(WindowInsetsCompat.Type.ime())
+            vista.updatePadding(
+                left = barras.left,
+                right = barras.right,
+                bottom = maxOf(barras.bottom, teclado.bottom)
+            )
+            insets
         }
     }
 

@@ -242,6 +242,9 @@ class MesasViewModelTest {
         val viewModel = crearViewModel()
         advanceUntilIdle()
 
+        val libresAntes = viewModel.estado.value.contadores[EstadoMesa.LIBRE] ?: 0
+        val atendidasAntes = viewModel.estado.value.contadores[EstadoMesa.ATENDIDA] ?: 0
+
         viewModel.liberarMesa(atendida.id)
         advanceUntilIdle()
 
@@ -249,6 +252,8 @@ class MesasViewModelTest {
             EstadoMesa.LIBRE,
             viewModel.estado.value.mesas.first { it.id == atendida.id }.estado
         )
+        assertEquals(libresAntes + 1, viewModel.estado.value.contadores[EstadoMesa.LIBRE])
+        assertEquals(atendidasAntes - 1, viewModel.estado.value.contadores[EstadoMesa.ATENDIDA])
     }
 
     @Test
@@ -263,6 +268,45 @@ class MesasViewModelTest {
         advanceUntilIdle()
 
         coVerify(exactly = 0) { mesaRepository.cambiarEstado(any(), any()) }
+    }
+
+    @Test
+    fun `si el patch de liberar falla por red avisa y conserva atendida`() = runTest(testDispatcher) {
+        val atendida = mesas.first { it.estado == EstadoMesa.ATENDIDA }
+        coEvery { mesaRepository.listarMesas() } returns Resultado.Exito(mesas)
+        coEvery { mesaRepository.cambiarEstado(atendida.id, EstadoMesa.LIBRE) } returns
+            Resultado.Fallo(ErrorApp.RED)
+
+        val viewModel = crearViewModel()
+        val eventos = escucharEventos(viewModel)
+        advanceUntilIdle()
+
+        viewModel.liberarMesa(atendida.id)
+        advanceUntilIdle()
+
+        assertTrue(eventos.any { it is MesasEvento.Aviso && it.tipo == AvisoMesas.ERROR_LIBERAR })
+        assertEquals(
+            EstadoMesa.ATENDIDA,
+            viewModel.estado.value.mesas.first { it.id == atendida.id }.estado
+        )
+    }
+
+    @Test
+    fun `liberar con sesion expirada cierra la sesion y avisa`() = runTest(testDispatcher) {
+        val atendida = mesas.first { it.estado == EstadoMesa.ATENDIDA }
+        coEvery { mesaRepository.listarMesas() } returns Resultado.Exito(mesas)
+        coEvery { mesaRepository.cambiarEstado(atendida.id, EstadoMesa.LIBRE) } returns
+            Resultado.Fallo(ErrorApp.SESION_EXPIRADA)
+
+        val viewModel = crearViewModel()
+        val eventos = escucharEventos(viewModel)
+        advanceUntilIdle()
+
+        viewModel.liberarMesa(atendida.id)
+        advanceUntilIdle()
+
+        assertTrue(eventos.any { it is MesasEvento.SesionExpirada })
+        coVerify(exactly = 1) { authRepository.cerrarSesion() }
     }
 
     @Test
