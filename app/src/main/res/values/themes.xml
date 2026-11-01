@@ -23,9 +23,22 @@
         <item name="android:windowLightStatusBar">false</item>
         <item name="android:windowLightNavigationBar">true</item>
         <item name="android:forceDarkAllowed" tools:targetApi="q">false</item>
+        <!-- Blindaje tipografico global (evita cortes tipo "ME-SA") -->
+        <item name="android:textViewStyle">@style/Texto.Base</item>
     </style>
 
     <style name="Theme.LaCasaBlancaMesero" parent="Base.Theme.LaCasaBlancaMesero" />
+
+    <!--
+        Estilo base de texto aplicado a TODOS los TextView de la app via
+        android:textViewStyle. hyphenationFrequency y breakStrategy son
+        atributos de TextView, no de TextAppearance, por eso se declara como
+        estilo de widget y no como TextAppearance.
+    -->
+    <style name="Texto.Base" parent="Widget.AppCompat.TextView">
+        <item name="android:hyphenationFrequency">none</item>
+        <item name="android:breakStrategy">simple</item>
+    </style>
 
     <!-- Tipografia -->
     <style name="Texto.TituloPantalla" parent="TextAppearance.Material3.HeadlineSmall">

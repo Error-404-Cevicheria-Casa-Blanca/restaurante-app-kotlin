@@ -22,6 +22,8 @@
         <item name="android:windowLightStatusBar">false</item>
         <item name="android:windowLightNavigationBar">true</item>
         <item name="android:forceDarkAllowed" tools:targetApi="q">false</item>
+        <!-- Blindaje tipografico global (evita cortes tipo "ME-SA") -->
+        <item name="android:textViewStyle">@style/Texto.Base</item>
     </style>
 
 </resources>
