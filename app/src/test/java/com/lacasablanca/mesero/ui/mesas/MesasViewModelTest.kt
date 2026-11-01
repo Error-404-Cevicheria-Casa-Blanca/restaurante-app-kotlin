@@ -242,6 +242,9 @@ class MesasViewModelTest {
         val viewModel = crearViewModel()
         advanceUntilIdle()
 
+        val libresAntes = viewModel.estado.value.contadores[EstadoMesa.LIBRE] ?: 0
+        val atendidasAntes = viewModel.estado.value.contadores[EstadoMesa.ATENDIDA] ?: 0
+
         viewModel.liberarMesa(atendida.id)
         advanceUntilIdle()
 
@@ -249,6 +252,8 @@ class MesasViewModelTest {
             EstadoMesa.LIBRE,
             viewModel.estado.value.mesas.first { it.id == atendida.id }.estado
         )
+        assertEquals(libresAntes + 1, viewModel.estado.value.contadores[EstadoMesa.LIBRE])
+        assertEquals(atendidasAntes - 1, viewModel.estado.value.contadores[EstadoMesa.ATENDIDA])
     }
 
     @Test
