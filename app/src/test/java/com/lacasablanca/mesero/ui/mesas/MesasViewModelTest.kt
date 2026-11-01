@@ -266,6 +266,45 @@ class MesasViewModelTest {
     }
 
     @Test
+    fun `si el patch de liberar falla por red avisa y conserva atendida`() = runTest(testDispatcher) {
+        val atendida = mesas.first { it.estado == EstadoMesa.ATENDIDA }
+        coEvery { mesaRepository.listarMesas() } returns Resultado.Exito(mesas)
+        coEvery { mesaRepository.cambiarEstado(atendida.id, EstadoMesa.LIBRE) } returns
+            Resultado.Fallo(ErrorApp.RED)
+
+        val viewModel = crearViewModel()
+        val eventos = escucharEventos(viewModel)
+        advanceUntilIdle()
+
+        viewModel.liberarMesa(atendida.id)
+        advanceUntilIdle()
+
+        assertTrue(eventos.any { it is MesasEvento.Aviso && it.tipo == AvisoMesas.ERROR_LIBERAR })
+        assertEquals(
+            EstadoMesa.ATENDIDA,
+            viewModel.estado.value.mesas.first { it.id == atendida.id }.estado
+        )
+    }
+
+    @Test
+    fun `liberar con sesion expirada cierra la sesion y avisa`() = runTest(testDispatcher) {
+        val atendida = mesas.first { it.estado == EstadoMesa.ATENDIDA }
+        coEvery { mesaRepository.listarMesas() } returns Resultado.Exito(mesas)
+        coEvery { mesaRepository.cambiarEstado(atendida.id, EstadoMesa.LIBRE) } returns
+            Resultado.Fallo(ErrorApp.SESION_EXPIRADA)
+
+        val viewModel = crearViewModel()
+        val eventos = escucharEventos(viewModel)
+        advanceUntilIdle()
+
+        viewModel.liberarMesa(atendida.id)
+        advanceUntilIdle()
+
+        assertTrue(eventos.any { it is MesasEvento.SesionExpirada })
+        coVerify(exactly = 1) { authRepository.cerrarSesion() }
+    }
+
+    @Test
     fun `cerrar sesion avisa a la activity`() = runTest(testDispatcher) {
         coEvery { mesaRepository.listarMesas() } returns Resultado.Exito(mesas)
 
