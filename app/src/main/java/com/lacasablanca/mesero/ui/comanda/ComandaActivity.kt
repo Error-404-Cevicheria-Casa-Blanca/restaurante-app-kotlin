@@ -6,6 +6,7 @@ import androidx.activity.addCallback
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.isVisible
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -14,15 +15,16 @@ import com.lacasablanca.mesero.MeseroApp
 import com.lacasablanca.mesero.R
 import com.lacasablanca.mesero.core.GenericViewModelFactory
 import com.lacasablanca.mesero.databinding.ActivityComandaBinding
+import com.lacasablanca.mesero.databinding.DialogLiberarMesaBinding
 import com.lacasablanca.mesero.domain.ErrorApp
 import com.lacasablanca.mesero.ui.login.LoginActivity
 import kotlinx.coroutines.launch
 
 /**
- * Comanda base (HU-03 / PRB-39). Si el mesero sale sin enviar el pedido,
- * la mesa vuelve a LIBRE antes de cerrar la pantalla (D11). El catalogo y
- * el carrito son PRB-38; cuando existan, se pasara [EXTRA_PEDIDO_ENVIADO]
- * para no liberar una mesa con pedido.
+ * Comanda base (HU-03 / PRB-39). Si el mesero intenta salir sin enviar el
+ * pedido, se pide confirmacion antes de devolver la mesa a LIBRE (D11).
+ * El catalogo y el carrito son PRB-38; cuando existan, se pasara
+ * [EXTRA_PEDIDO_ENVIADO] para no liberar una mesa con pedido.
  */
 class ComandaActivity : AppCompatActivity() {
 
@@ -39,6 +41,7 @@ class ComandaActivity : AppCompatActivity() {
     private var pedidoEnviado = false
     private var saliendo = false
     private var dialogoAbierto: AlertDialog? = null
+    private var dialogoLiberar: AlertDialog? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -61,6 +64,7 @@ class ComandaActivity : AppCompatActivity() {
         binding.btnConfirmar.isEnabled = false
         binding.btnConfirmar.contentDescription = getString(R.string.comanda_confirmar_deshabilitado)
 
+        // Atras y la flecha de la toolbar piden confirmacion antes de liberar.
         binding.barraComanda.setNavigationOnClickListener { intentarSalir() }
         onBackPressedDispatcher.addCallback(this) { intentarSalir() }
 
@@ -73,20 +77,70 @@ class ComandaActivity : AppCompatActivity() {
     }
 
     override fun onDestroy() {
+        cerrarDialogoLiberar()
         dialogoAbierto?.dismiss()
         dialogoAbierto = null
         super.onDestroy()
     }
 
-    /** Atras y la flecha de la toolbar hacen lo mismo: cerrar (y liberar) la mesa. */
+    /**
+     * Atras y la flecha de la toolbar abren el dialogo de confirmacion.
+     * Si el pedido ya se envio (PRB-38), la mesa no se libera.
+     */
     private fun intentarSalir() {
-        if (saliendo) return
+        if (saliendo || dialogoLiberar?.isShowing == true) return
         if (pedidoEnviado) {
             // PRB-38: el pedido ya viajo al backend; la mesa debe quedar OCUPADA.
             terminar(mesaLiberada = false, liberarPendiente = false)
             return
         }
+        mostrarDialogoLiberarMesa()
+    }
+
+    /**
+     * Dialogo premium de confirmacion. Mientras el PATCH esta en vuelo se
+     * bloquea la cancelacion y se muestra el ProgressBar integrado.
+     */
+    private fun mostrarDialogoLiberarMesa() {
+        cerrarDialogoAbierto()
+
+        val contenido = DialogLiberarMesaBinding.inflate(layoutInflater)
+        val dialogo = MaterialAlertDialogBuilder(
+            this,
+            R.style.ThemeOverlay_LaCasaBlanca_Dialogo_LiberarMesa
+        )
+            .setView(contenido.root)
+            .setCancelable(true)
+            .create()
+
+        contenido.btnCancelar.setOnClickListener { dialogo.dismiss() }
+        contenido.btnLiberar.setOnClickListener { confirmarLiberacion(contenido) }
+
+        dialogo.setCanceledOnTouchOutside(true)
+        dialogo.setOnDismissListener {
+            if (dialogoLiberar === dialogo) {
+                dialogoLiberar = null
+            }
+            if (dialogoAbierto === dialogo) dialogoAbierto = null
+        }
+        dialogo.show()
+
+        dialogoLiberar = dialogo
+        dialogoAbierto = dialogo
+    }
+
+    private fun confirmarLiberacion(contenido: DialogLiberarMesaBinding) {
+        if (saliendo) return
         saliendo = true
+
+        // Una vez confirmado no se puede cerrar el dialogo hasta recibir respuesta.
+        dialogoLiberar?.setCancelable(false)
+        dialogoLiberar?.setCanceledOnTouchOutside(false)
+
+        contenido.grupoBotones.isVisible = false
+        contenido.progresoLiberar.isVisible = true
+        contenido.textoProgreso.isVisible = true
+
         viewModel.liberarMesa(mesaId)
     }
 
@@ -97,15 +151,20 @@ class ComandaActivity : AppCompatActivity() {
 
     private fun manejarEvento(evento: ComandaEvento) {
         when (evento) {
-            ComandaEvento.MesaLiberada -> terminar(mesaLiberada = true, liberarPendiente = false)
+            ComandaEvento.MesaLiberada -> {
+                cerrarDialogoLiberar()
+                terminar(mesaLiberada = true, liberarPendiente = false)
+            }
 
             is ComandaEvento.ErrorAlLiberar -> {
                 saliendo = false
+                cerrarDialogoLiberar()
                 mostrarDialogoErrorLiberar(evento.error)
             }
 
             ComandaEvento.SesionExpirada -> {
                 saliendo = false
+                cerrarDialogoLiberar()
                 mostrarDialogoSesionExpirada()
             }
         }
@@ -146,6 +205,7 @@ class ComandaActivity : AppCompatActivity() {
         textoNegativo: Int? = null,
         alCancelar: (() -> Unit)? = null
     ) {
+        cerrarDialogoLiberar()
         dialogoAbierto?.dismiss()
         val constructor = MaterialAlertDialogBuilder(this)
             .setTitle(titulo)
@@ -166,6 +226,16 @@ class ComandaActivity : AppCompatActivity() {
         dialogo.setOnDismissListener { if (dialogoAbierto === dialogo) dialogoAbierto = null }
         dialogo.show()
         dialogoAbierto = dialogo
+    }
+
+    private fun cerrarDialogoLiberar() {
+        dialogoLiberar?.dismiss()
+        dialogoLiberar = null
+    }
+
+    private fun cerrarDialogoAbierto() {
+        dialogoAbierto?.dismiss()
+        dialogoAbierto = null
     }
 
     /**

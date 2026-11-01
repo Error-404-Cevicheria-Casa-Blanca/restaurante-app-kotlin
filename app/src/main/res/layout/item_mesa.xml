@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
     Tarjeta de mesa (Stitch m_vil_mapa_de_mesas): fondo blanco con sombra,
-    franja superior de 4dp con el color del estado, numero grande y capacidad.
+    franja superior de 4dp con el color del estado, titulo y capacidad.
+
+    El titulo ocupa todo el ancho y usa autoSize para que "Mesa" nunca se
+    parta en "M / es" (bug reportado por QA). La capacidad baja a su propia
+    linea para no competir por el espacio horizontal.
 -->
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -46,55 +50,51 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/barraEstado">
 
-            <LinearLayout
+            <!-- Titulo a todo el ancho: autoSize evita el corte "M / es" -->
+            <TextView
+                android:id="@+id/textoMesa"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:autoSizeMaxTextSize="24sp"
+                android:autoSizeMinTextSize="14sp"
+                android:autoSizeTextType="uniform"
+                android:breakStrategy="simple"
+                android:ellipsize="none"
+                android:hyphenationFrequency="none"
+                android:maxLines="1"
+                android:textColor="@color/stitch_primary"
+                android:textStyle="bold"
+                tools:text="Mesa 7" />
+
+            <!-- Capacidad en su propia linea, debajo del titulo -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/espacio_s"
+                android:background="@drawable/bg_pill_superficie"
                 android:gravity="center_vertical"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:paddingHorizontal="@dimen/espacio_s"
+                android:paddingVertical="@dimen/espacio_xs">
+
+                <ImageView
+                    android:layout_width="@dimen/icono_pequeno"
+                    android:layout_height="@dimen/icono_pequeno"
+                    android:contentDescription="@string/cd_capacidad"
+                    android:src="@drawable/ic_people"
+                    app:tint="@color/on_surface_variant" />
 
                 <TextView
-                    android:id="@+id/textoMesa"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:breakStrategy="simple"
-                    android:ellipsize="none"
-                    android:hyphenationFrequency="none"
-                    android:maxLines="2"
-                    android:textColor="@color/stitch_primary"
-                    android:textSize="22sp"
-                    android:textStyle="bold"
-                    tools:text="Mesa 7" />
-
-                <LinearLayout
+                    android:id="@+id/textoCapacidad"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/espacio_xs"
-                    android:background="@drawable/bg_pill_superficie"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal"
-                    android:paddingHorizontal="@dimen/espacio_s"
-                    android:paddingVertical="@dimen/espacio_xs">
-
-                    <ImageView
-                        android:layout_width="@dimen/icono_pequeno"
-                        android:layout_height="@dimen/icono_pequeno"
-                        android:contentDescription="@string/cd_capacidad"
-                        android:src="@drawable/ic_people"
-                        app:tint="@color/on_surface_variant" />
-
-                    <TextView
-                        android:id="@+id/textoCapacidad"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="@dimen/espacio_xs"
-                        android:breakStrategy="simple"
-                        android:hyphenationFrequency="none"
-                        android:textColor="@color/on_surface_variant"
-                        android:textSize="@dimen/texto_etiqueta"
-                        android:textStyle="bold"
-                        tools:text="Cap. 4 pers" />
-                </LinearLayout>
+                    android:breakStrategy="simple"
+                    android:hyphenationFrequency="none"
+                    android:textColor="@color/on_surface_variant"
+                    android:textSize="@dimen/texto_etiqueta"
+                    android:textStyle="bold"
+                    tools:text="Cap. 4 pers" />
             </LinearLayout>
 
             <Space

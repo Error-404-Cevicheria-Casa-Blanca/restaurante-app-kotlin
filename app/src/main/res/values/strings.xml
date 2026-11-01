@@ -127,6 +127,14 @@
     <string name="cd_imagen_ceviche">Fotografía del Ceviche Clásico</string>
     <string name="cd_imagen_tiradito">Fotografía del Tiradito al Ají Amarillo</string>
 
+    <!-- Liberar mesa (PRB-39) -->
+    <string name="dialogo_liberar_titulo">¿Liberar mesa?</string>
+    <string name="dialogo_liberar_mensaje">Si sales ahora, la mesa quedará disponible para otros meseros. ¿Estás seguro?</string>
+    <string name="dialogo_liberar_confirmar">Sí, liberar</string>
+    <string name="dialogo_liberar_cancelar">Cancelar</string>
+    <string name="dialogo_liberar_progreso">Liberando mesa…</string>
+    <string name="dialogo_liberar_icono_cd">Advertencia: la mesa quedará disponible para otros meseros</string>
+
     <!-- Accesibilidad -->
     <string name="cd_actualizar">Actualizar la lista de mesas</string>
     <string name="cd_cerrar_sesion">Cerrar sesión</string>

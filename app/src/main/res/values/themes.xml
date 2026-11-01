@@ -111,6 +111,22 @@
         <item name="cornerSize">24dp</item>
     </style>
 
+    <!-- Dialogo de liberacion de mesa (PRB-39): 16dp, fondo blanco y sombra propia -->
+    <style name="ThemeOverlay.LaCasaBlanca.Dialogo.LiberarMesa" parent="ThemeOverlay.Material3.MaterialAlertDialog">
+        <item name="alertDialogStyle">@style/MaterialAlertDialog.LaCasaBlanca.LiberarMesa</item>
+    </style>
+
+    <style name="MaterialAlertDialog.LaCasaBlanca.LiberarMesa" parent="MaterialAlertDialog.Material3">
+        <item name="shapeAppearance">@style/ShapeAppearance.LaCasaBlanca.Dialogo.LiberarMesa</item>
+        <item name="shapeAppearanceOverlay">@null</item>
+        <item name="backgroundTint">@color/surface_container_lowest</item>
+    </style>
+
+    <style name="ShapeAppearance.LaCasaBlanca.Dialogo.LiberarMesa" parent="ShapeAppearance.Material3.MediumComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">16dp</item>
+    </style>
+
     <!-- Botones -->
     <style name="Boton.Primario" parent="Widget.Material3.Button">
         <item name="android:layout_height">@dimen/alto_boton_primario</item>
@@ -175,6 +191,34 @@
         <item name="iconTint">@color/selector_texto_boton_agregar</item>
         <item name="android:textAllCaps">false</item>
         <item name="android:textStyle">bold</item>
+    </style>
+
+    <!-- Botones del dialogo de liberacion (PRB-39) -->
+    <style name="Boton.DialogoLiberar" parent="Widget.Material3.Button">
+        <item name="android:layout_height">@dimen/toque_minimo</item>
+        <item name="android:minHeight">@dimen/toque_minimo</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+        <item name="cornerRadius">8dp</item>
+        <item name="backgroundTint">@color/primary</item>
+        <item name="android:textColor">@color/on_primary</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">@dimen/texto_cuerpo</item>
+    </style>
+
+    <style name="Boton.DialogoCancelar" parent="Widget.Material3.Button.TextButton">
+        <item name="android:layout_height">@dimen/toque_minimo</item>
+        <item name="android:minHeight">@dimen/toque_minimo</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+        <item name="cornerRadius">8dp</item>
+        <item name="backgroundTint">@android:color/transparent</item>
+        <item name="android:textColor">@color/estado_ocupada</item>
+        <item name="iconTint">@color/estado_ocupada</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">@dimen/texto_cuerpo</item>
     </style>
 
     <style name="Boton.PinTecla" parent="Widget.Material3.Button">
