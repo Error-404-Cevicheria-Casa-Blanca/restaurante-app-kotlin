@@ -3,6 +3,7 @@ package com.lacasablanca.mesero.ui.mesas
 import android.content.Intent
 import android.content.res.ColorStateList
 import android.os.Bundle
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
@@ -53,7 +54,27 @@ class MesasActivity : AppCompatActivity() {
     private var firmaTabs = ""
     private var firmaChips = ""
     private var primeraReanudacion = true
+    private var liberarPendiente = false
     private var dialogoAbierto: AlertDialog? = null
+
+    /**
+     * La comanda puede devolver la mesa sin liberar (el PATCH fallo y el mozo
+     * eligio salir). En ese caso se reintenta aqui con [MesasViewModel.liberarMesa].
+     */
+    private val lanzadorComanda = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { resultado ->
+        val datos = resultado.data ?: return@registerForActivityResult
+        if (resultado.resultCode != RESULT_OK) return@registerForActivityResult
+        if (!datos.getBooleanExtra(ComandaActivity.EXTRA_LIBERAR_PENDIENTE, false)) {
+            return@registerForActivityResult
+        }
+        val id = datos.getLongExtra(ComandaActivity.EXTRA_MESA_ID, -1L)
+        if (id > 0L) {
+            liberarPendiente = true
+            viewModel.liberarMesa(id)
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -84,11 +105,24 @@ class MesasActivity : AppCompatActivity() {
         super.onResume()
         if (primeraReanudacion) {
             primeraReanudacion = false
-        } else {
-            // Al volver de la comanda (o de segundo plano) el mapa se sincroniza
-            // con el repositorio: la mesa abierta debe verse en azul (ATENDIDA).
-            viewModel.recargarAlVolver()
+            return
         }
+        if (liberarPendiente) {
+            // MesasViewModel.liberarMesa ya actualiza el StateFlow con la
+            // respuesta del PATCH; no se lanza un GET que pueda pisarla.
+            liberarPendiente = false
+            return
+        }
+        // Al volver de la comanda (o de segundo plano) el mapa se sincroniza
+        // con el repositorio: la mesa cerrada sin pedido debe verse en verde (LIBRE).
+        viewModel.recargarAlVolver()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        // El flag solo vale para la reanudacion inmediata; no debe saltarse
+        // un refresco posterior si el resultado llego tarde.
+        liberarPendiente = false
     }
 
     override fun onDestroy() {
@@ -349,7 +383,7 @@ class MesasActivity : AppCompatActivity() {
             putExtra(ComandaActivity.EXTRA_MESA_NUMERO, mesa.numero)
             putExtra(ComandaActivity.EXTRA_MESA_UBICACION, mesa.ubicacion)
         }
-        startActivity(intent)
+        lanzadorComanda.launch(intent)
     }
 
     private fun irALogin() {

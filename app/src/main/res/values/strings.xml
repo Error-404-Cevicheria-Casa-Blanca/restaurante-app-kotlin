@@ -121,6 +121,7 @@
     <string name="comanda_monto_cero">S/ 0.00</string>
     <string name="comanda_confirmar">Confirmar y enviar comanda</string>
     <string name="comanda_confirmar_deshabilitado">Agrega al menos un plato para enviar la comanda.</string>
+    <string name="comanda_salir_sin_liberar">Salir sin liberar</string>
     <string name="cd_agregar_ceviche">Agregar Ceviche Clásico a la comanda</string>
     <string name="cd_agregar_tiradito">Agregar Tiradito al Ají Amarillo a la comanda</string>
     <string name="cd_imagen_ceviche">Fotografía del Ceviche Clásico</string>
