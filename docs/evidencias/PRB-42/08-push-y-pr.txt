@@ -1,0 +1,13 @@
+== rama remota ==
+4525192c6d4136745cc765f1123ee861d10bdf92	refs/heads/feature/PRB-42-polling-mesas
+EXIT-LSREMOTE=0
+
+== HEAD local ==
+4525192c6d4136745cc765f1123ee861d10bdf92
+
+== seguimiento ==
+## feature/PRB-42-polling-mesas...origin/feature/PRB-42-polling-mesas
+
+== PR #7 ==
+{"baseRefName":"develop","headRefName":"feature/PRB-42-polling-mesas","number":7,"state":"OPEN","title":"feat(PRB-42): polling automatico de mesas cada 4 segundos","url":"https://github.com/Error-404-Cevicheria-Casa-Blanca/restaurante-app-kotlin/pull/7"}
+EXIT-GH=0

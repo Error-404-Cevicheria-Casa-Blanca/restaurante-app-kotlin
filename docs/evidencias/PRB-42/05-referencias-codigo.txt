@@ -1,0 +1,81 @@
+== MesasViewModel: bucle y API publica ==
+51: val eventosError: SharedFlow<String> = _eventosError.asSharedFlow()
+75: fun startPolling() {
+79: while (isActive) {
+81: delay(INTERVALO_POLLING_MS)
+87: fun stopPolling() {
+242: _eventosError.tryEmit(ERROR_RED)
+283: const val INTERVALO_POLLING_MS = 4_000L
+
+== ocurrencias de cargarMesas (la de iniciar ya no existe) ==
+80: cargarMesas(mostrarAviso = false, mostrarCargando = false, silencioso = true)
+103: cargarMesas(mostrarAviso = mostrarAviso, mostrarCargando = mostrarCargando)
+107: private suspend fun cargarMesas(
+
+== bloque iniciar() completo ==
+210:     private fun iniciar() {
+211:         viewModelScope.launch(ioDispatcher) {
+212:             val sesion = try {
+213:                 authRepository.sesionGuardada()
+214:             } catch (e: Exception) {
+215:                 null
+216:             }
+217:             if (sesion == null) {
+218:                 _estado.update { it.copy(cargando = false) }
+219:                 sesionLista.complete(false)
+220:                 _eventos.send(MesasEvento.SesionExpirada)
+221:                 return@launch
+222:             }
+223:             _estado.update { it.copy(nombreUsuario = sesion.usuario.nombre) }
+224:             sesionLista.complete(true)
+225:         }
+226:     }
+227: 
+228:     private suspend fun manejarFalloCarga(error: ErrorApp, silencioso: Boolean) {
+229:         if (error == ErrorApp.SESION_EXPIRADA) {
+230:             manejarSesionExpirada()
+231:             return
+232:         }
+233:         if (silencioso) {
+234:             // Un fallo del polling no debe vaciar el mapa ya pintado: solo se
+
+== MesasActivity: lifecycle y Snackbar ==
+15: import androidx.lifecycle.repeatOnLifecycle
+97: repeatOnLifecycle(Lifecycle.State.STARTED) {
+100: launch { viewModel.eventosError.collect(::mostrarErrorPolling) }
+107: * el bucle se detiene en onStop para no consumir red en segundo plano.
+109: override fun onStart() {
+110: super.onStart()
+111: viewModel.startPolling()
+114: override fun onStop() {
+115: viewModel.stopPolling()
+116: super.onStop()
+389: private fun mostrarErrorPolling(codigo: String) {
+
+== MesaAdapter: ListAdapter + DiffUtil ==
+9: import androidx.recyclerview.widget.ListAdapter
+21: ) : ListAdapter<Mesa, MesaAdapter.MesaViewHolder>(DIFF) {
+75: private val DIFF = object : DiffUtil.ItemCallback<Mesa>() {
+
+== MesasActivity: submitList ==
+84: adapter = MesaAdapter { mesa -> viewModel.seleccionarMesa(mesa) }
+87: binding.recyclerMesas.adapter = adapter
+178: adapter.submitList(estado.mesasVisibles)
+
+== tests: helper de carga y arranque del polling ==
+MesasViewModelTest 57: private fun crearViewModel(): MesasViewModel {
+MesasViewModelTest 63: viewModel.cargar()
+MesasViewModelTest 210: viewModel.cargar()
+MesasViewModelPollingTest 87: assertTrue(viewModel.estado.value.mesas.isEmpty())
+MesasViewModelPollingTest 88: coVerify(exactly = 0) { mesaRepository.listarMesas() }
+MesasViewModelPollingTest 90: viewModel.startPolling()
+MesasViewModelPollingTest 112: viewModel.startPolling()
+MesasViewModelPollingTest 133: viewModel.startPolling()
+MesasViewModelPollingTest 155: viewModel.startPolling()
+MesasViewModelPollingTest 181: coVerify(exactly = 0) { mesaRepository.listarMesas() }
+MesasViewModelPollingTest 183: viewModel.startPolling()
+MesasViewModelPollingTest 184: viewModel.startPolling()
+
+== strings nuevos ==
+78: <string name="mesas_polling_sin_conexion">Sin conexión con el servidor. El mapa se actualizará automáticamente.</string>
+79: <string name="mesas_polling_error">No se pudo actualizar el mapa de mesas. Se reintentará automáticamente.</string>

@@ -1,0 +1,8 @@
+Suite: MesasViewModelPollingTest
+tests=5 failures=0 errors=0 skipped=0 time=0.18
+
+OK  stopPolling cancela y no vuelve a consultar  (0.043s)
+OK  llamar dos veces a startPolling no duplica el Job  (0.034s)
+OK  si el polling falla por red conserva la lista y avisa una vez  (0.039s)
+OK  el segundo ciclo llega a los 4 segundos  (0.033s)
+OK  el polling hace la carga inmediata al arrancar  (0.029s)
