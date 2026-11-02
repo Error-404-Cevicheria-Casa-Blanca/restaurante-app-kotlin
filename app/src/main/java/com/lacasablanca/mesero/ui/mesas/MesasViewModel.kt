@@ -69,7 +69,8 @@ class MesasViewModel(
      * bucle sigue activo no se crea otro.
      *
      * El bucle consulta en silencio (sin spinner, sin aviso) y espera al final,
-     * de modo que la primera lectura ocurre en cuanto la pantalla esta visible.
+     * de modo que este primer ciclo es la unica carga inicial del mapa: el
+     * arranque del ViewModel ya no pide mesas por su cuenta.
      */
     fun startPolling() {
         if (pollingJob?.isActive == true) return
@@ -202,6 +203,10 @@ class MesasViewModel(
         super.onCleared()
     }
 
+    /**
+     * Resuelve la sesion guardada, pero no pide mesas: la unica carga inicial
+     * es el primer ciclo de [startPolling], para no lanzar dos GET al abrir.
+     */
     private fun iniciar() {
         viewModelScope.launch(ioDispatcher) {
             val sesion = try {
@@ -217,7 +222,6 @@ class MesasViewModel(
             }
             _estado.update { it.copy(nombreUsuario = sesion.usuario.nombre) }
             sesionLista.complete(true)
-            cargarMesas()
         }
     }
 

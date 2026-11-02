@@ -35,7 +35,8 @@ import org.junit.Test
  *
  * El reloj virtual del [StandardTestDispatcher] permite comprobar la carga
  * inmediata, el segundo ciclo, la cancelacion y la tolerancia a errores sin
- * esperas reales de cuatro segundos.
+ * esperas reales de cuatro segundos. La unica carga inicial es la del bucle:
+ * el ViewModel no pide mesas al construirse.
  */
 @OptIn(ExperimentalCoroutinesApi::class)
 class MesasViewModelPollingTest {
@@ -78,25 +79,20 @@ class MesasViewModelPollingTest {
 
     @Test
     fun `el polling hace la carga inmediata al arrancar`() = runTest(testDispatcher) {
-        val libre = mesas.first { it.estaLibre }
-        val conCambio = mesas.map {
-            if (it.id == libre.id) it.copy(estado = EstadoMesa.ATENDIDA) else it
-        }
-        coEvery { mesaRepository.listarMesas() } returnsMany listOf(
-            Resultado.Exito(mesas),
-            Resultado.Exito(conCambio)
-        )
+        coEvery { mesaRepository.listarMesas() } returns Resultado.Exito(mesas)
 
         val viewModel = crearViewModel()
         runCurrent()
-        assertEquals(EstadoMesa.LIBRE, viewModel.estadoDe(libre))
+        // El arranque del ViewModel ya no pide mesas: solo resuelve la sesion.
+        assertTrue(viewModel.estado.value.mesas.isEmpty())
+        coVerify(exactly = 0) { mesaRepository.listarMesas() }
 
         viewModel.startPolling()
         runCurrent()
 
-        // Sin avanzar el reloj, el primer ciclo del bucle ya trajo el cambio.
-        assertEquals(EstadoMesa.ATENDIDA, viewModel.estadoDe(libre))
-        coVerify(exactly = 2) { mesaRepository.listarMesas() }
+        // Sin avanzar el reloj, el primer ciclo del bucle ya trajo las mesas.
+        assertEquals(mesas.size, viewModel.estado.value.mesas.size)
+        coVerify(exactly = 1) { mesaRepository.listarMesas() }
         viewModel.stopPolling()
     }
 
@@ -107,7 +103,6 @@ class MesasViewModelPollingTest {
             if (it.id == libre.id) it.copy(estado = EstadoMesa.ATENDIDA) else it
         }
         coEvery { mesaRepository.listarMesas() } returnsMany listOf(
-            Resultado.Exito(mesas),
             Resultado.Exito(mesas),
             Resultado.Exito(conCambio)
         )
@@ -120,11 +115,11 @@ class MesasViewModelPollingTest {
 
         advanceTimeBy(MesasViewModel.INTERVALO_POLLING_MS - 1)
         runCurrent()
-        coVerify(exactly = 2) { mesaRepository.listarMesas() }
+        coVerify(exactly = 1) { mesaRepository.listarMesas() }
 
         advanceTimeBy(1)
         runCurrent()
-        coVerify(exactly = 3) { mesaRepository.listarMesas() }
+        coVerify(exactly = 2) { mesaRepository.listarMesas() }
         assertEquals(EstadoMesa.ATENDIDA, viewModel.estadoDe(libre))
         viewModel.stopPolling()
     }
@@ -137,19 +132,20 @@ class MesasViewModelPollingTest {
         runCurrent()
         viewModel.startPolling()
         runCurrent()
-        coVerify(exactly = 2) { mesaRepository.listarMesas() }
+        coVerify(exactly = 1) { mesaRepository.listarMesas() }
 
         viewModel.stopPolling()
         advanceTimeBy(MesasViewModel.INTERVALO_POLLING_MS * 3)
         runCurrent()
 
-        coVerify(exactly = 2) { mesaRepository.listarMesas() }
+        coVerify(exactly = 1) { mesaRepository.listarMesas() }
     }
 
     @Test
     fun `si el polling falla por red conserva la lista y avisa una vez`() = runTest(testDispatcher) {
         coEvery { mesaRepository.listarMesas() } returnsMany listOf(
             Resultado.Exito(mesas),
+            Resultado.Fallo(ErrorApp.RED),
             Resultado.Fallo(ErrorApp.RED)
         )
 
@@ -158,12 +154,21 @@ class MesasViewModelPollingTest {
         runCurrent()
         viewModel.startPolling()
         runCurrent()
+        assertEquals(mesas.size, viewModel.estado.value.mesas.size)
+
+        advanceTimeBy(MesasViewModel.INTERVALO_POLLING_MS)
+        runCurrent()
 
         // La lista ya pintada se conserva: el fallo silencioso no rompe la pantalla.
         assertEquals(mesas.size, viewModel.estado.value.mesas.size)
         assertNull(viewModel.estado.value.error)
         assertEquals(listOf(MesasViewModel.ERROR_RED), errores)
-        coVerify(exactly = 2) { mesaRepository.listarMesas() }
+
+        // Un segundo fallo seguido no repite el Snackbar.
+        advanceTimeBy(MesasViewModel.INTERVALO_POLLING_MS)
+        runCurrent()
+        assertEquals(listOf(MesasViewModel.ERROR_RED), errores)
+        coVerify(exactly = 3) { mesaRepository.listarMesas() }
         viewModel.stopPolling()
     }
 
@@ -173,17 +178,17 @@ class MesasViewModelPollingTest {
 
         val viewModel = crearViewModel()
         runCurrent()
-        coVerify(exactly = 1) { mesaRepository.listarMesas() }
+        coVerify(exactly = 0) { mesaRepository.listarMesas() }
 
         viewModel.startPolling()
         viewModel.startPolling()
         runCurrent()
-        coVerify(exactly = 2) { mesaRepository.listarMesas() }
+        coVerify(exactly = 1) { mesaRepository.listarMesas() }
 
         advanceTimeBy(MesasViewModel.INTERVALO_POLLING_MS)
         runCurrent()
         // Un solo bucle: una carga mas por ciclo, no dos.
-        coVerify(exactly = 3) { mesaRepository.listarMesas() }
+        coVerify(exactly = 2) { mesaRepository.listarMesas() }
         assertTrue(viewModel.estado.value.mesas.isNotEmpty())
         viewModel.stopPolling()
     }

@@ -49,12 +49,19 @@ class MesasViewModelTest {
         Dispatchers.resetMain()
     }
 
+    /**
+     * El ViewModel ya no carga en `init`: la unica carga inicial es el primer
+     * ciclo de `startPolling()` (PRB-42). En estos tests, que no arrancan el
+     * bucle, se dispara esa primera lectura de forma explicita.
+     */
     private fun crearViewModel(): MesasViewModel {
         coEvery { authRepository.sesionGuardada() } returns Sesion(
             token = "token-prueba",
             usuario = Usuario(id = 1, nombre = "Mozo Prueba", rol = "MOZO")
         )
-        return MesasViewModel(mesaRepository, authRepository, testDispatcher)
+        val viewModel = MesasViewModel(mesaRepository, authRepository, testDispatcher)
+        viewModel.cargar()
+        return viewModel
     }
 
     private fun TestScope.escucharEventos(viewModel: MesasViewModel): List<MesasEvento> {
