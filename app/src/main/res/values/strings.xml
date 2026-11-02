@@ -75,6 +75,8 @@
     <string name="mesas_error">No se pudieron cargar las mesas</string>
     <string name="accion_reintentar">Reintentar</string>
     <string name="mesas_actualizadas">Mesas actualizadas</string>
+    <string name="mesas_polling_sin_conexion">Sin conexión con el servidor. El mapa se actualizará automáticamente.</string>
+    <string name="mesas_polling_error">No se pudo actualizar el mapa de mesas. Se reintentará automáticamente.</string>
     <string name="mesa_no_libre">La mesa %1$d no está libre (estado: %2$s).</string>
     <string name="mesa_tomada">La mesa %1$d acaba de ser tomada por otro mozo.</string>
     <string name="sesion_expirada">Tu sesión expiró. Vuelve a ingresar.</string>

@@ -97,8 +97,23 @@ class MesasActivity : AppCompatActivity() {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch { viewModel.estado.collect(::render) }
                 launch { viewModel.eventos.collect(::manejarEvento) }
+                launch { viewModel.eventosError.collect(::mostrarErrorPolling) }
             }
         }
+    }
+
+    /**
+     * El mapa se mantiene sincronizado mientras la pantalla esta visible:
+     * el bucle se detiene en onStop para no consumir red en segundo plano.
+     */
+    override fun onStart() {
+        super.onStart()
+        viewModel.startPolling()
+    }
+
+    override fun onStop() {
+        viewModel.stopPolling()
+        super.onStop()
     }
 
     override fun onResume() {
@@ -368,6 +383,15 @@ class MesasActivity : AppCompatActivity() {
             cancelable = false,
             alAceptar = ::irALogin
         )
+    }
+
+    /** Fallo de red del refresco automatico: aviso discreto, sin tapar el mapa. */
+    private fun mostrarErrorPolling(codigo: String) {
+        val texto = when (codigo) {
+            MesasViewModel.ERROR_RED -> getString(R.string.mesas_polling_sin_conexion)
+            else -> getString(R.string.mesas_polling_error)
+        }
+        mostrarSnackbar(texto)
     }
 
     private fun mostrarSnackbar(texto: String) {
