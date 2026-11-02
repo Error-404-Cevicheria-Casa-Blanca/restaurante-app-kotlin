@@ -89,6 +89,9 @@
     <color name="error_container">#FFDAD6</color>
     <color name="on_error_container">#93000A</color>
 
+    <!-- Exito (boton "Confirmar y Enviar" y dialogo de pedido enviado) -->
+    <color name="exito">#2E9E5B</color>
+
     <!-- Utilitarios -->
     <color name="white">#FFFFFFFF</color>
     <color name="transparent">#00000000</color>

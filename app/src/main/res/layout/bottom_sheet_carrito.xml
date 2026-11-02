@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Bottom sheet del carrito (rediseno PRB-38). Esquinas superiores de 24dp,
+    drag handle visual, lista de platos, desglose y confirmacion del pedido.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_bottom_sheet"
+    android:orientation="vertical"
+    android:paddingBottom="@dimen/espacio_xl">
+
+    <View
+        android:id="@+id/dragHandle"
+        android:layout_width="@dimen/ancho_drag_handle"
+        android:layout_height="@dimen/alto_drag_handle"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="@dimen/espacio_s"
+        android:background="@drawable/bg_drag_handle"
+        android:importantForAccessibility="no" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="@dimen/espacio_l"
+        android:paddingTop="@dimen/espacio_l">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/espacio_s"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/textoSheetTitulo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:autoSizeMaxTextSize="22sp"
+                android:autoSizeMinTextSize="16sp"
+                android:autoSizeStepGranularity="1sp"
+                android:autoSizeTextType="uniform"
+                android:breakStrategy="simple"
+                android:ellipsize="none"
+                android:hyphenationFrequency="none"
+                android:maxLines="2"
+                android:text="@string/carrito_sheet_titulo"
+                android:textColor="@color/stitch_primary"
+                android:textSize="@dimen/texto_titulo_tarjeta"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/textoSheetContador"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/espacio_xs"
+                android:autoSizeMaxTextSize="13sp"
+                android:autoSizeMinTextSize="10sp"
+                android:autoSizeStepGranularity="1sp"
+                android:autoSizeTextType="uniform"
+                android:breakStrategy="simple"
+                android:ellipsize="none"
+                android:hyphenationFrequency="none"
+                android:maxLines="2"
+                android:text="@string/carrito_sheet_subtitulo"
+                android:textColor="@color/on_surface_variant"
+                android:textSize="@dimen/texto_etiqueta"
+                tools:text="2 ítems · Revisa los platos y confirma la comanda." />
+        </LinearLayout>
+
+        <ImageButton
+            android:id="@+id/btnCerrarCarrito"
+            android:layout_width="@dimen/toque_minimo"
+            android:layout_height="@dimen/toque_minimo"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/carrito_sheet_cerrar"
+            android:padding="@dimen/espacio_m"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_close"
+            app:tint="@color/on_surface_variant" />
+    </LinearLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/listaCarrito"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/alto_lista_carrito_sheet"
+        android:layout_marginTop="@dimen/espacio_s"
+        android:clipToPadding="false"
+        android:overScrollMode="never"
+        android:paddingHorizontal="@dimen/espacio_l"
+        android:scrollbars="none"
+        tools:listitem="@layout/item_carrito" />
+
+    <TextView
+        android:id="@+id/textoCarritoVacio"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/espacio_l"
+        android:layout_marginTop="@dimen/espacio_s"
+        android:autoSizeMaxTextSize="16sp"
+        android:autoSizeMinTextSize="12sp"
+        android:autoSizeStepGranularity="1sp"
+        android:autoSizeTextType="uniform"
+        android:background="@drawable/bg_pill_superficie"
+        android:breakStrategy="simple"
+        android:gravity="center"
+        android:hyphenationFrequency="none"
+        android:padding="@dimen/espacio_xl"
+        android:text="@string/comanda_pedido_vacio"
+        android:textColor="@color/on_surface_variant"
+        android:textSize="@dimen/texto_cuerpo"
+        android:visibility="gone" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/borde_tarjeta"
+        android:layout_marginHorizontal="@dimen/espacio_l"
+        android:layout_marginTop="@dimen/espacio_s"
+        android:background="@color/surface_variant" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingHorizontal="@dimen/espacio_l"
+        android:paddingTop="@dimen/espacio_l">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:breakStrategy="simple"
+                android:hyphenationFrequency="none"
+                android:text="@string/comanda_subtotal"
+                android:textColor="@color/on_surface_variant"
+                android:textSize="@dimen/texto_cuerpo" />
+
+            <TextView
+                android:id="@+id/textoSubtotal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:autoSizeMaxTextSize="18sp"
+                android:autoSizeMinTextSize="12sp"
+                android:autoSizeStepGranularity="1sp"
+                android:autoSizeTextType="uniform"
+                android:breakStrategy="simple"
+                android:hyphenationFrequency="none"
+                android:text="@string/comanda_monto_cero"
+                android:textColor="@color/stitch_primary"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/espacio_xs"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:breakStrategy="simple"
+                android:hyphenationFrequency="none"
+                android:text="@string/comanda_igv"
+                android:textColor="@color/on_surface_variant"
+                android:textSize="@dimen/texto_secundario" />
+
+            <TextView
+                android:id="@+id/textoIgv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:autoSizeMaxTextSize="14sp"
+                android:autoSizeMinTextSize="12sp"
+                android:autoSizeStepGranularity="1sp"
+                android:autoSizeTextType="uniform"
+                android:breakStrategy="simple"
+                android:hyphenationFrequency="none"
+                android:text="@string/comanda_monto_cero"
+                android:textColor="@color/on_surface_variant"
+                android:textSize="@dimen/texto_secundario" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/espacio_s"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:breakStrategy="simple"
+                android:hyphenationFrequency="none"
+                android:text="@string/comanda_total"
+                android:textColor="@color/on_surface"
+                android:textSize="@dimen/texto_cuerpo"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/textoTotal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:autoSizeMaxTextSize="22sp"
+                android:autoSizeMinTextSize="14sp"
+                android:autoSizeStepGranularity="1sp"
+                android:autoSizeTextType="uniform"
+                android:breakStrategy="simple"
+                android:hyphenationFrequency="none"
+                android:text="@string/comanda_monto_cero"
+                android:textColor="@color/stitch_primary"
+                android:textSize="@dimen/texto_titulo_tarjeta"
+                android:textStyle="bold" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnConfirmar"
+        style="@style/Boton.Exito"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/alto_boton_primario"
+        android:layout_marginHorizontal="@dimen/espacio_l"
+        android:layout_marginTop="@dimen/espacio_l"
+        android:enabled="false"
+        android:text="@string/comanda_confirmar" />
+</LinearLayout>

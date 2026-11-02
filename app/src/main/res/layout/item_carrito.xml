@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Linea del carrito en el bottom sheet (rediseno PRB-38). Se presenta como
+    una tarjeta suave con nombre/precio, nota opcional y controles circulares.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="@dimen/espacio_s"
+    android:background="@drawable/bg_item_carrito"
+    android:orientation="vertical"
+    android:padding="@dimen/espacio_l">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/textoNombreCarrito"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/espacio_s"
+            android:layout_weight="1"
+            android:autoSizeMaxTextSize="16sp"
+            android:autoSizeMinTextSize="11sp"
+            android:autoSizeStepGranularity="1sp"
+            android:autoSizeTextType="uniform"
+            android:breakStrategy="simple"
+            android:ellipsize="none"
+            android:hyphenationFrequency="none"
+            android:maxLines="2"
+            android:textColor="@color/on_surface"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            tools:text="Ceviche Clásico La Casa Blanca" />
+
+        <ImageButton
+            android:id="@+id/btnNota"
+            android:layout_width="@dimen/toque_minimo"
+            android:layout_height="@dimen/toque_minimo"
+            android:background="@drawable/bg_boton_cantidad"
+            android:contentDescription="@string/cd_nota"
+            android:padding="@dimen/espacio_m"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_edit"
+            app:tint="@color/stitch_primary" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/textoPrecioCarrito"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/espacio_xs"
+        android:autoSizeMaxTextSize="12sp"
+        android:autoSizeMinTextSize="10sp"
+        android:autoSizeStepGranularity="1sp"
+        android:autoSizeTextType="uniform"
+        android:breakStrategy="simple"
+        android:ellipsize="none"
+        android:hyphenationFrequency="none"
+        android:maxLines="2"
+        android:textColor="@color/on_surface_variant"
+        android:textSize="12sp"
+        tools:text="S/ 48.00 c/u · S/ 96.00" />
+
+    <TextView
+        android:id="@+id/textoNotaCarrito"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/espacio_s"
+        android:autoSizeMaxTextSize="12sp"
+        android:autoSizeMinTextSize="10sp"
+        android:autoSizeStepGranularity="1sp"
+        android:autoSizeTextType="uniform"
+        android:background="@drawable/bg_pill_superficie"
+        android:breakStrategy="simple"
+        android:ellipsize="none"
+        android:hyphenationFrequency="none"
+        android:maxLines="4"
+        android:paddingHorizontal="@dimen/espacio_s"
+        android:paddingVertical="@dimen/espacio_xs"
+        android:textColor="@color/stitch_primary"
+        android:textSize="12sp"
+        android:visibility="gone"
+        tools:text="Nota: sin picante"
+        tools:visibility="visible" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/espacio_s"
+        android:gravity="end"
+        android:orientation="horizontal">
+
+        <ImageButton
+            android:id="@+id/btnDisminuir"
+            android:layout_width="@dimen/toque_minimo"
+            android:layout_height="@dimen/toque_minimo"
+            android:background="@drawable/bg_boton_circular_primario"
+            android:contentDescription="@string/cd_disminuir"
+            android:padding="@dimen/espacio_m"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_remove"
+            app:tint="@color/on_primary" />
+
+        <TextView
+            android:id="@+id/textoCantidad"
+            android:layout_width="@dimen/ancho_cantidad_carrito"
+            android:layout_height="wrap_content"
+            android:breakStrategy="simple"
+            android:gravity="center"
+            android:hyphenationFrequency="none"
+            android:maxLines="1"
+            android:textColor="@color/on_surface"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            tools:text="2" />
+
+        <ImageButton
+            android:id="@+id/btnAumentar"
+            android:layout_width="@dimen/toque_minimo"
+            android:layout_height="@dimen/toque_minimo"
+            android:background="@drawable/bg_boton_circular_primario"
+            android:contentDescription="@string/cd_aumentar"
+            android:padding="@dimen/espacio_m"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_add"
+            app:tint="@color/on_primary" />
+
+        <ImageButton
+            android:id="@+id/btnEliminar"
+            android:layout_width="@dimen/toque_minimo"
+            android:layout_height="@dimen/toque_minimo"
+            android:layout_marginStart="@dimen/espacio_s"
+            android:background="@drawable/bg_boton_cantidad"
+            android:contentDescription="@string/cd_eliminar"
+            android:padding="@dimen/espacio_m"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_delete"
+            app:tint="@color/estado_ocupada" />
+    </LinearLayout>
+</LinearLayout>

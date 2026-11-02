@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Dialogo de exito del pedido (rediseno PRB-38): check verde grande,
+    resumen Mesa X · Pedido #Y y boton propio "Volver al Mapa".
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_horizontal"
+    android:orientation="vertical"
+    android:padding="@dimen/espacio_xl">
+
+    <FrameLayout
+        android:layout_width="@dimen/circulo_exito_dialogo"
+        android:layout_height="@dimen/circulo_exito_dialogo"
+        android:background="@drawable/bg_circulo_exito">
+
+        <ImageView
+            android:layout_width="@dimen/icono_exito_dialogo"
+            android:layout_height="@dimen/icono_exito_dialogo"
+            android:layout_gravity="center"
+            android:importantForAccessibility="no"
+            android:src="@drawable/ic_check_blanco" />
+    </FrameLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/espacio_l"
+        android:autoSizeMaxTextSize="24sp"
+        android:autoSizeMinTextSize="15sp"
+        android:autoSizeStepGranularity="1sp"
+        android:autoSizeTextType="uniform"
+        android:breakStrategy="simple"
+        android:ellipsize="none"
+        android:gravity="center"
+        android:hyphenationFrequency="none"
+        android:maxLines="2"
+        android:text="@string/comanda_pedido_enviado_titulo"
+        android:textColor="@color/stitch_primary"
+        android:textSize="22sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/espacio_s"
+        android:autoSizeMaxTextSize="14sp"
+        android:autoSizeMinTextSize="11sp"
+        android:autoSizeStepGranularity="1sp"
+        android:autoSizeTextType="uniform"
+        android:breakStrategy="simple"
+        android:ellipsize="none"
+        android:gravity="center"
+        android:hyphenationFrequency="none"
+        android:maxLines="2"
+        android:text="@string/comanda_pedido_enviado_subtitulo"
+        android:textColor="@color/on_surface_variant"
+        android:textSize="@dimen/texto_secundario" />
+
+    <TextView
+        android:id="@+id/textoExitoMensaje"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/espacio_l"
+        android:autoSizeMaxTextSize="18sp"
+        android:autoSizeMinTextSize="13sp"
+        android:autoSizeStepGranularity="1sp"
+        android:autoSizeTextType="uniform"
+        android:background="@drawable/bg_pill_superficie"
+        android:breakStrategy="simple"
+        android:ellipsize="none"
+        android:gravity="center"
+        android:hyphenationFrequency="none"
+        android:maxLines="2"
+        android:paddingHorizontal="@dimen/espacio_l"
+        android:paddingVertical="@dimen/espacio_s"
+        android:textColor="@color/stitch_primary"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        tools:text="Mesa 7 · Pedido #23" />
+
+    <TextView
+        android:id="@+id/textoExitoTotal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/espacio_l"
+        android:autoSizeMaxTextSize="22sp"
+        android:autoSizeMinTextSize="14sp"
+        android:autoSizeStepGranularity="1sp"
+        android:autoSizeTextType="uniform"
+        android:breakStrategy="simple"
+        android:ellipsize="none"
+        android:gravity="center"
+        android:hyphenationFrequency="none"
+        android:maxLines="1"
+        android:textColor="@color/stitch_primary"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        tools:text="Total: S/ 96.00" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnVolverMapa"
+        style="@style/Boton.Primario"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/alto_boton_primario"
+        android:layout_marginTop="@dimen/espacio_xl"
+        android:autoSizeMaxTextSize="16sp"
+        android:autoSizeMinTextSize="12sp"
+        android:autoSizeStepGranularity="1sp"
+        android:autoSizeTextType="uniform"
+        android:breakStrategy="simple"
+        android:hyphenationFrequency="none"
+        android:maxLines="1"
+        android:text="@string/comanda_pedido_enviado_volver"
+        app:icon="@drawable/ic_check_blanco"
+        app:iconGravity="textStart"
+        app:iconPadding="@dimen/espacio_s"
+        app:iconTint="@color/on_primary" />
+</LinearLayout>

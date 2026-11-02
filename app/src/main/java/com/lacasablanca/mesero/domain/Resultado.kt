@@ -13,6 +13,7 @@ enum class ErrorApp {
     SESION_EXPIRADA,
     ROL_NO_PERMITIDO,
     CONFLICTO,
+    VALIDACION,
     NO_ENCONTRADO,
     SERVIDOR,
     DESCONOCIDO
@@ -20,6 +21,7 @@ enum class ErrorApp {
 
 /** Traduce un codigo HTTP a un error de dominio (401 y 403 = sesion expirada, D9). */
 fun errorDesdeCodigoHttp(codigo: Int): ErrorApp = when (codigo) {
+    400 -> ErrorApp.VALIDACION
     401, 403 -> ErrorApp.SESION_EXPIRADA
     404 -> ErrorApp.NO_ENCONTRADO
     409 -> ErrorApp.CONFLICTO
