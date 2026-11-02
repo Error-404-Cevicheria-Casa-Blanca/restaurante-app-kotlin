@@ -8,13 +8,21 @@ import com.lacasablanca.mesero.data.local.SessionManager
 import com.lacasablanca.mesero.data.local.TokenStore
 import com.lacasablanca.mesero.data.remote.ApiClient
 import com.lacasablanca.mesero.data.remote.AuthApi
+import com.lacasablanca.mesero.data.remote.CatalogoApi
 import com.lacasablanca.mesero.data.remote.MesasApi
+import com.lacasablanca.mesero.data.remote.PedidosApi
 import com.lacasablanca.mesero.data.repository.AuthRepository
+import com.lacasablanca.mesero.data.repository.CatalogoRepository
 import com.lacasablanca.mesero.data.repository.FakeAuthRepository
+import com.lacasablanca.mesero.data.repository.FakeCatalogoRepository
 import com.lacasablanca.mesero.data.repository.FakeMesaRepository
+import com.lacasablanca.mesero.data.repository.FakePedidoRepository
 import com.lacasablanca.mesero.data.repository.MesaRepository
+import com.lacasablanca.mesero.data.repository.PedidoRepository
 import com.lacasablanca.mesero.data.repository.RealAuthRepository
+import com.lacasablanca.mesero.data.repository.RealCatalogoRepository
 import com.lacasablanca.mesero.data.repository.RealMesaRepository
+import com.lacasablanca.mesero.data.repository.RealPedidoRepository
 import retrofit2.Retrofit
 
 /**
@@ -33,6 +41,8 @@ class AppContainer(contexto: Context) {
 
     private val authApi: AuthApi by lazy { retrofit.create(AuthApi::class.java) }
     private val mesasApi: MesasApi by lazy { retrofit.create(MesasApi::class.java) }
+    private val catalogoApi: CatalogoApi by lazy { retrofit.create(CatalogoApi::class.java) }
+    private val pedidosApi: PedidosApi by lazy { retrofit.create(PedidosApi::class.java) }
 
     val authRepository: AuthRepository =
         if (BuildConfig.USE_FAKE_DATA) {
@@ -46,5 +56,19 @@ class AppContainer(contexto: Context) {
             FakeMesaRepository()
         } else {
             RealMesaRepository(mesasApi)
+        }
+
+    val catalogoRepository: CatalogoRepository =
+        if (BuildConfig.USE_FAKE_DATA) {
+            FakeCatalogoRepository()
+        } else {
+            RealCatalogoRepository(catalogoApi)
+        }
+
+    val pedidoRepository: PedidoRepository =
+        if (BuildConfig.USE_FAKE_DATA) {
+            FakePedidoRepository()
+        } else {
+            RealPedidoRepository(pedidosApi)
         }
 }
