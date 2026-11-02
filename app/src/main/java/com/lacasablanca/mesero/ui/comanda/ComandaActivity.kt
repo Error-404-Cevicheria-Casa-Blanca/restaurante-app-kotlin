@@ -2,29 +2,44 @@ package com.lacasablanca.mesero.ui.comanda
 
 import android.content.Intent
 import android.os.Bundle
+import android.text.Layout
+import android.view.View
 import androidx.activity.addCallback
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.chip.Chip
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.lacasablanca.mesero.BuildConfig
 import com.lacasablanca.mesero.MeseroApp
 import com.lacasablanca.mesero.R
 import com.lacasablanca.mesero.core.GenericViewModelFactory
 import com.lacasablanca.mesero.databinding.ActivityComandaBinding
 import com.lacasablanca.mesero.databinding.DialogLiberarMesaBinding
+import com.lacasablanca.mesero.databinding.DialogNotaPlatoBinding
+import com.lacasablanca.mesero.databinding.DialogPedidoEnviadoBinding
 import com.lacasablanca.mesero.domain.ErrorApp
+import com.lacasablanca.mesero.domain.model.Categoria
+import com.lacasablanca.mesero.domain.model.ItemCarrito
+import com.lacasablanca.mesero.domain.model.PedidoEnviado
+import com.lacasablanca.mesero.ui.common.formatearMoneda
 import com.lacasablanca.mesero.ui.login.LoginActivity
 import kotlinx.coroutines.launch
 
 /**
- * Comanda base (HU-03 / PRB-39). Si el mesero intenta salir sin enviar el
- * pedido, se pide confirmacion antes de devolver la mesa a LIBRE (D11).
- * El catalogo y el carrito son PRB-38; cuando existan, se pasara
- * [EXTRA_PEDIDO_ENVIADO] para no liberar una mesa con pedido.
+ * Comanda del mesero (PRB-38 + PRB-39).
+ *
+ * - Catalogo y carrito: [CarritoViewModel] (GET /categorias, GET /productos,
+ *   POST /pedidos). La Activity solo dibuja y reenvia eventos.
+ * - Al salir sin enviar, [ComandaViewModel] libera la mesa (D11/PRB-39).
+ * - Al enviar con exito se marca [EXTRA_PEDIDO_ENVIADO] para que la mesa NO
+ *   se libere al volver al mapa.
  */
 class ComandaActivity : AppCompatActivity() {
 
@@ -32,9 +47,21 @@ class ComandaActivity : AppCompatActivity() {
 
     private val contenedor get() = (application as MeseroApp).container
 
-    private val viewModel: ComandaViewModel by viewModels {
+    private val carritoViewModel: CarritoViewModel by viewModels {
+        GenericViewModelFactory {
+            CarritoViewModel(
+                catalogoRepository = contenedor.catalogoRepository,
+                pedidoRepository = contenedor.pedidoRepository
+            )
+        }
+    }
+
+    private val comandaViewModel: ComandaViewModel by viewModels {
         GenericViewModelFactory { ComandaViewModel(contenedor.mesaRepository) }
     }
+
+    private lateinit var catalogoAdapter: CatalogoAdapter
+    private lateinit var carritoAdapter: CarritoAdapter
 
     private var mesaId = -1L
     private var numeroMesa = 0
@@ -42,6 +69,9 @@ class ComandaActivity : AppCompatActivity() {
     private var saliendo = false
     private var dialogoAbierto: AlertDialog? = null
     private var dialogoLiberar: AlertDialog? = null
+
+    private var categoriasRenderizadas: List<Categoria>? = null
+    private var seleccionRenderizada: Long? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,7 +81,8 @@ class ComandaActivity : AppCompatActivity() {
         mesaId = intent.getLongExtra(EXTRA_MESA_ID, -1L)
         numeroMesa = intent.getIntExtra(EXTRA_MESA_NUMERO, 0)
         val ubicacion = intent.getStringExtra(EXTRA_MESA_UBICACION).orEmpty()
-        pedidoEnviado = intent.getBooleanExtra(EXTRA_PEDIDO_ENVIADO, false)
+        pedidoEnviado = savedInstanceState?.getBoolean(EXTRA_PEDIDO_ENVIADO, false)
+            ?: intent.getBooleanExtra(EXTRA_PEDIDO_ENVIADO, false)
 
         if (mesaId <= 0L || numeroMesa <= 0) {
             finish()
@@ -60,9 +91,10 @@ class ComandaActivity : AppCompatActivity() {
 
         binding.textoTitulo.text = getString(R.string.comanda_titulo, numeroMesa, ubicacion)
         binding.badgeEstado.text = getString(R.string.comanda_badge)
+        binding.textoModoDemo.isVisible = BuildConfig.USE_FAKE_DATA
 
-        binding.btnConfirmar.isEnabled = false
-        binding.btnConfirmar.contentDescription = getString(R.string.comanda_confirmar_deshabilitado)
+        prepararListas()
+        prepararAcciones()
 
         // Atras y la flecha de la toolbar piden confirmacion antes de liberar.
         binding.barraComanda.setNavigationOnClickListener { intentarSalir() }
@@ -70,10 +102,18 @@ class ComandaActivity : AppCompatActivity() {
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                launch { viewModel.estado.collect(::render) }
-                launch { viewModel.eventos.collect(::manejarEvento) }
+                launch { carritoViewModel.estado.collect(::renderCarrito) }
+                launch { carritoViewModel.eventos.collect(::manejarEventoCarrito) }
+                launch { comandaViewModel.estado.collect(::renderComanda) }
+                launch { comandaViewModel.eventos.collect(::manejarEventoComanda) }
             }
         }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        // Si el pedido ya viajo, una rotacion no debe permitir liberar la mesa.
+        outState.putBoolean(EXTRA_PEDIDO_ENVIADO, pedidoEnviado)
+        super.onSaveInstanceState(outState)
     }
 
     override fun onDestroy() {
@@ -83,6 +123,237 @@ class ComandaActivity : AppCompatActivity() {
         super.onDestroy()
     }
 
+    private fun prepararListas() {
+        catalogoAdapter = CatalogoAdapter { producto ->
+            carritoViewModel.agregarProducto(producto)
+        }
+        carritoAdapter = CarritoAdapter(
+            alAumentar = carritoViewModel::aumentarCantidad,
+            alDisminuir = carritoViewModel::disminuirCantidad,
+            alEliminar = carritoViewModel::eliminarProducto,
+            alEditarNotas = ::mostrarDialogoNota
+        )
+
+        binding.listaCatalogo.layoutManager = LinearLayoutManager(this)
+        binding.listaCatalogo.adapter = catalogoAdapter
+
+        binding.listaCarrito.layoutManager = LinearLayoutManager(this)
+        binding.listaCarrito.adapter = carritoAdapter
+    }
+
+    private fun prepararAcciones() {
+        binding.btnConfirmar.isEnabled = false
+        binding.btnConfirmar.contentDescription = getString(R.string.comanda_confirmar_deshabilitado)
+        binding.btnConfirmar.setOnClickListener { carritoViewModel.enviarPedido(mesaId) }
+        binding.btnReintentarCatalogo.setOnClickListener { carritoViewModel.cargar() }
+    }
+
+    // ---------------------------------------------------------------------
+    // Catalogo + carrito
+    // ---------------------------------------------------------------------
+
+    private fun renderCarrito(estado: CarritoUiState) {
+        renderCategorias(estado.categorias, estado.categoriaSeleccionada)
+
+        binding.textoModoDemo.isVisible = BuildConfig.USE_FAKE_DATA
+        binding.progresoCatalogo.isVisible = estado.cargando
+        binding.contenedorErrorCatalogo.isVisible =
+            !estado.cargando && estado.errorCatalogo != null
+        binding.textoCatalogoVacio.isVisible = estado.catalogoVacio
+        binding.listaCatalogo.isVisible =
+            !estado.cargando && estado.errorCatalogo == null && !estado.catalogoVacio
+
+        if (estado.errorCatalogo != null) {
+            binding.textoErrorCatalogo.text = when (estado.errorCatalogo) {
+                ErrorCarrito.RED -> getString(R.string.error_red)
+                ErrorCarrito.SERVIDOR -> getString(R.string.error_generico)
+                ErrorCarrito.DESCONOCIDO -> getString(R.string.comanda_catalogo_error)
+            }
+        }
+
+        catalogoAdapter.submitList(estado.filas)
+        carritoAdapter.submitList(estado.items)
+
+        binding.textoPedidoVacio.isVisible = estado.carritoVacio
+        binding.listaCarrito.isVisible = !estado.carritoVacio
+        binding.textoContadorItems.text = resources.getQuantityString(
+            R.plurals.comanda_contador_items,
+            estado.cantidadItems,
+            estado.cantidadItems
+        )
+
+        binding.textoSubtotal.text = formatearMoneda(estado.subtotal)
+        binding.textoIgv.text = formatearMoneda(estado.igv)
+        binding.textoTotal.text = formatearMoneda(estado.total)
+
+        binding.btnConfirmar.isEnabled = !estado.carritoVacio && !estado.enviando
+        binding.btnConfirmar.text = if (estado.enviando) {
+            getString(R.string.comanda_enviando)
+        } else {
+            getString(R.string.comanda_confirmar)
+        }
+        binding.btnConfirmar.contentDescription = when {
+            estado.enviando -> getString(R.string.comanda_enviando)
+            estado.carritoVacio -> getString(R.string.comanda_confirmar_deshabilitado)
+            else -> getString(R.string.comanda_confirmar)
+        }
+    }
+
+    /**
+     * Reconstruye los chips solo cuando cambian las categorias o la seleccion.
+     * Evita parpadeos y llamadas al ViewModel durante cada cambio del carrito.
+     */
+    private fun renderCategorias(categorias: List<Categoria>, seleccionada: Long?) {
+        if (categorias == categoriasRenderizadas &&
+            seleccionada == seleccionRenderizada &&
+            binding.grupoCategorias.childCount > 0
+        ) {
+            return
+        }
+
+        categoriasRenderizadas = categorias
+        seleccionRenderizada = seleccionada
+        binding.grupoCategorias.removeAllViews()
+
+        binding.grupoCategorias.addView(
+            crearChip(
+                texto = getString(R.string.comanda_categoria_todas),
+                categoriaId = null,
+                marcado = seleccionada == null
+            )
+        )
+        categorias.forEach { categoria ->
+            binding.grupoCategorias.addView(
+                crearChip(
+                    texto = categoria.nombre,
+                    categoriaId = categoria.id,
+                    marcado = seleccionada == categoria.id
+                )
+            )
+        }
+    }
+
+    private fun crearChip(texto: String, categoriaId: Long?, marcado: Boolean): Chip {
+        val chip = Chip(this)
+        chip.id = View.generateViewId()
+        chip.text = texto
+        chip.isCheckable = true
+        chip.isChecked = marcado
+        chip.isClickable = true
+        chip.setEnsureMinTouchTargetSize(true)
+        chip.minHeight = resources.getDimensionPixelSize(R.dimen.toque_minimo)
+        chip.chipStrokeWidth = 0f
+        chip.setChipBackgroundColorResource(R.color.selector_fondo_chip_categoria)
+        chip.setTextColor(
+            ContextCompat.getColorStateList(this, R.color.selector_texto_chip_categoria)
+        )
+        chip.setBreakStrategy(Layout.BREAK_STRATEGY_SIMPLE)
+        chip.hyphenationFrequency = Layout.HYPHENATION_FREQUENCY_NONE
+        chip.contentDescription = getString(R.string.cd_categoria, texto)
+        chip.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) carritoViewModel.filtrarCategoria(categoriaId)
+        }
+        return chip
+    }
+
+    private fun manejarEventoCarrito(evento: CarritoEvento) {
+        when (evento) {
+            is CarritoEvento.PedidoEnviadoOk -> {
+                // A partir de aqui la mesa NO debe liberarse al salir.
+                pedidoEnviado = true
+                mostrarDialogoPedidoEnviado(evento.pedido)
+            }
+
+            is CarritoEvento.ErrorAlEnviar -> mostrarDialogoErrorEnvio(evento.error)
+            CarritoEvento.SesionExpirada -> mostrarDialogoSesionExpirada()
+        }
+    }
+
+    private fun mostrarDialogoPedidoEnviado(pedido: PedidoEnviado) {
+        cerrarDialogoAbierto()
+
+        val contenido = DialogPedidoEnviadoBinding.inflate(layoutInflater)
+        contenido.textoExitoMensaje.text = getString(
+            R.string.comanda_pedido_enviado_mensaje,
+            numeroMesa,
+            pedido.id
+        )
+        contenido.textoExitoTotal.text = getString(
+            R.string.comanda_pedido_enviado_total,
+            formatearMoneda(pedido.total)
+        )
+
+        val dialogo = MaterialAlertDialogBuilder(this)
+            .setView(contenido.root)
+            .setCancelable(false)
+            .setPositiveButton(R.string.comanda_pedido_enviado_listo) { dialog, _ ->
+                dialog.dismiss()
+                terminar(mesaLiberada = false, liberarPendiente = false)
+            }
+            .create()
+
+        dialogo.setCanceledOnTouchOutside(false)
+        dialogo.setOnDismissListener { if (dialogoAbierto === dialogo) dialogoAbierto = null }
+        dialogo.show()
+        dialogoAbierto = dialogo
+    }
+
+    private fun mostrarDialogoNota(item: ItemCarrito) {
+        cerrarDialogoAbierto()
+
+        val contenido = DialogNotaPlatoBinding.inflate(layoutInflater)
+        contenido.textoNota.setText(item.notas)
+        contenido.textoNota.setSelection(item.notas.length)
+
+        val dialogo = MaterialAlertDialogBuilder(this)
+            .setTitle(getString(R.string.comanda_nota_titulo, item.producto.nombre))
+            .setView(contenido.root)
+            .setPositiveButton(R.string.comanda_nota_guardar) { _, _ ->
+                carritoViewModel.actualizarNotas(
+                    item.producto.id,
+                    contenido.textoNota.text?.toString().orEmpty()
+                )
+            }
+            .setNegativeButton(R.string.accion_cancelar, null)
+            .create()
+
+        dialogo.setOnDismissListener { if (dialogoAbierto === dialogo) dialogoAbierto = null }
+        dialogo.show()
+        dialogoAbierto = dialogo
+    }
+
+    private fun mostrarDialogoErrorEnvio(error: ErrorApp) {
+        if (error == ErrorApp.SESION_EXPIRADA) {
+            mostrarDialogoSesionExpirada()
+            return
+        }
+
+        mostrarDialogo(
+            titulo = getString(R.string.comanda_error_envio_titulo),
+            mensaje = mensajeErrorEnvio(error),
+            cancelable = true,
+            textoPositivo = R.string.accion_reintentar,
+            alAceptar = { carritoViewModel.enviarPedido(mesaId) },
+            textoNegativo = R.string.accion_cancelar
+        )
+    }
+
+    private fun mensajeErrorEnvio(error: ErrorApp): String = when (error) {
+        ErrorApp.RED -> getString(R.string.comanda_error_envio_red)
+        ErrorApp.CONFLICTO -> getString(R.string.comanda_error_envio_conflicto)
+        ErrorApp.VALIDACION -> getString(R.string.comanda_error_envio_validacion)
+        else -> getString(R.string.comanda_error_envio_generico)
+    }
+
+    // ---------------------------------------------------------------------
+    // Liberacion de mesa (PRB-39)
+    // ---------------------------------------------------------------------
+
+    private fun renderComanda(estado: ComandaUiState) {
+        val alpha = if (estado.liberandoMesa) ALPHA_DESHABILITADO else ALPHA_ACTIVO
+        binding.barraComanda.navigationIcon?.alpha = alpha
+    }
+
     /**
      * Atras y la flecha de la toolbar abren el dialogo de confirmacion.
      * Si el pedido ya se envio (PRB-38), la mesa no se libera.
@@ -90,17 +361,12 @@ class ComandaActivity : AppCompatActivity() {
     private fun intentarSalir() {
         if (saliendo || dialogoLiberar?.isShowing == true) return
         if (pedidoEnviado) {
-            // PRB-38: el pedido ya viajo al backend; la mesa debe quedar OCUPADA.
             terminar(mesaLiberada = false, liberarPendiente = false)
             return
         }
         mostrarDialogoLiberarMesa()
     }
 
-    /**
-     * Dialogo premium de confirmacion. Mientras el PATCH esta en vuelo se
-     * bloquea la cancelacion y se muestra el ProgressBar integrado.
-     */
     private fun mostrarDialogoLiberarMesa() {
         cerrarDialogoAbierto()
 
@@ -118,9 +384,7 @@ class ComandaActivity : AppCompatActivity() {
 
         dialogo.setCanceledOnTouchOutside(true)
         dialogo.setOnDismissListener {
-            if (dialogoLiberar === dialogo) {
-                dialogoLiberar = null
-            }
+            if (dialogoLiberar === dialogo) dialogoLiberar = null
             if (dialogoAbierto === dialogo) dialogoAbierto = null
         }
         dialogo.show()
@@ -133,7 +397,6 @@ class ComandaActivity : AppCompatActivity() {
         if (saliendo) return
         saliendo = true
 
-        // Una vez confirmado no se puede cerrar el dialogo hasta recibir respuesta.
         dialogoLiberar?.setCancelable(false)
         dialogoLiberar?.setCanceledOnTouchOutside(false)
 
@@ -141,15 +404,10 @@ class ComandaActivity : AppCompatActivity() {
         contenido.progresoLiberar.isVisible = true
         contenido.textoProgreso.isVisible = true
 
-        viewModel.liberarMesa(mesaId)
+        comandaViewModel.liberarMesa(mesaId)
     }
 
-    private fun render(estado: ComandaUiState) {
-        val alpha = if (estado.liberandoMesa) ALPHA_DESHABILITADO else ALPHA_ACTIVO
-        binding.barraComanda.navigationIcon?.alpha = alpha
-    }
-
-    private fun manejarEvento(evento: ComandaEvento) {
+    private fun manejarEventoComanda(evento: ComandaEvento) {
         when (evento) {
             ComandaEvento.MesaLiberada -> {
                 cerrarDialogoLiberar()
@@ -242,6 +500,8 @@ class ComandaActivity : AppCompatActivity() {
      * Devuelve el control al mapa de mesas.
      * [liberarPendiente] pide a MesasActivity un ultimo intento con
      * `MesasViewModel.liberarMesa()` si el PATCH fallo aqui.
+     * [EXTRA_PEDIDO_ENVIADO] queda en true cuando el POST /pedidos fue exitoso:
+     * la mesa se queda en su estado de atencion y no se libera.
      */
     private fun terminar(mesaLiberada: Boolean, liberarPendiente: Boolean) {
         if (isFinishing) return
@@ -249,6 +509,7 @@ class ComandaActivity : AppCompatActivity() {
             putExtra(EXTRA_MESA_ID, mesaId)
             putExtra(EXTRA_MESA_LIBERADA, mesaLiberada)
             putExtra(EXTRA_LIBERAR_PENDIENTE, liberarPendiente)
+            putExtra(EXTRA_PEDIDO_ENVIADO, pedidoEnviado)
         }
         setResult(RESULT_OK, datos)
         finish()
@@ -267,7 +528,7 @@ class ComandaActivity : AppCompatActivity() {
         const val EXTRA_MESA_NUMERO = "extra_mesa_numero"
         const val EXTRA_MESA_UBICACION = "extra_mesa_ubicacion"
 
-        /** PRB-38 lo pondra en true cuando la comanda se haya enviado. */
+        /** true cuando POST /api/v1/pedidos respondio 201: la mesa no se libera. */
         const val EXTRA_PEDIDO_ENVIADO = "extra_pedido_enviado"
 
         const val EXTRA_MESA_LIBERADA = "extra_mesa_liberada"

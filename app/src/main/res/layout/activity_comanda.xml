@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    Comanda movil (Stitch m_vil_vista_de_comanda/code.html).
-    Cabecera blanca, catalogo con imagenes de ejemplo y tarjeta de pedido.
+    Comanda movil (PRB-38): una sola columna con el catalogo agrupado por
+    categorias y, debajo, el carrito con subtotal, IGV (18%), total y el
+    boton "Confirmar y Enviar". Los IDs deben coincidir con layout-sw600dp.
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -25,11 +26,13 @@
         app:title="@string/comanda_barra_titulo"
         app:titleTextColor="@color/stitch_primary" />
 
-    <ScrollView
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:fillViewport="true">
+        android:clipToPadding="false"
+        android:fillViewport="true"
+        android:scrollbars="vertical">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -63,6 +66,10 @@
                             android:layout_height="wrap_content"
                             android:layout_marginEnd="@dimen/espacio_s"
                             android:layout_weight="1"
+                            android:autoSizeMaxTextSize="20sp"
+                            android:autoSizeMinTextSize="14sp"
+                            android:autoSizeStepGranularity="1sp"
+                            android:autoSizeTextType="uniform"
                             android:breakStrategy="simple"
                             android:ellipsize="none"
                             android:hyphenationFrequency="none"
@@ -92,91 +99,25 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Categorias (pills) -->
+            <!-- Filtros de categoria (dinamicos desde GET /categorias) -->
             <HorizontalScrollView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/espacio_m"
+                android:clipToPadding="false"
                 android:scrollbars="none">
 
-                <LinearLayout
+                <com.google.android.material.chip.ChipGroup
+                    android:id="@+id/grupoCategorias"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="44dp"
-                        android:background="@drawable/bg_categoria_activa"
-                        android:gravity="center"
-                        android:paddingHorizontal="@dimen/espacio_l"
-                        android:text="@string/comanda_categoria_entradas"
-                        android:textColor="@color/on_primary"
-                        android:textSize="@dimen/texto_secundario"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="44dp"
-                        android:layout_marginStart="@dimen/espacio_s"
-                        android:background="@drawable/bg_categoria_inactiva"
-                        android:gravity="center"
-                        android:paddingHorizontal="@dimen/espacio_l"
-                        android:text="@string/comanda_categoria_fondos"
-                        android:textColor="@color/on_surface"
-                        android:textSize="@dimen/texto_secundario" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="44dp"
-                        android:layout_marginStart="@dimen/espacio_s"
-                        android:background="@drawable/bg_categoria_inactiva"
-                        android:gravity="center"
-                        android:paddingHorizontal="@dimen/espacio_l"
-                        android:text="@string/comanda_categoria_bebidas"
-                        android:textColor="@color/on_surface"
-                        android:textSize="@dimen/texto_secundario" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="44dp"
-                        android:layout_marginStart="@dimen/espacio_s"
-                        android:background="@drawable/bg_categoria_inactiva"
-                        android:gravity="center"
-                        android:paddingHorizontal="@dimen/espacio_l"
-                        android:text="@string/comanda_categoria_postres"
-                        android:textColor="@color/on_surface"
-                        android:textSize="@dimen/texto_secundario" />
-                </LinearLayout>
+                    app:chipSpacingHorizontal="@dimen/espacio_s"
+                    app:selectionRequired="true"
+                    app:singleLine="true"
+                    app:singleSelection="true" />
             </HorizontalScrollView>
 
-            <!-- Buscador visual -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="44dp"
-                android:layout_marginTop="@dimen/espacio_m"
-                android:background="@drawable/bg_campo_busqueda"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:paddingHorizontal="@dimen/espacio_m">
-
-                <ImageView
-                    android:layout_width="@dimen/icono_mediano"
-                    android:layout_height="@dimen/icono_mediano"
-                    android:contentDescription="@string/comanda_buscar_placeholder"
-                    android:src="@drawable/ic_search"
-                    app:tint="@color/on_surface_variant" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/espacio_s"
-                    android:text="@string/comanda_buscar_placeholder"
-                    android:textColor="@color/outline"
-                    android:textSize="@dimen/texto_secundario" />
-            </LinearLayout>
-
-            <!-- Catalogo (vista previa del diseno, con imagenes solicitadas) -->
+            <!-- Catalogo agrupado por categorias -->
             <com.google.android.material.card.MaterialCardView
                 style="@style/Tarjeta.Superficie"
                 android:layout_width="match_parent"
@@ -199,182 +140,102 @@
                         <TextView
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
+                            android:layout_marginEnd="@dimen/espacio_s"
                             android:layout_weight="1"
+                            android:breakStrategy="simple"
+                            android:hyphenationFrequency="none"
                             android:text="@string/comanda_catalogo_titulo"
                             android:textColor="@color/stitch_primary"
                             android:textSize="@dimen/texto_titulo_tarjeta"
                             android:textStyle="bold" />
 
                         <TextView
+                            android:id="@+id/textoModoDemo"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:autoSizeMaxTextSize="12sp"
+                            android:autoSizeMinTextSize="10sp"
+                            android:autoSizeStepGranularity="1sp"
+                            android:autoSizeTextType="uniform"
                             android:background="@drawable/bg_pill_lima"
+                            android:breakStrategy="simple"
+                            android:hyphenationFrequency="none"
+                            android:maxLines="2"
                             android:paddingHorizontal="@dimen/espacio_s"
                             android:paddingVertical="@dimen/espacio_xs"
                             android:text="@string/comanda_catalogo_demo"
                             android:textColor="@color/on_secondary_fixed"
-                            android:textSize="10sp"
-                            android:textStyle="bold" />
+                            android:textSize="@dimen/texto_etiqueta"
+                            android:textStyle="bold"
+                            android:visibility="gone"
+                            tools:visibility="visible" />
                     </LinearLayout>
 
-                    <!-- Plato 1: ceviche -->
+                    <ProgressBar
+                        android:id="@+id/progresoCatalogo"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_marginVertical="@dimen/espacio_l"
+                        android:indeterminateTint="@color/primary"
+                        android:visibility="gone"
+                        tools:visibility="visible" />
+
                     <LinearLayout
+                        android:id="@+id/contenedorErrorCatalogo"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/espacio_m"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal">
+                        android:gravity="center_horizontal"
+                        android:orientation="vertical"
+                        android:paddingVertical="@dimen/espacio_l"
+                        android:visibility="gone">
 
-                        <com.google.android.material.card.MaterialCardView
-                            android:layout_width="@dimen/ancho_imagen_plato"
-                            android:layout_height="@dimen/alto_imagen_plato"
-                            app:cardBackgroundColor="@color/surface_container"
-                            app:cardCornerRadius="@dimen/espacio_m"
-                            app:cardElevation="0dp"
-                            app:strokeWidth="0dp">
-
-                            <ImageView
-                                android:layout_width="match_parent"
-                                android:layout_height="match_parent"
-                                android:contentDescription="@string/cd_imagen_ceviche"
-                                android:scaleType="centerCrop"
-                                android:src="@drawable/img_ceviche" />
-                        </com.google.android.material.card.MaterialCardView>
-
-                        <LinearLayout
-                            android:layout_width="0dp"
+                        <TextView
+                            android:id="@+id/textoErrorCatalogo"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginStart="@dimen/espacio_m"
-                            android:layout_weight="1"
-                            android:orientation="vertical">
-
-                            <TextView
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:breakStrategy="simple"
-                                android:ellipsize="none"
-                                android:hyphenationFrequency="none"
-                                android:maxLines="2"
-                                android:text="@string/comanda_plato_ceviche"
-                                android:textColor="@color/on_surface"
-                                android:textSize="@dimen/texto_cuerpo"
-                                android:textStyle="bold" />
-
-                            <TextView
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="2dp"
-                                android:breakStrategy="simple"
-                                android:ellipsize="none"
-                                android:hyphenationFrequency="none"
-                                android:maxLines="2"
-                                android:text="@string/comanda_plato_ceviche_desc"
-                                android:textColor="@color/on_surface_variant"
-                                android:textSize="@dimen/texto_etiqueta" />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="@dimen/espacio_xs"
-                                android:text="@string/comanda_precio_ceviche"
-                                android:textColor="@color/stitch_primary"
-                                android:textSize="@dimen/texto_titulo_tarjeta"
-                                android:textStyle="bold" />
-                        </LinearLayout>
+                            android:breakStrategy="simple"
+                            android:gravity="center"
+                            android:hyphenationFrequency="none"
+                            android:text="@string/comanda_catalogo_error"
+                            android:textColor="@color/on_surface_variant"
+                            android:textSize="@dimen/texto_secundario" />
 
                         <com.google.android.material.button.MaterialButton
-                            style="@style/Boton.AgregarPlato"
+                            android:id="@+id/btnReintentarCatalogo"
+                            style="@style/Boton.Secundario"
                             android:layout_width="wrap_content"
-                            android:layout_height="@dimen/toque_minimo"
-                            android:layout_marginStart="@dimen/espacio_s"
-                            android:contentDescription="@string/cd_agregar_ceviche"
-                            android:enabled="false"
-                            app:icon="@drawable/ic_add" />
+                            android:layout_marginTop="@dimen/espacio_s"
+                            android:text="@string/accion_reintentar" />
                     </LinearLayout>
 
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="@dimen/borde_tarjeta"
-                        android:layout_marginVertical="@dimen/espacio_m"
-                        android:background="@color/surface_variant" />
-
-                    <!-- Plato 2: tiradito -->
-                    <LinearLayout
+                    <TextView
+                        android:id="@+id/textoCatalogoVacio"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal">
+                        android:breakStrategy="simple"
+                        android:gravity="center"
+                        android:hyphenationFrequency="none"
+                        android:paddingVertical="@dimen/espacio_l"
+                        android:text="@string/comanda_catalogo_vacio"
+                        android:textColor="@color/on_surface_variant"
+                        android:textSize="@dimen/texto_secundario"
+                        android:visibility="gone" />
 
-                        <com.google.android.material.card.MaterialCardView
-                            android:layout_width="@dimen/ancho_imagen_plato"
-                            android:layout_height="@dimen/alto_imagen_plato"
-                            app:cardBackgroundColor="@color/surface_container"
-                            app:cardCornerRadius="@dimen/espacio_m"
-                            app:cardElevation="0dp"
-                            app:strokeWidth="0dp">
-
-                            <ImageView
-                                android:layout_width="match_parent"
-                                android:layout_height="match_parent"
-                                android:contentDescription="@string/cd_imagen_tiradito"
-                                android:scaleType="centerCrop"
-                                android:src="@drawable/img_tiradito" />
-                        </com.google.android.material.card.MaterialCardView>
-
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="@dimen/espacio_m"
-                            android:layout_weight="1"
-                            android:orientation="vertical">
-
-                            <TextView
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:breakStrategy="simple"
-                                android:ellipsize="none"
-                                android:hyphenationFrequency="none"
-                                android:maxLines="2"
-                                android:text="@string/comanda_plato_tiradito"
-                                android:textColor="@color/on_surface"
-                                android:textSize="@dimen/texto_cuerpo"
-                                android:textStyle="bold" />
-
-                            <TextView
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="2dp"
-                                android:breakStrategy="simple"
-                                android:ellipsize="none"
-                                android:hyphenationFrequency="none"
-                                android:maxLines="2"
-                                android:text="@string/comanda_plato_tiradito_desc"
-                                android:textColor="@color/on_surface_variant"
-                                android:textSize="@dimen/texto_etiqueta" />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="@dimen/espacio_xs"
-                                android:text="@string/comanda_precio_tiradito"
-                                android:textColor="@color/stitch_primary"
-                                android:textSize="@dimen/texto_titulo_tarjeta"
-                                android:textStyle="bold" />
-                        </LinearLayout>
-
-                        <com.google.android.material.button.MaterialButton
-                            style="@style/Boton.AgregarPlato"
-                            android:layout_width="wrap_content"
-                            android:layout_height="@dimen/toque_minimo"
-                            android:layout_marginStart="@dimen/espacio_s"
-                            android:contentDescription="@string/cd_agregar_tiradito"
-                            android:enabled="false"
-                            app:icon="@drawable/ic_add" />
-                    </LinearLayout>
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/listaCatalogo"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/espacio_s"
+                        android:clipToPadding="false"
+                        android:nestedScrollingEnabled="false"
+                        android:overScrollMode="never"
+                        android:visibility="gone"
+                        tools:listitem="@layout/item_catalogo_producto" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Pedido actual -->
+            <!-- Carrito -->
             <com.google.android.material.card.MaterialCardView
                 style="@style/Tarjeta.Superficie"
                 android:layout_width="match_parent"
@@ -394,21 +255,42 @@
                         android:gravity="center_vertical"
                         android:orientation="horizontal">
 
-                        <TextView
+                        <LinearLayout
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="@string/comanda_pedido_titulo"
-                            android:textColor="@color/on_surface"
-                            android:textSize="@dimen/texto_titulo_tarjeta"
-                            android:textStyle="bold" />
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:breakStrategy="simple"
+                                android:hyphenationFrequency="none"
+                                android:text="@string/comanda_pedido_titulo"
+                                android:textColor="@color/on_surface"
+                                android:textSize="@dimen/texto_titulo_tarjeta"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:breakStrategy="simple"
+                                android:hyphenationFrequency="none"
+                                android:text="@string/comanda_pedido_subtitulo"
+                                android:textColor="@color/on_surface_variant"
+                                android:textSize="@dimen/texto_etiqueta" />
+                        </LinearLayout>
 
                         <TextView
+                            android:id="@+id/textoContadorItems"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="@string/comanda_pedido_subtitulo"
+                            android:breakStrategy="simple"
+                            android:hyphenationFrequency="none"
                             android:textColor="@color/on_surface_variant"
-                            android:textSize="@dimen/texto_etiqueta" />
+                            android:textSize="@dimen/texto_etiqueta"
+                            tools:text="2 ítems" />
                     </LinearLayout>
 
                     <TextView
@@ -423,6 +305,18 @@
                         android:text="@string/comanda_pedido_vacio"
                         android:textColor="@color/on_surface_variant"
                         android:textSize="@dimen/texto_secundario" />
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/listaCarrito"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/alto_lista_carrito_movil"
+                        android:layout_marginTop="@dimen/espacio_s"
+                        android:clipToPadding="false"
+                        android:nestedScrollingEnabled="true"
+                        android:overScrollMode="never"
+                        android:scrollbars="vertical"
+                        android:visibility="gone"
+                        tools:listitem="@layout/item_carrito" />
 
                     <View
                         android:layout_width="match_parent"
@@ -440,6 +334,8 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
+                            android:breakStrategy="simple"
+                            android:hyphenationFrequency="none"
                             android:text="@string/comanda_subtotal"
                             android:textColor="@color/on_surface_variant"
                             android:textSize="@dimen/texto_cuerpo" />
@@ -448,15 +344,87 @@
                             android:id="@+id/textoSubtotal"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:autoSizeMaxTextSize="18sp"
+                            android:autoSizeMinTextSize="12sp"
+                            android:autoSizeStepGranularity="1sp"
+                            android:autoSizeTextType="uniform"
+                            android:breakStrategy="simple"
+                            android:hyphenationFrequency="none"
                             android:text="@string/comanda_monto_cero"
                             android:textColor="@color/stitch_primary"
-                            android:textSize="24sp"
+                            android:textSize="18sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/espacio_xs"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:breakStrategy="simple"
+                            android:hyphenationFrequency="none"
+                            android:text="@string/comanda_igv"
+                            android:textColor="@color/on_surface_variant"
+                            android:textSize="@dimen/texto_secundario" />
+
+                        <TextView
+                            android:id="@+id/textoIgv"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:autoSizeMaxTextSize="14sp"
+                            android:autoSizeMinTextSize="12sp"
+                            android:autoSizeStepGranularity="1sp"
+                            android:autoSizeTextType="uniform"
+                            android:breakStrategy="simple"
+                            android:hyphenationFrequency="none"
+                            android:text="@string/comanda_monto_cero"
+                            android:textColor="@color/on_surface_variant"
+                            android:textSize="@dimen/texto_secundario" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/espacio_xs"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:breakStrategy="simple"
+                            android:hyphenationFrequency="none"
+                            android:text="@string/comanda_total"
+                            android:textColor="@color/on_surface"
+                            android:textSize="@dimen/texto_cuerpo"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/textoTotal"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:autoSizeMaxTextSize="20sp"
+                            android:autoSizeMinTextSize="14sp"
+                            android:autoSizeStepGranularity="1sp"
+                            android:autoSizeTextType="uniform"
+                            android:breakStrategy="simple"
+                            android:hyphenationFrequency="none"
+                            android:text="@string/comanda_monto_cero"
+                            android:textColor="@color/stitch_primary"
+                            android:textSize="@dimen/texto_titulo_tarjeta"
                             android:textStyle="bold" />
                     </LinearLayout>
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnConfirmar"
-                        style="@style/Boton.Primario"
+                        style="@style/Boton.Exito"
                         android:layout_width="match_parent"
                         android:layout_marginTop="@dimen/espacio_m"
                         android:enabled="false"
@@ -464,5 +432,5 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
         </LinearLayout>
-    </ScrollView>
+    </androidx.core.widget.NestedScrollView>
 </LinearLayout>

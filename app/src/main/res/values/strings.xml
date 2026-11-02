@@ -101,7 +101,7 @@
     <string name="comanda_titulo">Mesa %1$d · %2$s</string>
     <string name="comanda_badge">En atención</string>
     <string name="comanda_catalogo_titulo">Catálogo</string>
-    <string name="comanda_catalogo_demo">Vista previa de diseño · datos de ejemplo</string>
+    <string name="comanda_catalogo_demo">Datos de demostración</string>
     <string name="comanda_categoria_entradas">Entradas</string>
     <string name="comanda_categoria_fondos">Fondos</string>
     <string name="comanda_categoria_bebidas">Bebidas</string>
@@ -119,9 +119,54 @@
     <string name="comanda_pedido_vacio">Aún no hay platos en el pedido.</string>
     <string name="comanda_subtotal">Subtotal</string>
     <string name="comanda_monto_cero">S/ 0.00</string>
-    <string name="comanda_confirmar">Confirmar y enviar comanda</string>
+    <string name="comanda_confirmar">Confirmar y Enviar</string>
     <string name="comanda_confirmar_deshabilitado">Agrega al menos un plato para enviar la comanda.</string>
     <string name="comanda_salir_sin_liberar">Salir sin liberar</string>
+
+    <!-- Catalogo y carrito (PRB-38) -->
+    <string name="comanda_categoria_todas">Todas</string>
+    <string name="comanda_categoria_otros">Otros</string>
+    <string name="comanda_catalogo_error">No se pudo cargar el catálogo.</string>
+    <string name="comanda_catalogo_vacio">No hay platos disponibles en la carta.</string>
+    <string name="comanda_no_disponible">No disponible</string>
+    <string name="comanda_igv">IGV (18%)</string>
+    <string name="comanda_total">Total</string>
+    <string name="comanda_enviando">Enviando…</string>
+    <string name="comanda_carrito_precio">%1$s c/u · %2$s</string>
+    <string name="comanda_cantidad_cd">Cantidad: %1$d</string>
+    <plurals name="comanda_contador_items">
+        <item quantity="one">%1$d ítem</item>
+        <item quantity="other">%1$d ítems</item>
+    </plurals>
+
+    <!-- Dialogos de envio de pedido (PRB-38) -->
+    <string name="comanda_pedido_enviado_titulo">Pedido enviado a cocina</string>
+    <string name="comanda_pedido_enviado_mensaje">Mesa %1$d · Pedido #%2$d</string>
+    <string name="comanda_pedido_enviado_total">Total: %1$s</string>
+    <string name="comanda_pedido_enviado_listo">Listo</string>
+    <string name="comanda_error_envio_titulo">No se pudo enviar el pedido</string>
+    <string name="comanda_error_envio_red">Revisa la red local e inténtalo de nuevo.</string>
+    <string name="comanda_error_envio_conflicto">La mesa ya no está disponible para un nuevo pedido.</string>
+    <string name="comanda_error_envio_validacion">Revisa las cantidades del pedido e inténtalo de nuevo.</string>
+    <string name="comanda_error_envio_generico">Ocurrió un error al enviar el pedido. Inténtalo de nuevo.</string>
+    <string name="accion_cancelar">Cancelar</string>
+    <string name="comanda_nota_titulo">Nota para %1$s</string>
+    <string name="comanda_nota_hint">Ej. sin picante, sin ají</string>
+    <string name="comanda_nota_guardar">Guardar</string>
+    <string name="comanda_nota_etiqueta">Nota: %1$s</string>
+    <string name="cd_nota_producto">Agregar o editar la nota de %1$s</string>
+    <string name="cd_nota">Agregar o editar la nota del plato</string>
+
+    <!-- Accesibilidad del catalogo y carrito (PRB-38) -->
+    <string name="cd_agregar_producto">Agregar %1$s al pedido</string>
+    <string name="cd_imagen_producto">Fotografía de %1$s</string>
+    <string name="cd_aumentar_producto">Agregar una unidad de %1$s</string>
+    <string name="cd_disminuir_producto">Quitar una unidad de %1$s</string>
+    <string name="cd_eliminar_producto">Eliminar %1$s del pedido</string>
+    <string name="cd_categoria">Filtrar por %1$s</string>
+    <string name="cd_disminuir">Quitar una unidad</string>
+    <string name="cd_aumentar">Agregar una unidad</string>
+    <string name="cd_eliminar">Eliminar plato</string>
     <string name="cd_agregar_ceviche">Agregar Ceviche Clásico a la comanda</string>
     <string name="cd_agregar_tiradito">Agregar Tiradito al Ají Amarillo a la comanda</string>
     <string name="cd_imagen_ceviche">Fotografía del Ceviche Clásico</string>

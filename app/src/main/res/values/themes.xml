@@ -179,6 +179,18 @@
         <item name="android:textStyle">bold</item>
     </style>
 
+    <!-- Boton de exito de la comanda (PRB-38): verde de la paleta #2E9E5B -->
+    <style name="Boton.Exito" parent="Widget.Material3.Button">
+        <item name="android:layout_height">@dimen/alto_boton_primario</item>
+        <item name="cornerRadius">@dimen/radio_boton</item>
+        <item name="backgroundTint">@color/selector_fondo_boton_exito</item>
+        <item name="android:textColor">@color/selector_texto_boton_exito</item>
+        <item name="iconTint">@color/selector_texto_boton_exito</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">@dimen/texto_cuerpo</item>
+    </style>
+
     <style name="Boton.AgregarPlato" parent="Widget.Material3.Button">
         <item name="android:layout_height">@dimen/toque_minimo</item>
         <item name="android:minWidth">@dimen/toque_minimo</item>

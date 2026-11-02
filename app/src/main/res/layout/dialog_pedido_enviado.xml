@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_horizontal"
+    android:orientation="vertical"
+    android:padding="@dimen/espacio_xl">
+
+    <FrameLayout
+        android:layout_width="@dimen/circulo_exito_dialogo"
+        android:layout_height="@dimen/circulo_exito_dialogo"
+        android:background="@drawable/bg_circulo_exito">
+
+        <ImageView
+            android:layout_width="@dimen/icono_exito_dialogo"
+            android:layout_height="@dimen/icono_exito_dialogo"
+            android:layout_gravity="center"
+            android:importantForAccessibility="no"
+            android:src="@drawable/ic_check_blanco" />
+    </FrameLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/espacio_m"
+        android:autoSizeMaxTextSize="20sp"
+        android:autoSizeMinTextSize="14sp"
+        android:autoSizeStepGranularity="1sp"
+        android:autoSizeTextType="uniform"
+        android:breakStrategy="simple"
+        android:gravity="center"
+        android:hyphenationFrequency="none"
+        android:text="@string/comanda_pedido_enviado_titulo"
+        android:textColor="@color/stitch_primary"
+        android:textSize="20sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/textoExitoMensaje"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/espacio_s"
+        android:autoSizeMaxTextSize="14sp"
+        android:autoSizeMinTextSize="12sp"
+        android:autoSizeStepGranularity="1sp"
+        android:autoSizeTextType="uniform"
+        android:breakStrategy="simple"
+        android:gravity="center"
+        android:hyphenationFrequency="none"
+        android:textColor="@color/on_surface_variant"
+        android:textSize="14sp"
+        tools:text="Mesa 7 · Pedido #23" />
+
+    <TextView
+        android:id="@+id/textoExitoTotal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/espacio_xs"
+        android:autoSizeMaxTextSize="18sp"
+        android:autoSizeMinTextSize="13sp"
+        android:autoSizeStepGranularity="1sp"
+        android:autoSizeTextType="uniform"
+        android:breakStrategy="simple"
+        android:gravity="center"
+        android:hyphenationFrequency="none"
+        android:textColor="@color/stitch_primary"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        tools:text="Total: S/ 96.00" />
+</LinearLayout>

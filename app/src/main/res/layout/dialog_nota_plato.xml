@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="@dimen/espacio_xl">
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/campoNota"
+        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:counterEnabled="true"
+        app:counterMaxLength="120"
+        app:hintEnabled="true">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/textoNota"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:breakStrategy="simple"
+            android:hint="@string/comanda_nota_hint"
+            android:hyphenationFrequency="none"
+            android:inputType="textCapSentences|textMultiLine"
+            android:maxLength="120"
+            android:maxLines="4"
+            android:minLines="2"
+            android:textColor="@color/on_surface"
+            android:textSize="@dimen/texto_cuerpo" />
+    </com.google.android.material.textfield.TextInputLayout>
+</LinearLayout>

@@ -56,4 +56,12 @@
     <dimen name="alto_imagen_plato">80dp</dimen>
     <dimen name="ancho_imagen_plato">80dp</dimen>
     <dimen name="ancho_panel_login">360dp</dimen>
+
+    <!-- Catalogo y carrito (PRB-38) -->
+    <dimen name="ancho_imagen_catalogo">72dp</dimen>
+    <dimen name="alto_imagen_catalogo">72dp</dimen>
+    <dimen name="alto_lista_carrito_movil">180dp</dimen>
+    <dimen name="ancho_cantidad_carrito">40dp</dimen>
+    <dimen name="icono_exito_dialogo">40dp</dimen>
+    <dimen name="circulo_exito_dialogo">72dp</dimen>
 </resources>

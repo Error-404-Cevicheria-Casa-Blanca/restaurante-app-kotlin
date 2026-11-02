@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="@dimen/espacio_s"
+    app:cardBackgroundColor="@color/surface_container_lowest"
+    app:cardCornerRadius="@dimen/espacio_m"
+    app:cardElevation="@dimen/elevacion_tarjeta"
+    app:strokeColor="@color/borde_suave"
+    app:strokeWidth="@dimen/borde_tarjeta">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="@dimen/espacio_m">
+
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="@dimen/ancho_imagen_catalogo"
+            android:layout_height="@dimen/alto_imagen_catalogo"
+            app:cardBackgroundColor="@color/surface_container"
+            app:cardCornerRadius="@dimen/espacio_m"
+            app:cardElevation="0dp"
+            app:strokeWidth="0dp">
+
+            <ImageView
+                android:id="@+id/imagenProducto"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:contentDescription="@string/comanda_catalogo_titulo"
+                android:scaleType="centerCrop" />
+        </com.google.android.material.card.MaterialCardView>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/espacio_m"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/textoNombreProducto"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:autoSizeMaxTextSize="18sp"
+                android:autoSizeMinTextSize="12sp"
+                android:autoSizeStepGranularity="1sp"
+                android:autoSizeTextType="uniform"
+                android:breakStrategy="simple"
+                android:hyphenationFrequency="none"
+                android:maxLines="2"
+                android:textColor="@color/on_surface"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                tools:text="Ceviche Clásico La Casa Blanca" />
+
+            <TextView
+                android:id="@+id/textoDescripcionProducto"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:autoSizeMaxTextSize="14sp"
+                android:autoSizeMinTextSize="10sp"
+                android:autoSizeStepGranularity="1sp"
+                android:autoSizeTextType="uniform"
+                android:breakStrategy="simple"
+                android:hyphenationFrequency="none"
+                android:maxLines="3"
+                android:textColor="@color/on_surface_variant"
+                android:textSize="12sp"
+                tools:text="Pescado del día, camote glaseado y choclo tierno." />
+
+            <TextView
+                android:id="@+id/textoPrecioProducto"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/espacio_xs"
+                android:autoSizeMaxTextSize="18sp"
+                android:autoSizeMinTextSize="13sp"
+                android:autoSizeStepGranularity="1sp"
+                android:autoSizeTextType="uniform"
+                android:breakStrategy="simple"
+                android:hyphenationFrequency="none"
+                android:textColor="@color/stitch_primary"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                tools:text="S/ 48.00" />
+
+            <TextView
+                android:id="@+id/textoNoDisponible"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/espacio_xs"
+                android:autoSizeMaxTextSize="12sp"
+                android:autoSizeMinTextSize="10sp"
+                android:autoSizeStepGranularity="1sp"
+                android:autoSizeTextType="uniform"
+                android:background="@drawable/bg_pill_no_disponible"
+                android:breakStrategy="simple"
+                android:hyphenationFrequency="none"
+                android:paddingHorizontal="@dimen/espacio_s"
+                android:paddingVertical="2dp"
+                android:text="@string/comanda_no_disponible"
+                android:textColor="@color/on_error_container"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                android:visibility="gone"
+                tools:visibility="visible" />
+        </LinearLayout>
+
+        <ImageButton
+            android:id="@+id/botonAgregar"
+            android:layout_width="@dimen/toque_minimo"
+            android:layout_height="@dimen/toque_minimo"
+            android:layout_marginStart="@dimen/espacio_s"
+            android:background="@drawable/selector_fondo_boton_agregar"
+            android:contentDescription="@string/comanda_agregar"
+            android:padding="12dp"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_add"
+            android:tint="@color/selector_icono_boton_agregar" />
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>
