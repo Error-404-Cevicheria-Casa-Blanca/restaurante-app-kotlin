@@ -1,6 +1,7 @@
 package com.lacasablanca.mesero.ui.comanda
 
 import android.content.Intent
+import android.graphics.text.LineBreaker
 import android.os.Bundle
 import android.text.Layout
 import android.view.View
@@ -41,7 +42,7 @@ import kotlinx.coroutines.launch
  * - Al enviar con exito se marca [EXTRA_PEDIDO_ENVIADO] para que la mesa NO
  *   se libere al volver al mapa.
  */
-class ComandaActivity : AppCompatActivity() {
+class ComandaActivity : AppCompatActivity(), CarritoBottomSheet.Listener {
 
     private lateinit var binding: ActivityComandaBinding
 
@@ -61,7 +62,6 @@ class ComandaActivity : AppCompatActivity() {
     }
 
     private lateinit var catalogoAdapter: CatalogoAdapter
-    private lateinit var carritoAdapter: CarritoAdapter
 
     private var mesaId = -1L
     private var numeroMesa = 0
@@ -124,27 +124,18 @@ class ComandaActivity : AppCompatActivity() {
     }
 
     private fun prepararListas() {
-        catalogoAdapter = CatalogoAdapter { producto ->
-            carritoViewModel.agregarProducto(producto)
-        }
-        carritoAdapter = CarritoAdapter(
+        catalogoAdapter = CatalogoAdapter(
+            alAgregar = carritoViewModel::agregarProducto,
             alAumentar = carritoViewModel::aumentarCantidad,
-            alDisminuir = carritoViewModel::disminuirCantidad,
-            alEliminar = carritoViewModel::eliminarProducto,
-            alEditarNotas = ::mostrarDialogoNota
+            alDisminuir = carritoViewModel::disminuirCantidad
         )
 
         binding.listaCatalogo.layoutManager = LinearLayoutManager(this)
         binding.listaCatalogo.adapter = catalogoAdapter
-
-        binding.listaCarrito.layoutManager = LinearLayoutManager(this)
-        binding.listaCarrito.adapter = carritoAdapter
     }
 
     private fun prepararAcciones() {
-        binding.btnConfirmar.isEnabled = false
-        binding.btnConfirmar.contentDescription = getString(R.string.comanda_confirmar_deshabilitado)
-        binding.btnConfirmar.setOnClickListener { carritoViewModel.enviarPedido(mesaId) }
+        binding.barraCheckout.btnVerCarrito.setOnClickListener { mostrarCarrito() }
         binding.btnReintentarCatalogo.setOnClickListener { carritoViewModel.cargar() }
     }
 
@@ -172,31 +163,36 @@ class ComandaActivity : AppCompatActivity() {
         }
 
         catalogoAdapter.submitList(estado.filas)
-        carritoAdapter.submitList(estado.items)
+        catalogoAdapter.actualizarCantidades(
+            estado.items.associate { it.producto.id to it.cantidad }
+        )
 
-        binding.textoPedidoVacio.isVisible = estado.carritoVacio
-        binding.listaCarrito.isVisible = !estado.carritoVacio
-        binding.textoContadorItems.text = resources.getQuantityString(
+        renderCheckout(estado)
+    }
+
+    /**
+     * Barra flotante inferior. Solo aparece con items para no quitar espacio
+     * al catalogo; al tocarla se abre [CarritoBottomSheet].
+     */
+    private fun renderCheckout(estado: CarritoUiState) {
+        val barra = binding.barraCheckout
+        barra.root.isVisible = !estado.carritoVacio
+
+        val contador = resources.getQuantityString(
             R.plurals.comanda_contador_items,
             estado.cantidadItems,
             estado.cantidadItems
         )
-
-        binding.textoSubtotal.text = formatearMoneda(estado.subtotal)
-        binding.textoIgv.text = formatearMoneda(estado.igv)
-        binding.textoTotal.text = formatearMoneda(estado.total)
-
-        binding.btnConfirmar.isEnabled = !estado.carritoVacio && !estado.enviando
-        binding.btnConfirmar.text = if (estado.enviando) {
-            getString(R.string.comanda_enviando)
-        } else {
-            getString(R.string.comanda_confirmar)
-        }
-        binding.btnConfirmar.contentDescription = when {
-            estado.enviando -> getString(R.string.comanda_enviando)
-            estado.carritoVacio -> getString(R.string.comanda_confirmar_deshabilitado)
-            else -> getString(R.string.comanda_confirmar)
-        }
+        barra.textoBarraItems.text = contador
+        barra.textoBarraTotal.text = getString(
+            R.string.checkout_total,
+            formatearMoneda(estado.total)
+        )
+        barra.btnVerCarrito.contentDescription = getString(
+            R.string.checkout_abrir_carrito_cd,
+            contador,
+            formatearMoneda(estado.total)
+        )
     }
 
     /**
@@ -247,7 +243,7 @@ class ComandaActivity : AppCompatActivity() {
         chip.setTextColor(
             ContextCompat.getColorStateList(this, R.color.selector_texto_chip_categoria)
         )
-        chip.setBreakStrategy(Layout.BREAK_STRATEGY_SIMPLE)
+        chip.setBreakStrategy(LineBreaker.BREAK_STRATEGY_SIMPLE)
         chip.hyphenationFrequency = Layout.HYPHENATION_FREQUENCY_NONE
         chip.contentDescription = getString(R.string.cd_categoria, texto)
         chip.setOnCheckedChangeListener { _, isChecked ->
@@ -256,16 +252,38 @@ class ComandaActivity : AppCompatActivity() {
         return chip
     }
 
+    /** Abre el carrito en el bottom sheet (un solo fragmento a la vez). */
+    private fun mostrarCarrito() {
+        if (mesaId <= 0L) return
+        if (supportFragmentManager.findFragmentByTag(CarritoBottomSheet.TAG) != null) return
+        CarritoBottomSheet.nueva(mesaId)
+            .show(supportFragmentManager, CarritoBottomSheet.TAG)
+    }
+
+    private fun cerrarCarrito() {
+        (supportFragmentManager.findFragmentByTag(CarritoBottomSheet.TAG) as? CarritoBottomSheet)
+            ?.dismissAllowingStateLoss()
+    }
+
+    /** La nota se edita desde la linea del carrito del bottom sheet. */
+    override fun onEditarNotas(item: ItemCarrito) {
+        mostrarDialogoNota(item)
+    }
+
     private fun manejarEventoCarrito(evento: CarritoEvento) {
         when (evento) {
             is CarritoEvento.PedidoEnviadoOk -> {
                 // A partir de aqui la mesa NO debe liberarse al salir.
                 pedidoEnviado = true
+                cerrarCarrito()
                 mostrarDialogoPedidoEnviado(evento.pedido)
             }
 
             is CarritoEvento.ErrorAlEnviar -> mostrarDialogoErrorEnvio(evento.error)
-            CarritoEvento.SesionExpirada -> mostrarDialogoSesionExpirada()
+            CarritoEvento.SesionExpirada -> {
+                cerrarCarrito()
+                mostrarDialogoSesionExpirada()
+            }
         }
     }
 
@@ -286,11 +304,12 @@ class ComandaActivity : AppCompatActivity() {
         val dialogo = MaterialAlertDialogBuilder(this)
             .setView(contenido.root)
             .setCancelable(false)
-            .setPositiveButton(R.string.comanda_pedido_enviado_listo) { dialog, _ ->
-                dialog.dismiss()
-                terminar(mesaLiberada = false, liberarPendiente = false)
-            }
             .create()
+
+        contenido.btnVolverMapa.setOnClickListener {
+            dialogo.dismiss()
+            terminar(mesaLiberada = false, liberarPendiente = false)
+        }
 
         dialogo.setCanceledOnTouchOutside(false)
         dialogo.setOnDismissListener { if (dialogoAbierto === dialogo) dialogoAbierto = null }

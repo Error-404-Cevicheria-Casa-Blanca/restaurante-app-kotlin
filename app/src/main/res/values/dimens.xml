@@ -58,10 +58,20 @@
     <dimen name="ancho_panel_login">360dp</dimen>
 
     <!-- Catalogo y carrito (PRB-38) -->
-    <dimen name="ancho_imagen_catalogo">72dp</dimen>
-    <dimen name="alto_imagen_catalogo">72dp</dimen>
-    <dimen name="alto_lista_carrito_movil">180dp</dimen>
+    <dimen name="ancho_imagen_catalogo">80dp</dimen>
+    <dimen name="alto_imagen_catalogo">80dp</dimen>
     <dimen name="ancho_cantidad_carrito">40dp</dimen>
-    <dimen name="icono_exito_dialogo">40dp</dimen>
-    <dimen name="circulo_exito_dialogo">72dp</dimen>
+    <dimen name="icono_exito_dialogo">52dp</dimen>
+    <dimen name="circulo_exito_dialogo">96dp</dimen>
+
+    <!-- Rediseno UI/UX (PRB-38): checkout flotante y bottom sheet -->
+    <dimen name="espacio_checkout">112dp</dimen>
+    <dimen name="radio_checkout">16dp</dimen>
+    <dimen name="elevacion_checkout">8dp</dimen>
+    <dimen name="alto_boton_checkout">48dp</dimen>
+    <dimen name="radio_bottom_sheet">24dp</dimen>
+    <dimen name="alto_lista_carrito_sheet">280dp</dimen>
+    <dimen name="ancho_drag_handle">40dp</dimen>
+    <dimen name="alto_drag_handle">4dp</dimen>
+    <dimen name="ancho_cantidad_stepper">32dp</dimen>
 </resources>

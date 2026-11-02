@@ -1,15 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    Linea del carrito (movil y tablet): nombre/precio arriba y controles en
-    una segunda fila. Asi el nombre usa todo el ancho y los tres botones
-    conservan 48dp de objetivo tactil sin desbordar el panel derecho.
+    Linea del carrito en el bottom sheet (rediseno PRB-38). Se presenta como
+    una tarjeta suave con nombre/precio, nota opcional y controles circulares.
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:layout_marginBottom="@dimen/espacio_s"
+    android:background="@drawable/bg_item_carrito"
     android:orientation="vertical"
-    android:paddingVertical="@dimen/espacio_xs">
+    android:padding="@dimen/espacio_l">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -28,6 +30,7 @@
             android:autoSizeStepGranularity="1sp"
             android:autoSizeTextType="uniform"
             android:breakStrategy="simple"
+            android:ellipsize="none"
             android:hyphenationFrequency="none"
             android:maxLines="2"
             android:textColor="@color/on_surface"
@@ -41,22 +44,23 @@
             android:layout_height="@dimen/toque_minimo"
             android:background="@drawable/bg_boton_cantidad"
             android:contentDescription="@string/cd_nota"
-            android:padding="12dp"
+            android:padding="@dimen/espacio_m"
             android:scaleType="centerInside"
             android:src="@drawable/ic_edit"
-            android:tint="@color/stitch_primary" />
+            app:tint="@color/stitch_primary" />
     </LinearLayout>
 
     <TextView
         android:id="@+id/textoPrecioCarrito"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="2dp"
+        android:layout_marginTop="@dimen/espacio_xs"
         android:autoSizeMaxTextSize="12sp"
         android:autoSizeMinTextSize="10sp"
         android:autoSizeStepGranularity="1sp"
         android:autoSizeTextType="uniform"
         android:breakStrategy="simple"
+        android:ellipsize="none"
         android:hyphenationFrequency="none"
         android:maxLines="2"
         android:textColor="@color/on_surface_variant"
@@ -67,17 +71,18 @@
         android:id="@+id/textoNotaCarrito"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/espacio_xs"
+        android:layout_marginTop="@dimen/espacio_s"
         android:autoSizeMaxTextSize="12sp"
         android:autoSizeMinTextSize="10sp"
         android:autoSizeStepGranularity="1sp"
         android:autoSizeTextType="uniform"
         android:background="@drawable/bg_pill_superficie"
         android:breakStrategy="simple"
+        android:ellipsize="none"
         android:hyphenationFrequency="none"
         android:maxLines="4"
         android:paddingHorizontal="@dimen/espacio_s"
-        android:paddingVertical="2dp"
+        android:paddingVertical="@dimen/espacio_xs"
         android:textColor="@color/stitch_primary"
         android:textSize="12sp"
         android:visibility="gone"
@@ -87,7 +92,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/espacio_xs"
+        android:layout_marginTop="@dimen/espacio_s"
         android:gravity="end"
         android:orientation="horizontal">
 
@@ -95,12 +100,12 @@
             android:id="@+id/btnDisminuir"
             android:layout_width="@dimen/toque_minimo"
             android:layout_height="@dimen/toque_minimo"
-            android:background="@drawable/bg_boton_cantidad"
+            android:background="@drawable/bg_boton_circular_primario"
             android:contentDescription="@string/cd_disminuir"
-            android:padding="12dp"
+            android:padding="@dimen/espacio_m"
             android:scaleType="centerInside"
             android:src="@drawable/ic_remove"
-            android:tint="@color/stitch_primary" />
+            app:tint="@color/on_primary" />
 
         <TextView
             android:id="@+id/textoCantidad"
@@ -109,6 +114,7 @@
             android:breakStrategy="simple"
             android:gravity="center"
             android:hyphenationFrequency="none"
+            android:maxLines="1"
             android:textColor="@color/on_surface"
             android:textSize="16sp"
             android:textStyle="bold"
@@ -118,23 +124,23 @@
             android:id="@+id/btnAumentar"
             android:layout_width="@dimen/toque_minimo"
             android:layout_height="@dimen/toque_minimo"
-            android:background="@drawable/bg_boton_cantidad"
+            android:background="@drawable/bg_boton_circular_primario"
             android:contentDescription="@string/cd_aumentar"
-            android:padding="12dp"
+            android:padding="@dimen/espacio_m"
             android:scaleType="centerInside"
             android:src="@drawable/ic_add"
-            android:tint="@color/stitch_primary" />
+            app:tint="@color/on_primary" />
 
         <ImageButton
             android:id="@+id/btnEliminar"
             android:layout_width="@dimen/toque_minimo"
             android:layout_height="@dimen/toque_minimo"
-            android:layout_marginStart="@dimen/espacio_xs"
+            android:layout_marginStart="@dimen/espacio_s"
             android:background="@drawable/bg_boton_cantidad"
             android:contentDescription="@string/cd_eliminar"
-            android:padding="12dp"
+            android:padding="@dimen/espacio_m"
             android:scaleType="centerInside"
             android:src="@drawable/ic_delete"
-            android:tint="@color/estado_ocupada" />
+            app:tint="@color/estado_ocupada" />
     </LinearLayout>
 </LinearLayout>

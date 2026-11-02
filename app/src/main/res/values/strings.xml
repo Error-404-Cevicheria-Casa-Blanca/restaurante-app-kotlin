@@ -139,11 +139,23 @@
         <item quantity="other">%1$d ítems</item>
     </plurals>
 
+    <!-- Checkout flotante y bottom sheet (rediseno PRB-38) -->
+    <string name="checkout_total">Total: %1$s</string>
+    <string name="checkout_ver_carrito">Ver Carrito</string>
+    <string name="checkout_abrir_carrito_cd">Abrir el carrito: %1$s, total %2$s</string>
+    <string name="carrito_sheet_titulo">Tu pedido</string>
+    <string name="carrito_sheet_subtitulo">Revisa los platos y confirma la comanda.</string>
+    <string name="carrito_sheet_contador">%1$s · Revisa los platos y confirma la comanda.</string>
+    <string name="carrito_sheet_cerrar">Cerrar carrito</string>
+    <string name="cd_cantidad_plato">Cantidad en el pedido: %1$d</string>
+    <string name="cd_drag_handle">Arrastra hacia abajo para cerrar el carrito</string>
+
     <!-- Dialogos de envio de pedido (PRB-38) -->
-    <string name="comanda_pedido_enviado_titulo">Pedido enviado a cocina</string>
+    <string name="comanda_pedido_enviado_titulo">¡Pedido enviado a cocina!</string>
+    <string name="comanda_pedido_enviado_subtitulo">La cocina ya recibió la comanda.</string>
     <string name="comanda_pedido_enviado_mensaje">Mesa %1$d · Pedido #%2$d</string>
     <string name="comanda_pedido_enviado_total">Total: %1$s</string>
-    <string name="comanda_pedido_enviado_listo">Listo</string>
+    <string name="comanda_pedido_enviado_volver">Volver al Mapa</string>
     <string name="comanda_error_envio_titulo">No se pudo enviar el pedido</string>
     <string name="comanda_error_envio_red">Revisa la red local e inténtalo de nuevo.</string>
     <string name="comanda_error_envio_conflicto">La mesa ya no está disponible para un nuevo pedido.</string>

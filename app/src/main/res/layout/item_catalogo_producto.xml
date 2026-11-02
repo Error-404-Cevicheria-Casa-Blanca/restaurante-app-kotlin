@@ -1,4 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+    Plato del catalogo (rediseno PRB-38): tarjeta de 16dp, imagen con
+    placeholder degradado y control de cantidad. Al agregar, el boton "+"
+    muta a "[-] 1 [+]" para confirmar visualmente la seleccion.
+    Mantiene los IDs en layout-sw600dp/item_catalogo_producto.xml.
+-->
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -6,7 +12,7 @@
     android:layout_height="wrap_content"
     android:layout_marginBottom="@dimen/espacio_s"
     app:cardBackgroundColor="@color/surface_container_lowest"
-    app:cardCornerRadius="@dimen/espacio_m"
+    app:cardCornerRadius="@dimen/radio_tarjeta"
     app:cardElevation="@dimen/elevacion_tarjeta"
     app:strokeColor="@color/borde_suave"
     app:strokeWidth="@dimen/borde_tarjeta">
@@ -16,28 +22,32 @@
         android:layout_height="wrap_content"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:padding="@dimen/espacio_m">
+        android:padding="@dimen/espacio_l">
 
         <com.google.android.material.card.MaterialCardView
             android:layout_width="@dimen/ancho_imagen_catalogo"
             android:layout_height="@dimen/alto_imagen_catalogo"
             app:cardBackgroundColor="@color/surface_container"
-            app:cardCornerRadius="@dimen/espacio_m"
+            app:cardCornerRadius="@dimen/radio_tarjeta"
             app:cardElevation="0dp"
-            app:strokeWidth="0dp">
+            app:strokeColor="@color/borde_suave"
+            app:strokeWidth="@dimen/borde_tarjeta">
 
             <ImageView
                 android:id="@+id/imagenProducto"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:background="@drawable/bg_placeholder_plato"
                 android:contentDescription="@string/comanda_catalogo_titulo"
-                android:scaleType="centerCrop" />
+                android:padding="@dimen/espacio_l"
+                android:scaleType="centerInside"
+                android:src="@drawable/ic_restaurant_placeholder" />
         </com.google.android.material.card.MaterialCardView>
 
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/espacio_m"
+            android:layout_marginStart="@dimen/espacio_l"
             android:layout_weight="1"
             android:orientation="vertical">
 
@@ -50,6 +60,7 @@
                 android:autoSizeStepGranularity="1sp"
                 android:autoSizeTextType="uniform"
                 android:breakStrategy="simple"
+                android:ellipsize="none"
                 android:hyphenationFrequency="none"
                 android:maxLines="2"
                 android:textColor="@color/on_surface"
@@ -61,39 +72,106 @@
                 android:id="@+id/textoDescripcionProducto"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:autoSizeMaxTextSize="14sp"
+                android:layout_marginTop="@dimen/espacio_xs"
+                android:autoSizeMaxTextSize="13sp"
                 android:autoSizeMinTextSize="10sp"
                 android:autoSizeStepGranularity="1sp"
                 android:autoSizeTextType="uniform"
                 android:breakStrategy="simple"
+                android:ellipsize="none"
                 android:hyphenationFrequency="none"
                 android:maxLines="3"
                 android:textColor="@color/on_surface_variant"
                 android:textSize="12sp"
                 tools:text="Pescado del día, camote glaseado y choclo tierno." />
 
-            <TextView
-                android:id="@+id/textoPrecioProducto"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/espacio_xs"
-                android:autoSizeMaxTextSize="18sp"
-                android:autoSizeMinTextSize="13sp"
-                android:autoSizeStepGranularity="1sp"
-                android:autoSizeTextType="uniform"
-                android:breakStrategy="simple"
-                android:hyphenationFrequency="none"
-                android:textColor="@color/stitch_primary"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                tools:text="S/ 48.00" />
+                android:layout_marginTop="@dimen/espacio_s"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/textoPrecioProducto"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:autoSizeMaxTextSize="18sp"
+                    android:autoSizeMinTextSize="13sp"
+                    android:autoSizeStepGranularity="1sp"
+                    android:autoSizeTextType="uniform"
+                    android:breakStrategy="simple"
+                    android:ellipsize="none"
+                    android:hyphenationFrequency="none"
+                    android:maxLines="1"
+                    android:textColor="@color/stitch_primary"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    tools:text="S/ 48.00" />
+
+                <ImageButton
+                    android:id="@+id/botonAgregar"
+                    android:layout_width="@dimen/toque_minimo"
+                    android:layout_height="@dimen/toque_minimo"
+                    android:background="@drawable/bg_boton_circular_primario"
+                    android:contentDescription="@string/comanda_agregar"
+                    android:padding="@dimen/espacio_m"
+                    android:scaleType="centerInside"
+                    android:src="@drawable/ic_add"
+                    app:tint="@color/on_primary" />
+
+                <LinearLayout
+                    android:id="@+id/grupoCantidad"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:visibility="gone"
+                    tools:visibility="visible">
+
+                    <ImageButton
+                        android:id="@+id/btnDisminuirPlato"
+                        android:layout_width="@dimen/toque_minimo"
+                        android:layout_height="@dimen/toque_minimo"
+                        android:background="@drawable/bg_boton_circular_primario"
+                        android:contentDescription="@string/cd_disminuir"
+                        android:padding="@dimen/espacio_m"
+                        android:scaleType="centerInside"
+                        android:src="@drawable/ic_remove"
+                        app:tint="@color/on_primary" />
+
+                    <TextView
+                        android:id="@+id/textoCantidadPlato"
+                        android:layout_width="@dimen/ancho_cantidad_stepper"
+                        android:layout_height="wrap_content"
+                        android:breakStrategy="simple"
+                        android:gravity="center"
+                        android:hyphenationFrequency="none"
+                        android:maxLines="1"
+                        android:textColor="@color/on_surface"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        tools:text="1" />
+
+                    <ImageButton
+                        android:id="@+id/btnAumentarPlato"
+                        android:layout_width="@dimen/toque_minimo"
+                        android:layout_height="@dimen/toque_minimo"
+                        android:background="@drawable/bg_boton_circular_primario"
+                        android:contentDescription="@string/cd_aumentar"
+                        android:padding="@dimen/espacio_m"
+                        android:scaleType="centerInside"
+                        android:src="@drawable/ic_add"
+                        app:tint="@color/on_primary" />
+                </LinearLayout>
+            </LinearLayout>
 
             <TextView
                 android:id="@+id/textoNoDisponible"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/espacio_xs"
+                android:layout_marginTop="@dimen/espacio_s"
                 android:autoSizeMaxTextSize="12sp"
                 android:autoSizeMinTextSize="10sp"
                 android:autoSizeStepGranularity="1sp"
@@ -102,7 +180,7 @@
                 android:breakStrategy="simple"
                 android:hyphenationFrequency="none"
                 android:paddingHorizontal="@dimen/espacio_s"
-                android:paddingVertical="2dp"
+                android:paddingVertical="@dimen/espacio_xs"
                 android:text="@string/comanda_no_disponible"
                 android:textColor="@color/on_error_container"
                 android:textSize="11sp"
@@ -110,17 +188,5 @@
                 android:visibility="gone"
                 tools:visibility="visible" />
         </LinearLayout>
-
-        <ImageButton
-            android:id="@+id/botonAgregar"
-            android:layout_width="@dimen/toque_minimo"
-            android:layout_height="@dimen/toque_minimo"
-            android:layout_marginStart="@dimen/espacio_s"
-            android:background="@drawable/selector_fondo_boton_agregar"
-            android:contentDescription="@string/comanda_agregar"
-            android:padding="12dp"
-            android:scaleType="centerInside"
-            android:src="@drawable/ic_add"
-            android:tint="@color/selector_icono_boton_agregar" />
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>
