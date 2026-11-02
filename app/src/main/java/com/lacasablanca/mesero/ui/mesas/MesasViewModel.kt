@@ -8,19 +8,27 @@ import com.lacasablanca.mesero.domain.ErrorApp
 import com.lacasablanca.mesero.domain.Resultado
 import com.lacasablanca.mesero.domain.model.EstadoMesa
 import com.lacasablanca.mesero.domain.model.Mesa
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
 /**
- * Estado del mapa de mesas: carga, filtros por zona/estado, contadores
- * y apertura de una mesa libre (PATCH a ATENDIDA, D11).
+ * Estado del mapa de mesas: carga, filtros por zona/estado, contadores,
+ * apertura de una mesa libre (PATCH a ATENDIDA, D11) y refresco automatico
+ * cada 4 segundos para que las demas tablets vean los cambios (PRB-42).
  */
 class MesasViewModel(
     private val mesaRepository: MesaRepository,
@@ -34,12 +42,52 @@ class MesasViewModel(
     private val _eventos = Channel<MesasEvento>(Channel.BUFFERED)
     val eventos = _eventos.receiveAsFlow()
 
+    /**
+     * Errores del polling que la pantalla muestra como Snackbar.
+     * El mensaje viaja como codigo ([ERROR_RED]) para que el texto visible
+     * siga viviendo en strings.xml; el ViewModel no tiene Context.
+     */
+    private val _eventosError = MutableSharedFlow<String>(extraBufferCapacity = 1)
+    val eventosError: SharedFlow<String> = _eventosError.asSharedFlow()
+
+    /** Se completa cuando el ViewModel ya sabe si hay sesion (exito o fallo). */
+    private val sesionLista = CompletableDeferred<Boolean>()
+
+    private var pollingJob: Job? = null
+    private var pollingFallando = false
+
     init {
         iniciar()
     }
 
     fun refrescar() {
         cargar(mostrarAviso = true)
+    }
+
+    /**
+     * Arranca el refresco automatico del mapa. Es idempotente: si el Job del
+     * bucle sigue activo no se crea otro.
+     *
+     * El bucle consulta en silencio (sin spinner, sin aviso) y espera al final,
+     * de modo que este primer ciclo es la unica carga inicial del mapa: el
+     * arranque del ViewModel ya no pide mesas por su cuenta.
+     */
+    fun startPolling() {
+        if (pollingJob?.isActive == true) return
+        pollingJob = viewModelScope.launch(ioDispatcher) {
+            if (!sesionLista.await()) return@launch
+            while (isActive) {
+                cargarMesas(mostrarAviso = false, mostrarCargando = false, silencioso = true)
+                delay(INTERVALO_POLLING_MS)
+            }
+        }
+    }
+
+    /** Detiene el bucle. Se puede llamar varias veces sin efectos. */
+    fun stopPolling() {
+        pollingJob?.cancel()
+        pollingJob = null
+        pollingFallando = false
     }
 
     /**
@@ -51,32 +99,43 @@ class MesasViewModel(
     }
 
     fun cargar(mostrarAviso: Boolean = false, mostrarCargando: Boolean = true) {
+        viewModelScope.launch(ioDispatcher) {
+            cargarMesas(mostrarAviso = mostrarAviso, mostrarCargando = mostrarCargando)
+        }
+    }
+
+    private suspend fun cargarMesas(
+        mostrarAviso: Boolean = false,
+        mostrarCargando: Boolean = true,
+        silencioso: Boolean = false
+    ) {
         if (mostrarCargando) {
             _estado.update { it.copy(cargando = true, error = null) }
-        } else {
+        } else if (!silencioso) {
+            // El polling no limpia el error antes de consultar: si falla, la
+            // pantalla conserva lo que ya mostraba en lugar de parpadear.
             _estado.update { it.copy(error = null) }
         }
-        viewModelScope.launch(ioDispatcher) {
-            when (val resultado = mesaRepository.listarMesas()) {
-                is Resultado.Exito -> {
-                    val mesas = resultado.datos
-                    _estado.update { actual ->
-                        actual.copy(
-                            cargando = false,
-                            mesas = mesas,
-                            error = null,
-                            zonas = mesas.map { it.ubicacion }.filter { it.isNotBlank() }.distinct(),
-                            zonaSeleccionada = actual.zonaSeleccionada
-                                ?.takeIf { zona -> mesas.any { it.ubicacion == zona } }
-                        )
-                    }
-                    if (mostrarAviso) {
-                        _eventos.send(MesasEvento.Aviso(AvisoMesas.ACTUALIZADAS))
-                    }
+        when (val resultado = mesaRepository.listarMesas()) {
+            is Resultado.Exito -> {
+                pollingFallando = false
+                val mesas = resultado.datos
+                _estado.update { actual ->
+                    actual.copy(
+                        cargando = false,
+                        mesas = mesas,
+                        error = null,
+                        zonas = mesas.map { it.ubicacion }.filter { it.isNotBlank() }.distinct(),
+                        zonaSeleccionada = actual.zonaSeleccionada
+                            ?.takeIf { zona -> mesas.any { it.ubicacion == zona } }
+                    )
                 }
-
-                is Resultado.Fallo -> manejarFalloCarga(resultado.error)
+                if (mostrarAviso) {
+                    _eventos.send(MesasEvento.Aviso(AvisoMesas.ACTUALIZADAS))
+                }
             }
+
+            is Resultado.Fallo -> manejarFalloCarga(resultado.error, silencioso)
         }
     }
 
@@ -139,6 +198,15 @@ class MesasViewModel(
         }
     }
 
+    override fun onCleared() {
+        stopPolling()
+        super.onCleared()
+    }
+
+    /**
+     * Resuelve la sesion guardada, pero no pide mesas: la unica carga inicial
+     * es el primer ciclo de [startPolling], para no lanzar dos GET al abrir.
+     */
     private fun iniciar() {
         viewModelScope.launch(ioDispatcher) {
             val sesion = try {
@@ -148,20 +216,34 @@ class MesasViewModel(
             }
             if (sesion == null) {
                 _estado.update { it.copy(cargando = false) }
+                sesionLista.complete(false)
                 _eventos.send(MesasEvento.SesionExpirada)
                 return@launch
             }
             _estado.update { it.copy(nombreUsuario = sesion.usuario.nombre) }
-            cargar()
+            sesionLista.complete(true)
         }
     }
 
-    private suspend fun manejarFalloCarga(error: ErrorApp) {
+    private suspend fun manejarFalloCarga(error: ErrorApp, silencioso: Boolean) {
         if (error == ErrorApp.SESION_EXPIRADA) {
             manejarSesionExpirada()
-        } else {
-            _estado.update { it.copy(cargando = false, error = error.aErrorMesas()) }
+            return
         }
+        if (silencioso) {
+            // Un fallo del polling no debe vaciar el mapa ya pintado: solo se
+            // muestra el error de pantalla cuando aun no hay mesas que conservar.
+            if (_estado.value.mesas.isEmpty()) {
+                _estado.update { it.copy(cargando = false, error = error.aErrorMesas()) }
+            }
+            // Un unico Snackbar por racha de fallos, para no repetirlo cada 4 s.
+            if (error == ErrorApp.RED && !pollingFallando) {
+                pollingFallando = true
+                _eventosError.tryEmit(ERROR_RED)
+            }
+            return
+        }
+        _estado.update { it.copy(cargando = false, error = error.aErrorMesas()) }
     }
 
     private suspend fun manejarFalloApertura(error: ErrorApp, mesa: Mesa) {
@@ -194,5 +276,13 @@ class MesasViewModel(
         ErrorApp.RED -> ErrorMesas.RED
         ErrorApp.SERVIDOR -> ErrorMesas.SERVIDOR
         else -> ErrorMesas.DESCONOCIDO
+    }
+
+    companion object {
+        /** Intervalo entre consultas del mapa (PRB-42: cada 4 segundos). */
+        const val INTERVALO_POLLING_MS = 4_000L
+
+        /** Codigo del error de red que la pantalla traduce a su Snackbar. */
+        const val ERROR_RED = "RED"
     }
 }
