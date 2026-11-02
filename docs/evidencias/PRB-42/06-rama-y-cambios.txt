@@ -1,0 +1,15 @@
+== rama ==
+feature/PRB-42-polling-mesas
+
+== estado ==
+(vacio = arbol limpio)
+
+== archivos cambiados ==
+ .../lacasablanca/mesero/ui/mesas/MesasViewModel.kt |  8 +++-
+ .../mesero/ui/mesas/MesasViewModelPollingTest.kt   | 49 ++++++++++++----------
+ .../mesero/ui/mesas/MesasViewModelTest.kt          |  9 +++-
+ 3 files changed, 41 insertions(+), 25 deletions(-)
+
+== USE_FAKE_DATA (sin cambios) ==
+24: buildConfigField("boolean", "USE_FAKE_DATA", "true")
+31: buildConfigField("boolean", "USE_FAKE_DATA", "false")

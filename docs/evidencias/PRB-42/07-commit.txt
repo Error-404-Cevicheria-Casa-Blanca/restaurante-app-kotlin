@@ -1,0 +1,18 @@
+== git log ==
+4525192 refactor(PRB-42): eliminar la carga duplicada del mapa al abrir
+24e4d99 feat(PRB-42): polling automatico de mesas cada 4 segundos
+f9fc92b feat(PRB-38): catalogo, carrito interactivo y envio de comandas (UI/UX Pro) (#6)
+
+== git status ==
+(vacio = arbol limpio)
+
+== commits de la rama sobre develop ==
+4525192 refactor(PRB-42): eliminar la carga duplicada del mapa al abrir
+24e4d99 feat(PRB-42): polling automatico de mesas cada 4 segundos
+
+== archivos del commit de correccion ==
+4525192 refactor(PRB-42): eliminar la carga duplicada del mapa al abrir
+ .../lacasablanca/mesero/ui/mesas/MesasViewModel.kt |  8 +++-
+ .../mesero/ui/mesas/MesasViewModelPollingTest.kt   | 49 ++++++++++++----------
+ .../mesero/ui/mesas/MesasViewModelTest.kt          |  9 +++-
+ 3 files changed, 41 insertions(+), 25 deletions(-)
