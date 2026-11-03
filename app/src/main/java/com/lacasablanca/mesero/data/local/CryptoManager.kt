@@ -34,7 +34,8 @@ class CryptoManager(private val alias: String = ALIAS_POR_DEFECTO) {
             val iv = decodificador.decode(partes[0])
             val cifrado = decodificador.decode(partes[1])
             val cifrador = Cipher.getInstance(TRANSFORMACION)
-            cifrador.init(Cipher.DECRYPT_MODE, obtenerClave(), javax.crypto.spec.GCMParameterSpec(TAMANO_ETIQUETA_BITS, iv))
+            val spec = javax.crypto.spec.GCMParameterSpec(TAMANO_ETIQUETA_BITS, iv)
+            cifrador.init(Cipher.DECRYPT_MODE, obtenerClave(), spec)
             String(cifrador.doFinal(cifrado), Charsets.UTF_8)
         } catch (e: GeneralSecurityException) {
             null
