@@ -79,20 +79,39 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/espacio_l"
-        android:gravity="end|center_vertical"
+        android:baselineAligned="false"
+        android:gravity="center_vertical"
         android:orientation="horizontal">
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnCancelar"
-            style="@style/Boton.DialogoCancelar"
-            android:layout_width="wrap_content"
+            style="@style/Boton.Outlined"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/toque_minimo"
+            android:layout_weight="1"
+            android:autoSizeMaxTextSize="16sp"
+            android:autoSizeMinTextSize="11sp"
+            android:autoSizeStepGranularity="1sp"
+            android:autoSizeTextType="uniform"
+            android:breakStrategy="simple"
+            android:hyphenationFrequency="none"
+            android:maxLines="1"
             android:text="@string/dialogo_liberar_cancelar" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnLiberar"
             style="@style/Boton.DialogoLiberar"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/toque_minimo"
             android:layout_marginStart="@dimen/espacio_s"
+            android:layout_weight="1"
+            android:autoSizeMaxTextSize="16sp"
+            android:autoSizeMinTextSize="11sp"
+            android:autoSizeStepGranularity="1sp"
+            android:autoSizeTextType="uniform"
+            android:breakStrategy="simple"
+            android:hyphenationFrequency="none"
+            android:maxLines="1"
             android:text="@string/dialogo_liberar_confirmar" />
     </LinearLayout>
 </LinearLayout>
