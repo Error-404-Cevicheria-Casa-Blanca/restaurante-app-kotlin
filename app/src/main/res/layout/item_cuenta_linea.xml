@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Linea del resumen de cuenta: plato, cantidad, precio unitario y subtotal. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingVertical="@dimen/espacio_s">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/textoNombreLinea"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/espacio_s"
+            android:layout_weight="1"
+            android:autoSizeMaxTextSize="16sp"
+            android:autoSizeMinTextSize="11sp"
+            android:autoSizeStepGranularity="1sp"
+            android:autoSizeTextType="uniform"
+            android:breakStrategy="simple"
+            android:ellipsize="end"
+            android:hyphenationFrequency="none"
+            android:maxLines="2"
+            android:textColor="@color/on_surface"
+            android:textSize="@dimen/texto_secundario"
+            tools:text="Ceviche Clásico La Casa Blanca" />
+
+        <TextView
+            android:id="@+id/textoSubtotalLinea"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:autoSizeMaxTextSize="16sp"
+            android:autoSizeMinTextSize="11sp"
+            android:autoSizeStepGranularity="1sp"
+            android:autoSizeTextType="uniform"
+            android:breakStrategy="simple"
+            android:ellipsize="none"
+            android:hyphenationFrequency="none"
+            android:maxLines="1"
+            android:textColor="@color/stitch_primary"
+            android:textSize="@dimen/texto_secundario"
+            android:textStyle="bold"
+            tools:text="S/ 48.00" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/espacio_xs"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/textoCantidadLinea"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:autoSizeMaxTextSize="12sp"
+            android:autoSizeMinTextSize="10sp"
+            android:autoSizeStepGranularity="1sp"
+            android:autoSizeTextType="uniform"
+            android:breakStrategy="simple"
+            android:ellipsize="none"
+            android:hyphenationFrequency="none"
+            android:maxLines="1"
+            android:textColor="@color/on_surface_variant"
+            android:textSize="@dimen/texto_etiqueta"
+            tools:text="x1" />
+
+        <TextView
+            android:id="@+id/textoPrecioLinea"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/espacio_s"
+            android:autoSizeMaxTextSize="12sp"
+            android:autoSizeMinTextSize="10sp"
+            android:autoSizeStepGranularity="1sp"
+            android:autoSizeTextType="uniform"
+            android:breakStrategy="simple"
+            android:ellipsize="none"
+            android:hyphenationFrequency="none"
+            android:maxLines="1"
+            android:textColor="@color/on_surface_variant"
+            android:textSize="@dimen/texto_etiqueta"
+            tools:text="S/ 48.00 c/u" />
+    </LinearLayout>
+</LinearLayout>

@@ -108,7 +108,7 @@
         android:layout_height="@dimen/alto_boton_primario"
         android:layout_marginTop="@dimen/espacio_xl"
         android:autoSizeMaxTextSize="16sp"
-        android:autoSizeMinTextSize="12sp"
+        android:autoSizeMinTextSize="11sp"
         android:autoSizeStepGranularity="1sp"
         android:autoSizeTextType="uniform"
         android:breakStrategy="simple"

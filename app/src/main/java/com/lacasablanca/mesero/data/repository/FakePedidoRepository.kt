@@ -13,6 +13,7 @@ import java.math.BigDecimal
  * Aplica exactamente el mismo desglose de IGV que PedidoService.java.
  */
 class FakePedidoRepository(
+    private val consumoStore: FakeConsumoStore? = null,
     private val latenciaMs: Long = LATENCIA_SIMULADA_MS
 ) : PedidoRepository {
 
@@ -32,6 +33,7 @@ class FakePedidoRepository(
             acumulado + item.precioUnitario.multiply(BigDecimal.valueOf(item.cantidad.toLong()))
         }
         val desglose = CalculoIgv.desglosar(totalBruto)
+        consumoStore?.registrar(mesaId, desglose.total)
 
         return Resultado.Exito(
             PedidoEnviado(
