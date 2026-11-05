@@ -21,6 +21,7 @@ import com.lacasablanca.mesero.R
 import com.lacasablanca.mesero.core.GenericViewModelFactory
 import com.lacasablanca.mesero.databinding.BottomSheetCarritoBinding
 import com.lacasablanca.mesero.domain.model.ItemCarrito
+import com.lacasablanca.mesero.ui.common.aparecerConDesplazamiento
 import com.lacasablanca.mesero.ui.common.formatearMoneda
 import kotlinx.coroutines.launch
 
@@ -92,6 +93,14 @@ class CarritoBottomSheet : BottomSheetDialogFragment() {
                 viewModel.estado.collect(::render)
             }
         }
+
+        // Aparicion sutil al abrir: el sheet ya sube; el contenido hace fade-in.
+        binding.root.post {
+            _binding?.root?.aparecerConDesplazamiento(
+                desplazamientoDp = DESPLAZAMIENTO_APERTURA_DP,
+                duracionMs = DURACION_APERTURA_MS
+            )
+        }
     }
 
     override fun onStart() {
@@ -138,7 +147,7 @@ class CarritoBottomSheet : BottomSheetDialogFragment() {
             getString(R.string.carrito_sheet_contador, cantidad)
 
         binding.listaCarrito.isVisible = !estado.carritoVacio
-        binding.textoCarritoVacio.isVisible = estado.carritoVacio
+        binding.grupoCarritoVacio.isVisible = estado.carritoVacio
 
         binding.textoSubtotal.text = formatearMoneda(estado.subtotal)
         binding.textoIgv.text = formatearMoneda(estado.igv)
@@ -164,6 +173,8 @@ class CarritoBottomSheet : BottomSheetDialogFragment() {
         private const val ANCHO_TABLET_DP = 600
         private const val ANCHO_TABLET_FRACCION = 0.6f
         private const val DIM_AMOUNT = 0.45f
+        private const val DESPLAZAMIENTO_APERTURA_DP = 18f
+        private const val DURACION_APERTURA_MS = 240L
 
         fun nueva(mesaId: Long): CarritoBottomSheet = CarritoBottomSheet().apply {
             arguments = Bundle().apply { putLong(ARG_MESA_ID, mesaId) }

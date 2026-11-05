@@ -1,0 +1,4 @@
+Archivo: 05-splash-fix-1.png (1080x2400)
+centro=ARGB(255,23,49,11) esquina=ARGB(255,11,85,99)
+muestras=40500 teal(#0B5563)=37786 (93.30%) azul_logo=2067 (5.10%)
+bbox_azul=(312,968)-(768,1424) margen_superior=968 margen_inferior=975

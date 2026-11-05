@@ -1,0 +1,12 @@
+=== TEXTO VISIBLE ===
+Tu pedido
+0 ítems · Revisa los platos y confirma la comanda.
+Tu pedido está vacío. Agrega platos para comenzar
+Subtotal
+S/ 0.00
+IGV (18%)
+Total
+Confirmar y Enviar
+
+=== CONTENT-DESC DEL ICONO ===
+content-desc=Carrito de compras vacío bounds=[424,1360][655,1591] class=android.widget.ImageView

@@ -1,0 +1,63 @@
+=== DISPOSITIVO ===
+List of devices attached
+emulator-5554	device
+
+
+=== INSTALL ===
+Performing Streamed Install
+Success
+EXIT_INSTALL=0
+
+=== LANZAR (COLD START) ===
+Starting: Intent { cmp=com.lacasablanca.mesero/.ui.login.LoginActivity }
+Status: ok
+LaunchState: COLD
+Activity: com.lacasablanca.mesero/.ui.login.LoginActivity
+TotalTime: 33766
+WaitTime: 33864
+Complete
+EXIT_START=0
+
+=== ACTIVIDAD EN PRIMER PLANO ===
+topResumedActivity=ActivityRecord{88d19bb u0 com.lacasablanca.mesero/.ui.mesas.MesasActivity t63}
+
+=== PROCESO ===
+pid=5544
+
+=== SPLASH SCREEN EN LOGCT ===
+D/CoreBackPreview(  606): Window{77123bb u0 Splash Screen com.lacasablanca.mesero}: Setting back callback OnBackInvokedCallbackInfo{mCallback=android.window.IOnBackInvokedCallback$Stub$Proxy@c570c52, mPriority=0, mIsAnimationCallback=false}
+D/CoreBackPreview(  606): Window{77123bb u0 Splash Screen com.lacasablanca.mesero EXITING}: Setting back callback null
+W/InputManager-JNI(  606): Input channel object '77123bb Splash Screen com.lacasablanca.mesero (client)' was disposed without first being removed with the input manager!
+
+=== TEXTOS VISIBLES (UI DUMP) ===
+UI hierchary dumped to: /sdcard/window.xml
+Plano de Mesas
+Hola, Mozo Demo
+Todas
+Primer piso
+Segundo piso
+FILTRO RÁPIDO
+Libres 6
+Ocupadas 3
+Atendidas 2
+ESTADOS DE MESA
+Libre
+Ocupada
+Atendiendo
+Cuenta solicitada
+Mesa 1
+Cap. 4 pers
+Mesa 2
+Cap. 2 pers
+Mesa 3
+Cap. 6 pers
+Mesa 4
+Mesa 5
+Mesa 6
+Mesa 7
+Mesa 8
+
+=== CRASHES / EXCEPCIONES ===
+Sin FATAL EXCEPTION ni E/AndroidRuntime en el buffer actual.
+
+=== FIN ===

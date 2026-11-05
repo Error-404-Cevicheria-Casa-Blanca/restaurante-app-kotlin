@@ -1,0 +1,15 @@
+Archivo 09-splash-a.png: 1080x2400
+  centro=(R=247,G=250,B=250) esquina=(R=247,G=250,B=250)
+  color_dominante=237,243,243 muestras=1877/4500
+  pixeles_cercanos_a_primary(#0B5563)=0%
+
+Archivo 09-splash-b.png: 1080x2400
+  centro=(R=23,G=49,B=11) esquina=(R=11,G=85,B=99)
+  color_dominante=11,85,99 muestras=4252/4500
+  pixeles_cercanos_a_primary(#0B5563)=94.5%
+
+Archivo 09-splash-c.png: 1080x2400
+  centro=(R=23,G=49,B=11) esquina=(R=11,G=85,B=99)
+  color_dominante=11,85,99 muestras=4252/4500
+  pixeles_cercanos_a_primary(#0B5563)=94.5%
+

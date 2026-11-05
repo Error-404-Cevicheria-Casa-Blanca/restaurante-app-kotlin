@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Fondo circular suave para el icono del carrito vacio. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="oval">
+    <solid android:color="@color/surface_container_low" />
+    <stroke
+        android:width="@dimen/borde_tarjeta"
+        android:color="@color/borde_suave" />
+</shape>

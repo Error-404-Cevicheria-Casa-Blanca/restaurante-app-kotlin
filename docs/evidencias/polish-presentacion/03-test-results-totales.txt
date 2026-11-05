@@ -1,0 +1,12 @@
+Archivos XML: 9
+ - TEST-com.lacasablanca.mesero.data.repository.CatalogoRepositoryTest.xml: tests=8 failures=0 errors=0 skipped=0
+ - TEST-com.lacasablanca.mesero.data.repository.MesaRepositoryTest.xml: tests=8 failures=0 errors=0 skipped=0
+ - TEST-com.lacasablanca.mesero.DependenciasSmokeTest.xml: tests=5 failures=0 errors=0 skipped=0
+ - TEST-com.lacasablanca.mesero.ExampleUnitTest.xml: tests=1 failures=0 errors=0 skipped=0
+ - TEST-com.lacasablanca.mesero.ui.comanda.CarritoViewModelTest.xml: tests=16 failures=0 errors=0 skipped=0
+ - TEST-com.lacasablanca.mesero.ui.comanda.ComandaViewModelTest.xml: tests=5 failures=0 errors=0 skipped=0
+ - TEST-com.lacasablanca.mesero.ui.login.LoginViewModelTest.xml: tests=8 failures=0 errors=0 skipped=0
+ - TEST-com.lacasablanca.mesero.ui.mesas.MesasViewModelPollingTest.xml: tests=5 failures=0 errors=0 skipped=0
+ - TEST-com.lacasablanca.mesero.ui.mesas.MesasViewModelTest.xml: tests=15 failures=0 errors=0 skipped=0
+
+TOTAL: tests=71 failures=0 errors=0 skipped=0

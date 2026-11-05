@@ -29,6 +29,7 @@ import com.lacasablanca.mesero.domain.ErrorApp
 import com.lacasablanca.mesero.domain.model.Categoria
 import com.lacasablanca.mesero.domain.model.ItemCarrito
 import com.lacasablanca.mesero.domain.model.PedidoEnviado
+import com.lacasablanca.mesero.ui.common.aparecerConDesplazamiento
 import com.lacasablanca.mesero.ui.common.formatearMoneda
 import com.lacasablanca.mesero.ui.login.LoginActivity
 import kotlinx.coroutines.launch
@@ -72,6 +73,7 @@ class ComandaActivity : AppCompatActivity(), CarritoBottomSheet.Listener {
 
     private var categoriasRenderizadas: List<Categoria>? = null
     private var seleccionRenderizada: Long? = null
+    private var animacionCatalogoEjecutada = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -146,13 +148,14 @@ class ComandaActivity : AppCompatActivity(), CarritoBottomSheet.Listener {
     private fun renderCarrito(estado: CarritoUiState) {
         renderCategorias(estado.categorias, estado.categoriaSeleccionada)
 
+        val hayErrorCatalogo = estado.errorCatalogo != null
+        val mostrarCatalogo = !estado.cargando && !hayErrorCatalogo && !estado.catalogoVacio
+
         binding.textoModoDemo.isVisible = BuildConfig.USE_FAKE_DATA
         binding.progresoCatalogo.isVisible = estado.cargando
-        binding.contenedorErrorCatalogo.isVisible =
-            !estado.cargando && estado.errorCatalogo != null
+        binding.contenedorErrorCatalogo.isVisible = !estado.cargando && hayErrorCatalogo
         binding.textoCatalogoVacio.isVisible = estado.catalogoVacio
-        binding.listaCatalogo.isVisible =
-            !estado.cargando && estado.errorCatalogo == null && !estado.catalogoVacio
+        binding.listaCatalogo.isVisible = mostrarCatalogo
 
         if (estado.errorCatalogo != null) {
             binding.textoErrorCatalogo.text = when (estado.errorCatalogo) {
@@ -166,6 +169,12 @@ class ComandaActivity : AppCompatActivity(), CarritoBottomSheet.Listener {
         catalogoAdapter.actualizarCantidades(
             estado.items.associate { it.producto.id to it.cantidad }
         )
+
+        // Fade + slide-up solo la primera vez que el catalogo tiene platos.
+        if (!animacionCatalogoEjecutada && mostrarCatalogo && estado.filas.isNotEmpty()) {
+            animacionCatalogoEjecutada = true
+            binding.listaCatalogo.aparecerConDesplazamiento()
+        }
 
         renderCheckout(estado)
     }

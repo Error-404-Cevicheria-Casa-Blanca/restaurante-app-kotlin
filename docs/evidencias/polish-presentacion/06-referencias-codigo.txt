@@ -1,0 +1,37 @@
+C:\Users\David\Documents\Cevicheria-Casa-Blanca\repos\restaurante-app-kotlin\app\src\main\res\values\themes.xml:22: <item name="android:windowSplashScreenBackground">@color/primary</item>
+C:\Users\David\Documents\Cevicheria-Casa-Blanca\repos\restaurante-app-kotlin\app\src\main\res\values\themes.xml:23: <item name="android:windowSplashScreenAnimatedIcon">@drawable/logo_casa_blanca</item>
+C:\Users\David\Documents\Cevicheria-Casa-Blanca\repos\restaurante-app-kotlin\app\src\main\res\values\themes.xml:24: <item name="android:windowSplashScreenIconBackgroundColor">@color/surface</item>
+C:\Users\David\Documents\Cevicheria-Casa-Blanca\repos\restaurante-app-kotlin\app\src\main\res\values-night\themes.xml:21: <item name="android:windowSplashScreenBackground">@color/primary</item>
+C:\Users\David\Documents\Cevicheria-Casa-Blanca\repos\restaurante-app-kotlin\app\src\main\res\values-night\themes.xml:22: <item name="android:windowSplashScreenAnimatedIcon">@drawable/logo_casa_blanca</item>
+C:\Users\David\Documents\Cevicheria-Casa-Blanca\repos\restaurante-app-kotlin\app\src\main\res\values-night\themes.xml:23: <item name="android:windowSplashScreenIconBackgroundColor">@color/surface</item>
+C:\Users\David\Documents\Cevicheria-Casa-Blanca\repos\restaurante-app-kotlin\app\src\main\java\com\lacasablanca\mesero\ui\common\Animaciones.kt:4: import android.view.animation.DecelerateInterpolator
+C:\Users\David\Documents\Cevicheria-Casa-Blanca\repos\restaurante-app-kotlin\app\src\main\java\com\lacasablanca\mesero\ui\common\Animaciones.kt:16: fun View.aparecerConDesplazamiento(
+C:\Users\David\Documents\Cevicheria-Casa-Blanca\repos\restaurante-app-kotlin\app\src\main\java\com\lacasablanca\mesero\ui\common\Animaciones.kt:27: .setDuration(duracionMs)
+C:\Users\David\Documents\Cevicheria-Casa-Blanca\repos\restaurante-app-kotlin\app\src\main\java\com\lacasablanca\mesero\ui\common\Animaciones.kt:28: .setInterpolator(DecelerateInterpolator())
+C:\Users\David\Documents\Cevicheria-Casa-Blanca\repos\restaurante-app-kotlin\app\src\main\java\com\lacasablanca\mesero\ui\comanda\CarritoBottomSheet.kt:24: import com.lacasablanca.mesero.ui.common.aparecerConDesplazamiento
+C:\Users\David\Documents\Cevicheria-Casa-Blanca\repos\restaurante-app-kotlin\app\src\main\java\com\lacasablanca\mesero\ui\comanda\CarritoBottomSheet.kt:99: _binding?.root?.aparecerConDesplazamiento(
+C:\Users\David\Documents\Cevicheria-Casa-Blanca\repos\restaurante-app-kotlin\app\src\main\java\com\lacasablanca\mesero\ui\comanda\CarritoBottomSheet.kt:150: binding.grupoCarritoVacio.isVisible = estado.carritoVacio
+C:\Users\David\Documents\Cevicheria-Casa-Blanca\repos\restaurante-app-kotlin\app\src\main\java\com\lacasablanca\mesero\ui\comanda\CatalogoAdapter.kt:3: import android.view.HapticFeedbackConstants
+C:\Users\David\Documents\Cevicheria-Casa-Blanca\repos\restaurante-app-kotlin\app\src\main\java\com\lacasablanca\mesero\ui\comanda\CatalogoAdapter.kt:119: vista.performHapticFeedback(HapticFeedbackConstants.CONFIRM)
+C:\Users\David\Documents\Cevicheria-Casa-Blanca\repos\restaurante-app-kotlin\app\src\main\java\com\lacasablanca\mesero\ui\comanda\CatalogoAdapter.kt:133: vista.performHapticFeedback(HapticFeedbackConstants.CONFIRM)
+C:\Users\David\Documents\Cevicheria-Casa-Blanca\repos\restaurante-app-kotlin\app\src\main\java\com\lacasablanca\mesero\ui\mesas\MesasActivity.kt:29: import com.lacasablanca.mesero.ui.common.aparecerConDesplazamiento
+C:\Users\David\Documents\Cevicheria-Casa-Blanca\repos\restaurante-app-kotlin\app\src\main\java\com\lacasablanca\mesero\ui\mesas\MesasActivity.kt:60: private var animacionInicialEjecutada = false
+C:\Users\David\Documents\Cevicheria-Casa-Blanca\repos\restaurante-app-kotlin\app\src\main\java\com\lacasablanca\mesero\ui\mesas\MesasActivity.kt:172: val mostrarCuadricula = !estado.cargando && !hayError && !vacio
+C:\Users\David\Documents\Cevicheria-Casa-Blanca\repos\restaurante-app-kotlin\app\src\main\java\com\lacasablanca\mesero\ui\mesas\MesasActivity.kt:175: binding.recyclerMesas.isVisible = mostrarCuadricula
+C:\Users\David\Documents\Cevicheria-Casa-Blanca\repos\restaurante-app-kotlin\app\src\main\java\com\lacasablanca\mesero\ui\mesas\MesasActivity.kt:184: if (!animacionInicialEjecutada && mostrarCuadricula &&
+C:\Users\David\Documents\Cevicheria-Casa-Blanca\repos\restaurante-app-kotlin\app\src\main\java\com\lacasablanca\mesero\ui\mesas\MesasActivity.kt:187: animacionInicialEjecutada = true
+C:\Users\David\Documents\Cevicheria-Casa-Blanca\repos\restaurante-app-kotlin\app\src\main\java\com\lacasablanca\mesero\ui\mesas\MesasActivity.kt:188: binding.recyclerMesas.aparecerConDesplazamiento()
+C:\Users\David\Documents\Cevicheria-Casa-Blanca\repos\restaurante-app-kotlin\app\src\main\java\com\lacasablanca\mesero\ui\comanda\ComandaActivity.kt:32: import com.lacasablanca.mesero.ui.common.aparecerConDesplazamiento
+C:\Users\David\Documents\Cevicheria-Casa-Blanca\repos\restaurante-app-kotlin\app\src\main\java\com\lacasablanca\mesero\ui\comanda\ComandaActivity.kt:76: private var animacionCatalogoEjecutada = false
+C:\Users\David\Documents\Cevicheria-Casa-Blanca\repos\restaurante-app-kotlin\app\src\main\java\com\lacasablanca\mesero\ui\comanda\ComandaActivity.kt:152: val mostrarCatalogo = !estado.cargando && !hayErrorCatalogo && !estado.catalogoVacio
+C:\Users\David\Documents\Cevicheria-Casa-Blanca\repos\restaurante-app-kotlin\app\src\main\java\com\lacasablanca\mesero\ui\comanda\ComandaActivity.kt:158: binding.listaCatalogo.isVisible = mostrarCatalogo
+C:\Users\David\Documents\Cevicheria-Casa-Blanca\repos\restaurante-app-kotlin\app\src\main\java\com\lacasablanca\mesero\ui\comanda\ComandaActivity.kt:174: if (!animacionCatalogoEjecutada && mostrarCatalogo && estado.filas.isNotEmpty()) {
+C:\Users\David\Documents\Cevicheria-Casa-Blanca\repos\restaurante-app-kotlin\app\src\main\java\com\lacasablanca\mesero\ui\comanda\ComandaActivity.kt:175: animacionCatalogoEjecutada = true
+C:\Users\David\Documents\Cevicheria-Casa-Blanca\repos\restaurante-app-kotlin\app\src\main\java\com\lacasablanca\mesero\ui\comanda\ComandaActivity.kt:176: binding.listaCatalogo.aparecerConDesplazamiento()
+C:\Users\David\Documents\Cevicheria-Casa-Blanca\repos\restaurante-app-kotlin\app\src\main\res\layout\bottom_sheet_carrito.xml:99: android:id="@+id/grupoCarritoVacio"
+C:\Users\David\Documents\Cevicheria-Casa-Blanca\repos\restaurante-app-kotlin\app\src\main\res\layout\bottom_sheet_carrito.xml:112: android:layout_width="@dimen/circulo_vacio_carrito"
+C:\Users\David\Documents\Cevicheria-Casa-Blanca\repos\restaurante-app-kotlin\app\src\main\res\layout\bottom_sheet_carrito.xml:113: android:layout_height="@dimen/circulo_vacio_carrito"
+C:\Users\David\Documents\Cevicheria-Casa-Blanca\repos\restaurante-app-kotlin\app\src\main\res\layout\bottom_sheet_carrito.xml:117: android:src="@drawable/ic_carrito_vacio"
+C:\Users\David\Documents\Cevicheria-Casa-Blanca\repos\restaurante-app-kotlin\app\src\main\res\layout\bottom_sheet_carrito.xml:131: android:text="@string/carrito_vacio_mensaje"
+C:\Users\David\Documents\Cevicheria-Casa-Blanca\repos\restaurante-app-kotlin\app\src\main\res\values\strings.xml:152: <string name="carrito_vacio_mensaje">Tu pedido está vacío. Agrega platos para comenzar</string>
+C:\Users\David\Documents\Cevicheria-Casa-Blanca\repos\restaurante-app-kotlin\app\src\main\res\values\strings.xml:153: <string name="carrito_vacio_icono_cd">Carrito de compras vacío</string>
