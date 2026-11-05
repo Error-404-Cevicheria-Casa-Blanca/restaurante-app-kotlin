@@ -190,6 +190,14 @@ class CobroActivity : AppCompatActivity() {
         binding.campoMontoRecibido.isVisible = esEfectivo
         binding.campoReferencia.isVisible = !esEfectivo
         binding.textoVuelto.isVisible = esEfectivo
+        binding.textoMontoACobrar.isVisible = !esEfectivo
+        val saldo = estado.totalConPropina
+            .subtract(estado.totalPagado)
+            .max(BigDecimal.ZERO)
+        binding.textoMontoACobrar.text = getString(
+            R.string.cobro_monto_a_cobrar,
+            formatearMoneda(saldo)
+        )
         sincronizarCampo(binding.textoMontoRecibido, estado.montoRecibido)
         sincronizarCampo(binding.textoReferencia, estado.referencia)
         sincronizarCampo(binding.textoPropina, estado.propina.aTextoEditable())

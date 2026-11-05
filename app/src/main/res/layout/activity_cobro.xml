@@ -390,6 +390,24 @@
                             android:textStyle="bold"
                             tools:text="Vuelto: S/ 0.00" />
 
+                        <TextView
+                            android:id="@+id/textoMontoACobrar"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/espacio_m"
+                            android:autoSizeMaxTextSize="16sp"
+                            android:autoSizeMinTextSize="11sp"
+                            android:autoSizeStepGranularity="1sp"
+                            android:autoSizeTextType="uniform"
+                            android:breakStrategy="simple"
+                            android:hyphenationFrequency="none"
+                            android:maxLines="1"
+                            android:textColor="@color/stitch_primary"
+                            android:textSize="@dimen/texto_secundario"
+                            android:textStyle="bold"
+                            android:visibility="gone"
+                            tools:text="Monto a cobrar: S/ 96.00" />
+
                         <com.google.android.material.textfield.TextInputLayout
                             android:id="@+id/campoReferencia"
                             style="@style/Campo.Cobro"
@@ -443,11 +461,15 @@
 
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/btnAgregarPago"
-                            style="@style/Boton.Secundario"
+                            style="@style/Boton.Outlined"
                             android:layout_width="match_parent"
                             android:layout_height="@dimen/toque_minimo"
                             android:layout_marginTop="@dimen/espacio_m"
-                            android:text="@string/cobro_agregar_pago" />
+                            android:text="@string/cobro_agregar_pago"
+                            app:icon="@drawable/ic_add"
+                            app:iconGravity="textStart"
+                            app:iconPadding="@dimen/espacio_s"
+                            app:iconTint="@color/primary" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
