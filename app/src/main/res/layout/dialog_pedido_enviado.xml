@@ -102,21 +102,22 @@
         tools:text="Total: S/ 96.00" />
 
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnVolverMapa"
-        style="@style/Boton.Primario"
+        android:id="@+id/btnCobrarAhora"
+        style="@style/Boton.Exito"
         android:layout_width="match_parent"
         android:layout_height="@dimen/alto_boton_primario"
         android:layout_marginTop="@dimen/espacio_xl"
-        android:autoSizeMaxTextSize="16sp"
-        android:autoSizeMinTextSize="12sp"
-        android:autoSizeStepGranularity="1sp"
-        android:autoSizeTextType="uniform"
-        android:breakStrategy="simple"
-        android:hyphenationFrequency="none"
-        android:maxLines="1"
-        android:text="@string/comanda_pedido_enviado_volver"
-        app:icon="@drawable/ic_check_blanco"
+        android:text="@string/comanda_cobrar_ahora"
+        app:icon="@drawable/ic_receipt_blanco"
         app:iconGravity="textStart"
         app:iconPadding="@dimen/espacio_s"
         app:iconTint="@color/on_primary" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnVolverMapa"
+        style="@style/Boton.Secundario"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/alto_boton_primario"
+        android:layout_marginTop="@dimen/espacio_s"
+        android:text="@string/comanda_pedido_enviado_volver" />
 </LinearLayout>

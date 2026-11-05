@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.text.Layout
 import android.view.View
 import androidx.activity.addCallback
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -29,6 +30,7 @@ import com.lacasablanca.mesero.domain.ErrorApp
 import com.lacasablanca.mesero.domain.model.Categoria
 import com.lacasablanca.mesero.domain.model.ItemCarrito
 import com.lacasablanca.mesero.domain.model.PedidoEnviado
+import com.lacasablanca.mesero.ui.cobro.CobroActivity
 import com.lacasablanca.mesero.ui.common.aparecerConDesplazamiento
 import com.lacasablanca.mesero.ui.common.formatearMoneda
 import com.lacasablanca.mesero.ui.login.LoginActivity
@@ -75,6 +77,20 @@ class ComandaActivity : AppCompatActivity(), CarritoBottomSheet.Listener {
     private var seleccionRenderizada: Long? = null
     private var animacionCatalogoEjecutada = false
 
+    /** La pantalla de cobro devuelve RESULT_OK cuando el cobro se registro. */
+    private val lanzadorCobro = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { resultado ->
+        if (resultado.resultCode == RESULT_OK) {
+            setResult(RESULT_OK, Intent().apply {
+                putExtra(EXTRA_MESA_ID, mesaId)
+                putExtra(EXTRA_MESA_NUMERO, numeroMesa)
+                putExtra(EXTRA_MESA_COBRADA, true)
+            })
+            finish()
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityComandaBinding.inflate(layoutInflater)
@@ -97,6 +113,7 @@ class ComandaActivity : AppCompatActivity(), CarritoBottomSheet.Listener {
 
         prepararListas()
         prepararAcciones()
+        binding.btnCobrar.isVisible = pedidoEnviado
 
         // Atras y la flecha de la toolbar piden confirmacion antes de liberar.
         binding.barraComanda.setNavigationOnClickListener { intentarSalir() }
@@ -139,6 +156,7 @@ class ComandaActivity : AppCompatActivity(), CarritoBottomSheet.Listener {
     private fun prepararAcciones() {
         binding.barraCheckout.btnVerCarrito.setOnClickListener { mostrarCarrito() }
         binding.btnReintentarCatalogo.setOnClickListener { carritoViewModel.cargar() }
+        binding.btnCobrar.setOnClickListener { abrirCobro() }
     }
 
     // ---------------------------------------------------------------------
@@ -185,7 +203,8 @@ class ComandaActivity : AppCompatActivity(), CarritoBottomSheet.Listener {
      */
     private fun renderCheckout(estado: CarritoUiState) {
         val barra = binding.barraCheckout
-        barra.root.isVisible = !estado.carritoVacio
+        barra.root.isVisible = !estado.carritoVacio && !pedidoEnviado
+        binding.btnCobrar.isVisible = pedidoEnviado
 
         val contador = resources.getQuantityString(
             R.plurals.comanda_contador_items,
@@ -284,6 +303,7 @@ class ComandaActivity : AppCompatActivity(), CarritoBottomSheet.Listener {
             is CarritoEvento.PedidoEnviadoOk -> {
                 // A partir de aqui la mesa NO debe liberarse al salir.
                 pedidoEnviado = true
+                binding.btnCobrar.isVisible = true
                 cerrarCarrito()
                 mostrarDialogoPedidoEnviado(evento.pedido)
             }
@@ -314,6 +334,11 @@ class ComandaActivity : AppCompatActivity(), CarritoBottomSheet.Listener {
             .setView(contenido.root)
             .setCancelable(false)
             .create()
+
+        contenido.btnCobrarAhora.setOnClickListener {
+            dialogo.dismiss()
+            abrirCobro()
+        }
 
         contenido.btnVolverMapa.setOnClickListener {
             dialogo.dismiss()
@@ -543,6 +568,15 @@ class ComandaActivity : AppCompatActivity(), CarritoBottomSheet.Listener {
         finish()
     }
 
+    /** Abre el cobro de la mesa actual y espera su resultado. */
+    private fun abrirCobro() {
+        if (mesaId <= 0L) return
+        lanzadorCobro.launch(Intent(this, CobroActivity::class.java).apply {
+            putExtra(CobroActivity.EXTRA_MESA_ID, mesaId)
+            putExtra(CobroActivity.EXTRA_MESA_NUMERO, numeroMesa)
+        })
+    }
+
     private fun irALogin() {
         val intent = Intent(this, LoginActivity::class.java).apply {
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
@@ -561,6 +595,9 @@ class ComandaActivity : AppCompatActivity(), CarritoBottomSheet.Listener {
 
         const val EXTRA_MESA_LIBERADA = "extra_mesa_liberada"
         const val EXTRA_LIBERAR_PENDIENTE = "extra_liberar_pendiente"
+
+        /** true cuando el cobro termino y Mesas debe refrescar el mapa. */
+        const val EXTRA_MESA_COBRADA = "extra_mesa_cobrada"
 
         private const val ALPHA_ACTIVO = 255
         private const val ALPHA_DESHABILITADO = 120

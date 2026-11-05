@@ -262,4 +262,19 @@
         android:layout_gravity="bottom"
         android:layout_margin="@dimen/espacio_l"
         android:visibility="gone" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnCobrar"
+        style="@style/Boton.Primario"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/alto_boton_primario"
+        android:layout_gravity="bottom"
+        android:layout_margin="@dimen/espacio_l"
+        android:text="@string/comanda_cobrar"
+        android:visibility="gone"
+        app:icon="@drawable/ic_receipt_blanco"
+        app:iconGravity="textStart"
+        app:iconPadding="@dimen/espacio_s"
+        app:iconTint="@color/on_primary"
+        tools:visibility="visible" />
 </FrameLayout>

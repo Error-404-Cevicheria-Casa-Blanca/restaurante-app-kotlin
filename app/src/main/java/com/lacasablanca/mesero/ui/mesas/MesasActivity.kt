@@ -66,16 +66,18 @@ class MesasActivity : AppCompatActivity() {
     private val lanzadorComanda = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { resultado ->
-        val datos = resultado.data ?: return@registerForActivityResult
         if (resultado.resultCode != RESULT_OK) return@registerForActivityResult
-        if (!datos.getBooleanExtra(ComandaActivity.EXTRA_LIBERAR_PENDIENTE, false)) {
+        val datos = resultado.data
+        if (datos?.getBooleanExtra(ComandaActivity.EXTRA_LIBERAR_PENDIENTE, false) == true) {
+            val id = datos.getLongExtra(ComandaActivity.EXTRA_MESA_ID, -1L)
+            if (id > 0L) {
+                liberarPendiente = true
+                viewModel.liberarMesa(id)
+            }
             return@registerForActivityResult
         }
-        val id = datos.getLongExtra(ComandaActivity.EXTRA_MESA_ID, -1L)
-        if (id > 0L) {
-            liberarPendiente = true
-            viewModel.liberarMesa(id)
-        }
+        // Pedido enviado o mesa cobrada: el mapa debe reflejar el nuevo estado.
+        viewModel.recargarAlVolver()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
