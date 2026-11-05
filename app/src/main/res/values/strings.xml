@@ -87,6 +87,8 @@
 
     <!-- Avisos del mapa de mesas (dialogos Material y snackbar) -->
     <string name="accion_aceptar">Aceptar</string>
+    <string name="accion_entendido">Entendido</string>
+    <string name="aviso_mesa_icono_cd">Aviso de la mesa</string>
     <string name="dialogo_mesa_titulo">Mesa %1$d</string>
     <string name="mesa_dialogo_ocupada">La mesa %1$d está ocupada por otros comensales. Espera a que se libere para abrir una comanda.</string>
     <string name="mesa_dialogo_atendida">La mesa %1$d ya está siendo atendida. Por ahora no se puede abrir otra comanda.</string>
@@ -220,6 +222,7 @@
     <string name="cobro_tarjeta">Tarjeta</string>
     <string name="cobro_metodo_otro">Otro</string>
     <string name="cobro_monto_recibido">Monto recibido</string>
+    <string name="cobro_monto_a_cobrar">Monto a cobrar: %1$s</string>
     <string name="cobro_vuelto">Vuelto: %1$s</string>
     <string name="cobro_referencia">Número de operación</string>
     <string name="cobro_propina">Propina (opcional)</string>

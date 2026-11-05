@@ -5,6 +5,7 @@ import android.content.res.ColorStateList
 import android.os.Bundle
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -22,9 +23,11 @@ import com.lacasablanca.mesero.MeseroApp
 import com.lacasablanca.mesero.R
 import com.lacasablanca.mesero.core.GenericViewModelFactory
 import com.lacasablanca.mesero.databinding.ActivityMesasBinding
+import com.lacasablanca.mesero.databinding.DialogAvisoMesaBinding
 import com.lacasablanca.mesero.databinding.ItemLeyendaBinding
 import com.lacasablanca.mesero.domain.model.EstadoMesa
 import com.lacasablanca.mesero.domain.model.Mesa
+import com.lacasablanca.mesero.ui.cobro.CobroActivity
 import com.lacasablanca.mesero.ui.comanda.ComandaActivity
 import com.lacasablanca.mesero.ui.common.aparecerConDesplazamiento
 import com.lacasablanca.mesero.ui.common.colorRes
@@ -76,8 +79,17 @@ class MesasActivity : AppCompatActivity() {
             }
             return@registerForActivityResult
         }
-        // Pedido enviado o mesa cobrada: el mapa debe reflejar el nuevo estado.
+        // Pedido enviado: el mapa debe reflejar el nuevo estado de la mesa.
         viewModel.recargarAlVolver()
+    }
+
+    /** La mesa amarilla abre el cobro; las demas siguen el flujo del mapa. */
+    private val lanzadorCobro = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { resultado ->
+        if (resultado.resultCode == RESULT_OK) {
+            viewModel.recargarAlVolver()
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -85,7 +97,7 @@ class MesasActivity : AppCompatActivity() {
         binding = ActivityMesasBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        adapter = MesaAdapter { mesa -> viewModel.seleccionarMesa(mesa) }
+        adapter = MesaAdapter { mesa -> alSeleccionarMesa(mesa) }
         binding.recyclerMesas.layoutManager =
             GridLayoutManager(this, resources.getInteger(R.integer.columnas_mesas))
         binding.recyclerMesas.adapter = adapter
@@ -328,17 +340,18 @@ class MesasActivity : AppCompatActivity() {
                     mensaje = getString(R.string.error_generico)
                 )
             } else {
-                // Las mesas amarillas y azules tambien responden al toque (D12).
                 mostrarDialogo(
                     titulo = getString(R.string.dialogo_mesa_titulo, mesa.numero),
-                    mensaje = getString(mesa.mensajeEstadoRes(), mesa.numero)
+                    mensaje = getString(mesa.mensajeEstadoRes(), mesa.numero),
+                    iconoRes = mesa.estado.iconoRes()
                 )
             }
 
             AvisoMesas.MESA_TOMADA -> mostrarDialogo(
                 titulo = getString(R.string.mesa_tomada_titulo),
                 mensaje = mesa?.let { getString(R.string.mesa_tomada, it.numero) }
-                    ?: getString(R.string.error_generico)
+                    ?: getString(R.string.error_generico),
+                iconoRes = R.drawable.ic_error_outline
             )
 
             AvisoMesas.ERROR_ABRIR -> mostrarDialogo(
@@ -371,18 +384,25 @@ class MesasActivity : AppCompatActivity() {
         titulo: CharSequence,
         mensaje: CharSequence,
         cancelable: Boolean = true,
+        @DrawableRes iconoRes: Int = R.drawable.ic_error_outline,
         alAceptar: (() -> Unit)? = null
     ) {
         dialogoAbierto?.dismiss()
+        val contenido = DialogAvisoMesaBinding.inflate(layoutInflater)
+        contenido.iconoAviso.setImageResource(iconoRes)
+        contenido.iconoAviso.contentDescription = titulo
+        contenido.tituloAviso.text = titulo
+        contenido.mensajeAviso.text = mensaje
+
         val dialogo = MaterialAlertDialogBuilder(this)
-            .setTitle(titulo)
-            .setMessage(mensaje)
+            .setView(contenido.root)
             .setCancelable(cancelable)
-            .setPositiveButton(R.string.accion_aceptar) { dialog, _ ->
-                dialog.dismiss()
-                alAceptar?.invoke()
-            }
             .create()
+
+        contenido.btnEntendido.setOnClickListener {
+            dialogo.dismiss()
+            alAceptar?.invoke()
+        }
         dialogo.setCanceledOnTouchOutside(cancelable)
         dialogo.setOnDismissListener { if (dialogoAbierto === dialogo) dialogoAbierto = null }
         dialogo.show()
@@ -394,6 +414,7 @@ class MesasActivity : AppCompatActivity() {
             titulo = getString(R.string.sesion_expirada_titulo),
             mensaje = getString(R.string.sesion_expirada),
             cancelable = false,
+            iconoRes = R.drawable.ic_lock,
             alAceptar = ::irALogin
         )
     }
@@ -412,6 +433,22 @@ class MesasActivity : AppCompatActivity() {
         snackbar.setTextColor(ContextCompat.getColor(this, R.color.on_primary))
         snackbar.show()
         snackbar.view.background = ContextCompat.getDrawable(this, R.drawable.bg_snackbar)
+    }
+
+    private fun alSeleccionarMesa(mesa: Mesa) {
+        if (mesa.estado == EstadoMesa.CUENTA_SOLICITADA) {
+            abrirCobro(mesa)
+            return
+        }
+        viewModel.seleccionarMesa(mesa)
+    }
+
+    private fun abrirCobro(mesa: Mesa) {
+        val intent = Intent(this, CobroActivity::class.java).apply {
+            putExtra(CobroActivity.EXTRA_MESA_ID, mesa.id)
+            putExtra(CobroActivity.EXTRA_MESA_NUMERO, mesa.numero)
+        }
+        lanzadorCobro.launch(intent)
     }
 
     private fun abrirComanda(mesa: Mesa) {
