@@ -1,0 +1,29 @@
+RAMA ACTUAL:
+feature/polish-presentacion
+
+COMMIT BASE develop:
+4957527 Merge pull request #9 into develop (PRB-23)
+
+ESTADO:
+
+ULTIMOS COMMITS:
+769144f feat(polish-presentacion): pulir splash, animaciones y feedback haptico
+4957527 Merge pull request #9 into develop (PRB-23)
+7fb46ad chore(PRB-23): configurar Detekt para analisis estatico y buenas practicas en Android
+
+DETALLE DEL COMMIT:
+769144f feat(polish-presentacion): pulir splash, animaciones y feedback haptico
+ .../mesero/ui/comanda/CarritoBottomSheet.kt        | 13 ++++++-
+ .../mesero/ui/comanda/CatalogoAdapter.kt           | 13 +++++--
+ .../mesero/ui/comanda/ComandaActivity.kt           | 17 +++++++--
+ .../lacasablanca/mesero/ui/common/Animaciones.kt   | 30 +++++++++++++++
+ .../lacasablanca/mesero/ui/mesas/MesasActivity.kt  | 13 ++++++-
+ app/src/main/res/drawable/bg_circulo_vacio.xml     |  9 +++++
+ app/src/main/res/drawable/ic_carrito_vacio.xml     | 11 ++++++
+ app/src/main/res/layout/bottom_sheet_carrito.xml   | 43 ++++++++++++++++------
+ app/src/main/res/values-night/themes.xml           |  4 ++
+ app/src/main/res/values/dimens.xml                 |  1 +
+ app/src/main/res/values/strings.xml                |  2 +
+ app/src/main/res/values/themes.xml                 |  4 ++
+ 12 files changed, 139 insertions(+), 21 deletions(-)
+EXIT=0
