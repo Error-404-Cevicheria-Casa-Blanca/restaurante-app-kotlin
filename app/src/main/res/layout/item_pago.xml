@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Pago agregado: metodo, monto y accion para eliminarlo. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="@dimen/espacio_s"
+    android:background="@drawable/bg_item_carrito"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:padding="@dimen/espacio_m">
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/espacio_s"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/textoMetodoPago"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:autoSizeMaxTextSize="14sp"
+            android:autoSizeMinTextSize="11sp"
+            android:autoSizeStepGranularity="1sp"
+            android:autoSizeTextType="uniform"
+            android:breakStrategy="simple"
+            android:ellipsize="none"
+            android:hyphenationFrequency="none"
+            android:maxLines="1"
+            android:textColor="@color/on_surface"
+            android:textSize="@dimen/texto_secundario"
+            android:textStyle="bold"
+            tools:text="Efectivo" />
+
+        <TextView
+            android:id="@+id/textoMontoPago"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:autoSizeMaxTextSize="14sp"
+            android:autoSizeMinTextSize="11sp"
+            android:autoSizeStepGranularity="1sp"
+            android:autoSizeTextType="uniform"
+            android:breakStrategy="simple"
+            android:ellipsize="none"
+            android:hyphenationFrequency="none"
+            android:maxLines="1"
+            android:textColor="@color/stitch_primary"
+            android:textSize="@dimen/texto_etiqueta"
+            tools:text="S/ 96.00" />
+    </LinearLayout>
+
+    <ImageButton
+        android:id="@+id/btnEliminarPago"
+        android:layout_width="@dimen/toque_minimo"
+        android:layout_height="@dimen/toque_minimo"
+        android:background="@drawable/bg_boton_cantidad"
+        android:contentDescription="@string/cd_eliminar_pago_generico"
+        android:padding="@dimen/espacio_m"
+        android:scaleType="centerInside"
+        android:src="@drawable/ic_close"
+        app:tint="@color/estado_ocupada" />
+</LinearLayout>

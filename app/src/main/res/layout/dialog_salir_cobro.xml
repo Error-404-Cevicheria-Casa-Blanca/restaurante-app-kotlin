@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Confirmacion de salida sin cobrar: la mesa permanece ocupada. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_horizontal"
+    android:orientation="vertical"
+    android:paddingHorizontal="@dimen/espacio_xl"
+    android:paddingTop="@dimen/espacio_xl"
+    android:paddingBottom="@dimen/espacio_l">
+
+    <ImageView
+        android:layout_width="@dimen/icono_xl"
+        android:layout_height="@dimen/icono_xl"
+        android:contentDescription="@string/cobro_salir_icono_cd"
+        android:src="@drawable/ic_error_outline"
+        app:tint="@color/primary" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/espacio_m"
+        android:autoSizeMaxTextSize="20sp"
+        android:autoSizeMinTextSize="14sp"
+        android:autoSizeStepGranularity="1sp"
+        android:autoSizeTextType="uniform"
+        android:breakStrategy="simple"
+        android:gravity="center"
+        android:hyphenationFrequency="none"
+        android:maxLines="2"
+        android:text="@string/cobro_salir_titulo"
+        android:textColor="@color/primary"
+        android:textSize="@dimen/texto_titulo_tarjeta"
+        android:textStyle="bold" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/espacio_s"
+        android:autoSizeMaxTextSize="16sp"
+        android:autoSizeMinTextSize="11sp"
+        android:autoSizeStepGranularity="1sp"
+        android:autoSizeTextType="uniform"
+        android:breakStrategy="simple"
+        android:gravity="center"
+        android:hyphenationFrequency="none"
+        android:lineSpacingExtra="2dp"
+        android:maxLines="3"
+        android:text="@string/cobro_salir_mensaje"
+        android:textColor="@color/texto_principal"
+        android:textSize="@dimen/texto_cuerpo" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/espacio_l"
+        android:gravity="end|center_vertical"
+        android:orientation="horizontal">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnSeguirCobrando"
+            style="@style/Boton.DialogoLiberar"
+            android:layout_width="wrap_content"
+            android:text="@string/cobro_salir_cancelar" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnSalirSinCobrar"
+            style="@style/Boton.DialogoLiberar"
+            android:layout_width="wrap_content"
+            android:layout_marginStart="@dimen/espacio_s"
+            android:backgroundTint="@color/estado_ocupada"
+            android:text="@string/cobro_salir_confirmar" />
+    </LinearLayout>
+</LinearLayout>
