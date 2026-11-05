@@ -1,0 +1,54 @@
+=== ANTES ===
+VibratorManagerService:
+VibrationSettings:
+vibrateOn = true
+keyboardVibrationOn = true, default: true
+vibrateInputDevices = false
+VibrationIntensities:
+VibrationConfig:
+ignoreVibrationsOnWirelessCharger = false
+requestVibrationParamsForUsages = [ALARM, RINGTONE, NOTIFICATION, COMMUNICATION_REQUEST]
+requestVibrationParamsTimeoutMs = 50
+VibrationScaler:
+defaultVibrationAmplitude = 255
+Vibrators:
+Vibrator (id=1):
+isVibrating = false
+vibratorInfoLoadSuccessful = true
+vibratorStateListener size = 0
+VibratorInfo:
+CurrentVibration:
+NextVibration:
+
+=== CERRAR SHEET Y TOCAR + ===
+VibratorManagerService:
+VibrationSettings:
+vibrateOn = true
+keyboardVibrationOn = true, default: true
+vibrateInputDevices = false
+VibrationIntensities:
+VibrationConfig:
+ignoreVibrationsOnWirelessCharger = false
+requestVibrationParamsForUsages = [ALARM, RINGTONE, NOTIFICATION, COMMUNICATION_REQUEST]
+requestVibrationParamsTimeoutMs = 50
+VibrationScaler:
+defaultVibrationAmplitude = 255
+Vibrators:
+Vibrator (id=1):
+isVibrating = false
+vibratorInfoLoadSuccessful = true
+vibratorStateListener size = 0
+VibratorInfo:
+CurrentVibration:
+NextVibration:
+CurrentExternalVibration:
+Recent vibrations:
+11-05 04:31:03.243 |   effect |             finished | duration:   145ms | start: 04:31:03.264 | end: 04:31:03.388 | scale:     NONE (adaptive=1.00) | flags:    0 | usage: TOUCH | com.lacasablanca.mesero (uid=10213, deviceId=0) | reason: performHapticFeedback(constant=16): View#performHapticFeedback | played: Prebaked=CLICK(MEDIUM, with fallback) | original: null
+11-05 04:32:11.187 |   effect |             finished | duration:   142ms | start: 04:32:11.200 | end: 04:32:11.329 | scale:     NONE (adaptive=1.00) | flags:    0 | usage: TOUCH | com.lacasablanca.mesero (uid=10213, deviceId=0) | reason: performHapticFeedback(constant=16): View#performHapticFeedback | played: Prebaked=CLICK(MEDIUM, with fallback) | original: null
+Aggregated vibration history:
+VibratorControlService:
+isVibratorControllerRegistered = false
+hasPendingVibrationParamsRequest = false
+Vibration parameters update history:
+
+=== FIN ===

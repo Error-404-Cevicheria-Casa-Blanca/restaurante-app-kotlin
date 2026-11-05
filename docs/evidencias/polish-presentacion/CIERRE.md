@@ -25,12 +25,14 @@
 | Tests unitarios | `02-testDebugUnitTest.txt` — `BUILD SUCCESSFUL`, `EXIT=0`; `03-test-results-totales.txt` — 71 tests, 0 fallos, 0 errores, 0 omitidos | **CUMPLE** |
 | Análisis estático (detekt) | `04-detekt.txt` — `BUILD SUCCESSFUL`, `EXIT=0` | **CUMPLE** |
 | Lint de recursos | `05-lintDebug.txt` — `BUILD SUCCESSFUL`, `EXIT=0` | **CUMPLE** |
-| Splash visible en arranque en frío | Requiere emulador/tablet; el agente no ve la pantalla | **NO VERIFICADO** |
-| Animación del BottomSheet | Requiere captura/video en emulador | **NO VERIFICADO** |
-| Animación inicial de mesas/catálogo | Requiere captura/video en emulador | **NO VERIFICADO** |
-| Estado vacío visible | Requiere abrir el carrito, agregar un plato y quitarlo | **NO VERIFICADO** |
-| Sensación del háptico | Requiere dispositivo/emulador con hápticos activos | **NO VERIFICADO** |
+| Smoke test en emulador (`Medium_Phone`) | `08-smoke-emulador.txt` — install `Success`, cold start `Status: ok`, `topResumedActivity=MesasActivity`, sin `FATAL EXCEPTION` | **CUMPLE** |
+| Splash visible en arranque en frío | `09-splash-b.png` / `09-splash-c.png`; `09-splash-analisis.txt` — 94.5% de muestras en `#0B5563`, centro distinto del fondo | **CUMPLE** (fondo/logo renderizados; estética a revisión humana) |
+| Estado vacío del carrito | `10-carrito-vacio.png`, `10-carrito-vacio.txt` y `10-carrito-vacio-ui.xml` — texto exacto y `content-desc=Carrito de compras vacío` | **CUMPLE** |
+| Feedback háptico | `11-haptico-emulador.txt` — `vibrator_manager` registra `performHapticFeedback(constant=16)`, `usage: TOUCH`, `com.lacasablanca.mesero` | **CUMPLE** (funcional; sensación subjetiva pendiente) |
+| Animación del BottomSheet | Código y compilación OK; no se capturó video | **NO VERIFICADO** |
+| Animación inicial de mesas/catálogo | Código y compilación OK; no se capturó video | **NO VERIFICADO** |
 | Layout tablet (`layout-sw600dp`) tras los cambios | El BottomSheet es compartido; no se capturó en tablet | **NO VERIFICADO** |
+| Estética general / fuente grande | Requiere revisión humana | **NO VERIFICADO** |
 
 ## ASSUMPTIONS
 
@@ -41,19 +43,19 @@
 | P3 | La barra flotante de checkout se oculta con el carrito vacío (decisión A23 de PRB-38). | El estado vacío se hace visible cuando el BottomSheet queda abierto y se quita el último plato. |
 | P4 | El háptico debe ser sutil y respetar la configuración del usuario. | `HapticFeedbackConstants.CONFIRM`; no se declara `VIBRATE` porque `performHapticFeedback` no lo requiere. |
 
-## Pendiente de verificación humana (capturas/videos)
+## Pendiente de verificación humana
 
-1. `01-splash-arranque-frio.png` — cerrar la app y abrirla; debe verse el logo sobre teal.
-2. `02-mesas-primera-carga.png` o video — el grid debe aparecer con fade + slide-up.
-3. `03-bottom-sheet-apertura.png` o video — el contenido del sheet debe aparecer suave.
-4. `04-carrito-vacio.png` — agregar un plato, abrir el carrito, quitarlo; debe verse el ícono y “Tu pedido está vacío. Agrega platos para comenzar”.
-5. `05-catalogo-primera-carga.png` o video — el catálogo debe aparecer con fade + slide-up.
-6. `06-haptico.mp4` — activar hápticos en el sistema y presionar “+” en el catálogo.
+1. Revisar `09-splash-b.png` / `09-splash-c.png`: validar que el logo se vea bien sobre teal.
+2. Grabar la primera carga de mesas y catálogo para confirmar el fade + slide-up.
+3. Grabar la apertura del BottomSheet para confirmar la animación.
+4. Revisar `10-carrito-vacio.png`: validar ícono, texto y espaciado.
+5. Probar en tablet (`layout-sw600dp`) y con fuente grande del sistema.
+6. Sentir el háptico en un dispositivo/emulador con hápticos activos (el sistema ya registra `CONFIRM`).
 
 ## Comentario para Jira (sin clave asociada)
 
 > **Polish visual para la presentación**
 > Se implementó el splash con el logo de La Casa Blanca usando la SplashScreen API nativa (minSdk 35), animación fade/slide al abrir el carrito y en la primera carga de mesas/catálogo, estado vacío del carrito con ícono y feedback háptico en los botones “+” del catálogo.
-> Verificación: `assembleDebug` OK, 71 tests OK, detekt OK y lint OK.
-> Commit: `769144f`.
-> Pendiente: validación visual en emulador/tablet y captura de las animaciones (el agente no ve la pantalla).
+> Verificación: `assembleDebug` OK, 71 tests OK, detekt OK, lint OK. Smoke test en emulador `Medium_Phone` OK (cold start + navegación a Mesas + splash capturado). Capturas de splash y carrito vacío adjuntas; el háptico queda registrado por `vibrator_manager` como `CONFIRM`.
+> Commit de código: `769144f`.
+> Pendiente: validar la estética y las animaciones en video/tablet (el agente no ve la pantalla).
