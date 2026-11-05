@@ -18,10 +18,15 @@
         <item name="colorErrorContainer">@color/error_container</item>
         <item name="colorOnErrorContainer">@color/on_error_container</item>
         <item name="materialAlertDialogTheme">@style/ThemeOverlay.LaCasaBlanca.Dialogo</item>
-        <!-- Splash Screen API nativa (minSdk 35): logo de la marca sobre teal. -->
+        <!--
+            Splash Screen API nativa (minSdk 35): logo circular sobre teal.
+            Se usa la variante con inset (61.1 % central) para que el recorte
+            circular del sistema no corte "CEVICHERIA" ni "RESTAURANTE".
+            El fondo del icono es el mismo teal para integrar el logo.
+        -->
         <item name="android:windowSplashScreenBackground">@color/primary</item>
-        <item name="android:windowSplashScreenAnimatedIcon">@drawable/logo_casa_blanca</item>
-        <item name="android:windowSplashScreenIconBackgroundColor">@color/surface</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/logo_casa_blanca_icon</item>
+        <item name="android:windowSplashScreenIconBackgroundColor">@color/primary</item>
         <item name="android:statusBarColor">@color/primary</item>
         <item name="android:navigationBarColor">@color/background</item>
         <item name="android:windowLightStatusBar">false</item>

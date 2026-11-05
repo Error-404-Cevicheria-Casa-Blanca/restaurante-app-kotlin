@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Version del logo preparada para el icono adaptativo y el splash.
+
+    logo_casa_blanca.png es un circulo azul que llena todo el lienzo. Si se usa
+    a sangre, el launcher y el splash recortan el tercio exterior del icono
+    (zona reservada para la mascara) y cortan "CEVICHERIA" y "RESTAURANTE".
+
+    El inset del 19.45 % por lado deja el circulo visible en el 61.1 % central:
+    - icono adaptativo: 66dp dentro de la capa de 108dp (zona segura oficial);
+    - splash: 146.7dp dentro del circulo visible de 160dp (icono con fondo).
+    El PNG original se conserva sin cambios para el login y la barra de mesas.
+-->
+<inset xmlns:android="http://schemas.android.com/apk/res/android"
+    android:drawable="@drawable/logo_casa_blanca"
+    android:insetLeft="19.45%"
+    android:insetTop="19.45%"
+    android:insetRight="19.45%"
+    android:insetBottom="19.45%" />
