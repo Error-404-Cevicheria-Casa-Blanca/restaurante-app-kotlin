@@ -74,4 +74,5 @@
     <dimen name="ancho_drag_handle">40dp</dimen>
     <dimen name="alto_drag_handle">4dp</dimen>
     <dimen name="ancho_cantidad_stepper">32dp</dimen>
+    <dimen name="circulo_vacio_carrito">88dp</dimen>
 </resources>

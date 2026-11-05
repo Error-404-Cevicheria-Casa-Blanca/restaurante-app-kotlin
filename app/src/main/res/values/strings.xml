@@ -149,6 +149,8 @@
     <string name="carrito_sheet_subtitulo">Revisa los platos y confirma la comanda.</string>
     <string name="carrito_sheet_contador">%1$s · Revisa los platos y confirma la comanda.</string>
     <string name="carrito_sheet_cerrar">Cerrar carrito</string>
+    <string name="carrito_vacio_mensaje">Tu pedido está vacío. Agrega platos para comenzar</string>
+    <string name="carrito_vacio_icono_cd">Carrito de compras vacío</string>
     <string name="cd_cantidad_plato">Cantidad en el pedido: %1$d</string>
     <string name="cd_drag_handle">Arrastra hacia abajo para cerrar el carrito</string>
 

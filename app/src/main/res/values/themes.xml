@@ -18,6 +18,10 @@
         <item name="colorErrorContainer">@color/error_container</item>
         <item name="colorOnErrorContainer">@color/on_error_container</item>
         <item name="materialAlertDialogTheme">@style/ThemeOverlay.LaCasaBlanca.Dialogo</item>
+        <!-- Splash Screen API nativa (minSdk 35): logo de la marca sobre teal. -->
+        <item name="android:windowSplashScreenBackground">@color/primary</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/logo_casa_blanca</item>
+        <item name="android:windowSplashScreenIconBackgroundColor">@color/surface</item>
         <item name="android:statusBarColor">@color/primary</item>
         <item name="android:navigationBarColor">@color/background</item>
         <item name="android:windowLightStatusBar">false</item>

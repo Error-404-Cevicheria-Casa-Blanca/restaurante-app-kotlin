@@ -1,5 +1,6 @@
 package com.lacasablanca.mesero.ui.comanda
 
+import android.view.HapticFeedbackConstants
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.ImageView
@@ -113,8 +114,11 @@ class CatalogoAdapter(
             binding.botonAgregar.alpha = if (producto.disponible) 1f else ALPHA_NO_DISPONIBLE
             binding.botonAgregar.contentDescription =
                 contexto.getString(R.string.cd_agregar_producto, producto.nombre)
-            binding.botonAgregar.setOnClickListener {
-                if (producto.disponible) alAgregar(producto)
+            binding.botonAgregar.setOnClickListener { vista ->
+                if (producto.disponible) {
+                    vista.performHapticFeedback(HapticFeedbackConstants.CONFIRM)
+                    alAgregar(producto)
+                }
             }
 
             binding.textoCantidadPlato.text = cantidad.toString()
@@ -125,7 +129,10 @@ class CatalogoAdapter(
                 contexto.getString(R.string.cd_aumentar_producto, producto.nombre)
             binding.btnDisminuirPlato.contentDescription =
                 contexto.getString(R.string.cd_disminuir_producto, producto.nombre)
-            binding.btnAumentarPlato.setOnClickListener { alAumentar(producto.id) }
+            binding.btnAumentarPlato.setOnClickListener { vista ->
+                vista.performHapticFeedback(HapticFeedbackConstants.CONFIRM)
+                alAumentar(producto.id)
+            }
             binding.btnDisminuirPlato.setOnClickListener { alDisminuir(producto.id) }
 
             aplicarModo(

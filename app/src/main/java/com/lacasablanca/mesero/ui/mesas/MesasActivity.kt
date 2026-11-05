@@ -26,6 +26,7 @@ import com.lacasablanca.mesero.databinding.ItemLeyendaBinding
 import com.lacasablanca.mesero.domain.model.EstadoMesa
 import com.lacasablanca.mesero.domain.model.Mesa
 import com.lacasablanca.mesero.ui.comanda.ComandaActivity
+import com.lacasablanca.mesero.ui.common.aparecerConDesplazamiento
 import com.lacasablanca.mesero.ui.common.colorRes
 import com.lacasablanca.mesero.ui.common.etiquetaPluralRes
 import com.lacasablanca.mesero.ui.common.etiquetaRes
@@ -56,6 +57,7 @@ class MesasActivity : AppCompatActivity() {
     private var primeraReanudacion = true
     private var liberarPendiente = false
     private var dialogoAbierto: AlertDialog? = null
+    private var animacionInicialEjecutada = false
 
     /**
      * La comanda puede devolver la mesa sin liberar (el PATCH fallo y el mozo
@@ -167,15 +169,24 @@ class MesasActivity : AppCompatActivity() {
 
         val hayError = estado.error != null && !estado.cargando
         val vacio = estado.sinMesas || estado.sinResultados
+        val mostrarCuadricula = !estado.cargando && !hayError && !vacio
         binding.grupoError.isVisible = hayError
         binding.grupoVacio.isVisible = !hayError && vacio
-        binding.recyclerMesas.isVisible = !estado.cargando && !hayError && !vacio
+        binding.recyclerMesas.isVisible = mostrarCuadricula
 
         estado.error?.let { binding.textoErrorMesas.text = getString(it.mensajeRes()) }
 
         renderTabs(estado.zonas, estado.zonaSeleccionada)
         renderChips(estado)
         adapter.submitList(estado.mesasVisibles)
+
+        // Fade + slide-up solo la primera vez que la cuadricula tiene datos.
+        if (!animacionInicialEjecutada && mostrarCuadricula &&
+            estado.mesasVisibles.isNotEmpty()
+        ) {
+            animacionInicialEjecutada = true
+            binding.recyclerMesas.aparecerConDesplazamiento()
+        }
     }
 
     private fun renderTabs(zonas: List<String>, seleccionada: String?) {
