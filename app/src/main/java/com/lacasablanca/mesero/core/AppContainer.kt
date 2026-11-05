@@ -18,6 +18,7 @@ import com.lacasablanca.mesero.data.repository.CobroRepository
 import com.lacasablanca.mesero.data.repository.FakeAuthRepository
 import com.lacasablanca.mesero.data.repository.FakeCatalogoRepository
 import com.lacasablanca.mesero.data.repository.FakeCobroRepository
+import com.lacasablanca.mesero.data.repository.FakeConsumoStore
 import com.lacasablanca.mesero.data.repository.FakeMesaRepository
 import com.lacasablanca.mesero.data.repository.FakePedidoRepository
 import com.lacasablanca.mesero.data.repository.MesaRepository
@@ -38,6 +39,9 @@ class AppContainer(contexto: Context) {
     private val tokenStore: TokenStore = EncryptedTokenStore(contexto, CryptoManager())
 
     val sessionManager = SessionManager(tokenStore)
+
+    /** Consumo simulado compartido por los repositorios fake de pedido y cobro. */
+    private val fakeConsumoStore = FakeConsumoStore()
 
     private val retrofit: Retrofit by lazy {
         ApiClient.crear(BuildConfig.BASE_URL) { sessionManager.token }
@@ -72,14 +76,14 @@ class AppContainer(contexto: Context) {
 
     val pedidoRepository: PedidoRepository =
         if (BuildConfig.USE_FAKE_DATA) {
-            FakePedidoRepository()
+            FakePedidoRepository(fakeConsumoStore)
         } else {
             RealPedidoRepository(pedidosApi)
         }
 
     val cobroRepository: CobroRepository =
         if (BuildConfig.USE_FAKE_DATA) {
-            FakeCobroRepository(mesaRepository)
+            FakeCobroRepository(mesaRepository, fakeConsumoStore)
         } else {
             RealCobroRepository(cobroApi)
         }

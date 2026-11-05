@@ -7,18 +7,21 @@ import com.lacasablanca.mesero.data.remote.dto.ItemCuenta
 import com.lacasablanca.mesero.data.remote.dto.PedidoResumenCuenta
 import com.lacasablanca.mesero.domain.ErrorApp
 import com.lacasablanca.mesero.domain.Resultado
+import com.lacasablanca.mesero.domain.model.CalculoIgv
 import com.lacasablanca.mesero.domain.model.EstadoMesa
 import com.lacasablanca.mesero.domain.model.MetodoPago
 import kotlinx.coroutines.delay
 import java.math.BigDecimal
+import java.math.RoundingMode
 
 /**
- * DATOS FAKE (no reales) de la cuenta y el cobro para operar sin servidor.
- * La pantalla los rotula como "Datos de prueba" cuando USE_FAKE_DATA = true.
- * Al cobrar tambien libera la mesa en el repositorio fake, igual que el backend.
+ * DATOS FAKE (no reales) de la cuenta y el cobro.
+ * La cuenta se arma con el consumo acumulado por mesa para que el total
+ * coincida con los pedidos enviados; si no hay consumo usa un total de prueba.
  */
 class FakeCobroRepository(
     private val mesaRepository: MesaRepository? = null,
+    private val consumoStore: FakeConsumoStore? = null,
     private val latenciaMs: Long = LATENCIA_SIMULADA_MS
 ) : CobroRepository {
 
@@ -27,7 +30,7 @@ class FakeCobroRepository(
         return if (mesaId <= 0L) {
             Resultado.Fallo(ErrorApp.VALIDACION)
         } else {
-            Resultado.Exito(CUENTA_FAKE)
+            Resultado.Exito(cuentaDe(mesaId))
         }
     }
 
@@ -37,8 +40,8 @@ class FakeCobroRepository(
             return Resultado.Fallo(ErrorApp.VALIDACION)
         }
 
-        val total = CUENTA_FAKE.total ?: BigDecimal.ZERO
-        val esperado = total.add(request.propina)
+        val cuenta = cuentaDe(mesaId)
+        val esperado = (cuenta.total ?: BigDecimal.ZERO).add(request.propina)
         val pagado = request.pagos.fold(BigDecimal.ZERO) { acumulado, pago ->
             acumulado.add(pago.monto)
         }
@@ -52,52 +55,54 @@ class FakeCobroRepository(
         val vuelto = efectivo.subtract(esperado).max(BigDecimal.ZERO)
 
         mesaRepository?.cambiarEstado(mesaId, EstadoMesa.LIBRE)
+        consumoStore?.limpiar(mesaId)
 
         return Resultado.Exito(
             CobroResponse(
                 total = esperado,
                 pagado = pagado,
                 vuelto = vuelto,
-                pedidos = CUENTA_FAKE.pedidos
+                pedidos = cuenta.pedidos
             )
         )
     }
 
-    companion object {
-        const val LATENCIA_SIMULADA_MS = 500L
-
-        private val TOTAL = BigDecimal("96.00")
-        private val SUBTOTAL = BigDecimal("81.36")
-        private val IGV = BigDecimal("14.64")
-        private val PROPINA_SUGERIDA = BigDecimal("9.60")
-
-        val CUENTA_FAKE: CuentaResponse = CuentaResponse(
-            mesaId = 1L,
-            pedidos = listOf(PedidoResumenCuenta(1L, EstadoMesa.OCUPADA.valorApi, TOTAL)),
-            items = listOf(
-                ItemCuenta(
-                    nombre = "Ceviche Clásico La Casa Blanca",
-                    cantidad = 1,
-                    precioUnitario = BigDecimal("48.00"),
-                    subtotalLinea = BigDecimal("48.00")
-                ),
-                ItemCuenta(
-                    nombre = "Tiradito al Ají Amarillo",
-                    cantidad = 1,
-                    precioUnitario = BigDecimal("28.00"),
-                    subtotalLinea = BigDecimal("28.00")
-                ),
-                ItemCuenta(
-                    nombre = "Chicha Morada 1L",
-                    cantidad = 1,
-                    precioUnitario = BigDecimal("20.00"),
-                    subtotalLinea = BigDecimal("20.00")
+    private fun cuentaDe(mesaId: Long): CuentaResponse {
+        val desglose = CalculoIgv.desglosar(totalDe(mesaId))
+        val propina = desglose.total
+            .multiply(PROPINA_SUGERIDA)
+            .setScale(2, RoundingMode.HALF_UP)
+        return CuentaResponse(
+            mesaId = mesaId,
+            pedidos = listOf(
+                PedidoResumenCuenta(
+                    id = 1L,
+                    estado = EstadoMesa.CUENTA_SOLICITADA.valorApi,
+                    total = desglose.total
                 )
             ),
-            subtotal = SUBTOTAL,
-            igv = IGV,
-            total = TOTAL,
-            propinaSugerida = PROPINA_SUGERIDA
+            items = listOf(
+                ItemCuenta(
+                    nombre = ITEM_GENERICO,
+                    cantidad = 1,
+                    precioUnitario = desglose.total,
+                    subtotalLinea = desglose.total
+                )
+            ),
+            subtotal = desglose.subtotal,
+            igv = desglose.igv,
+            total = desglose.total,
+            propinaSugerida = propina
         )
+    }
+
+    private fun totalDe(mesaId: Long): BigDecimal =
+        consumoStore?.total(mesaId) ?: TOTAL_POR_DEFECTO
+
+    companion object {
+        const val LATENCIA_SIMULADA_MS = 500L
+        private const val ITEM_GENERICO = "Consumo de Mesa"
+        private val TOTAL_POR_DEFECTO = BigDecimal("96.00")
+        private val PROPINA_SUGERIDA = BigDecimal("0.10")
     }
 }
