@@ -1,0 +1,7 @@
+archivo=C:\Users\David\Documents\Cevicheria-Casa-Blanca\repos\restaurante-app-kotlin\app\src\main\res\drawable\logo_casa_blanca.png
+dimensiones=796x796
+formato=Png pixelFormat=Format32bppArgb
+esquina(0,0)=ARGB(0,0,0,0)
+centro=ARGB(255,24,50,11)
+borde_superior_centro=ARGB(255,59,182,255)
+conclusion: el PNG tiene canal alpha (esquinas transparentes); el circulo visible es full-bleed (toca los bordes superior/inferior), por eso requiere inset para el icono/splash.

@@ -1,0 +1,107 @@
+=== RAMA ===
+feature/polish-presentacion
+=== STATUS ===
+On branch feature/polish-presentacion
+Changes to be committed:
+  (use "git restore --staged <file>..." to unstage)
+	renamed:    app/src/main/res/mipmap-anydpi/ic_launcher.xml -> app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml
+	renamed:    app/src/main/res/mipmap-anydpi/ic_launcher_round.xml -> app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	modified:   app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml
+	modified:   app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml
+	modified:   app/src/main/res/values-night/themes.xml
+	modified:   app/src/main/res/values/themes.xml
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	app/src/main/res/drawable/logo_casa_blanca_icon.xml
+
+=== DIFF STAT ===
+ app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml       |  7 +++----
+ app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml |  7 +++----
+ app/src/main/res/values-night/themes.xml                 | 11 ++++++++---
+ app/src/main/res/values/themes.xml                       | 11 ++++++++---
+ 4 files changed, 22 insertions(+), 14 deletions(-)
+=== DIFF ===
+diff --git a/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml b/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml
+index 6f3b755..cabd0cd 100644
+--- a/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml
++++ b/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml
+@@ -1,6 +1,5 @@
+ <?xml version="1.0" encoding="utf-8"?>
+ <adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+-    <background android:drawable="@drawable/ic_launcher_background" />
+-    <foreground android:drawable="@drawable/ic_launcher_foreground" />
+-    <monochrome android:drawable="@drawable/ic_launcher_foreground" />
+-</adaptive-icon>
+\ No newline at end of file
++    <background android:drawable="@color/primary" />
++    <foreground android:drawable="@drawable/logo_casa_blanca_icon" />
++</adaptive-icon>
+diff --git a/app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml b/app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml
+index 6f3b755..cabd0cd 100644
+--- a/app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml
++++ b/app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml
+@@ -1,6 +1,5 @@
+ <?xml version="1.0" encoding="utf-8"?>
+ <adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+-    <background android:drawable="@drawable/ic_launcher_background" />
+-    <foreground android:drawable="@drawable/ic_launcher_foreground" />
+-    <monochrome android:drawable="@drawable/ic_launcher_foreground" />
+-</adaptive-icon>
+\ No newline at end of file
++    <background android:drawable="@color/primary" />
++    <foreground android:drawable="@drawable/logo_casa_blanca_icon" />
++</adaptive-icon>
+diff --git a/app/src/main/res/values-night/themes.xml b/app/src/main/res/values-night/themes.xml
+index 8a72c27..da3028c 100644
+--- a/app/src/main/res/values-night/themes.xml
++++ b/app/src/main/res/values-night/themes.xml
+@@ -17,10 +17,15 @@
+         <item name="colorError">@color/error</item>
+         <item name="colorErrorContainer">@color/error_container</item>
+         <item name="colorOnErrorContainer">@color/on_error_container</item>
+-        <!-- Splash Screen API nativa (minSdk 35): logo de la marca sobre teal. -->
++        <!--
++            Splash Screen API nativa (minSdk 35): logo circular sobre teal.
++            Se usa la variante con inset (61.1 % central) para que el recorte
++            circular del sistema no corte "CEVICHERIA" ni "RESTAURANTE".
++            El fondo del icono es el mismo teal para integrar el logo.
++        -->
+         <item name="android:windowSplashScreenBackground">@color/primary</item>
+-        <item name="android:windowSplashScreenAnimatedIcon">@drawable/logo_casa_blanca</item>
+-        <item name="android:windowSplashScreenIconBackgroundColor">@color/surface</item>
++        <item name="android:windowSplashScreenAnimatedIcon">@drawable/logo_casa_blanca_icon</item>
++        <item name="android:windowSplashScreenIconBackgroundColor">@color/primary</item>
+         <item name="android:statusBarColor">@color/primary</item>
+         <item name="android:navigationBarColor">@color/background</item>
+         <item name="android:windowLightStatusBar">false</item>
+diff --git a/app/src/main/res/values/themes.xml b/app/src/main/res/values/themes.xml
+index 9f128ca..2f50bbd 100644
+--- a/app/src/main/res/values/themes.xml
++++ b/app/src/main/res/values/themes.xml
+@@ -18,10 +18,15 @@
+         <item name="colorErrorContainer">@color/error_container</item>
+         <item name="colorOnErrorContainer">@color/on_error_container</item>
+         <item name="materialAlertDialogTheme">@style/ThemeOverlay.LaCasaBlanca.Dialogo</item>
+-        <!-- Splash Screen API nativa (minSdk 35): logo de la marca sobre teal. -->
++        <!--
++            Splash Screen API nativa (minSdk 35): logo circular sobre teal.
++            Se usa la variante con inset (61.1 % central) para que el recorte
++            circular del sistema no corte "CEVICHERIA" ni "RESTAURANTE".
++            El fondo del icono es el mismo teal para integrar el logo.
++        -->
+         <item name="android:windowSplashScreenBackground">@color/primary</item>
+-        <item name="android:windowSplashScreenAnimatedIcon">@drawable/logo_casa_blanca</item>
+-        <item name="android:windowSplashScreenIconBackgroundColor">@color/surface</item>
++        <item name="android:windowSplashScreenAnimatedIcon">@drawable/logo_casa_blanca_icon</item>
++        <item name="android:windowSplashScreenIconBackgroundColor">@color/primary</item>
+         <item name="android:statusBarColor">@color/primary</item>
+         <item name="android:navigationBarColor">@color/background</item>
+         <item name="android:windowLightStatusBar">false</item>
+=== UNTRACKED ===
+app/src/main/res/drawable/logo_casa_blanca_icon.xml
+EXIT=0

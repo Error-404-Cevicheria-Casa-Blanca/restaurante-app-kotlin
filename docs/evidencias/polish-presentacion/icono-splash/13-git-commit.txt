@@ -1,0 +1,21 @@
+=== RAMA ===
+feature/polish-presentacion
+=== COMMIT ===
+commit a378afc500afcabebb5f1d4869f55f96da24634a
+Author: David Rojas Garcia <davidgabrielworld@gmail.com>
+Date:   Thu Nov 5 00:04:23 2026 -0500
+
+    fix(polish-presentacion): corregir icono de app y recorte del splash
+
+ app/src/main/res/drawable/logo_casa_blanca_icon.xml   | 19 +++++++++++++++++++
+ app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml    |  5 +++++
+ .../main/res/mipmap-anydpi-v26/ic_launcher_round.xml  |  5 +++++
+ app/src/main/res/mipmap-anydpi/ic_launcher.xml        |  6 ------
+ app/src/main/res/mipmap-anydpi/ic_launcher_round.xml  |  6 ------
+ app/src/main/res/values-night/themes.xml              | 11 ++++++++---
+ app/src/main/res/values/themes.xml                    | 11 ++++++++---
+ 7 files changed, 45 insertions(+), 18 deletions(-)
+=== STATUS ===
+On branch feature/polish-presentacion
+nothing to commit, working tree clean
+EXIT=0

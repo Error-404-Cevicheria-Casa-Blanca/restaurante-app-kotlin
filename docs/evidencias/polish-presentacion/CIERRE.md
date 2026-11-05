@@ -1,5 +1,7 @@
 # CIERRE — Polish visual para la presentación
 
+> **Actualización 2026-11-05:** el recorte del splash y el icono de la app se corrigieron en el commit `a378afc` (ver `icono-splash/CIERRE.md`). Las capturas `09-splash-b.png` y `09-splash-c.png` corresponden al estado anterior, en el que el logo se recortaba.
+
 - **Fecha:** 2026-11-04
 - **Repositorio:** `repos/restaurante-app-kotlin`
 - **Rama:** `feature/polish-presentacion` (creada desde `develop`, base `4957527`)
