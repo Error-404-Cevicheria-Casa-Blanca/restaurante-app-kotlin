@@ -2,6 +2,8 @@ package com.lacasablanca.mesero.ui.cobro
 
 import com.lacasablanca.mesero.data.remote.dto.CuentaResponse
 import com.lacasablanca.mesero.data.repository.CobroRepository
+import com.lacasablanca.mesero.data.repository.FakeCobroRepository
+import com.lacasablanca.mesero.data.repository.FakeConsumoStore
 import com.lacasablanca.mesero.domain.Resultado
 import com.lacasablanca.mesero.domain.model.MetodoPago
 import io.mockk.coEvery
@@ -221,5 +223,20 @@ class CobroViewModelTest {
         assertEquals(CobroViewModel.ERROR_COMENSALES, viewModel.estado.value.error)
         assertFalse(viewModel.estado.value.dividirCuenta)
         assertTrue(viewModel.estado.value.cuotas.isEmpty())
+    }
+
+    @Test
+    fun `la cuenta fake de 100 se divide entre 3 sin backend`() = runTest(testDispatcher) {
+        val consumo = FakeConsumoStore().apply { registrar(7L, BigDecimal("100.00")) }
+        val fake = FakeCobroRepository(consumoStore = consumo, latenciaMs = 0)
+        val viewModel = CobroViewModel(7L, fake, testDispatcher)
+        advanceUntilIdle()
+
+        assertEquals("100.00", viewModel.estado.value.total.toPlainString())
+        assertTrue(viewModel.establecerDivision(3))
+        val suma = viewModel.estado.value.cuotas.fold(BigDecimal.ZERO) { acumulado, cuota ->
+            acumulado.add(cuota.monto)
+        }
+        assertEquals(0, suma.compareTo(BigDecimal("100.00")))
     }
 }
