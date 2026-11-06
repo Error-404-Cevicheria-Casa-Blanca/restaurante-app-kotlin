@@ -4,6 +4,12 @@ import com.lacasablanca.mesero.data.remote.dto.CuentaResponse
 import com.lacasablanca.mesero.data.remote.dto.PagoRequest
 import com.lacasablanca.mesero.domain.model.MetodoPago
 import java.math.BigDecimal
+import java.math.RoundingMode
+
+data class CuotaComensal(
+    val numero: Int,
+    val monto: BigDecimal
+)
 
 /**
  * Estado de la pantalla de cobro.
@@ -13,14 +19,17 @@ data class CobroUiState(
     val cuenta: CuentaResponse? = null,
     val pagos: List<PagoRequest> = emptyList(),
     val propina: BigDecimal = BigDecimal.ZERO,
-    val montoRecibido: String = "",
+    val montoPago: String = "",
     val vuelto: BigDecimal = BigDecimal.ZERO,
     val loading: Boolean = false,
     val error: String? = null,
     val exito: Boolean = false,
     val confirmarHabilitado: Boolean = false,
     val metodoSeleccionado: MetodoPago = MetodoPago.EFECTIVO,
-    val referencia: String = ""
+    val referencia: String = "",
+    val dividirCuenta: Boolean = false,
+    val numeroComensales: Int = 0,
+    val cuotas: List<CuotaComensal> = emptyList()
 ) {
     val total: BigDecimal get() = cuenta?.total ?: BigDecimal.ZERO
 
@@ -30,11 +39,40 @@ data class CobroUiState(
         acumulado.add(pago.monto)
     }
 
-    /** Recalcula si el cobro se puede confirmar: pagos == total + propina. */
+    val saldoPendiente: BigDecimal get() =
+        (totalConPropina - totalPagado).max(BigDecimal.ZERO)
+
+    /** Recalcula si el cobro se puede confirmar y las cuotas de la division. */
     fun calcularTotales(): CobroUiState {
         val habilitado = pagos.isNotEmpty() &&
             totalConPropina > BigDecimal.ZERO &&
             totalPagado.compareTo(totalConPropina) == 0
-        return copy(confirmarHabilitado = habilitado)
+        val cuotasActuales = if (dividirCuenta) {
+            calcularCuotas(totalConPropina, numeroComensales)
+        } else {
+            emptyList()
+        }
+        return copy(confirmarHabilitado = habilitado, cuotas = cuotasActuales)
+    }
+
+    companion object {
+        fun calcularCuotas(total: BigDecimal, personas: Int): List<CuotaComensal> {
+            if (personas <= 0) return emptyList()
+            val totalCentimos = total
+                .setScale(2, RoundingMode.HALF_UP)
+                .movePointRight(2)
+                .longValueExact()
+            val base = totalCentimos / personas
+            val residuo = (totalCentimos % personas).toInt()
+            return (1..personas).map { numero ->
+                val centimos = base + if (numero <= residuo) 1L else 0L
+                CuotaComensal(
+                    numero = numero,
+                    monto = BigDecimal.valueOf(centimos)
+                        .movePointLeft(2)
+                        .setScale(2, RoundingMode.HALF_UP)
+                )
+            }
+        }
     }
 }

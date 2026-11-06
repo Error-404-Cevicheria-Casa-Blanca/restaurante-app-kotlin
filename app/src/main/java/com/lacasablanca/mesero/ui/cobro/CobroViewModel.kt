@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.math.BigDecimal
+import java.math.RoundingMode
 import java.util.UUID
 
 /**
@@ -59,26 +60,29 @@ class CobroViewModel(
 
     fun seleccionarMetodo(metodo: MetodoPago) {
         _estado.update {
+            val vuelto = if (metodo == MetodoPago.EFECTIVO) {
+                (it.montoPago.aBigDecimal() - it.saldoPendiente).max(BigDecimal.ZERO)
+            } else {
+                BigDecimal.ZERO
+            }
             it.copy(
                 metodoSeleccionado = metodo,
                 referencia = if (metodo == MetodoPago.EFECTIVO) "" else it.referencia,
-                montoRecibido = if (metodo == MetodoPago.EFECTIVO) it.montoRecibido else "",
-                vuelto = if (metodo == MetodoPago.EFECTIVO) it.vuelto else BigDecimal.ZERO
+                vuelto = vuelto
             ).calcularTotales()
         }
     }
 
-    fun actualizarMontoRecibido(texto: String) {
+    fun actualizarMontoPago(texto: String) {
         val limpio = texto.aTextoMonto()
         _estado.update {
-            val recibido = limpio.aBigDecimal()
-            val saldo = (it.totalConPropina - it.totalPagado).max(BigDecimal.ZERO)
+            val monto = limpio.aBigDecimal()
             val vuelto = if (it.metodoSeleccionado == MetodoPago.EFECTIVO) {
-                (recibido - saldo).max(BigDecimal.ZERO)
+                (monto - it.saldoPendiente).max(BigDecimal.ZERO)
             } else {
                 BigDecimal.ZERO
             }
-            it.copy(montoRecibido = limpio, vuelto = vuelto).calcularTotales()
+            it.copy(montoPago = limpio, vuelto = vuelto).calcularTotales()
         }
     }
 
@@ -92,11 +96,11 @@ class CobroViewModel(
             val nuevaPropina = limpio.aBigDecimal()
             val nuevoTotal = (it.cuenta?.total ?: BigDecimal.ZERO).add(nuevaPropina)
             val saldo = (nuevoTotal - it.totalPagado).max(BigDecimal.ZERO)
-            val recibido = it.montoRecibido.aBigDecimal()
+            val monto = it.montoPago.aBigDecimal()
             val vuelto = if (it.metodoSeleccionado == MetodoPago.EFECTIVO) {
-                (recibido - saldo).max(BigDecimal.ZERO)
+                (monto - saldo).max(BigDecimal.ZERO)
             } else {
-                it.vuelto
+                BigDecimal.ZERO
             }
             it.copy(propina = nuevaPropina, vuelto = vuelto).calcularTotales()
         }
@@ -106,51 +110,50 @@ class CobroViewModel(
         val actual = _estado.value
         if (actual.cuenta == null) return
 
-        val saldo = (actual.totalConPropina - actual.totalPagado).max(BigDecimal.ZERO)
+        val saldo = actual.saldoPendiente
         if (saldo <= BigDecimal.ZERO) {
             _estado.update { it.copy(error = ERROR_SIN_SALDO) }
             return
         }
 
-        if (actual.metodoSeleccionado == MetodoPago.EFECTIVO) {
-            agregarPagoEfectivo(actual, saldo)
+        val montoIngresado = actual.montoPago.aBigDecimal()
+            .setScale(2, RoundingMode.HALF_UP)
+        if (montoIngresado <= BigDecimal.ZERO) {
+            _estado.update { it.copy(error = ERROR_MONTO) }
             return
         }
 
-        if (actual.referencia.isBlank()) {
+        val esEfectivo = actual.metodoSeleccionado == MetodoPago.EFECTIVO
+        if (!esEfectivo && montoIngresado > saldo) {
+            _estado.update { it.copy(error = ERROR_MONTO_EXCEDE) }
+            return
+        }
+
+        if (!esEfectivo && actual.referencia.isBlank()) {
             _estado.update { it.copy(error = ERROR_REFERENCIA) }
             return
+        }
+
+        val montoRegistrado = if (esEfectivo) {
+            montoIngresado.min(saldo)
+        } else {
+            montoIngresado
+        }
+        val vuelto = if (esEfectivo) {
+            (montoIngresado - montoRegistrado).max(BigDecimal.ZERO)
+        } else {
+            BigDecimal.ZERO
         }
 
         _estado.update {
             it.copy(
                 pagos = it.pagos + PagoRequest(
                     metodo = actual.metodoSeleccionado.valorApi,
-                    monto = saldo,
-                    referencia = actual.referencia.trim()
+                    monto = montoRegistrado,
+                    referencia = if (esEfectivo) null else actual.referencia.trim()
                 ),
+                montoPago = "",
                 referencia = "",
-                error = null
-            ).calcularTotales()
-        }
-    }
-
-    private fun agregarPagoEfectivo(actual: CobroUiState, saldo: BigDecimal) {
-        val recibido = actual.montoRecibido.aBigDecimal()
-        if (recibido <= BigDecimal.ZERO) {
-            _estado.update { it.copy(error = ERROR_MONTO) }
-            return
-        }
-        val montoPago = recibido.min(saldo)
-        val vuelto = (recibido - montoPago).max(BigDecimal.ZERO)
-        _estado.update {
-            it.copy(
-                pagos = it.pagos + PagoRequest(
-                    metodo = MetodoPago.EFECTIVO.valorApi,
-                    monto = montoPago,
-                    referencia = null
-                ),
-                montoRecibido = "",
                 vuelto = vuelto,
                 error = null
             ).calcularTotales()
@@ -164,6 +167,30 @@ class CobroViewModel(
                 pagos = it.pagos.filterIndexed { posicion, _ -> posicion != indice },
                 vuelto = BigDecimal.ZERO,
                 error = null
+            ).calcularTotales()
+        }
+    }
+
+    fun establecerDivision(personas: Int): Boolean {
+        if (personas < MIN_COMENSALES || personas > MAX_COMENSALES) {
+            _estado.update { it.copy(error = ERROR_COMENSALES) }
+            return false
+        }
+        _estado.update {
+            it.copy(
+                dividirCuenta = true,
+                numeroComensales = personas,
+                error = null
+            ).calcularTotales()
+        }
+        return true
+    }
+
+    fun desactivarDivision() {
+        _estado.update {
+            it.copy(
+                dividirCuenta = false,
+                numeroComensales = 0
             ).calcularTotales()
         }
     }
@@ -229,12 +256,17 @@ class CobroViewModel(
     }
 
     companion object {
+        const val MIN_COMENSALES = 2
+        const val MAX_COMENSALES = 50
+
         const val ERROR_RED = "RED"
         const val ERROR_SESION = "SESION"
         const val ERROR_VALIDACION = "VALIDACION"
         const val ERROR_MONTO = "MONTO"
+        const val ERROR_MONTO_EXCEDE = "MONTO_EXCEDE"
         const val ERROR_SIN_SALDO = "SIN_SALDO"
         const val ERROR_REFERENCIA = "REFERENCIA"
+        const val ERROR_COMENSALES = "COMENSALES"
         const val ERROR_CONFLICTO = "CONFLICTO"
         const val ERROR_SERVIDOR = "SERVIDOR"
         const val ERROR_DESCONOCIDO = "DESCONOCIDO"
