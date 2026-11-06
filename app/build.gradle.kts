@@ -96,10 +96,11 @@ dependencies {
     implementation(libs.glide)
     implementation(libs.androidx.datastore.preferences)
 
-    debugImplementation(libs.okhttp.logging.interceptor)
+    // ApiClient compila el interceptor en todas las variantes; su nivel queda
+    // en NONE cuando BuildConfig.DEBUG es false, asi que release no registra nada.
+    implementation(libs.okhttp.logging.interceptor)
 
     testImplementation(libs.junit)
-    testImplementation(libs.okhttp.logging.interceptor)
     testImplementation(libs.mockk)
     testImplementation(libs.kotlinx.coroutines.test)
 
