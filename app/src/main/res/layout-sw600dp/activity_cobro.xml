@@ -21,8 +21,8 @@
         android:elevation="@dimen/elevacion_tarjeta"
         app:navigationContentDescription="@string/cd_volver"
         app:navigationIcon="@drawable/ic_arrow_back"
-        app:navigationIconTint="@color/stitch_primary"
-        app:titleTextColor="@color/stitch_primary"
+        app:navigationIconTint="@color/primary"
+        app:titleTextColor="@color/primary"
         tools:title="Cobrar Mesa 7" />
 
     <TextView
@@ -35,14 +35,14 @@
         android:autoSizeMinTextSize="10sp"
         android:autoSizeStepGranularity="1sp"
         android:autoSizeTextType="uniform"
-        android:background="@drawable/bg_pill_lima"
+        android:background="@drawable/bg_pill_demo"
         android:breakStrategy="simple"
         android:hyphenationFrequency="none"
         android:maxLines="1"
         android:paddingHorizontal="@dimen/espacio_s"
-        android:paddingVertical="@dimen/espacio_xs"
+        android:paddingVertical="@dimen/espacio_s"
         android:text="@string/cobro_datos_prueba"
-        android:textColor="@color/on_secondary_fixed"
+        android:textColor="@color/texto_principal"
         android:textSize="@dimen/texto_etiqueta"
         android:textStyle="bold"
         android:visibility="gone"
@@ -145,7 +145,7 @@
                                 android:hyphenationFrequency="none"
                                 android:maxLines="1"
                                 android:text="@string/cobro_resumen_titulo"
-                                android:textColor="@color/stitch_primary"
+                                android:textColor="@color/primary"
                                 android:textSize="@dimen/texto_titulo_pantalla"
                                 android:textStyle="bold" />
 
@@ -188,7 +188,7 @@
                                 android:layout_height="wrap_content"
                                 android:gravity="center_vertical"
                                 android:orientation="horizontal"
-                                android:paddingVertical="@dimen/espacio_xs">
+                                android:paddingVertical="@dimen/espacio_s">
 
                                 <TextView
                                     android:layout_width="0dp"
@@ -216,7 +216,7 @@
                                     android:breakStrategy="simple"
                                     android:hyphenationFrequency="none"
                                     android:maxLines="1"
-                                    android:textColor="@color/on_surface"
+                                    android:textColor="@color/texto_principal"
                                     android:textSize="@dimen/texto_cuerpo"
                                     tools:text="S/ 81.36" />
                             </LinearLayout>
@@ -226,7 +226,7 @@
                                 android:layout_height="wrap_content"
                                 android:gravity="center_vertical"
                                 android:orientation="horizontal"
-                                android:paddingVertical="@dimen/espacio_xs">
+                                android:paddingVertical="@dimen/espacio_s">
 
                                 <TextView
                                     android:layout_width="0dp"
@@ -254,7 +254,7 @@
                                     android:breakStrategy="simple"
                                     android:hyphenationFrequency="none"
                                     android:maxLines="1"
-                                    android:textColor="@color/on_surface"
+                                    android:textColor="@color/texto_principal"
                                     android:textSize="@dimen/texto_cuerpo"
                                     tools:text="S/ 14.64" />
                             </LinearLayout>
@@ -262,39 +262,43 @@
                             <LinearLayout
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
+                                android:layout_marginTop="@dimen/espacio_l"
+                                android:background="@drawable/bg_total_teal"
                                 android:gravity="center_vertical"
                                 android:orientation="horizontal"
-                                android:paddingVertical="@dimen/espacio_xs">
+                                android:padding="@dimen/espacio_l">
 
                                 <TextView
                                     android:layout_width="0dp"
                                     android:layout_height="wrap_content"
                                     android:layout_weight="1"
-                                    android:autoSizeMaxTextSize="22sp"
-                                    android:autoSizeMinTextSize="13sp"
+                                    android:autoSizeMaxTextSize="16sp"
+                                    android:autoSizeMinTextSize="12sp"
                                     android:autoSizeStepGranularity="1sp"
                                     android:autoSizeTextType="uniform"
                                     android:breakStrategy="simple"
+                                    android:ellipsize="end"
                                     android:hyphenationFrequency="none"
                                     android:maxLines="1"
                                     android:text="@string/cobro_total"
-                                    android:textColor="@color/stitch_primary"
-                                    android:textSize="18sp"
+                                    android:textColor="@color/on_primary"
+                                    android:textSize="@dimen/texto_cuerpo"
                                     android:textStyle="bold" />
 
                                 <TextView
                                     android:id="@+id/textoTotal"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:autoSizeMaxTextSize="22sp"
-                                    android:autoSizeMinTextSize="13sp"
+                                    android:autoSizeMaxTextSize="24sp"
+                                    android:autoSizeMinTextSize="16sp"
                                     android:autoSizeStepGranularity="1sp"
                                     android:autoSizeTextType="uniform"
                                     android:breakStrategy="simple"
+                                    android:ellipsize="end"
                                     android:hyphenationFrequency="none"
                                     android:maxLines="1"
-                                    android:textColor="@color/stitch_primary"
-                                    android:textSize="18sp"
+                                    android:textColor="@color/on_primary"
+                                    android:textSize="24sp"
                                     android:textStyle="bold"
                                     tools:text="S/ 96.00" />
                             </LinearLayout>
@@ -348,7 +352,7 @@
                                     android:hyphenationFrequency="none"
                                     android:maxLines="1"
                                     android:text="@string/cobro_medios_pago"
-                                    android:textColor="@color/stitch_primary"
+                                    android:textColor="@color/primary"
                                     android:textSize="@dimen/texto_titulo_tarjeta"
                                     android:textStyle="bold" />
 
@@ -396,7 +400,7 @@
                                     style="@style/Campo.Cobro"
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
-                                    android:layout_marginTop="@dimen/espacio_m"
+                                    android:layout_marginTop="@dimen/espacio_l"
                                     android:hint="@string/cobro_monto_recibido">
 
                                     <com.google.android.material.textfield.TextInputEditText
@@ -429,7 +433,7 @@
                                     android:id="@+id/textoMontoACobrar"
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
-                                    android:layout_marginTop="@dimen/espacio_m"
+                                    android:layout_marginTop="@dimen/espacio_l"
                                     android:autoSizeMaxTextSize="16sp"
                                     android:autoSizeMinTextSize="11sp"
                                     android:autoSizeStepGranularity="1sp"
@@ -437,7 +441,7 @@
                                     android:breakStrategy="simple"
                                     android:hyphenationFrequency="none"
                                     android:maxLines="1"
-                                    android:textColor="@color/stitch_primary"
+                                    android:textColor="@color/primary"
                                     android:textSize="@dimen/texto_cuerpo"
                                     android:textStyle="bold"
                                     android:visibility="gone"
@@ -448,7 +452,7 @@
                                     style="@style/Campo.Cobro"
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
-                                    android:layout_marginTop="@dimen/espacio_m"
+                                    android:layout_marginTop="@dimen/espacio_l"
                                     android:hint="@string/cobro_referencia"
                                     android:visibility="gone">
 
@@ -466,7 +470,7 @@
                                     style="@style/Campo.Cobro"
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
-                                    android:layout_marginTop="@dimen/espacio_m"
+                                    android:layout_marginTop="@dimen/espacio_l"
                                     android:hint="@string/cobro_propina">
 
                                     <com.google.android.material.textfield.TextInputEditText
@@ -482,7 +486,7 @@
                                     android:id="@+id/textoPropinaSugerida"
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
-                                    android:layout_marginTop="@dimen/espacio_xs"
+                                    android:layout_marginTop="@dimen/espacio_s"
                                     android:autoSizeMaxTextSize="14sp"
                                     android:autoSizeMinTextSize="10sp"
                                     android:autoSizeStepGranularity="1sp"
@@ -499,7 +503,7 @@
                                     style="@style/Boton.Outlined"
                                     android:layout_width="match_parent"
                                     android:layout_height="@dimen/toque_minimo"
-                                    android:layout_marginTop="@dimen/espacio_m"
+                                    android:layout_marginTop="@dimen/espacio_l"
                                     android:text="@string/cobro_agregar_pago"
                                     app:icon="@drawable/ic_add"
                                     app:iconGravity="textStart"
@@ -531,7 +535,7 @@
                                     android:hyphenationFrequency="none"
                                     android:maxLines="1"
                                     android:text="@string/cobro_pagos_titulo"
-                                    android:textColor="@color/stitch_primary"
+                                    android:textColor="@color/primary"
                                     android:textSize="@dimen/texto_titulo_tarjeta"
                                     android:textStyle="bold" />
 
@@ -574,7 +578,7 @@
                     android:elevation="@dimen/elevacion_checkout"
                     android:gravity="center_vertical"
                     android:orientation="horizontal"
-                    android:paddingTop="@dimen/espacio_m"
+                    android:paddingTop="@dimen/espacio_l"
                     android:visibility="gone"
                     tools:visibility="visible">
 
@@ -589,10 +593,10 @@
                         android:autoSizeStepGranularity="1sp"
                         android:autoSizeTextType="uniform"
                         android:breakStrategy="simple"
-                        android:ellipsize="none"
+                        android:ellipsize="end"
                         android:hyphenationFrequency="none"
                         android:maxLines="1"
-                        android:textColor="@color/stitch_primary"
+                        android:textColor="@color/primary"
                         android:textSize="@dimen/texto_cuerpo"
                         android:textStyle="bold"
                         tools:text="Total a pagar: S/ 96.00" />

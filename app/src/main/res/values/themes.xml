@@ -45,6 +45,7 @@
         estilo de widget y no como TextAppearance.
     -->
     <style name="Texto.Base" parent="Widget.AppCompat.TextView">
+        <item name="android:ellipsize">end</item>
         <item name="android:hyphenationFrequency">none</item>
         <item name="android:breakStrategy">simple</item>
     </style>
@@ -139,7 +140,7 @@
     <!-- Botones -->
     <style name="Boton.Primario" parent="Widget.Material3.Button">
         <item name="android:layout_height">@dimen/alto_boton_primario</item>
-        <item name="cornerRadius">@dimen/radio_boton</item>
+        <item name="cornerRadius">8dp</item>
         <item name="backgroundTint">@color/selector_fondo_boton_primario</item>
         <item name="android:textColor">@color/selector_texto_boton_primario</item>
         <item name="iconTint">@color/selector_texto_boton_primario</item>
@@ -153,11 +154,12 @@
         <item name="android:hyphenationFrequency">none</item>
         <item name="android:breakStrategy">simple</item>
         <item name="android:maxLines">1</item>
+        <item name="android:ellipsize">end</item>
     </style>
 
     <style name="Boton.Secundario" parent="Widget.Material3.Button.TextButton">
         <item name="android:layout_height">@dimen/toque_minimo</item>
-        <item name="cornerRadius">@dimen/radio_boton</item>
+        <item name="cornerRadius">8dp</item>
         <item name="backgroundTint">@color/surface_container_low</item>
         <item name="android:textColor">@color/primary</item>
         <item name="iconTint">@color/primary</item>
@@ -170,6 +172,7 @@
         <item name="android:hyphenationFrequency">none</item>
         <item name="android:breakStrategy">simple</item>
         <item name="android:maxLines">1</item>
+        <item name="android:ellipsize">end</item>
     </style>
 
     <style name="Boton.BarraAccion" parent="Widget.Material3.Button.TextButton">
@@ -182,7 +185,7 @@
         <item name="android:textSize">@dimen/texto_secundario</item>
         <item name="iconTint">@color/stitch_primary</item>
         <item name="backgroundTint">@color/barra_accion_fondo</item>
-        <item name="cornerRadius">@dimen/radio_boton</item>
+        <item name="cornerRadius">8dp</item>
         <item name="android:textAllCaps">false</item>
         <item name="android:textStyle">bold</item>
     </style>
@@ -197,7 +200,7 @@
         <item name="android:textSize">@dimen/texto_secundario</item>
         <item name="iconTint">@color/on_error_container</item>
         <item name="backgroundTint">@color/barra_salir_fondo</item>
-        <item name="cornerRadius">@dimen/radio_boton</item>
+        <item name="cornerRadius">8dp</item>
         <item name="android:textAllCaps">false</item>
         <item name="android:textStyle">bold</item>
     </style>
@@ -209,7 +212,7 @@
         <item name="android:minHeight">@dimen/toque_minimo</item>
         <item name="android:insetTop">0dp</item>
         <item name="android:insetBottom">0dp</item>
-        <item name="cornerRadius">@dimen/radio_boton</item>
+        <item name="cornerRadius">8dp</item>
         <item name="strokeColor">@color/primary</item>
         <item name="strokeWidth">1dp</item>
         <item name="android:textColor">@color/primary</item>
@@ -224,11 +227,12 @@
         <item name="android:hyphenationFrequency">none</item>
         <item name="android:breakStrategy">simple</item>
         <item name="android:maxLines">1</item>
+        <item name="android:ellipsize">end</item>
     </style>
 
     <style name="Boton.Exito" parent="Widget.Material3.Button">
         <item name="android:layout_height">@dimen/alto_boton_primario</item>
-        <item name="cornerRadius">@dimen/radio_boton</item>
+        <item name="cornerRadius">8dp</item>
         <item name="backgroundTint">@color/selector_fondo_boton_exito</item>
         <item name="android:textColor">@color/selector_texto_boton_exito</item>
         <item name="iconTint">@color/selector_texto_boton_exito</item>
@@ -242,6 +246,7 @@
         <item name="android:hyphenationFrequency">none</item>
         <item name="android:breakStrategy">simple</item>
         <item name="android:maxLines">1</item>
+        <item name="android:ellipsize">end</item>
     </style>
 
     <!-- Boton compacto de la barra flotante y del bottom sheet (rediseno PRB-38) -->
@@ -251,7 +256,7 @@
         <item name="android:minWidth">@dimen/toque_minimo</item>
         <item name="android:insetTop">0dp</item>
         <item name="android:insetBottom">0dp</item>
-        <item name="cornerRadius">@dimen/radio_boton</item>
+        <item name="cornerRadius">8dp</item>
         <item name="backgroundTint">@color/primary</item>
         <item name="android:textColor">@color/on_primary</item>
         <item name="iconTint">@color/on_primary</item>
@@ -265,6 +270,7 @@
         <item name="android:hyphenationFrequency">none</item>
         <item name="android:breakStrategy">simple</item>
         <item name="android:maxLines">1</item>
+        <item name="android:ellipsize">end</item>
     </style>
 
     <!-- Botones del dialogo de liberacion (PRB-39) -->
@@ -286,6 +292,7 @@
         <item name="android:hyphenationFrequency">none</item>
         <item name="android:breakStrategy">simple</item>
         <item name="android:maxLines">1</item>
+        <item name="android:ellipsize">end</item>
     </style>
 
     <style name="Boton.DialogoCancelar" parent="Widget.Material3.Button.TextButton">
@@ -307,6 +314,7 @@
         <item name="android:hyphenationFrequency">none</item>
         <item name="android:breakStrategy">simple</item>
         <item name="android:maxLines">1</item>
+        <item name="android:ellipsize">end</item>
     </style>
 
     <style name="Boton.PinTecla" parent="Widget.Material3.Button">
@@ -315,7 +323,7 @@
         <item name="android:minHeight">@dimen/alto_pin_tecla</item>
         <item name="android:insetTop">0dp</item>
         <item name="android:insetBottom">0dp</item>
-        <item name="cornerRadius">@dimen/espacio_m</item>
+        <item name="cornerRadius">8dp</item>
         <item name="backgroundTint">@color/chip_pin_tecla</item>
         <item name="android:textColor">@color/on_surface</item>
         <item name="android:textSize">22sp</item>
@@ -328,7 +336,7 @@
         <item name="android:minHeight">@dimen/alto_pin_tecla</item>
         <item name="android:insetTop">0dp</item>
         <item name="android:insetBottom">0dp</item>
-        <item name="cornerRadius">@dimen/espacio_m</item>
+        <item name="cornerRadius">8dp</item>
         <item name="backgroundTint">@color/chip_pin_accion</item>
         <item name="android:textColor">@color/on_surface_variant</item>
         <item name="android:textAllCaps">false</item>
@@ -367,6 +375,7 @@
         <item name="android:hyphenationFrequency">none</item>
         <item name="android:breakStrategy">simple</item>
         <item name="android:maxLines">1</item>
+        <item name="android:ellipsize">end</item>
     </style>
 
     <!-- Campos del formulario de cobro (PRB-56) -->
