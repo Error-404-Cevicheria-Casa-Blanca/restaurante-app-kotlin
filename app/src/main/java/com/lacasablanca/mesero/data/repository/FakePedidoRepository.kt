@@ -19,15 +19,24 @@ class FakePedidoRepository(
 
     private var siguienteId: Long = 1L
 
+    /** Respuestas ya creadas por clave: simula la idempotencia del backend. */
+    private val respuestasPorClave = mutableMapOf<String, PedidoEnviado>()
+
     override suspend fun enviarPedido(
         mesaId: Long,
-        items: List<ItemPedido>
+        items: List<ItemPedido>,
+        clientRequestId: String
     ): Resultado<PedidoEnviado> {
         delay(latenciaMs)
 
-        if (mesaId <= 0L || items.isEmpty() || items.any { it.cantidad < 1 }) {
+        if (mesaId <= 0L || items.isEmpty() || clientRequestId.isBlank()) {
             return Resultado.Fallo(ErrorApp.VALIDACION)
         }
+        if (items.any { it.cantidad < 1 }) {
+            return Resultado.Fallo(ErrorApp.VALIDACION)
+        }
+
+        respuestasPorClave[clientRequestId]?.let { return Resultado.Exito(it) }
 
         val totalBruto = items.fold(BigDecimal.ZERO) { acumulado, item ->
             acumulado + item.precioUnitario.multiply(BigDecimal.valueOf(item.cantidad.toLong()))
@@ -35,15 +44,15 @@ class FakePedidoRepository(
         val desglose = CalculoIgv.desglosar(totalBruto)
         consumoStore?.registrar(mesaId, desglose.total)
 
-        return Resultado.Exito(
-            PedidoEnviado(
-                id = siguienteId++,
-                estado = ESTADO_PENDIENTE,
-                subtotal = desglose.subtotal,
-                igv = desglose.igv,
-                total = desglose.total
-            )
+        val pedido = PedidoEnviado(
+            id = siguienteId++,
+            estado = ESTADO_PENDIENTE,
+            subtotal = desglose.subtotal,
+            igv = desglose.igv,
+            total = desglose.total
         )
+        respuestasPorClave[clientRequestId] = pedido
+        return Resultado.Exito(pedido)
     }
 
     companion object {

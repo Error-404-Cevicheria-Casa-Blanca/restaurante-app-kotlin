@@ -17,9 +17,10 @@ class RealPedidoRepository(private val api: PedidosApi) : PedidoRepository {
 
     override suspend fun enviarPedido(
         mesaId: Long,
-        items: List<ItemPedido>
+        items: List<ItemPedido>,
+        clientRequestId: String
     ): Resultado<PedidoEnviado> {
-        if (mesaId <= 0L || items.isEmpty()) {
+        if (mesaId <= 0L || items.isEmpty() || clientRequestId.isBlank()) {
             return Resultado.Fallo(ErrorApp.VALIDACION)
         }
 
@@ -32,15 +33,27 @@ class RealPedidoRepository(private val api: PedidosApi) : PedidoRepository {
                         cantidad = item.cantidad,
                         notas = item.notas.takeIf { it.isNotBlank() }
                     )
-                }
+                },
+                clientRequestId = clientRequestId
             )
-            Resultado.Exito(api.crearPedido(request).aDominio())
+            Resultado.Exito(api.crearPedido(clientRequestId, request).aDominio())
         } catch (e: HttpException) {
-            Resultado.Fallo(errorDesdeCodigoHttp(e.code()))
+            // En el POST de pedidos un 409 significa que la mesa ya fue tomada
+            // por otro mesero (no es el 409 de "cuenta ya pagada" del cobro).
+            val error = if (e.code() == CODIGO_CONFLICTO) {
+                ErrorApp.CONFLICTO_MESA
+            } else {
+                errorDesdeCodigoHttp(e.code())
+            }
+            Resultado.Fallo(error)
         } catch (e: IOException) {
             Resultado.Fallo(ErrorApp.RED)
         } catch (e: Exception) {
             Resultado.Fallo(ErrorApp.DESCONOCIDO)
         }
+    }
+
+    private companion object {
+        const val CODIGO_CONFLICTO = 409
     }
 }

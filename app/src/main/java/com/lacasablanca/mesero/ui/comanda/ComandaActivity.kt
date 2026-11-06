@@ -368,7 +368,12 @@ class ComandaActivity : AppCompatActivity(), CarritoBottomSheet.Listener {
 
     private fun mensajeErrorEnvio(error: ErrorApp): String = when (error) {
         ErrorApp.RED -> getString(R.string.comanda_error_envio_red)
-        ErrorApp.CONFLICTO -> getString(R.string.comanda_error_envio_conflicto)
+        // 409 del POST /pedidos: otro mesero tomo la mesa. El 409 del cobro
+        // ("cuenta ya pagada") se traduce en CobroViewModel, no aqui.
+        ErrorApp.CONFLICTO, ErrorApp.CONFLICTO_MESA ->
+            getString(R.string.comanda_error_envio_conflicto)
+
+        ErrorApp.BLOQUEADO -> getString(R.string.comanda_error_envio_bloqueado)
         ErrorApp.VALIDACION -> getString(R.string.comanda_error_envio_validacion)
         else -> getString(R.string.comanda_error_envio_generico)
     }
