@@ -253,13 +253,8 @@
     <string name="cobro_exito_volver">Volver al mapa</string>
     <string name="cobro_salir_titulo">¿Salir sin cobrar?</string>
     <string name="cobro_salir_mensaje">La mesa seguirá ocupada. ¿Deseas salir sin registrar el cobro?</string>
-<<<<<<< HEAD
     <string name="cobro_salir_confirmar">Salir</string>
     <string name="cobro_salir_cancelar">Cancelar</string>
-=======
-    <string name="cobro_salir_confirmar">Salir sin cobrar</string>
-    <string name="cobro_salir_cancelar">Seguir cobrando</string>
->>>>>>> origin/develop
     <string name="cobro_salir_icono_cd">Advertencia: la mesa seguirá ocupada</string>
 
     <!-- Cobro desde la comanda (PRB-56) -->
