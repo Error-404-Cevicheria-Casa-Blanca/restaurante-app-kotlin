@@ -304,7 +304,10 @@ class CobroActivity : AppCompatActivity() {
         val dialogo = crearDialogo(contenido.root)
         contenido.btnEntendidoError.setOnClickListener { dialogo.dismiss() }
         dialogo.setCanceledOnTouchOutside(true)
-        dialogo.setOnDismissListener { if (dialogoError === dialogo) dialogoError = null }
+        dialogo.setOnDismissListener {
+            if (dialogoError === dialogo) dialogoError = null
+            viewModel.limpiarError()
+        }
         dialogo.show()
         dialogoError = dialogo
     }

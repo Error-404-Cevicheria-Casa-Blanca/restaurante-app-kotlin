@@ -195,6 +195,10 @@ class CobroViewModel(
         }
     }
 
+    fun limpiarError() {
+        _estado.update { it.copy(error = null) }
+    }
+
     fun confirmarCobro() {
         val actual = _estado.value
         if (actual.loading) return

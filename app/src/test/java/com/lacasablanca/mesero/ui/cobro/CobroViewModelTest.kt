@@ -18,6 +18,7 @@ import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -338,5 +339,26 @@ class CobroViewModelTest {
         assertEquals("40.00", viewModel.estado.value.pagos.single().monto.toPlainString())
         assertFalse(viewModel.estado.value.dividirCuenta)
         assertTrue(viewModel.estado.value.cuotas.isEmpty())
+    }
+
+    @Test
+    fun `limpiar el error permite reintentar el mismo bloqueo`() = runTest(testDispatcher) {
+        val viewModel = crearViewModel("96.00")
+        advanceUntilIdle()
+
+        agregar(viewModel, MetodoPago.EFECTIVO, "86")
+        viewModel.seleccionarMetodo(MetodoPago.TARJETA)
+        viewModel.actualizarMontoPago("20")
+        viewModel.actualizarReferencia("T-20")
+        viewModel.agregarPago()
+
+        assertEquals(CobroViewModel.ERROR_MONTO_EXCEDE, viewModel.estado.value.error)
+
+        viewModel.limpiarError()
+        assertNull(viewModel.estado.value.error)
+
+        viewModel.agregarPago()
+        assertEquals(CobroViewModel.ERROR_MONTO_EXCEDE, viewModel.estado.value.error)
+        assertEquals(1, viewModel.estado.value.pagos.size)
     }
 }
