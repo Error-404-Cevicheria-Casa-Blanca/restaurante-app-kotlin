@@ -125,7 +125,7 @@ class CobroViewModelTest {
             val cuotas = viewModel.estado.value.cuotas
             assertEquals(3, cuotas.size)
             assertEquals(
-                listOf("33.34", "33.33", "33.33"),
+                listOf("33.33", "33.33", "33.34"),
                 cuotas.map { it.monto.toPlainString() }
             )
             val suma = cuotas.fold(BigDecimal.ZERO) { acumulado, cuota ->
@@ -148,7 +148,7 @@ class CobroViewModelTest {
         }
         assertEquals(0, suma.compareTo(BigDecimal("100.01")))
         assertEquals(
-            listOf("33.34", "33.34", "33.33"),
+            listOf("33.33", "33.34", "33.34"),
             cuotas.map { it.monto.toPlainString() }
         )
     }
@@ -238,5 +238,105 @@ class CobroViewModelTest {
             acumulado.add(cuota.monto)
         }
         assertEquals(0, suma.compareTo(BigDecimal("100.00")))
+    }
+
+    @Test
+    fun `yape 50 y efectivo 46 completan la cuenta sin sobrepago`() =
+        runTest(testDispatcher) {
+            val viewModel = crearViewModel("96.00")
+            advanceUntilIdle()
+
+            agregar(viewModel, MetodoPago.YAPE, "50", "YP-50")
+
+            assertEquals(
+                0,
+                viewModel.estado.value.saldoPendiente.compareTo(BigDecimal("46.00"))
+            )
+            assertFalse(viewModel.estado.value.confirmarHabilitado)
+
+            agregar(viewModel, MetodoPago.EFECTIVO, "46")
+
+            assertEquals(2, viewModel.estado.value.pagos.size)
+            assertEquals(
+                0,
+                viewModel.estado.value.totalPagado.compareTo(BigDecimal("96.00"))
+            )
+            assertEquals(
+                0,
+                viewModel.estado.value.saldoPendiente.compareTo(BigDecimal.ZERO)
+            )
+            assertTrue(viewModel.estado.value.confirmarHabilitado)
+        }
+
+    @Test
+    fun `efectivo 50 sobre saldo 46 registra 46 y vuelto 4`() = runTest(testDispatcher) {
+        val viewModel = crearViewModel("96.00")
+        advanceUntilIdle()
+
+        agregar(viewModel, MetodoPago.YAPE, "50", "YP-50")
+        agregar(viewModel, MetodoPago.EFECTIVO, "50")
+
+        assertEquals("46.00", viewModel.estado.value.pagos.last().monto.toPlainString())
+        assertEquals(
+            0,
+            viewModel.estado.value.vuelto.compareTo(BigDecimal("4.00"))
+        )
+        assertEquals(
+            0,
+            viewModel.estado.value.saldoPendiente.compareTo(BigDecimal.ZERO)
+        )
+        assertTrue(viewModel.estado.value.confirmarHabilitado)
+    }
+
+    @Test
+    fun `tarjeta de 20 sobre saldo 10 se bloquea`() = runTest(testDispatcher) {
+        val viewModel = crearViewModel("96.00")
+        advanceUntilIdle()
+
+        agregar(viewModel, MetodoPago.EFECTIVO, "86")
+        viewModel.seleccionarMetodo(MetodoPago.TARJETA)
+        viewModel.actualizarMontoPago("20")
+        viewModel.actualizarReferencia("T-20")
+        viewModel.agregarPago()
+
+        assertEquals(CobroViewModel.ERROR_MONTO_EXCEDE, viewModel.estado.value.error)
+        assertEquals(1, viewModel.estado.value.pagos.size)
+        assertEquals(
+            0,
+            viewModel.estado.value.saldoPendiente.compareTo(BigDecimal("10.00"))
+        )
+        assertFalse(viewModel.estado.value.confirmarHabilitado)
+    }
+
+    @Test
+    fun `yape sin referencia no se agrega`() = runTest(testDispatcher) {
+        val viewModel = crearViewModel("96.00")
+        advanceUntilIdle()
+
+        viewModel.seleccionarMetodo(MetodoPago.YAPE)
+        viewModel.actualizarMontoPago("50")
+        viewModel.agregarPago()
+
+        assertEquals(CobroViewModel.ERROR_REFERENCIA, viewModel.estado.value.error)
+        assertTrue(viewModel.estado.value.pagos.isEmpty())
+        assertEquals(
+            0,
+            viewModel.estado.value.saldoPendiente.compareTo(BigDecimal("96.00"))
+        )
+    }
+
+    @Test
+    fun `cancelar la division conserva los pagos agregados`() = runTest(testDispatcher) {
+        val viewModel = crearViewModel("100.00")
+        advanceUntilIdle()
+
+        agregar(viewModel, MetodoPago.EFECTIVO, "40")
+        assertTrue(viewModel.establecerDivision(3))
+        viewModel.desactivarDivision()
+
+        assertEquals(1, viewModel.estado.value.pagos.size)
+        assertEquals("40.00", viewModel.estado.value.pagos.single().monto.toPlainString())
+        assertFalse(viewModel.estado.value.dividirCuenta)
+        assertTrue(viewModel.estado.value.cuotas.isEmpty())
     }
 }

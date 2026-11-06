@@ -1,7 +1,11 @@
 package com.lacasablanca.mesero.ui.cobro
 
 import android.content.Intent
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
+import android.view.View
+import android.view.ViewGroup
 import androidx.activity.addCallback
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
@@ -16,7 +20,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
 import com.lacasablanca.mesero.BuildConfig
 import com.lacasablanca.mesero.MeseroApp
@@ -25,6 +28,7 @@ import com.lacasablanca.mesero.core.GenericViewModelFactory
 import com.lacasablanca.mesero.databinding.ActivityCobroBinding
 import com.lacasablanca.mesero.databinding.DialogCobroExitosoBinding
 import com.lacasablanca.mesero.databinding.DialogDividirCuentaBinding
+import com.lacasablanca.mesero.databinding.DialogErrorPremiumBinding
 import com.lacasablanca.mesero.databinding.DialogSalirCobroBinding
 import com.lacasablanca.mesero.domain.model.MetodoPago
 import com.lacasablanca.mesero.ui.common.formatearMoneda
@@ -56,6 +60,8 @@ class CobroActivity : AppCompatActivity() {
     private var ultimoErrorMostrado: String? = null
     private var dialogoSalir: AlertDialog? = null
     private var dialogoExito: AlertDialog? = null
+    private var dialogoError: AlertDialog? = null
+    private var dialogoDivision: AlertDialog? = null
     private var dialogoExitoMostrado = false
     private var terminando = false
 
@@ -89,6 +95,10 @@ class CobroActivity : AppCompatActivity() {
         dialogoSalir = null
         dialogoExito?.dismiss()
         dialogoExito = null
+        dialogoError?.dismiss()
+        dialogoError = null
+        dialogoDivision?.dismiss()
+        dialogoDivision = null
         super.onDestroy()
     }
 
@@ -287,11 +297,16 @@ class CobroActivity : AppCompatActivity() {
         }
         if (error == ultimoErrorMostrado) return
         ultimoErrorMostrado = error
-        MaterialAlertDialogBuilder(this)
-            .setTitle(R.string.cobro_error_titulo)
-            .setMessage(mensajeError(error))
-            .setPositiveButton(R.string.accion_aceptar, null)
-            .show()
+        dialogoError?.dismiss()
+        val contenido = DialogErrorPremiumBinding.inflate(layoutInflater)
+        contenido.textoErrorTitulo.text = getString(R.string.cobro_error_titulo)
+        contenido.textoErrorMensaje.text = mensajeError(error)
+        val dialogo = crearDialogo(contenido.root)
+        contenido.btnEntendidoError.setOnClickListener { dialogo.dismiss() }
+        dialogo.setCanceledOnTouchOutside(true)
+        dialogo.setOnDismissListener { if (dialogoError === dialogo) dialogoError = null }
+        dialogo.show()
+        dialogoError = dialogo
     }
 
     private fun mostrarExito(estado: CobroUiState) {
@@ -313,10 +328,8 @@ class CobroActivity : AppCompatActivity() {
             formatearMoneda(estado.vuelto)
         )
 
-        val dialogo = MaterialAlertDialogBuilder(this)
-            .setView(contenido.root)
-            .setCancelable(false)
-            .create()
+        val dialogo = crearDialogo(contenido.root)
+        dialogo.setCancelable(false)
 
         contenido.btnVolverMapaCobro.setOnClickListener {
             dialogo.dismiss()
@@ -336,10 +349,8 @@ class CobroActivity : AppCompatActivity() {
 
     private fun mostrarDialogoSalir() {
         val contenido = DialogSalirCobroBinding.inflate(layoutInflater)
-        val dialogo = MaterialAlertDialogBuilder(this)
-            .setView(contenido.root)
-            .setCancelable(true)
-            .create()
+        val dialogo = crearDialogo(contenido.root)
+        dialogo.setCancelable(true)
 
         contenido.btnSeguirCobrando.setOnClickListener { dialogo.dismiss() }
         contenido.btnSalirSinCobrar.setOnClickListener {
@@ -353,40 +364,57 @@ class CobroActivity : AppCompatActivity() {
     }
 
     private fun mostrarDialogoDivision() {
+        dialogoDivision?.dismiss()
         val contenido = DialogDividirCuentaBinding.inflate(layoutInflater)
-        val dialogo = MaterialAlertDialogBuilder(this)
-            .setTitle(R.string.cobro_dividir_titulo)
-            .setView(contenido.root)
-            .setPositiveButton(R.string.cobro_dividir_confirmar, null)
-            .setNegativeButton(R.string.cobro_salir_cancelar, null)
-            .create()
+        val dialogo = crearDialogo(contenido.root)
+        dialogo.setCancelable(true)
+        dialogo.setCanceledOnTouchOutside(true)
 
-        dialogo.setOnShowListener {
-            dialogo.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
-                val personas = contenido.textoComensales.text
-                    ?.toString()
-                    ?.trim()
-                    ?.toIntOrNull()
-                if (personas == null ||
-                    personas < CobroViewModel.MIN_COMENSALES ||
-                    personas > CobroViewModel.MAX_COMENSALES
-                ) {
-                    contenido.campoComensales.error = getString(R.string.cobro_dividir_error)
-                } else {
-                    contenido.campoComensales.error = null
-                    viewModel.establecerDivision(personas)
+        contenido.btnCancelarDivision.setOnClickListener { dialogo.dismiss() }
+        contenido.btnConfirmarDivision.setOnClickListener {
+            val personas = contenido.textoComensales.text
+                ?.toString()
+                ?.trim()
+                ?.toIntOrNull()
+            if (personas == null ||
+                personas < CobroViewModel.MIN_COMENSALES ||
+                personas > CobroViewModel.MAX_COMENSALES
+            ) {
+                contenido.campoComensales.error = getString(R.string.cobro_dividir_error)
+            } else {
+                contenido.campoComensales.error = null
+                if (viewModel.establecerDivision(personas)) {
                     dialogo.dismiss()
+                } else {
+                    contenido.campoComensales.error = getString(R.string.cobro_dividir_error)
                 }
             }
         }
-        dialogo.setOnDismissListener { sincronizarSwitchDivision() }
+        dialogo.setOnDismissListener {
+            if (dialogoDivision === dialogo) dialogoDivision = null
+            sincronizarSwitchDivision()
+        }
         dialogo.show()
+        dialogoDivision = dialogo
     }
 
     private fun sincronizarSwitchDivision() {
         actualizandoDivision = true
         binding.switchDividirCuenta.isChecked = viewModel.estado.value.dividirCuenta
         actualizandoDivision = false
+    }
+
+    private fun crearDialogo(contenido: View): AlertDialog {
+        val dialogo = AlertDialog.Builder(this)
+            .setView(contenido)
+            .create()
+        dialogo.window?.apply {
+            setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+            val anchoMaximo = (480 * resources.displayMetrics.density).toInt()
+            val anchoPantalla = (resources.displayMetrics.widthPixels * 0.92f).toInt()
+            setLayout(minOf(anchoPantalla, anchoMaximo), ViewGroup.LayoutParams.WRAP_CONTENT)
+        }
+        return dialogo
     }
 
     private fun devolverResultado() {

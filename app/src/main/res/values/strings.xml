@@ -242,12 +242,14 @@
     <string name="cobro_dividir_titulo">Dividir cuenta</string>
     <string name="cobro_dividir_descripcion">Actívalo para repartir el total en partes iguales.</string>
     <string name="cobro_dividir_resumen">%1$d comensales · Total %2$s</string>
-    <string name="cobro_dividir_dialogo_mensaje">Indica cuántas personas comparten la cuenta. El residuo de los céntimos se reparte en las primeras cuotas.</string>
+    <string name="cobro_dividir_dialogo_mensaje">Indica cuántas personas comparten la cuenta. El residuo de los céntimos se reparte en las últimas cuotas para que la suma sea exacta.</string>
     <string name="cobro_dividir_comensales">Número de personas</string>
     <string name="cobro_dividir_confirmar">Calcular cuotas</string>
     <string name="cobro_dividir_error">Ingresa un número entre 2 y 50.</string>
     <string name="cobro_comensal">Comensal %1$d</string>
     <string name="cd_dividir_cuenta">Activar o desactivar la división de la cuenta</string>
+    <string name="cd_dividir_cuenta_icono">Personas compartiendo la cuenta</string>
+    <string name="cd_error_icono">Advertencia</string>
     <string name="cobro_error_titulo">No se pudo completar el cobro</string>
     <string name="cobro_error_carga_titulo">No se pudo cargar la cuenta</string>
     <string name="cobro_error_carga">No se pudo cargar la cuenta de la mesa.</string>

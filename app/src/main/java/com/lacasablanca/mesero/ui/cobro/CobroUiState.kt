@@ -64,8 +64,9 @@ data class CobroUiState(
                 .longValueExact()
             val base = totalCentimos / personas
             val residuo = (totalCentimos % personas).toInt()
+            val primeraCuotaAjustada = personas - residuo + 1
             return (1..personas).map { numero ->
-                val centimos = base + if (numero <= residuo) 1L else 0L
+                val centimos = base + if (numero >= primeraCuotaAjustada) 1L else 0L
                 CuotaComensal(
                     numero = numero,
                     monto = BigDecimal.valueOf(centimos)
