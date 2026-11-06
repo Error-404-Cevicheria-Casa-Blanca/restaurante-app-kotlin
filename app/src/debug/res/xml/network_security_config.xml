@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Configuracion de red SOLO para la variante debug (PRB-2).
+
+    Objetivo: permitir HTTP en claro hacia el backend local (emulador en
+    10.0.2.2 y la PC del restaurante en la LAN 192.168.0.0/16).
+
+    LIMITACION DE ANDROID (documentada en PREGUNTAS-ABIERTAS):
+    el elemento <domain> solo acepta nombres de host o IPs literales; NO
+    admite notacion CIDR. Por eso no existe una forma declarativa de permitir
+    toda la subred 192.168.0.0/16. Se habilita cleartext con <base-config>
+    unicamente en debug; la variante release no incluye este archivo y sigue
+    bloqueando todo el trafico HTTP.
+
+    Los <domain-config> de abajo documentan los destinos previstos y permiten
+    el trafico incluso si en el futuro se endurece <base-config>.
+-->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="true">
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+
+    <domain-config cleartextTrafficPermitted="true">
+        <!-- Emulador de Android Studio: la PC anfitriona se ve como 10.0.2.2. -->
+        <domain includeSubdomains="false">10.0.2.2</domain>
+        <domain includeSubdomains="false">localhost</domain>
+    </domain-config>
+</network-security-config>

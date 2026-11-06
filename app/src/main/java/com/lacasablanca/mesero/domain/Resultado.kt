@@ -12,7 +12,18 @@ enum class ErrorApp {
     RED,
     SESION_EXPIRADA,
     ROL_NO_PERMITIDO,
+
+    /** 409 generico (por ejemplo, abrir una mesa que ya fue tomada). */
     CONFLICTO,
+
+    /** 409 al enviar un pedido: la mesa ya fue tomada por otro mesero. */
+    CONFLICTO_MESA,
+
+    /** 409 al cobrar: la cuenta ya fue pagada. */
+    CONFLICTO_COBRO,
+
+    /** 423 Locked: la mesa/cuenta esta bloqueada temporalmente. */
+    BLOQUEADO,
     VALIDACION,
     NO_ENCONTRADO,
     SERVIDOR,
@@ -25,6 +36,7 @@ fun errorDesdeCodigoHttp(codigo: Int): ErrorApp = when (codigo) {
     401, 403 -> ErrorApp.SESION_EXPIRADA
     404 -> ErrorApp.NO_ENCONTRADO
     409 -> ErrorApp.CONFLICTO
+    423 -> ErrorApp.BLOQUEADO
     in 500..599 -> ErrorApp.SERVIDOR
     else -> ErrorApp.DESCONOCIDO
 }

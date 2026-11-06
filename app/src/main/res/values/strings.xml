@@ -164,7 +164,8 @@
     <string name="comanda_pedido_enviado_volver">Volver al Mapa</string>
     <string name="comanda_error_envio_titulo">No se pudo enviar el pedido</string>
     <string name="comanda_error_envio_red">Revisa la red local e inténtalo de nuevo.</string>
-    <string name="comanda_error_envio_conflicto">La mesa ya no está disponible para un nuevo pedido.</string>
+    <string name="comanda_error_envio_conflicto">La mesa ya fue tomada por otro mesero. Actualiza el mapa e inténtalo de nuevo.</string>
+    <string name="comanda_error_envio_bloqueado">La mesa está bloqueada temporalmente (por ejemplo, por un cobro en curso). Espera unos minutos e inténtalo de nuevo.</string>
     <string name="comanda_error_envio_validacion">Revisa las cantidades del pedido e inténtalo de nuevo.</string>
     <string name="comanda_error_envio_generico">Ocurrió un error al enviar el pedido. Inténtalo de nuevo.</string>
     <string name="accion_cancelar">Cancelar</string>
@@ -245,6 +246,8 @@
     <string name="cobro_error_sin_saldo">El saldo pendiente es cero.</string>
     <string name="cobro_error_referencia">Ingresa el número de operación.</string>
     <string name="cobro_error_conflicto">La mesa cambió de estado. Actualiza la cuenta e inténtalo de nuevo.</string>
+    <string name="cobro_error_conflicto_pagada">La cuenta ya fue pagada. Actualiza el mapa de mesas para ver su estado.</string>
+    <string name="cobro_error_bloqueado">El cobro está bloqueado temporalmente. Espera unos minutos e inténtalo de nuevo.</string>
     <string name="cobro_error_servidor">Ocurrió un error en el servidor. Inténtalo de nuevo.</string>
     <string name="cobro_error_desconocido">Ocurrió un error inesperado. Inténtalo de nuevo.</string>
     <string name="cobro_exito_titulo">Cobro exitoso</string>

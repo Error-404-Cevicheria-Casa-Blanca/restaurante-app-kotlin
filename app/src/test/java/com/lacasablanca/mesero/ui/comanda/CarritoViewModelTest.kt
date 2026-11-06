@@ -26,6 +26,7 @@ import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -108,6 +109,14 @@ class CarritoViewModelTest {
         }
         return eventos
     }
+
+    private fun pedidoOk(id: Long = 23L): PedidoEnviado = PedidoEnviado(
+        id = id,
+        estado = "PENDIENTE",
+        subtotal = BigDecimal("81.36"),
+        igv = BigDecimal("14.64"),
+        total = BigDecimal("96.00")
+    )
 
     @Test
     fun `carga el catalogo y lo agrupa por categoria`() = runTest(testDispatcher) {
@@ -248,16 +257,8 @@ class CarritoViewModelTest {
 
         val itemsEnviados = slot<List<ItemPedido>>()
         coEvery {
-            pedidoRepository.enviarPedido(7L, capture(itemsEnviados))
-        } returns Resultado.Exito(
-            PedidoEnviado(
-                id = 23,
-                estado = "PENDIENTE",
-                subtotal = BigDecimal("81.36"),
-                igv = BigDecimal("14.64"),
-                total = BigDecimal("96.00")
-            )
-        )
+            pedidoRepository.enviarPedido(7L, capture(itemsEnviados), any())
+        } returns Resultado.Exito(pedidoOk())
 
         viewModel.agregarProducto(ceviche)
         viewModel.agregarProducto(ceviche)
@@ -273,7 +274,7 @@ class CarritoViewModelTest {
         assertEquals(ceviche.id, itemsEnviados.captured.single().productoId)
         assertEquals(2, itemsEnviados.captured.single().cantidad)
         assertEquals("48.00", itemsEnviados.captured.single().precioUnitario.toPlainString())
-        coVerify(exactly = 1) { pedidoRepository.enviarPedido(7L, any()) }
+        coVerify(exactly = 1) { pedidoRepository.enviarPedido(7L, any(), any()) }
     }
 
     @Test
@@ -282,7 +283,7 @@ class CarritoViewModelTest {
         val eventos = escucharEventos(viewModel)
         advanceUntilIdle()
 
-        coEvery { pedidoRepository.enviarPedido(7L, any()) } returns
+        coEvery { pedidoRepository.enviarPedido(7L, any(), any()) } returns
             Resultado.Fallo(ErrorApp.RED)
 
         viewModel.agregarProducto(ceviche)
@@ -307,7 +308,7 @@ class CarritoViewModelTest {
 
         val itemsEnviados = slot<List<ItemPedido>>()
         coEvery {
-            pedidoRepository.enviarPedido(7L, capture(itemsEnviados))
+            pedidoRepository.enviarPedido(7L, capture(itemsEnviados), any())
         } returns Resultado.Fallo(ErrorApp.RED)
 
         viewModel.enviarPedido(7L)
@@ -335,7 +336,7 @@ class CarritoViewModelTest {
         viewModel.enviarPedido(7L)
         advanceUntilIdle()
 
-        coVerify(exactly = 0) { pedidoRepository.enviarPedido(any(), any()) }
+        coVerify(exactly = 0) { pedidoRepository.enviarPedido(any(), any(), any()) }
     }
 
     @Test
@@ -369,4 +370,83 @@ class CarritoViewModelTest {
         assertFalse(viewModel.estado.value.cargando)
         coVerify(exactly = 0) { catalogoRepository.listarProductos() }
     }
+
+    // ---------------------------------------------------------------------
+    // Idempotencia del pedido (PRB-2)
+    // ---------------------------------------------------------------------
+
+    @Test
+    fun `reintentar tras un error de red reutiliza la misma clave de idempotencia`() =
+        runTest(testDispatcher) {
+            val viewModel = crearViewModel()
+            advanceUntilIdle()
+
+            val claves = mutableListOf<String>()
+            coEvery {
+                pedidoRepository.enviarPedido(7L, any(), capture(claves))
+            } returns Resultado.Fallo(ErrorApp.RED)
+
+            viewModel.agregarProducto(ceviche)
+            viewModel.enviarPedido(7L)
+            advanceUntilIdle()
+            viewModel.enviarPedido(7L)
+            advanceUntilIdle()
+
+            assertEquals(2, claves.size)
+            assertTrue(claves.first().isNotBlank())
+            assertEquals(claves[0], claves[1])
+        }
+
+    @Test
+    fun `un envio exitoso descarta la clave y el siguiente pedido usa otra`() =
+        runTest(testDispatcher) {
+            val viewModel = crearViewModel()
+            advanceUntilIdle()
+
+            val claves = mutableListOf<String>()
+            coEvery {
+                pedidoRepository.enviarPedido(7L, any(), capture(claves))
+            } returns Resultado.Exito(pedidoOk())
+
+            viewModel.agregarProducto(ceviche)
+            viewModel.enviarPedido(7L)
+            advanceUntilIdle()
+            viewModel.agregarProducto(tiradito)
+            viewModel.enviarPedido(7L)
+            advanceUntilIdle()
+
+            assertEquals(2, claves.size)
+            assertNotEquals(claves[0], claves[1])
+        }
+
+    @Test
+    fun `modificar el carrito tras un fallo genera una clave nueva`() =
+        runTest(testDispatcher) {
+            val viewModel = crearViewModel()
+            advanceUntilIdle()
+
+            val claves = mutableListOf<String>()
+            val respuestas = mutableListOf<Resultado<PedidoEnviado>>(
+                Resultado.Fallo(ErrorApp.RED),
+                Resultado.Exito(pedidoOk())
+            )
+            coEvery {
+                pedidoRepository.enviarPedido(7L, any(), capture(claves))
+            } coAnswers {
+                respuestas.removeAt(0)
+            }
+
+            viewModel.agregarProducto(ceviche)
+            viewModel.enviarPedido(7L)
+            advanceUntilIdle()
+
+            // El usuario corrige el carrito despues del fallo: la clave anterior
+            // ya no describe lo que se va a enviar.
+            viewModel.aumentarCantidad(ceviche.id)
+            viewModel.enviarPedido(7L)
+            advanceUntilIdle()
+
+            assertEquals(2, claves.size)
+            assertNotEquals(claves[0], claves[1])
+        }
 }
