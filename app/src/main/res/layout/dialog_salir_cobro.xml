@@ -65,14 +65,13 @@
             android:layout_width="0dp"
             android:layout_height="@dimen/toque_minimo"
             android:layout_weight="1"
-            android:autoSizeMaxTextSize="14sp"
-            android:autoSizeMinTextSize="10sp"
-            android:autoSizeStepGranularity="1sp"
-            android:autoSizeTextType="uniform"
+            android:autoSizeTextType="none"
             android:breakStrategy="simple"
             android:hyphenationFrequency="none"
             android:maxLines="1"
-            android:text="@string/cobro_salir_cancelar" />
+            android:text="@string/cobro_salir_cancelar"
+            android:textAllCaps="false"
+            android:textSize="16sp" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnSalirSinCobrar"
@@ -81,14 +80,13 @@
             android:layout_height="@dimen/toque_minimo"
             android:layout_marginStart="@dimen/espacio_s"
             android:layout_weight="1"
-            android:autoSizeMaxTextSize="14sp"
-            android:autoSizeMinTextSize="10sp"
-            android:autoSizeStepGranularity="1sp"
-            android:autoSizeTextType="uniform"
+            android:autoSizeTextType="none"
             android:backgroundTint="@color/estado_ocupada"
             android:breakStrategy="simple"
             android:hyphenationFrequency="none"
             android:maxLines="1"
-            android:text="@string/cobro_salir_confirmar" />
+            android:text="@string/cobro_salir_confirmar"
+            android:textAllCaps="false"
+            android:textSize="16sp" />
     </LinearLayout>
 </LinearLayout>
