@@ -16,10 +16,15 @@ data class ItemPedidoRequest(
 
 /**
  * POST /api/v1/pedidos (CrearPedidoRequest.java): `mesa_id` + lista `items`.
+ *
+ * [clientRequestId] es la clave de idempotencia del pedido. Se envia tambien
+ * en el header `Idempotency-Key`; el backend la usa para no duplicar el
+ * pedido si el mesero reintenta tras un fallo de red (PRB-2).
  */
 data class CrearPedidoRequest(
     @SerializedName("mesa_id") val mesaId: Long,
-    val items: List<ItemPedidoRequest>
+    val items: List<ItemPedidoRequest>,
+    @SerializedName("client_request_id") val clientRequestId: String
 )
 
 /**

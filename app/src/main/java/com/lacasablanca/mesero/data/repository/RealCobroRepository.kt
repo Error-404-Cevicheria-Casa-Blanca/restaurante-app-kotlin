@@ -17,9 +17,16 @@ class RealCobroRepository(private val api: CobroApi) : CobroRepository {
         ejecutar { api.obtenerCuenta(mesaId) }
 
     override suspend fun cobrar(mesaId: Long, request: CobrarRequest): Resultado<CobroResponse> =
-        ejecutar { api.cobrar(mesaId, request) }
+        ejecutar(errorConflicto = ErrorApp.CONFLICTO_COBRO) { api.cobrar(mesaId, request) }
 
-    private suspend fun <T> ejecutar(llamada: suspend () -> Response<T>): Resultado<T> {
+    /**
+     * [errorConflicto] distingue el significado del 409: en el cobro es
+     * "la cuenta ya fue pagada"; en otros endpoints es un conflicto generico.
+     */
+    private suspend fun <T> ejecutar(
+        errorConflicto: ErrorApp = ErrorApp.CONFLICTO,
+        llamada: suspend () -> Response<T>
+    ): Resultado<T> {
         return try {
             val respuesta = llamada()
             if (respuesta.isSuccessful) {
@@ -30,12 +37,21 @@ class RealCobroRepository(private val api: CobroApi) : CobroRepository {
                     Resultado.Fallo(ErrorApp.SERVIDOR)
                 }
             } else {
-                Resultado.Fallo(errorDesdeCodigoHttp(respuesta.code()))
+                val error = if (respuesta.code() == CODIGO_CONFLICTO) {
+                    errorConflicto
+                } else {
+                    errorDesdeCodigoHttp(respuesta.code())
+                }
+                Resultado.Fallo(error)
             }
         } catch (e: IOException) {
             Resultado.Fallo(ErrorApp.RED)
         } catch (e: Exception) {
             Resultado.Fallo(ErrorApp.DESCONOCIDO)
         }
+    }
+
+    private companion object {
+        const val CODIGO_CONFLICTO = 409
     }
 }

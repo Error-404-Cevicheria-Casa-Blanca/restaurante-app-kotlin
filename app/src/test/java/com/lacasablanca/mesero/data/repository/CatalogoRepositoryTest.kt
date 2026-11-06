@@ -95,9 +95,12 @@ class CatalogoRepositoryTest {
     }
 
     @Test
-    fun `el pedido envia snake_case y mapea la respuesta`() = runTest {
+    fun `el pedido envia snake_case, client_request_id y el header de idempotencia`() = runTest {
+        val claveCapturada = slot<String>()
         val capturado = slot<CrearPedidoRequest>()
-        coEvery { pedidosApi.crearPedido(capture(capturado)) } returns PedidoResponseDto(
+        coEvery {
+            pedidosApi.crearPedido(capture(claveCapturada), capture(capturado))
+        } returns PedidoResponseDto(
             id = 23,
             mesaId = 7,
             estado = "PENDIENTE",
@@ -115,10 +118,13 @@ class CatalogoRepositoryTest {
                     notas = "",
                     precioUnitario = BigDecimal("48.00")
                 )
-            )
+            ),
+            clientRequestId = "pedido-uuid-1"
         )
 
         val request = capturado.captured
+        assertEquals("pedido-uuid-1", claveCapturada.captured)
+        assertEquals("pedido-uuid-1", request.clientRequestId)
         assertEquals(7L, request.mesaId)
         assertEquals(1, request.items.size)
         assertEquals(10L, request.items.single().productoId)
@@ -137,20 +143,49 @@ class CatalogoRepositoryTest {
     }
 
     @Test
-    fun `un 409 al enviar el pedido se traduce a conflicto`() = runTest {
-        coEvery { pedidosApi.crearPedido(any()) } throws errorHttp(409)
+    fun `un 409 al enviar el pedido se traduce a conflicto de mesa`() = runTest {
+        coEvery { pedidosApi.crearPedido(any(), any()) } throws errorHttp(409)
 
         val resultado = RealPedidoRepository(pedidosApi).enviarPedido(
             mesaId = 7L,
-            items = listOf(ItemPedido(10L, 1, "", BigDecimal("48.00")))
+            items = listOf(ItemPedido(10L, 1, "", BigDecimal("48.00"))),
+            clientRequestId = "pedido-uuid-409"
         )
 
-        assertEquals(ErrorApp.CONFLICTO, (resultado as Resultado.Fallo).error)
+        assertEquals(ErrorApp.CONFLICTO_MESA, (resultado as Resultado.Fallo).error)
+    }
+
+    @Test
+    fun `un 423 al enviar el pedido se traduce a bloqueado`() = runTest {
+        coEvery { pedidosApi.crearPedido(any(), any()) } throws errorHttp(423)
+
+        val resultado = RealPedidoRepository(pedidosApi).enviarPedido(
+            mesaId = 7L,
+            items = listOf(ItemPedido(10L, 1, "", BigDecimal("48.00"))),
+            clientRequestId = "pedido-uuid-423"
+        )
+
+        assertEquals(ErrorApp.BLOQUEADO, (resultado as Resultado.Fallo).error)
     }
 
     @Test
     fun `un pedido sin lineas no llama a la api`() = runTest {
-        val resultado = RealPedidoRepository(pedidosApi).enviarPedido(7L, emptyList())
+        val resultado = RealPedidoRepository(pedidosApi).enviarPedido(
+            mesaId = 7L,
+            items = emptyList(),
+            clientRequestId = "pedido-uuid-vacio"
+        )
+
+        assertEquals(ErrorApp.VALIDACION, (resultado as Resultado.Fallo).error)
+    }
+
+    @Test
+    fun `un pedido sin clave de idempotencia no llama a la api`() = runTest {
+        val resultado = RealPedidoRepository(pedidosApi).enviarPedido(
+            mesaId = 7L,
+            items = listOf(ItemPedido(10L, 1, "", BigDecimal("48.00"))),
+            clientRequestId = "  "
+        )
 
         assertEquals(ErrorApp.VALIDACION, (resultado as Resultado.Fallo).error)
     }
@@ -161,7 +196,8 @@ class CatalogoRepositoryTest {
             mesaId = 7L,
             items = listOf(
                 ItemPedido(10L, 2, "", BigDecimal("48.00"))
-            )
+            ),
+            clientRequestId = "pedido-uuid-fake"
         )
 
         when (resultado) {
@@ -173,6 +209,17 @@ class CatalogoRepositoryTest {
 
             is Resultado.Fallo -> fail("Se esperaba exito y llego ${resultado.error}")
         }
+    }
+
+    @Test
+    fun `el fake no duplica el pedido si se repite la clave de idempotencia`() = runTest {
+        val repositorio = FakePedidoRepository(latenciaMs = 0)
+        val items = listOf(ItemPedido(10L, 1, "", BigDecimal("48.00")))
+
+        val primero = (repositorio.enviarPedido(7L, items, "clave-repetida") as Resultado.Exito).datos
+        val segundo = (repositorio.enviarPedido(7L, items, "clave-repetida") as Resultado.Exito).datos
+
+        assertEquals(primero, segundo)
     }
 
     @Test

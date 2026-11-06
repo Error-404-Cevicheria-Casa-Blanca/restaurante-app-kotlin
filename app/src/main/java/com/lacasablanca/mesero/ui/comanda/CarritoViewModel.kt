@@ -20,6 +20,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.util.UUID
 
 /**
  * Catalogo + carrito de la comanda (PRB-38).
@@ -29,6 +30,9 @@ import kotlinx.coroutines.launch
  * - Subtotal/IGV/Total se recalculan solos con [CalculoIgv]: total = suma de
  *   lineas; subtotal = total / 1.18; igv = total - subtotal (igual que Max).
  * - Al enviar con exito el carrito se vacia y se emite [CarritoEvento.PedidoEnviadoOk].
+ * - La clave de idempotencia se crea al primer intento, se conserva si el
+ *   envio falla y se descarta al recibir 201 o al modificar el carrito
+ *   (PRB-2). Asi un reintento tras un corte de Wi-Fi no duplica el pedido.
  */
 class CarritoViewModel(
     private val catalogoRepository: CatalogoRepository,
@@ -43,6 +47,12 @@ class CarritoViewModel(
     val eventos = _eventos.receiveAsFlow()
 
     private var trabajoCarga: Job? = null
+
+    /**
+     * Clave de idempotencia del pedido en curso. null = el proximo envio
+     * necesitara una clave nueva. No se expone en la UI: es un detalle de red.
+     */
+    private var claveIdempotencia: String? = null
 
     init {
         cargar()
@@ -96,6 +106,7 @@ class CarritoViewModel(
     fun agregarProducto(producto: Producto) {
         if (producto.id <= 0L || !producto.disponible || _estado.value.enviando) return
 
+        claveIdempotencia = null
         _estado.update { actual ->
             val existente = actual.items.firstOrNull { it.producto.id == producto.id }
             val items = if (existente == null) {
@@ -115,34 +126,33 @@ class CarritoViewModel(
 
     fun aumentarCantidad(productoId: Long) {
         if (_estado.value.enviando) return
+        if (_estado.value.items.none { it.producto.id == productoId }) return
 
+        claveIdempotencia = null
         _estado.update { actual ->
-            if (actual.items.none { it.producto.id == productoId }) {
-                actual
-            } else {
-                actual.copy(
-                    items = actual.items.map { item ->
-                        if (item.producto.id == productoId) {
-                            item.copy(cantidad = item.cantidad + 1)
-                        } else {
-                            item
-                        }
+            actual.copy(
+                items = actual.items.map { item ->
+                    if (item.producto.id == productoId) {
+                        item.copy(cantidad = item.cantidad + 1)
+                    } else {
+                        item
                     }
-                )
-            }
+                }
+            )
         }
     }
 
     /** Baja una unidad; al llegar a cero la linea se elimina del carrito. */
     fun disminuirCantidad(productoId: Long) {
         if (_estado.value.enviando) return
+        val item = _estado.value.items.firstOrNull { it.producto.id == productoId } ?: return
 
+        claveIdempotencia = null
         _estado.update { actual ->
-            val item = actual.items.firstOrNull { it.producto.id == productoId }
-            when {
-                item == null -> actual
-                item.cantidad <= 1 -> actual.copy(items = actual.items.filterNot { it.producto.id == productoId })
-                else -> actual.copy(
+            if (item.cantidad <= 1) {
+                actual.copy(items = actual.items.filterNot { it.producto.id == productoId })
+            } else {
+                actual.copy(
                     items = actual.items.map {
                         if (it.producto.id == productoId) it.copy(cantidad = it.cantidad - 1) else it
                     }
@@ -153,13 +163,11 @@ class CarritoViewModel(
 
     fun eliminarProducto(productoId: Long) {
         if (_estado.value.enviando) return
+        if (_estado.value.items.none { it.producto.id == productoId }) return
 
+        claveIdempotencia = null
         _estado.update { actual ->
-            if (actual.items.none { it.producto.id == productoId }) {
-                actual
-            } else {
-                actual.copy(items = actual.items.filterNot { it.producto.id == productoId })
-            }
+            actual.copy(items = actual.items.filterNot { it.producto.id == productoId })
         }
     }
 
@@ -169,33 +177,38 @@ class CarritoViewModel(
      */
     fun actualizarNotas(productoId: Long, notas: String) {
         if (_estado.value.enviando) return
+        if (_estado.value.items.none { it.producto.id == productoId }) return
 
+        claveIdempotencia = null
         val limpia = notas.trim().take(MAX_NOTAS)
         _estado.update { actual ->
-            if (actual.items.none { it.producto.id == productoId }) {
-                actual
-            } else {
-                actual.copy(
-                    items = actual.items.map { item ->
-                        if (item.producto.id == productoId) {
-                            item.copy(notas = limpia)
-                        } else {
-                            item
-                        }
+            actual.copy(
+                items = actual.items.map { item ->
+                    if (item.producto.id == productoId) {
+                        item.copy(notas = limpia)
+                    } else {
+                        item
                     }
-                )
-            }
+                }
+            )
         }
     }
 
     /**
      * Envia POST /api/v1/pedidos. Bloquea dobles toques mientras el envio
      * esta en vuelo y conserva el carrito si falla (para reintentar).
+     *
+     * La misma [claveIdempotencia] viaja en `client_request_id` y en el header
+     * `Idempotency-Key`. Si el envio falla se conserva para el reintento; si
+     * responde 201 se descarta. Cualquier cambio del carrito la invalida.
      */
     fun enviarPedido(mesaId: Long) {
         val actual = _estado.value
         if (actual.enviando || actual.carritoVacio || mesaId <= 0L) return
 
+        val clave = claveIdempotencia ?: UUID.randomUUID().toString().also {
+            claveIdempotencia = it
+        }
         val itemsParaEnviar = actual.items.map { item ->
             ItemPedido(
                 productoId = item.producto.id,
@@ -207,8 +220,9 @@ class CarritoViewModel(
 
         _estado.update { it.copy(enviando = true) }
         viewModelScope.launch(ioDispatcher) {
-            when (val resultado = pedidoRepository.enviarPedido(mesaId, itemsParaEnviar)) {
+            when (val resultado = pedidoRepository.enviarPedido(mesaId, itemsParaEnviar, clave)) {
                 is Resultado.Exito -> {
+                    claveIdempotencia = null
                     _estado.update { it.copy(enviando = false, items = emptyList()) }
                     _eventos.send(CarritoEvento.PedidoEnviadoOk(resultado.datos))
                 }

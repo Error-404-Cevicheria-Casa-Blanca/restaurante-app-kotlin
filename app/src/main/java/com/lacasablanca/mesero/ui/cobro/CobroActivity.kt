@@ -409,6 +409,8 @@ class CobroActivity : AppCompatActivity() {
         CobroViewModel.ERROR_REFERENCIA -> getString(R.string.cobro_error_referencia)
         CobroViewModel.ERROR_COMENSALES -> getString(R.string.cobro_error_comensales)
         CobroViewModel.ERROR_CONFLICTO -> getString(R.string.cobro_error_conflicto)
+        CobroViewModel.ERROR_CONFLICTO_PAGADA -> getString(R.string.cobro_error_conflicto_pagada)
+        CobroViewModel.ERROR_BLOQUEADO -> getString(R.string.cobro_error_bloqueado)
         CobroViewModel.ERROR_SERVIDOR -> getString(R.string.cobro_error_servidor)
         CobroViewModel.ERROR_VALIDACION -> getString(R.string.cobro_error_validacion)
         else -> getString(R.string.cobro_error_desconocido)

@@ -232,6 +232,8 @@ class CobroViewModel(
         ErrorApp.SESION_EXPIRADA -> ERROR_SESION
         ErrorApp.VALIDACION -> ERROR_VALIDACION
         ErrorApp.CONFLICTO -> ERROR_CONFLICTO
+        ErrorApp.CONFLICTO_COBRO -> ERROR_CONFLICTO_PAGADA
+        ErrorApp.BLOQUEADO -> ERROR_BLOQUEADO
         ErrorApp.SERVIDOR -> ERROR_SERVIDOR
         else -> ERROR_DESCONOCIDO
     }
@@ -268,6 +270,8 @@ class CobroViewModel(
         const val ERROR_REFERENCIA = "REFERENCIA"
         const val ERROR_COMENSALES = "COMENSALES"
         const val ERROR_CONFLICTO = "CONFLICTO"
+        const val ERROR_CONFLICTO_PAGADA = "CONFLICTO_PAGADA"
+        const val ERROR_BLOQUEADO = "BLOQUEADO"
         const val ERROR_SERVIDOR = "SERVIDOR"
         const val ERROR_DESCONOCIDO = "DESCONOCIDO"
     }
