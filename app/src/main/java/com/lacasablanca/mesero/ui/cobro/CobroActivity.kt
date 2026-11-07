@@ -24,7 +24,6 @@ import com.google.android.material.textfield.TextInputEditText
 import com.lacasablanca.mesero.BuildConfig
 import com.lacasablanca.mesero.MeseroApp
 import com.lacasablanca.mesero.R
-import com.lacasablanca.mesero.core.GenericViewModelFactory
 import com.lacasablanca.mesero.databinding.ActivityCobroBinding
 import com.lacasablanca.mesero.databinding.DialogCobroExitosoBinding
 import com.lacasablanca.mesero.databinding.DialogDividirCuentaBinding
@@ -52,7 +51,7 @@ class CobroActivity : AppCompatActivity() {
     private val numeroMesa by lazy { intent.getIntExtra(EXTRA_MESA_NUMERO, 0) }
 
     private val viewModel: CobroViewModel by viewModels {
-        GenericViewModelFactory { CobroViewModel(mesaId, contenedor.cobroRepository) }
+        CobroViewModelFactory(mesaId, contenedor.cobroRepository)
     }
 
     private var actualizandoChips = false

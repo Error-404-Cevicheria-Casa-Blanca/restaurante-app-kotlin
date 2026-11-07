@@ -1,5 +1,6 @@
 package com.lacasablanca.mesero.ui.cobro
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.lacasablanca.mesero.data.remote.dto.CobrarRequest
@@ -22,15 +23,23 @@ import java.util.UUID
 /**
  * Cobro de una mesa (PRB-56). Carga la cuenta, arma los pagos y confirma
  * contra el repositorio; con USE_FAKE_DATA responde FakeCobroRepository.
- * El identificador de idempotencia se genera una sola vez por pantalla.
+ *
+ * El identificador de idempotencia se guarda en [SavedStateHandle] para que
+ * sobreviva a la recreacion de la pantalla y a la muerte del proceso: si el
+ * usuario reintenta el cobro, el backend recibe la misma clave y no duplica.
  */
 class CobroViewModel(
     private val mesaId: Long,
     private val cobroRepository: CobroRepository,
+    private val savedStateHandle: SavedStateHandle,
     private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : ViewModel() {
 
-    private val clientRequestId = UUID.randomUUID().toString()
+    private val clientRequestId: String =
+        savedStateHandle.get<String>(KEY_CLIENT_REQUEST_ID)
+            ?: UUID.randomUUID().toString().also {
+                savedStateHandle[KEY_CLIENT_REQUEST_ID] = it
+            }
 
     private val _estado = MutableStateFlow(CobroUiState())
     val estado: StateFlow<CobroUiState> = _estado.asStateFlow()
@@ -264,6 +273,8 @@ class CobroViewModel(
     companion object {
         const val MIN_COMENSALES = 2
         const val MAX_COMENSALES = 50
+
+        private const val KEY_CLIENT_REQUEST_ID = "client_request_id"
 
         const val ERROR_RED = "RED"
         const val ERROR_SESION = "SESION"

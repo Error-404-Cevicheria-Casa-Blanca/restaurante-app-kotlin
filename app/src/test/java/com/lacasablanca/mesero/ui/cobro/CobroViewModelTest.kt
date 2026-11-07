@@ -1,5 +1,8 @@
 package com.lacasablanca.mesero.ui.cobro
 
+import androidx.lifecycle.SavedStateHandle
+import com.lacasablanca.mesero.data.remote.dto.CobrarRequest
+import com.lacasablanca.mesero.data.remote.dto.CobroResponse
 import com.lacasablanca.mesero.data.remote.dto.CuentaResponse
 import com.lacasablanca.mesero.data.repository.CobroRepository
 import com.lacasablanca.mesero.data.repository.FakeCobroRepository
@@ -42,7 +45,7 @@ class CobroViewModelTest {
 
     private fun crearViewModel(total: String = "100.00"): CobroViewModel {
         coEvery { repositorio.obtenerCuenta(7L) } returns Resultado.Exito(cuenta(total))
-        return CobroViewModel(7L, repositorio, testDispatcher)
+        return CobroViewModel(7L, repositorio, SavedStateHandle(), testDispatcher)
     }
 
     private fun cuenta(total: String): CuentaResponse = CuentaResponse(
@@ -230,7 +233,7 @@ class CobroViewModelTest {
     fun `la cuenta fake de 100 se divide entre 3 sin backend`() = runTest(testDispatcher) {
         val consumo = FakeConsumoStore().apply { registrar(7L, BigDecimal("100.00")) }
         val fake = FakeCobroRepository(consumoStore = consumo, latenciaMs = 0)
-        val viewModel = CobroViewModel(7L, fake, testDispatcher)
+        val viewModel = CobroViewModel(7L, fake, SavedStateHandle(), testDispatcher)
         advanceUntilIdle()
 
         assertEquals("100.00", viewModel.estado.value.total.toPlainString())
@@ -361,4 +364,37 @@ class CobroViewModelTest {
         assertEquals(CobroViewModel.ERROR_MONTO_EXCEDE, viewModel.estado.value.error)
         assertEquals(1, viewModel.estado.value.pagos.size)
     }
+
+    @Test
+    fun `conserva el clientRequestId al recrear el ViewModel con el estado guardado`() =
+        runTest(testDispatcher) {
+            coEvery { repositorio.obtenerCuenta(7L) } returns Resultado.Exito(cuenta("10.00"))
+            val enviados = mutableListOf<String>()
+            coEvery { repositorio.cobrar(7L, any()) } answers {
+                enviados += secondArg<CobrarRequest>().clientRequestId
+                Resultado.Exito(CobroResponse())
+            }
+
+            fun clonar(handle: SavedStateHandle): SavedStateHandle =
+                SavedStateHandle(handle.keys().associateWith { handle.get<Any?>(it) })
+
+            fun crearYConfirmar(handle: SavedStateHandle): CobroViewModel {
+                val viewModel = CobroViewModel(7L, repositorio, handle, testDispatcher)
+                advanceUntilIdle()
+                viewModel.seleccionarMetodo(MetodoPago.EFECTIVO)
+                viewModel.actualizarMontoPago("10")
+                viewModel.agregarPago()
+                viewModel.confirmarCobro()
+                advanceUntilIdle()
+                return viewModel
+            }
+
+            val guardado = SavedStateHandle()
+            crearYConfirmar(guardado)
+            crearYConfirmar(clonar(guardado))
+
+            assertEquals(2, enviados.size)
+            assertTrue(enviados.first().isNotBlank())
+            assertEquals(enviados.first(), enviados.last())
+        }
 }
