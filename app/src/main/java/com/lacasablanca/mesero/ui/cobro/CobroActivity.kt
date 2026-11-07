@@ -1,7 +1,11 @@
 package com.lacasablanca.mesero.ui.cobro
 
 import android.content.Intent
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
+import android.view.View
+import android.view.ViewGroup
 import androidx.activity.addCallback
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
@@ -16,14 +20,14 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
 import com.lacasablanca.mesero.BuildConfig
 import com.lacasablanca.mesero.MeseroApp
 import com.lacasablanca.mesero.R
-import com.lacasablanca.mesero.core.GenericViewModelFactory
 import com.lacasablanca.mesero.databinding.ActivityCobroBinding
 import com.lacasablanca.mesero.databinding.DialogCobroExitosoBinding
+import com.lacasablanca.mesero.databinding.DialogDividirCuentaBinding
+import com.lacasablanca.mesero.databinding.DialogErrorPremiumBinding
 import com.lacasablanca.mesero.databinding.DialogSalirCobroBinding
 import com.lacasablanca.mesero.domain.model.MetodoPago
 import com.lacasablanca.mesero.ui.common.formatearMoneda
@@ -39,6 +43,7 @@ class CobroActivity : AppCompatActivity() {
     private lateinit var binding: ActivityCobroBinding
     private lateinit var adaptadorCuenta: CuentaLineaAdapter
     private lateinit var adaptadorPagos: PagoAdapter
+    private lateinit var adaptadorCuotas: CuotaAdapter
 
     private val contenedor get() = (application as MeseroApp).container
 
@@ -46,13 +51,16 @@ class CobroActivity : AppCompatActivity() {
     private val numeroMesa by lazy { intent.getIntExtra(EXTRA_MESA_NUMERO, 0) }
 
     private val viewModel: CobroViewModel by viewModels {
-        GenericViewModelFactory { CobroViewModel(mesaId, contenedor.cobroRepository) }
+        CobroViewModelFactory(mesaId, contenedor.cobroRepository)
     }
 
     private var actualizandoChips = false
+    private var actualizandoDivision = false
     private var ultimoErrorMostrado: String? = null
     private var dialogoSalir: AlertDialog? = null
     private var dialogoExito: AlertDialog? = null
+    private var dialogoError: AlertDialog? = null
+    private var dialogoDivision: AlertDialog? = null
     private var dialogoExitoMostrado = false
     private var terminando = false
 
@@ -86,6 +94,10 @@ class CobroActivity : AppCompatActivity() {
         dialogoSalir = null
         dialogoExito?.dismiss()
         dialogoExito = null
+        dialogoError?.dismiss()
+        dialogoError = null
+        dialogoDivision?.dismiss()
+        dialogoDivision = null
         super.onDestroy()
     }
 
@@ -115,6 +127,10 @@ class CobroActivity : AppCompatActivity() {
         adaptadorPagos = PagoAdapter(viewModel::eliminarPago)
         binding.recyclerPagos.layoutManager = LinearLayoutManager(this)
         binding.recyclerPagos.adapter = adaptadorPagos
+
+        adaptadorCuotas = CuotaAdapter()
+        binding.recyclerCuotas.layoutManager = LinearLayoutManager(this)
+        binding.recyclerCuotas.adapter = adaptadorCuotas
     }
 
     private fun prepararAcciones() {
@@ -129,14 +145,19 @@ class CobroActivity : AppCompatActivity() {
             }
         }
 
-        binding.textoMontoRecibido.doAfterTextChanged { editable ->
-            viewModel.actualizarMontoRecibido(editable?.toString().orEmpty())
+        binding.textoMontoPago.doAfterTextChanged { editable ->
+            viewModel.actualizarMontoPago(editable?.toString().orEmpty())
         }
         binding.textoReferencia.doAfterTextChanged { editable ->
             viewModel.actualizarReferencia(editable?.toString().orEmpty())
         }
         binding.textoPropina.doAfterTextChanged { editable ->
             viewModel.actualizarPropina(editable?.toString().orEmpty())
+        }
+
+        binding.switchDividirCuenta.setOnCheckedChangeListener { _, activo ->
+            if (actualizandoDivision) return@setOnCheckedChangeListener
+            if (activo) mostrarDialogoDivision() else viewModel.desactivarDivision()
         }
     }
 
@@ -165,6 +186,7 @@ class CobroActivity : AppCompatActivity() {
         renderCuenta(estado)
         renderFormulario(estado)
         renderPagos(estado)
+        renderDivision(estado)
         renderBarra(estado)
         mostrarErrorDeAccion(estado)
         mostrarExito(estado)
@@ -187,24 +209,26 @@ class CobroActivity : AppCompatActivity() {
     private fun renderFormulario(estado: CobroUiState) {
         renderChips(estado.metodoSeleccionado)
         val esEfectivo = estado.metodoSeleccionado == MetodoPago.EFECTIVO
-        binding.campoMontoRecibido.isVisible = esEfectivo
+        binding.campoMontoPago.isVisible = true
+        binding.campoMontoPago.setHint(
+            if (esEfectivo) R.string.cobro_monto_recibido else R.string.cobro_monto_pago
+        )
         binding.campoReferencia.isVisible = !esEfectivo
         binding.textoVuelto.isVisible = esEfectivo
         binding.textoMontoACobrar.isVisible = !esEfectivo
-        val saldo = estado.totalConPropina
-            .subtract(estado.totalPagado)
-            .max(BigDecimal.ZERO)
         binding.textoMontoACobrar.text = getString(
             R.string.cobro_monto_a_cobrar,
-            formatearMoneda(saldo)
+            formatearMoneda(estado.saldoPendiente)
         )
-        sincronizarCampo(binding.textoMontoRecibido, estado.montoRecibido)
+        sincronizarCampo(binding.textoMontoPago, estado.montoPago)
         sincronizarCampo(binding.textoReferencia, estado.referencia)
         sincronizarCampo(binding.textoPropina, estado.propina.aTextoEditable())
         binding.textoVuelto.text = getString(
             R.string.cobro_vuelto,
             formatearMoneda(estado.vuelto)
         )
+        binding.btnAgregarPago.isEnabled =
+            estado.saldoPendiente > BigDecimal.ZERO && !estado.loading
     }
 
     private fun renderChips(metodo: MetodoPago) {
@@ -221,8 +245,33 @@ class CobroActivity : AppCompatActivity() {
 
     private fun renderPagos(estado: CobroUiState) {
         adaptadorPagos.submitList(estado.pagos)
+        binding.textoPagado.text = getString(
+            R.string.cobro_pagado,
+            formatearMoneda(estado.totalPagado)
+        )
+        binding.textoSaldoPendiente.text = getString(
+            R.string.cobro_saldo_pendiente,
+            formatearMoneda(estado.saldoPendiente)
+        )
         binding.textoSinPagos.isVisible = estado.pagos.isEmpty()
         binding.recyclerPagos.isVisible = estado.pagos.isNotEmpty()
+    }
+
+    private fun renderDivision(estado: CobroUiState) {
+        actualizandoDivision = true
+        binding.switchDividirCuenta.isChecked = estado.dividirCuenta
+        actualizandoDivision = false
+        binding.textoResumenDivision.text = if (estado.dividirCuenta) {
+            getString(
+                R.string.cobro_dividir_resumen,
+                estado.numeroComensales,
+                formatearMoneda(estado.totalConPropina)
+            )
+        } else {
+            getString(R.string.cobro_dividir_descripcion)
+        }
+        binding.recyclerCuotas.isVisible = estado.dividirCuenta && estado.cuotas.isNotEmpty()
+        adaptadorCuotas.submitList(estado.cuotas)
     }
 
     private fun renderBarra(estado: CobroUiState) {
@@ -235,7 +284,7 @@ class CobroActivity : AppCompatActivity() {
 
     private fun sincronizarCampo(campo: TextInputEditText, valor: String) {
         if (campo.text?.toString() == valor) return
-        if (campo.hasFocus()) return
+        if (campo.hasFocus() && valor.isNotEmpty()) return
         campo.setText(valor)
         campo.setSelection(valor.length)
     }
@@ -247,11 +296,19 @@ class CobroActivity : AppCompatActivity() {
         }
         if (error == ultimoErrorMostrado) return
         ultimoErrorMostrado = error
-        MaterialAlertDialogBuilder(this)
-            .setTitle(R.string.cobro_error_titulo)
-            .setMessage(mensajeError(error))
-            .setPositiveButton(R.string.accion_aceptar, null)
-            .show()
+        dialogoError?.dismiss()
+        val contenido = DialogErrorPremiumBinding.inflate(layoutInflater)
+        contenido.textoErrorTitulo.text = getString(R.string.cobro_error_titulo)
+        contenido.textoErrorMensaje.text = mensajeError(error)
+        val dialogo = crearDialogo(contenido.root)
+        contenido.btnEntendidoError.setOnClickListener { dialogo.dismiss() }
+        dialogo.setCanceledOnTouchOutside(true)
+        dialogo.setOnDismissListener {
+            if (dialogoError === dialogo) dialogoError = null
+            viewModel.limpiarError()
+        }
+        dialogo.show()
+        dialogoError = dialogo
     }
 
     private fun mostrarExito(estado: CobroUiState) {
@@ -273,10 +330,8 @@ class CobroActivity : AppCompatActivity() {
             formatearMoneda(estado.vuelto)
         )
 
-        val dialogo = MaterialAlertDialogBuilder(this)
-            .setView(contenido.root)
-            .setCancelable(false)
-            .create()
+        val dialogo = crearDialogo(contenido.root)
+        dialogo.setCancelable(false)
 
         contenido.btnVolverMapaCobro.setOnClickListener {
             dialogo.dismiss()
@@ -296,10 +351,8 @@ class CobroActivity : AppCompatActivity() {
 
     private fun mostrarDialogoSalir() {
         val contenido = DialogSalirCobroBinding.inflate(layoutInflater)
-        val dialogo = MaterialAlertDialogBuilder(this)
-            .setView(contenido.root)
-            .setCancelable(true)
-            .create()
+        val dialogo = crearDialogo(contenido.root)
+        dialogo.setCancelable(true)
 
         contenido.btnSeguirCobrando.setOnClickListener { dialogo.dismiss() }
         contenido.btnSalirSinCobrar.setOnClickListener {
@@ -310,6 +363,60 @@ class CobroActivity : AppCompatActivity() {
         dialogo.setOnDismissListener { if (dialogoSalir === dialogo) dialogoSalir = null }
         dialogo.show()
         dialogoSalir = dialogo
+    }
+
+    private fun mostrarDialogoDivision() {
+        dialogoDivision?.dismiss()
+        val contenido = DialogDividirCuentaBinding.inflate(layoutInflater)
+        val dialogo = crearDialogo(contenido.root)
+        dialogo.setCancelable(true)
+        dialogo.setCanceledOnTouchOutside(true)
+
+        contenido.btnCancelarDivision.setOnClickListener { dialogo.dismiss() }
+        contenido.btnConfirmarDivision.setOnClickListener {
+            val personas = contenido.textoComensales.text
+                ?.toString()
+                ?.trim()
+                ?.toIntOrNull()
+            if (personas == null ||
+                personas < CobroViewModel.MIN_COMENSALES ||
+                personas > CobroViewModel.MAX_COMENSALES
+            ) {
+                contenido.campoComensales.error = getString(R.string.cobro_dividir_error)
+            } else {
+                contenido.campoComensales.error = null
+                if (viewModel.establecerDivision(personas)) {
+                    dialogo.dismiss()
+                } else {
+                    contenido.campoComensales.error = getString(R.string.cobro_dividir_error)
+                }
+            }
+        }
+        dialogo.setOnDismissListener {
+            if (dialogoDivision === dialogo) dialogoDivision = null
+            sincronizarSwitchDivision()
+        }
+        dialogo.show()
+        dialogoDivision = dialogo
+    }
+
+    private fun sincronizarSwitchDivision() {
+        actualizandoDivision = true
+        binding.switchDividirCuenta.isChecked = viewModel.estado.value.dividirCuenta
+        actualizandoDivision = false
+    }
+
+    private fun crearDialogo(contenido: View): AlertDialog {
+        val dialogo = AlertDialog.Builder(this)
+            .setView(contenido)
+            .create()
+        dialogo.window?.apply {
+            setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+            val anchoMaximo = (480 * resources.displayMetrics.density).toInt()
+            val anchoPantalla = (resources.displayMetrics.widthPixels * 0.92f).toInt()
+            setLayout(minOf(anchoPantalla, anchoMaximo), ViewGroup.LayoutParams.WRAP_CONTENT)
+        }
+        return dialogo
     }
 
     private fun devolverResultado() {
@@ -327,8 +434,10 @@ class CobroActivity : AppCompatActivity() {
         CobroViewModel.ERROR_RED -> getString(R.string.cobro_error_red)
         CobroViewModel.ERROR_SESION -> getString(R.string.cobro_error_sesion)
         CobroViewModel.ERROR_MONTO -> getString(R.string.cobro_error_monto)
+        CobroViewModel.ERROR_MONTO_EXCEDE -> getString(R.string.cobro_error_monto_excede)
         CobroViewModel.ERROR_SIN_SALDO -> getString(R.string.cobro_error_sin_saldo)
         CobroViewModel.ERROR_REFERENCIA -> getString(R.string.cobro_error_referencia)
+        CobroViewModel.ERROR_COMENSALES -> getString(R.string.cobro_error_comensales)
         CobroViewModel.ERROR_CONFLICTO -> getString(R.string.cobro_error_conflicto)
         CobroViewModel.ERROR_CONFLICTO_PAGADA -> getString(R.string.cobro_error_conflicto_pagada)
         CobroViewModel.ERROR_BLOQUEADO -> getString(R.string.cobro_error_bloqueado)

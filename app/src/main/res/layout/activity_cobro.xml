@@ -361,15 +361,15 @@
                         </com.google.android.material.chip.ChipGroup>
 
                         <com.google.android.material.textfield.TextInputLayout
-                            android:id="@+id/campoMontoRecibido"
+                            android:id="@+id/campoMontoPago"
                             style="@style/Campo.Cobro"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="@dimen/espacio_l"
-                            android:hint="@string/cobro_monto_recibido">
+                            android:hint="@string/cobro_monto_pago">
 
                             <com.google.android.material.textfield.TextInputEditText
-                                android:id="@+id/textoMontoRecibido"
+                                android:id="@+id/textoMontoPago"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:imeOptions="actionNext"
@@ -504,6 +504,46 @@
                             android:textSize="@dimen/texto_titulo_tarjeta"
                             android:textStyle="bold" />
 
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/espacio_s"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:id="@+id/textoPagado"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:autoSizeMaxTextSize="14sp"
+                                android:autoSizeMinTextSize="10sp"
+                                android:autoSizeStepGranularity="1sp"
+                                android:autoSizeTextType="uniform"
+                                android:breakStrategy="simple"
+                                android:hyphenationFrequency="none"
+                                android:maxLines="1"
+                                android:textColor="@color/estado_libre"
+                                android:textSize="@dimen/texto_secundario"
+                                android:textStyle="bold"
+                                tools:text="Pagado: S/ 0.00" />
+
+                            <TextView
+                                android:id="@+id/textoSaldoPendiente"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="@dimen/espacio_xs"
+                                android:autoSizeMaxTextSize="14sp"
+                                android:autoSizeMinTextSize="10sp"
+                                android:autoSizeStepGranularity="1sp"
+                                android:autoSizeTextType="uniform"
+                                android:breakStrategy="simple"
+                                android:hyphenationFrequency="none"
+                                android:maxLines="1"
+                                android:textColor="@color/primary"
+                                android:textSize="@dimen/texto_secundario"
+                                android:textStyle="bold"
+                                tools:text="Saldo pendiente: S/ 96.00" />
+                        </LinearLayout>
+
                         <TextView
                             android:id="@+id/textoSinPagos"
                             android:layout_width="match_parent"
@@ -530,6 +570,84 @@
                             android:nestedScrollingEnabled="false"
                             android:overScrollMode="never"
                             tools:listitem="@layout/item_pago" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    style="@style/Tarjeta.Superficie"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/espacio_l">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="@dimen/espacio_l">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginEnd="@dimen/espacio_s"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:autoSizeMaxTextSize="20sp"
+                                    android:autoSizeMinTextSize="14sp"
+                                    android:autoSizeStepGranularity="1sp"
+                                    android:autoSizeTextType="uniform"
+                                    android:breakStrategy="simple"
+                                    android:hyphenationFrequency="none"
+                                    android:maxLines="1"
+                                    android:text="@string/cobro_dividir_titulo"
+                                    android:textColor="@color/primary"
+                                    android:textSize="@dimen/texto_titulo_tarjeta"
+                                    android:textStyle="bold" />
+
+                                <TextView
+                                    android:id="@+id/textoResumenDivision"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="@dimen/espacio_xs"
+                                    android:autoSizeMaxTextSize="12sp"
+                                    android:autoSizeMinTextSize="10sp"
+                                    android:autoSizeStepGranularity="1sp"
+                                    android:autoSizeTextType="uniform"
+                                    android:breakStrategy="simple"
+                                    android:hyphenationFrequency="none"
+                                    android:maxLines="2"
+                                    android:text="@string/cobro_dividir_descripcion"
+                                    android:textColor="@color/on_surface_variant"
+                                    android:textSize="@dimen/texto_etiqueta" />
+                            </LinearLayout>
+
+                            <com.google.android.material.materialswitch.MaterialSwitch
+                                android:id="@+id/switchDividirCuenta"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:contentDescription="@string/cd_dividir_cuenta" />
+                        </LinearLayout>
+
+                        <androidx.recyclerview.widget.RecyclerView
+                            android:id="@+id/recyclerCuotas"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/espacio_s"
+                            android:clipToPadding="false"
+                            android:nestedScrollingEnabled="false"
+                            android:overScrollMode="never"
+                            android:visibility="gone"
+                            tools:listitem="@layout/item_cuota"
+                            tools:visibility="visible" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
             </LinearLayout>
