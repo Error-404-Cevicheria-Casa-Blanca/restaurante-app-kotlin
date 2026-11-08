@@ -31,6 +31,7 @@ import com.lacasablanca.mesero.databinding.DialogErrorPremiumBinding
 import com.lacasablanca.mesero.databinding.DialogSalirCobroBinding
 import com.lacasablanca.mesero.domain.model.MetodoPago
 import com.lacasablanca.mesero.domain.model.TipoDescuento
+import com.lacasablanca.mesero.ui.bloqueo.BloqueoActivity
 import com.lacasablanca.mesero.ui.common.formatearMoneda
 import kotlinx.coroutines.launch
 import java.math.BigDecimal
@@ -119,7 +120,29 @@ class CobroActivity : AppCompatActivity() {
 
     private fun configurarBarra() {
         binding.barraCobro.setNavigationOnClickListener { intentarSalir() }
+        binding.barraCobro.setOnMenuItemClickListener { item ->
+            when (item.itemId) {
+                R.id.accionBloquear -> {
+                    abrirBloqueo()
+                    true
+                }
+
+                else -> false
+            }
+        }
         onBackPressedDispatcher.addCallback(this) { intentarSalir() }
+    }
+
+    /**
+     * Bloqueo rapido (PRB-81) desde el cobro.
+     *
+     * CobroActivity solo pasa a STOPPED: su ViewModelStore conserva la misma
+     * instancia de [CobroViewModel] con la cuenta, la propina y los pagos ya
+     * agregados. Al desbloquear se reanuda esta Activity y repeatOnLifecycle
+     * vuelve a recolectar el estado sin llamar a `cargarCuenta()` de nuevo.
+     */
+    private fun abrirBloqueo() {
+        startActivity(Intent(this, BloqueoActivity::class.java))
     }
 
     private fun prepararListas() {
