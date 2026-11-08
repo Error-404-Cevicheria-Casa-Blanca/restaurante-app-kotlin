@@ -1,5 +1,6 @@
 package com.lacasablanca.mesero.ui.comanda
 
+import android.animation.ValueAnimator
 import android.content.res.ColorStateList
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -138,7 +139,8 @@ class CarritoAdapter(
             pildora.contentDescription = contexto.getString(R.string.cd_estado_plato, etiqueta)
 
             // LISTO resalta para que el mesero sepa que debe recoger el plato.
-            if (estado == EstadoPlato.LISTO) {
+            // Se respeta el ajuste "Quitar animaciones" del sistema.
+            if (estado == EstadoPlato.LISTO && ValueAnimator.areAnimatorsEnabled()) {
                 pildora.startAnimation(
                     AnimationUtils.loadAnimation(contexto, R.anim.pulso_plato_listo)
                 )
