@@ -21,7 +21,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.textfield.TextInputEditText
-import com.lacasablanca.mesero.BuildConfig
 import com.lacasablanca.mesero.MeseroApp
 import com.lacasablanca.mesero.R
 import com.lacasablanca.mesero.databinding.ActivityCobroBinding
@@ -80,7 +79,6 @@ class CobroActivity : AppCompatActivity() {
         prepararAcciones()
 
         binding.barraCobro.title = getString(R.string.cobro_titulo, numeroMesa)
-        binding.textoModoDemo.isVisible = BuildConfig.USE_FAKE_DATA
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -171,7 +169,6 @@ class CobroActivity : AppCompatActivity() {
 
     private fun render(estado: CobroUiState) {
         binding.progresoCobro.isVisible = estado.loading
-        binding.textoModoDemo.isVisible = BuildConfig.USE_FAKE_DATA
 
         val hayCuenta = estado.cuenta != null
         binding.contenidoCobro.isVisible = hayCuenta

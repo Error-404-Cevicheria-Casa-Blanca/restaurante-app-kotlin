@@ -89,7 +89,30 @@
         tools:text="Nota: sin picante"
         tools:visibility="visible" />
 
+    <TextView
+        android:id="@+id/textoYaPedido"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/espacio_s"
+        android:autoSizeMaxTextSize="12sp"
+        android:autoSizeMinTextSize="10sp"
+        android:autoSizeStepGranularity="1sp"
+        android:autoSizeTextType="uniform"
+        android:background="@drawable/bg_pill_lima"
+        android:breakStrategy="simple"
+        android:hyphenationFrequency="none"
+        android:maxLines="1"
+        android:paddingHorizontal="@dimen/espacio_s"
+        android:paddingVertical="@dimen/espacio_xs"
+        android:text="@string/comanda_ya_pedido"
+        android:textColor="@color/on_secondary_fixed"
+        android:textSize="@dimen/texto_etiqueta"
+        android:textStyle="bold"
+        android:visibility="gone"
+        tools:visibility="visible" />
+
     <LinearLayout
+        android:id="@+id/filaControles"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/espacio_s"

@@ -82,6 +82,7 @@ class MesasViewModelTest {
         assertEquals(13, estado.mesas.size)
         assertEquals(listOf("Primer piso", "Segundo piso"), estado.zonas)
         assertEquals("Mozo Prueba", estado.nombreUsuario)
+        assertEquals("MOZO", estado.rolUsuario)
         assertEquals(13, estado.mesasVisibles.size)
         assertEquals(6, estado.contadores[EstadoMesa.LIBRE])
         assertEquals(3, estado.contadores[EstadoMesa.OCUPADA])
@@ -147,7 +148,7 @@ class MesasViewModelTest {
     }
 
     @Test
-    fun `una mesa ocupada avisa y no navega`() = runTest(testDispatcher) {
+    fun `una mesa ocupada abre la comanda en modo lectura`() = runTest(testDispatcher) {
         val ocupada = mesas.first { it.estado == EstadoMesa.OCUPADA }
         coEvery { mesaRepository.listarMesas() } returns Resultado.Exito(mesas)
 
@@ -158,8 +159,34 @@ class MesasViewModelTest {
         viewModel.seleccionarMesa(ocupada)
         advanceUntilIdle()
 
-        assertTrue(eventos.any { it is MesasEvento.Aviso && it.tipo == AvisoMesas.MESA_NO_LIBRE })
+        assertTrue(
+            eventos.any { it is MesasEvento.IrAComandaLectura && it.mesa.id == ocupada.id }
+        )
+        assertTrue(eventos.none { it is MesasEvento.Aviso })
         assertTrue(eventos.none { it is MesasEvento.IrAComanda })
+        // Consultar una mesa ocupada no cambia su estado.
+        coVerify(exactly = 0) { mesaRepository.cambiarEstado(any(), any()) }
+    }
+
+    @Test
+    fun `una mesa atendida ofrece retomar la comanda o liberarla`() = runTest(testDispatcher) {
+        val atendida = mesas.first { it.estado == EstadoMesa.ATENDIDA }
+        coEvery { mesaRepository.listarMesas() } returns Resultado.Exito(mesas)
+
+        val viewModel = crearViewModel()
+        val eventos = escucharEventos(viewModel)
+        advanceUntilIdle()
+
+        viewModel.seleccionarMesa(atendida)
+        advanceUntilIdle()
+
+        assertTrue(
+            eventos.any {
+                it is MesasEvento.OpcionesMesaAtendida && it.mesa.id == atendida.id
+            }
+        )
+        assertTrue(eventos.none { it is MesasEvento.Aviso })
+        // Tocar la mesa no cambia su estado: el PATCH solo ocurre al liberar.
         coVerify(exactly = 0) { mesaRepository.cambiarEstado(any(), any()) }
     }
 
@@ -261,6 +288,26 @@ class MesasViewModelTest {
         )
         assertEquals(libresAntes + 1, viewModel.estado.value.contadores[EstadoMesa.LIBRE])
         assertEquals(atendidasAntes - 1, viewModel.estado.value.contadores[EstadoMesa.ATENDIDA])
+    }
+
+    @Test
+    fun `liberar una mesa atendida emite el evento de liberada`() = runTest(testDispatcher) {
+        val atendida = mesas.first { it.estado == EstadoMesa.ATENDIDA }
+        coEvery { mesaRepository.listarMesas() } returns Resultado.Exito(mesas)
+        coEvery { mesaRepository.cambiarEstado(atendida.id, EstadoMesa.LIBRE) } returns
+            Resultado.Exito(atendida.copy(estado = EstadoMesa.LIBRE))
+
+        val viewModel = crearViewModel()
+        val eventos = escucharEventos(viewModel)
+        advanceUntilIdle()
+
+        viewModel.liberarMesa(atendida.id)
+        advanceUntilIdle()
+
+        assertTrue(
+            eventos.any { it is MesasEvento.MesaLiberada && it.mesaId == atendida.id }
+        )
+        coVerify(exactly = 1) { mesaRepository.cambiarEstado(atendida.id, EstadoMesa.LIBRE) }
     }
 
     @Test

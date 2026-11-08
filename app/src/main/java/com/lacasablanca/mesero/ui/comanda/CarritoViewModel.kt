@@ -88,6 +88,59 @@ class CarritoViewModel(
         }
     }
 
+    /**
+     * Activa el modo lectura de una mesa OCUPADA (PRB-83) y consulta su pedido.
+     * Es idempotente: una rotacion no vuelve a pedir el pedido al backend.
+     */
+    fun activarModoLecura(mesaId: Long) {
+        if (_estado.value.modoLectura) return
+        _estado.update { it.copy(modoLectura = true) }
+        cargarPedidoExistente(mesaId)
+    }
+
+    /**
+     * GET /api/v1/pedidos?mesa_id=X. Un pedido inexistente (404) llega como
+     * exito vacio desde el repositorio real; el error de red si se muestra y
+     * la pantalla permite reintentar.
+     */
+    fun cargarPedidoExistente(mesaId: Long) {
+        if (mesaId <= 0L || _estado.value.cargandoPedidoExistente) return
+
+        _estado.update { it.copy(cargandoPedidoExistente = true, errorPedidoExistente = null) }
+        viewModelScope.launch(ioDispatcher) {
+            when (val resultado = pedidoRepository.obtenerPedidoDeMesa(mesaId)) {
+                is Resultado.Exito -> _estado.update {
+                    it.copy(
+                        cargandoPedidoExistente = false,
+                        pedidoExistenteCargado = true,
+                        itemsExistentes = resultado.datos.lineas,
+                        errorPedidoExistente = null
+                    )
+                }
+
+                is Resultado.Fallo -> {
+                    if (resultado.error == ErrorApp.SESION_EXPIRADA) {
+                        _estado.update {
+                            it.copy(
+                                cargandoPedidoExistente = false,
+                                pedidoExistenteCargado = true
+                            )
+                        }
+                        _eventos.send(CarritoEvento.SesionExpirada)
+                    } else {
+                        _estado.update {
+                            it.copy(
+                                cargandoPedidoExistente = false,
+                                pedidoExistenteCargado = true,
+                                errorPedidoExistente = resultado.error.aErrorCarrito()
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     /** Filtra por categoria. null = "Todas". */
     fun filtrarCategoria(categoriaId: Long?) {
         _estado.update { actual ->

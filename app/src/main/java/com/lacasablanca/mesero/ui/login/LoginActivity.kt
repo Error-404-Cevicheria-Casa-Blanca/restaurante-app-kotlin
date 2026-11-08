@@ -4,7 +4,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.text.InputType
 import android.view.inputmethod.EditorInfo
-import android.view.inputmethod.InputMethodManager
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.annotation.StringRes
@@ -16,7 +15,6 @@ import androidx.core.widget.doAfterTextChanged
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import com.google.android.material.tabs.TabLayout
 import com.lacasablanca.mesero.BuildConfig
 import com.lacasablanca.mesero.MeseroApp
 import com.lacasablanca.mesero.R
@@ -49,7 +47,6 @@ class LoginActivity : AppCompatActivity() {
 
         binding.versionApp.text = getString(R.string.login_version, BuildConfig.VERSION_NAME)
         binding.avisoDemo.isVisible = BuildConfig.USE_FAKE_DATA
-        configurarPestanas()
 
         binding.entradaUsuario.doAfterTextChanged { texto ->
             viewModel.onUsuarioCambiado(texto?.toString().orEmpty())
@@ -98,31 +95,6 @@ class LoginActivity : AppCompatActivity() {
                 bottom = maxOf(barras.bottom, teclado.bottom)
             )
             insets
-        }
-    }
-
-    /** Credenciales muestra el formulario; PIN Rapido muestra el teclado del XML. */
-    private fun configurarPestanas() {
-        binding.tabsLoginModo.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
-            override fun onTabSelected(tab: TabLayout.Tab) {
-                aplicarModo(tab.position == TAB_PIN)
-            }
-
-            override fun onTabUnselected(tab: TabLayout.Tab) = Unit
-
-            override fun onTabReselected(tab: TabLayout.Tab) = Unit
-        })
-        aplicarModo(binding.tabsLoginModo.selectedTabPosition == TAB_PIN)
-    }
-
-    private fun aplicarModo(mostrarPin: Boolean) {
-        binding.contenedorCredenciales.isVisible = !mostrarPin
-        binding.pinPad.isVisible = mostrarPin
-        if (mostrarPin) {
-            binding.entradaUsuario.clearFocus()
-            binding.entradaClave.clearFocus()
-            getSystemService(InputMethodManager::class.java)
-                ?.hideSoftInputFromWindow(binding.root.windowToken, 0)
         }
     }
 
@@ -180,9 +152,5 @@ class LoginActivity : AppCompatActivity() {
         ErrorLogin.RED -> R.string.login_error_red
         ErrorLogin.ROL_NO_PERMITIDO -> R.string.login_error_rol
         ErrorLogin.DESCONOCIDO -> R.string.login_error_generico
-    }
-
-    private companion object {
-        const val TAB_PIN = 1
     }
 }
