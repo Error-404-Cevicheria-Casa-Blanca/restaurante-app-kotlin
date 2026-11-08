@@ -64,22 +64,54 @@
             tools:visibility="visible" />
     </LinearLayout>
 
-    <TextView
-        android:id="@+id/textoPrecioCarrito"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/espacio_xs"
-        android:autoSizeMaxTextSize="12sp"
-        android:autoSizeMinTextSize="10sp"
-        android:autoSizeStepGranularity="1sp"
-        android:autoSizeTextType="uniform"
-        android:breakStrategy="simple"
-        android:ellipsize="none"
-        android:hyphenationFrequency="none"
-        android:maxLines="2"
-        android:textColor="@color/on_surface_variant"
-        android:textSize="12sp"
-        tools:text="S/ 48.00 c/u · S/ 96.00" />
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/textoPrecioCarrito"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:autoSizeMaxTextSize="12sp"
+            android:autoSizeMinTextSize="10sp"
+            android:autoSizeStepGranularity="1sp"
+            android:autoSizeTextType="uniform"
+            android:breakStrategy="simple"
+            android:ellipsize="none"
+            android:hyphenationFrequency="none"
+            android:maxLines="2"
+            android:textColor="@color/on_surface_variant"
+            android:textSize="12sp"
+            tools:text="S/ 48.00 c/u · S/ 96.00" />
+
+        <!-- PRB-76: estado de preparacion del plato ya enviado a cocina -->
+        <TextView
+            android:id="@+id/textoEstadoPlato"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/espacio_s"
+            android:autoSizeMaxTextSize="12sp"
+            android:autoSizeMinTextSize="9sp"
+            android:autoSizeStepGranularity="1sp"
+            android:autoSizeTextType="uniform"
+            android:background="@drawable/bg_pill_estado_plato"
+            android:breakStrategy="simple"
+            android:gravity="center"
+            android:hyphenationFrequency="none"
+            android:maxLines="1"
+            android:paddingHorizontal="@dimen/espacio_m"
+            android:paddingVertical="@dimen/espacio_xs"
+            android:textColor="@color/estado_plato_pendiente_texto"
+            android:textSize="@dimen/texto_etiqueta"
+            android:textStyle="bold"
+            android:visibility="gone"
+            tools:text="En preparación"
+            tools:visibility="visible" />
+    </LinearLayout>
 
     <TextView
         android:id="@+id/textoNotaCarrito"

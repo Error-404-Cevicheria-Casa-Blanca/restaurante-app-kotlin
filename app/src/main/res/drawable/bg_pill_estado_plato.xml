@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Pildora base de estado del plato (PRB-76). El color se aplica en el
+    adapter con backgroundTintList; la forma es la misma para los 5 estados.
+-->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="@color/white" />
+    <corners android:radius="@dimen/radio_pill" />
+</shape>

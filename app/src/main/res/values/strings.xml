@@ -325,4 +325,13 @@
     <!-- Cobro desde la comanda (PRB-56) -->
     <string name="comanda_cobrar">Cobrar</string>
     <string name="comanda_cobrar_ahora">Cobrar ahora</string>
+
+    <!-- Estado de preparacion por plato (PRB-76) -->
+    <string name="estado_plato_pendiente">Pendiente</string>
+    <string name="estado_plato_preparacion">En preparación</string>
+    <string name="estado_plato_listo">Listo</string>
+    <string name="estado_plato_servido">Servido</string>
+    <string name="estado_plato_anulado">Anulado</string>
+    <string name="estado_plato_desconocido">Estado desconocido</string>
+    <string name="cd_estado_plato">Estado del plato: %1$s</string>
 </resources>
