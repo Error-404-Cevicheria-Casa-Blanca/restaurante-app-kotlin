@@ -29,6 +29,7 @@ import com.lacasablanca.mesero.databinding.DialogMesaAtendidaBinding
 import com.lacasablanca.mesero.databinding.ItemLeyendaBinding
 import com.lacasablanca.mesero.domain.model.EstadoMesa
 import com.lacasablanca.mesero.domain.model.Mesa
+import com.lacasablanca.mesero.ui.bloqueo.BloqueoActivity
 import com.lacasablanca.mesero.ui.cobro.CobroActivity
 import com.lacasablanca.mesero.ui.comanda.ComandaActivity
 import com.lacasablanca.mesero.ui.perfil.PerfilActivity
@@ -111,6 +112,7 @@ class MesasActivity : AppCompatActivity() {
 
         binding.barra.btnActualizar.setOnClickListener { viewModel.refrescar() }
         binding.barra.btnPerfil.setOnClickListener { abrirPerfil() }
+        binding.barra.btnBloquear.setOnClickListener { abrirBloqueo() }
         binding.barra.btnCerrarSesion.setOnClickListener { viewModel.cerrarSesion() }
         binding.btnReintentar.setOnClickListener { viewModel.cargar() }
 
@@ -349,6 +351,14 @@ class MesasActivity : AppCompatActivity() {
      */
     private fun abrirPerfil() {
         startActivity(Intent(this, PerfilActivity::class.java))
+    }
+
+    /**
+     * Bloqueo rapido (PRB-81): la sesion no se cierra, solo se cubre el mapa
+     * con un PIN. Al desbloquear, MesasActivity vuelve a primer plano.
+     */
+    private fun abrirBloqueo() {
+        startActivity(Intent(this, BloqueoActivity::class.java))
     }
 
     /**
