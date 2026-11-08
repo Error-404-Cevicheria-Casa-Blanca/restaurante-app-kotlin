@@ -22,6 +22,7 @@ import com.lacasablanca.mesero.MeseroApp
 import com.lacasablanca.mesero.R
 import com.lacasablanca.mesero.core.GenericViewModelFactory
 import com.lacasablanca.mesero.databinding.ActivityComandaBinding
+import com.lacasablanca.mesero.databinding.DialogCuentaSolicitadaBinding
 import com.lacasablanca.mesero.databinding.DialogLiberarMesaBinding
 import com.lacasablanca.mesero.databinding.DialogNotaPlatoBinding
 import com.lacasablanca.mesero.databinding.DialogPedidoEnviadoBinding
@@ -67,9 +68,13 @@ class ComandaActivity : AppCompatActivity(), CarritoBottomSheet.Listener {
     private var mesaId = -1L
     private var numeroMesa = 0
     private var pedidoEnviado = false
+    private var cuentaSolicitada = false
+    private var modoLectura = false
     private var saliendo = false
     private var dialogoAbierto: AlertDialog? = null
     private var dialogoLiberar: AlertDialog? = null
+    private var pedidoExistenteMostrado = false
+    private var errorPedidoExistenteMostrado = false
 
     private var categoriasRenderizadas: List<Categoria>? = null
     private var seleccionRenderizada: Long? = null
@@ -85,6 +90,10 @@ class ComandaActivity : AppCompatActivity(), CarritoBottomSheet.Listener {
         val ubicacion = intent.getStringExtra(EXTRA_MESA_UBICACION).orEmpty()
         pedidoEnviado = savedInstanceState?.getBoolean(EXTRA_PEDIDO_ENVIADO, false)
             ?: intent.getBooleanExtra(EXTRA_PEDIDO_ENVIADO, false)
+        cuentaSolicitada = savedInstanceState?.getBoolean(EXTRA_CUENTA_SOLICITADA, false)
+            ?: false
+        modoLectura = savedInstanceState?.getBoolean(EXTRA_MODO_LECTURA, false)
+            ?: intent.getBooleanExtra(EXTRA_MODO_LECTURA, false)
 
         if (mesaId <= 0L || numeroMesa <= 0) {
             finish()
@@ -92,11 +101,19 @@ class ComandaActivity : AppCompatActivity(), CarritoBottomSheet.Listener {
         }
 
         binding.textoTitulo.text = getString(R.string.comanda_titulo, numeroMesa, ubicacion)
-        binding.badgeEstado.text = getString(R.string.comanda_badge)
+        binding.badgeEstado.text = if (modoLectura) {
+            getString(R.string.comanda_badge_lectura)
+        } else {
+            getString(R.string.comanda_badge)
+        }
         binding.textoModoDemo.isVisible = BuildConfig.USE_FAKE_DATA
 
         prepararListas()
         prepararAcciones()
+
+        // Mesa OCUPADA (PRB-83): consultar el pedido ya registrado y mostrarlo
+        // en modo lectura. La mesa NO se libera al salir.
+        if (modoLectura) carritoViewModel.activarModoLecura(mesaId)
 
         // Atras y la flecha de la toolbar piden confirmacion antes de liberar.
         binding.barraComanda.setNavigationOnClickListener { intentarSalir() }
@@ -115,6 +132,10 @@ class ComandaActivity : AppCompatActivity(), CarritoBottomSheet.Listener {
     override fun onSaveInstanceState(outState: Bundle) {
         // Si el pedido ya viajo, una rotacion no debe permitir liberar la mesa.
         outState.putBoolean(EXTRA_PEDIDO_ENVIADO, pedidoEnviado)
+        // Si la cuenta ya se pidio, tampoco se debe liberar la mesa al salir.
+        outState.putBoolean(EXTRA_CUENTA_SOLICITADA, cuentaSolicitada)
+        // El modo lectura es parte del contexto de la pantalla.
+        outState.putBoolean(EXTRA_MODO_LECTURA, modoLectura)
         super.onSaveInstanceState(outState)
     }
 
@@ -139,6 +160,7 @@ class ComandaActivity : AppCompatActivity(), CarritoBottomSheet.Listener {
     private fun prepararAcciones() {
         binding.barraCheckout.btnVerCarrito.setOnClickListener { mostrarCarrito() }
         binding.btnReintentarCatalogo.setOnClickListener { carritoViewModel.cargar() }
+        binding.btnPedirCuenta.setOnClickListener { comandaViewModel.pedirCuenta(mesaId) }
     }
 
     // ---------------------------------------------------------------------
@@ -146,6 +168,12 @@ class ComandaActivity : AppCompatActivity(), CarritoBottomSheet.Listener {
     // ---------------------------------------------------------------------
 
     private fun renderCarrito(estado: CarritoUiState) {
+        renderCatalogo(estado)
+        renderCheckout(estado)
+        renderModoLecura(estado)
+    }
+
+    private fun renderCatalogo(estado: CarritoUiState) {
         renderCategorias(estado.categorias, estado.categoriaSeleccionada)
 
         val hayErrorCatalogo = estado.errorCatalogo != null
@@ -175,8 +203,30 @@ class ComandaActivity : AppCompatActivity(), CarritoBottomSheet.Listener {
             animacionCatalogoEjecutada = true
             binding.listaCatalogo.aparecerConDesplazamiento()
         }
+    }
 
-        renderCheckout(estado)
+    /**
+     * Modo lectura (PRB-83): cuando termina la carga del pedido existente se
+     * abre el carrito una sola vez; si el GET falla, se avisa sin bloquear el
+     * catalogo.
+     */
+    private fun renderModoLecura(estado: CarritoUiState) {
+        if (!estado.modoLectura || !estado.pedidoExistenteCargado) return
+
+        val error = estado.errorPedidoExistente
+        if (error != null) {
+            if (!errorPedidoExistenteMostrado) {
+                errorPedidoExistenteMostrado = true
+                mostrarDialogoErrorPedidoExistente(error)
+            }
+            return
+        }
+
+        if (pedidoExistenteMostrado) return
+        pedidoExistenteMostrado = true
+        binding.root.post {
+            if (!isFinishing && !isDestroyed) mostrarCarrito()
+        }
     }
 
     /**
@@ -185,7 +235,7 @@ class ComandaActivity : AppCompatActivity(), CarritoBottomSheet.Listener {
      */
     private fun renderCheckout(estado: CarritoUiState) {
         val barra = binding.barraCheckout
-        barra.root.isVisible = !estado.carritoVacio
+        barra.root.isVisible = !estado.sinLineas
 
         val contador = resources.getQuantityString(
             R.plurals.comanda_contador_items,
@@ -197,6 +247,11 @@ class ComandaActivity : AppCompatActivity(), CarritoBottomSheet.Listener {
             R.string.checkout_total,
             formatearMoneda(estado.total)
         )
+        barra.btnVerCarrito.text = if (estado.modoLectura) {
+            getString(R.string.checkout_ver_pedido)
+        } else {
+            getString(R.string.checkout_ver_carrito)
+        }
         barra.btnVerCarrito.contentDescription = getString(
             R.string.checkout_abrir_carrito_cd,
             contador,
@@ -385,15 +440,23 @@ class ComandaActivity : AppCompatActivity(), CarritoBottomSheet.Listener {
     private fun renderComanda(estado: ComandaUiState) {
         val alpha = if (estado.liberandoMesa) ALPHA_DESHABILITADO else ALPHA_ACTIVO
         binding.barraComanda.navigationIcon?.alpha = alpha
+
+        binding.btnPedirCuenta.isEnabled = !estado.solicitandoCuenta && !estado.liberandoMesa
+        binding.btnPedirCuenta.text = if (estado.solicitandoCuenta) {
+            getString(R.string.comanda_cuenta_solicitando)
+        } else {
+            getString(R.string.comanda_pedir_cuenta)
+        }
     }
 
     /**
      * Atras y la flecha de la toolbar abren el dialogo de confirmacion.
-     * Si el pedido ya se envio (PRB-38), la mesa no se libera.
+     * Si el pedido ya se envio (PRB-38), la cuenta ya se pidio (PRB-83) o la
+     * pantalla es de solo lectura (mesa de otro mozo), la mesa no se libera.
      */
     private fun intentarSalir() {
         if (saliendo || dialogoLiberar?.isShowing == true) return
-        if (pedidoEnviado) {
+        if (pedidoEnviado || cuentaSolicitada || modoLectura) {
             terminar(mesaLiberada = false, liberarPendiente = false)
             return
         }
@@ -453,12 +516,90 @@ class ComandaActivity : AppCompatActivity(), CarritoBottomSheet.Listener {
                 mostrarDialogoErrorLiberar(evento.error)
             }
 
+            ComandaEvento.CuentaSolicitada -> {
+                // A partir de aqui la mesa queda en amarillo: no se libera al salir.
+                cuentaSolicitada = true
+                mostrarDialogoCuentaSolicitada()
+            }
+
+            is ComandaEvento.ErrorAlPedirCuenta -> mostrarDialogoErrorCuenta(evento.error)
+
             ComandaEvento.SesionExpirada -> {
                 saliendo = false
                 cerrarDialogoLiberar()
                 mostrarDialogoSesionExpirada()
             }
         }
+    }
+
+    /** Exito de "Pedir Cuenta" (PRB-83): confirma y vuelve al mapa. */
+    private fun mostrarDialogoCuentaSolicitada() {
+        cerrarDialogoAbierto()
+
+        val contenido = DialogCuentaSolicitadaBinding.inflate(layoutInflater)
+        contenido.textoCuentaMensaje.text = getString(R.string.comanda_cuenta_mensaje)
+        contenido.textoCuentaDetalle.text = getString(R.string.comanda_cuenta_detalle, numeroMesa)
+
+        val dialogo = MaterialAlertDialogBuilder(this)
+            .setView(contenido.root)
+            .setCancelable(false)
+            .create()
+
+        contenido.btnVolverMapaCuenta.setOnClickListener {
+            dialogo.dismiss()
+            terminar(mesaLiberada = false, liberarPendiente = false)
+        }
+
+        dialogo.setCanceledOnTouchOutside(false)
+        dialogo.setOnDismissListener { if (dialogoAbierto === dialogo) dialogoAbierto = null }
+        dialogo.show()
+        dialogoAbierto = dialogo
+    }
+
+    private fun mostrarDialogoErrorCuenta(error: ErrorApp) {
+        if (error == ErrorApp.SESION_EXPIRADA) {
+            mostrarDialogoSesionExpirada()
+            return
+        }
+
+        mostrarDialogo(
+            titulo = getString(R.string.comanda_cuenta_error_titulo),
+            mensaje = mensajeErrorCuenta(error),
+            cancelable = true,
+            textoPositivo = R.string.accion_reintentar,
+            alAceptar = { comandaViewModel.pedirCuenta(mesaId) },
+            textoNegativo = R.string.accion_cancelar
+        )
+    }
+
+    private fun mensajeErrorCuenta(error: ErrorApp): String = when (error) {
+        ErrorApp.RED -> getString(R.string.error_red)
+        ErrorApp.CONFLICTO, ErrorApp.CONFLICTO_MESA ->
+            getString(R.string.comanda_cuenta_error_conflicto)
+
+        ErrorApp.BLOQUEADO -> getString(R.string.comanda_cuenta_error_bloqueado)
+        else -> getString(R.string.comanda_cuenta_error_generico)
+    }
+
+    /** Fallo del GET del pedido existente: se puede reintentar o seguir en el catalogo. */
+    private fun mostrarDialogoErrorPedidoExistente(error: ErrorCarrito) {
+        val mensaje = if (error == ErrorCarrito.RED) {
+            getString(R.string.comanda_pedido_existente_error_red)
+        } else {
+            getString(R.string.comanda_pedido_existente_error_generico)
+        }
+
+        mostrarDialogo(
+            titulo = getString(R.string.comanda_pedido_existente_error_titulo),
+            mensaje = mensaje,
+            cancelable = true,
+            textoPositivo = R.string.accion_reintentar,
+            alAceptar = {
+                errorPedidoExistenteMostrado = false
+                carritoViewModel.cargarPedidoExistente(mesaId)
+            },
+            textoNegativo = R.string.comanda_pedido_existente_seguir
+        )
     }
 
     private fun mostrarDialogoErrorLiberar(error: ErrorApp) {
@@ -563,6 +704,12 @@ class ComandaActivity : AppCompatActivity(), CarritoBottomSheet.Listener {
 
         /** true cuando POST /api/v1/pedidos respondio 201: la mesa no se libera. */
         const val EXTRA_PEDIDO_ENVIADO = "extra_pedido_enviado"
+
+        /** true para mesas OCUPADA: se consulta y muestra el pedido existente (PRB-83). */
+        const val EXTRA_MODO_LECTURA = "extra_modo_lectura"
+
+        /** true cuando el PATCH CUENTA_SOLICITADA respondio 200: la mesa no se libera. */
+        const val EXTRA_CUENTA_SOLICITADA = "extra_cuenta_solicitada"
 
         const val EXTRA_MESA_LIBERADA = "extra_mesa_liberada"
         const val EXTRA_LIBERAR_PENDIENTE = "extra_liberar_pendiente"

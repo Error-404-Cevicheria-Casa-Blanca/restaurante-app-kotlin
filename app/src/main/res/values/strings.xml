@@ -127,6 +127,7 @@
     <!-- Checkout flotante y bottom sheet (rediseno PRB-38) -->
     <string name="checkout_total">Total: %1$s</string>
     <string name="checkout_ver_carrito">Ver Carrito</string>
+    <string name="checkout_ver_pedido">Ver pedido</string>
     <string name="checkout_abrir_carrito_cd">Abrir el carrito: %1$s, total %2$s</string>
     <string name="carrito_sheet_titulo">Tu pedido</string>
     <string name="carrito_sheet_subtitulo">Revisa los platos y confirma la comanda.</string>
@@ -180,11 +181,47 @@
     <string name="dialogo_liberar_progreso">Liberando mesa…</string>
     <string name="dialogo_liberar_icono_cd">Advertencia: la mesa quedará disponible para otros meseros</string>
 
+    <!-- Pedir cuenta (PRB-83) -->
+    <string name="comanda_pedir_cuenta">Pedir Cuenta</string>
+    <string name="comanda_cuenta_solicitando">Solicitando cuenta…</string>
+    <string name="comanda_cuenta_titulo">Cuenta solicitada</string>
+    <string name="comanda_cuenta_mensaje">Cuenta solicitada a caja</string>
+    <string name="comanda_cuenta_detalle">Mesa %1$d · La caja fue notificada</string>
+    <string name="comanda_cuenta_volver">Volver al mapa</string>
+    <string name="comanda_cuenta_icono_cd">Cuenta solicitada correctamente</string>
+    <string name="comanda_cuenta_error_titulo">No se pudo pedir la cuenta</string>
+    <string name="comanda_cuenta_error_conflicto">La mesa cambió de estado. Actualiza el mapa e inténtalo de nuevo.</string>
+    <string name="comanda_cuenta_error_bloqueado">La mesa está bloqueada temporalmente. Espera unos minutos e inténtalo de nuevo.</string>
+    <string name="comanda_cuenta_error_generico">Ocurrió un error al pedir la cuenta. Inténtalo de nuevo.</string>
+
+    <!-- Ver pedido existente / modo lectura (PRB-83) -->
+    <string name="comanda_badge_lectura">Pedido existente</string>
+    <string name="comanda_ya_pedido">Ya pedido</string>
+    <string name="comanda_agregar_mas">Agregar más platos</string>
+    <string name="comanda_confirmar_ampliacion">Agregar a la comanda</string>
+    <string name="comanda_confirmar_ampliacion_deshabilitado">Agrega al menos un plato nuevo para ampliar la comanda.</string>
+    <string name="comanda_plato_sin_nombre">Plato #%1$d</string>
+    <string name="carrito_sheet_titulo_lectura">Pedido de la mesa</string>
+    <string name="carrito_sheet_contador_lectura">%1$s · Platos ya registrados en la mesa.</string>
+    <string name="carrito_vacio_lectura">Esta mesa aún no tiene platos registrados.</string>
+    <string name="comanda_pedido_existente_error_titulo">No se pudo cargar el pedido</string>
+    <string name="comanda_pedido_existente_error_red">No se pudo conectar con el servidor. Revisa la red local e inténtalo de nuevo.</string>
+    <string name="comanda_pedido_existente_error_generico">No se pudo cargar el pedido de la mesa. Inténtalo de nuevo.</string>
+    <string name="comanda_pedido_existente_seguir">Seguir agregando</string>
+
     <!-- Accesibilidad -->
     <string name="cd_actualizar">Actualizar la lista de mesas</string>
     <string name="cd_cerrar_sesion">Cerrar sesión</string>
     <string name="cd_capacidad">Capacidad de la mesa</string>
     <string name="cd_volver">Volver</string>
+
+    <!-- Perfil del mesero (PRB-83) -->
+    <string name="perfil_titulo">Mi Perfil</string>
+    <string name="perfil_sesion_activa">Sesión activa en este dispositivo</string>
+    <string name="perfil_avatar_cd">Avatar del mesero</string>
+    <string name="perfil_nombre_vacio">Mesero</string>
+    <string name="perfil_rol_mozo">MOZO</string>
+    <string name="cd_abrir_perfil">Abrir mi perfil</string>
 
     <!-- Cobro en tablet (PRB-56) -->
     <string name="cobro_titulo">Cobrar Mesa %1$d</string>

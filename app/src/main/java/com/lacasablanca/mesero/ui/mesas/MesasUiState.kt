@@ -22,7 +22,12 @@ enum class AvisoMesas {
 }
 
 sealed interface MesasEvento {
+    /** Mesa LIBRE abierta por este mozo: se entra a la comanda editable. */
     data class IrAComanda(val mesa: Mesa) : MesasEvento
+
+    /** Mesa OCUPADA: se muestra el pedido existente en modo lectura (PRB-83). */
+    data class IrAComandaLectura(val mesa: Mesa) : MesasEvento
+
     data class Aviso(val tipo: AvisoMesas, val mesa: Mesa? = null) : MesasEvento
     object SesionExpirada : MesasEvento
     object SesionCerrada : MesasEvento
@@ -35,6 +40,7 @@ data class MesasUiState(
     val zonaSeleccionada: String? = null,
     val estadoSeleccionado: EstadoMesa? = null,
     val nombreUsuario: String = "",
+    val rolUsuario: String = "",
     val error: ErrorMesas? = null,
     val mesaAbriendo: Long? = null
 ) {

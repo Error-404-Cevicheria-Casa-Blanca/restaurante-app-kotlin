@@ -41,7 +41,7 @@ import kotlinx.coroutines.launch
  * Mapa de mesas: toolbar, pestanas de zona, chips de estado con contadores,
  * cuadricula (2 columnas en telefono, 4 en tablet) y estados cargando/vacio/error.
  */
-class MesasActivity : AppCompatActivity() {
+class MesasActivity : AppCompatActivity(), PerfilBottomSheet.Listener {
 
     private lateinit var binding: ActivityMesasBinding
     private lateinit var adapter: MesaAdapter
@@ -106,6 +106,7 @@ class MesasActivity : AppCompatActivity() {
         pintarLeyenda()
 
         binding.barra.btnActualizar.setOnClickListener { viewModel.refrescar() }
+        binding.barra.btnPerfil.setOnClickListener { mostrarPerfil() }
         binding.barra.btnCerrarSesion.setOnClickListener { viewModel.cerrarSesion() }
         binding.btnReintentar.setOnClickListener { viewModel.cargar() }
 
@@ -319,10 +320,26 @@ class MesasActivity : AppCompatActivity() {
     private fun manejarEvento(evento: MesasEvento) {
         when (evento) {
             is MesasEvento.IrAComanda -> abrirComanda(evento.mesa)
+            is MesasEvento.IrAComandaLectura -> abrirComanda(evento.mesa, modoLectura = true)
             is MesasEvento.Aviso -> mostrarAviso(evento)
             MesasEvento.SesionExpirada -> mostrarDialogoSesionExpirada()
             MesasEvento.SesionCerrada -> irALogin()
         }
+    }
+
+    /**
+     * Perfil del mesero (PRB-83): el nombre y el rol ya vienen del estado del
+     * ViewModel, resuelto desde el repositorio de autenticacion (SessionManager).
+     */
+    private fun mostrarPerfil() {
+        if (supportFragmentManager.findFragmentByTag(PerfilBottomSheet.TAG) != null) return
+        val estado = viewModel.estado.value
+        PerfilBottomSheet.nueva(estado.nombreUsuario, estado.rolUsuario)
+            .show(supportFragmentManager, PerfilBottomSheet.TAG)
+    }
+
+    override fun onCerrarSesionDesdePerfil() {
+        viewModel.cerrarSesion()
     }
 
     /**
@@ -451,11 +468,12 @@ class MesasActivity : AppCompatActivity() {
         lanzadorCobro.launch(intent)
     }
 
-    private fun abrirComanda(mesa: Mesa) {
+    private fun abrirComanda(mesa: Mesa, modoLectura: Boolean = false) {
         val intent = Intent(this, ComandaActivity::class.java).apply {
             putExtra(ComandaActivity.EXTRA_MESA_ID, mesa.id)
             putExtra(ComandaActivity.EXTRA_MESA_NUMERO, mesa.numero)
             putExtra(ComandaActivity.EXTRA_MESA_UBICACION, mesa.ubicacion)
+            putExtra(ComandaActivity.EXTRA_MODO_LECTURA, modoLectura)
         }
         lanzadorComanda.launch(intent)
     }

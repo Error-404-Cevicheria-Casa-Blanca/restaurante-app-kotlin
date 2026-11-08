@@ -147,12 +147,20 @@ class MesasViewModel(
         _estado.update { it.copy(estadoSeleccionado = estado) }
     }
 
-    /** Tocar una mesa LIBRE: PATCH ATENDIDA y abrir comanda. Tocar otra: aviso (D12). */
+    /**
+     * Tocar una mesa LIBRE: PATCH ATENDIDA y abrir comanda.
+     * Tocar una mesa OCUPADA: abrir el pedido existente en modo lectura (PRB-83).
+     * Las demas (ATENDIDA/CUENTA_SOLICITADA) conservan el aviso (D12).
+     */
     fun seleccionarMesa(mesa: Mesa) {
-        if (mesa.estado != EstadoMesa.LIBRE) {
-            _eventos.trySend(MesasEvento.Aviso(AvisoMesas.MESA_NO_LIBRE, mesa))
-            return
+        when (mesa.estado) {
+            EstadoMesa.LIBRE -> abrirMesaLibre(mesa)
+            EstadoMesa.OCUPADA -> _eventos.trySend(MesasEvento.IrAComandaLectura(mesa))
+            else -> _eventos.trySend(MesasEvento.Aviso(AvisoMesas.MESA_NO_LIBRE, mesa))
         }
+    }
+
+    private fun abrirMesaLibre(mesa: Mesa) {
         if (_estado.value.mesaAbriendo != null) return
 
         _estado.update { it.copy(mesaAbriendo = mesa.id) }
@@ -220,7 +228,7 @@ class MesasViewModel(
                 _eventos.send(MesasEvento.SesionExpirada)
                 return@launch
             }
-            _estado.update { it.copy(nombreUsuario = sesion.usuario.nombre) }
+            _estado.update { it.copy(nombreUsuario = sesion.usuario.nombre, rolUsuario = sesion.usuario.rol) }
             sesionLista.complete(true)
         }
     }

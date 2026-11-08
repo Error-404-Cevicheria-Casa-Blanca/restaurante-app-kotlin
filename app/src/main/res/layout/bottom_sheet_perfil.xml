@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Perfil del mesero (PRB-83): fondo blanco, avatar, nombre y rol de la
+    sesion, y un boton grande de cierre de sesion. Esquinas superiores 24dp
+    y drag handle, igual que el bottom sheet del carrito.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_bottom_sheet"
+    android:orientation="vertical"
+    android:paddingBottom="@dimen/espacio_xl">
+
+    <View
+        android:id="@+id/dragHandlePerfil"
+        android:layout_width="@dimen/ancho_drag_handle"
+        android:layout_height="@dimen/alto_drag_handle"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="@dimen/espacio_s"
+        android:background="@drawable/bg_drag_handle"
+        android:importantForAccessibility="no" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/espacio_l"
+        android:layout_marginTop="@dimen/espacio_l"
+        android:autoSizeMaxTextSize="22sp"
+        android:autoSizeMinTextSize="16sp"
+        android:autoSizeStepGranularity="1sp"
+        android:autoSizeTextType="uniform"
+        android:breakStrategy="simple"
+        android:ellipsize="none"
+        android:hyphenationFrequency="none"
+        android:maxLines="1"
+        android:text="@string/perfil_titulo"
+        android:textColor="@color/stitch_primary"
+        android:textSize="@dimen/texto_titulo_tarjeta"
+        android:textStyle="bold" />
+
+    <FrameLayout
+        android:layout_width="@dimen/circulo_perfil"
+        android:layout_height="@dimen/circulo_perfil"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="@dimen/espacio_l"
+        android:background="@drawable/bg_circulo_vacio">
+
+        <ImageView
+            android:layout_width="@dimen/icono_perfil"
+            android:layout_height="@dimen/icono_perfil"
+            android:layout_gravity="center"
+            android:contentDescription="@string/perfil_avatar_cd"
+            android:src="@drawable/ic_person"
+            app:tint="@color/primary" />
+    </FrameLayout>
+
+    <TextView
+        android:id="@+id/textoPerfilNombre"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/espacio_xl"
+        android:layout_marginTop="@dimen/espacio_l"
+        android:autoSizeMaxTextSize="24sp"
+        android:autoSizeMinTextSize="15sp"
+        android:autoSizeStepGranularity="1sp"
+        android:autoSizeTextType="uniform"
+        android:breakStrategy="simple"
+        android:ellipsize="none"
+        android:gravity="center"
+        android:hyphenationFrequency="none"
+        android:maxLines="2"
+        android:textColor="@color/on_surface"
+        android:textSize="@dimen/texto_titulo_pantalla"
+        android:textStyle="bold"
+        tools:text="Mozo Demo" />
+
+    <TextView
+        android:id="@+id/textoPerfilRol"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="@dimen/espacio_s"
+        android:autoSizeMaxTextSize="14sp"
+        android:autoSizeMinTextSize="10sp"
+        android:autoSizeStepGranularity="1sp"
+        android:autoSizeTextType="uniform"
+        android:background="@drawable/bg_pill_lima"
+        android:breakStrategy="simple"
+        android:hyphenationFrequency="none"
+        android:maxLines="1"
+        android:paddingHorizontal="@dimen/espacio_l"
+        android:paddingVertical="@dimen/espacio_xs"
+        android:textColor="@color/on_secondary_fixed"
+        android:textSize="@dimen/texto_etiqueta"
+        android:textStyle="bold"
+        tools:text="MOZO" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/espacio_l"
+        android:layout_marginTop="@dimen/espacio_l"
+        android:autoSizeMaxTextSize="14sp"
+        android:autoSizeMinTextSize="11sp"
+        android:autoSizeStepGranularity="1sp"
+        android:autoSizeTextType="uniform"
+        android:breakStrategy="simple"
+        android:ellipsize="none"
+        android:gravity="center"
+        android:hyphenationFrequency="none"
+        android:maxLines="2"
+        android:text="@string/perfil_sesion_activa"
+        android:textColor="@color/on_surface_variant"
+        android:textSize="@dimen/texto_secundario" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/borde_tarjeta"
+        android:layout_marginHorizontal="@dimen/espacio_l"
+        android:layout_marginTop="@dimen/espacio_l"
+        android:background="@color/surface_variant" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/espacio_l"
+        android:layout_marginTop="@dimen/espacio_l"
+        android:orientation="horizontal">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnCerrarSesionPerfil"
+            style="@style/Boton.Primario"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/alto_boton_primario"
+            android:layout_weight="1"
+            android:autoSizeMaxTextSize="16sp"
+            android:autoSizeMinTextSize="11sp"
+            android:autoSizeStepGranularity="1sp"
+            android:autoSizeTextType="uniform"
+            android:breakStrategy="simple"
+            android:hyphenationFrequency="none"
+            android:maxLines="1"
+            android:text="@string/accion_cerrar_sesion"
+            app:icon="@drawable/ic_logout"
+            app:iconGravity="textStart"
+            app:iconPadding="@dimen/espacio_s"
+            app:iconTint="@color/on_primary" />
+    </LinearLayout>
+</LinearLayout>

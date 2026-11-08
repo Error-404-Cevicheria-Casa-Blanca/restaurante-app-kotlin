@@ -118,6 +118,7 @@
             app:tint="@color/primary" />
 
         <TextView
+            android:id="@+id/textoCarritoVacio"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/espacio_l"
@@ -256,4 +257,23 @@
         android:layout_marginTop="@dimen/espacio_l"
         android:enabled="false"
         android:text="@string/comanda_confirmar" />
+
+    <!-- PRB-83: en modo lectura permite cerrar el pedido y volver al catalogo -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnAgregarMas"
+        style="@style/Boton.Outlined"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/alto_boton_primario"
+        android:layout_marginHorizontal="@dimen/espacio_l"
+        android:layout_marginTop="@dimen/espacio_s"
+        android:autoSizeMaxTextSize="16sp"
+        android:autoSizeMinTextSize="11sp"
+        android:autoSizeStepGranularity="1sp"
+        android:autoSizeTextType="uniform"
+        android:breakStrategy="simple"
+        android:hyphenationFrequency="none"
+        android:maxLines="1"
+        android:text="@string/comanda_agregar_mas"
+        android:visibility="gone"
+        tools:visibility="visible" />
 </LinearLayout>

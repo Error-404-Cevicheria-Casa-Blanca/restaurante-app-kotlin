@@ -82,6 +82,7 @@ class MesasViewModelTest {
         assertEquals(13, estado.mesas.size)
         assertEquals(listOf("Primer piso", "Segundo piso"), estado.zonas)
         assertEquals("Mozo Prueba", estado.nombreUsuario)
+        assertEquals("MOZO", estado.rolUsuario)
         assertEquals(13, estado.mesasVisibles.size)
         assertEquals(6, estado.contadores[EstadoMesa.LIBRE])
         assertEquals(3, estado.contadores[EstadoMesa.OCUPADA])
@@ -147,7 +148,7 @@ class MesasViewModelTest {
     }
 
     @Test
-    fun `una mesa ocupada avisa y no navega`() = runTest(testDispatcher) {
+    fun `una mesa ocupada abre la comanda en modo lectura`() = runTest(testDispatcher) {
         val ocupada = mesas.first { it.estado == EstadoMesa.OCUPADA }
         coEvery { mesaRepository.listarMesas() } returns Resultado.Exito(mesas)
 
@@ -158,8 +159,12 @@ class MesasViewModelTest {
         viewModel.seleccionarMesa(ocupada)
         advanceUntilIdle()
 
-        assertTrue(eventos.any { it is MesasEvento.Aviso && it.tipo == AvisoMesas.MESA_NO_LIBRE })
+        assertTrue(
+            eventos.any { it is MesasEvento.IrAComandaLectura && it.mesa.id == ocupada.id }
+        )
+        assertTrue(eventos.none { it is MesasEvento.Aviso })
         assertTrue(eventos.none { it is MesasEvento.IrAComanda })
+        // Consultar una mesa ocupada no cambia su estado.
         coVerify(exactly = 0) { mesaRepository.cambiarEstado(any(), any()) }
     }
 

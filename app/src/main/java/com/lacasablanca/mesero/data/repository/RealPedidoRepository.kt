@@ -9,6 +9,7 @@ import com.lacasablanca.mesero.domain.Resultado
 import com.lacasablanca.mesero.domain.errorDesdeCodigoHttp
 import com.lacasablanca.mesero.domain.model.ItemPedido
 import com.lacasablanca.mesero.domain.model.PedidoEnviado
+import com.lacasablanca.mesero.domain.model.PedidoExistente
 import retrofit2.HttpException
 import java.io.IOException
 
@@ -53,7 +54,29 @@ class RealPedidoRepository(private val api: PedidosApi) : PedidoRepository {
         }
     }
 
+    override suspend fun obtenerPedidoDeMesa(mesaId: Long): Resultado<PedidoExistente> {
+        if (mesaId <= 0L) return Resultado.Fallo(ErrorApp.VALIDACION)
+
+        return try {
+            val pedido = api.obtenerPedidoDeMesa(mesaId)
+            Resultado.Exito(pedido?.aDominio() ?: PedidoExistente.VACIO)
+        } catch (e: HttpException) {
+            // Una mesa sin pedido responde 404: no es un error de pantalla,
+            // simplemente no hay lineas que mostrar en modo lectura.
+            if (e.code() == CODIGO_NO_ENCONTRADO) {
+                Resultado.Exito(PedidoExistente.VACIO)
+            } else {
+                Resultado.Fallo(errorDesdeCodigoHttp(e.code()))
+            }
+        } catch (e: IOException) {
+            Resultado.Fallo(ErrorApp.RED)
+        } catch (e: Exception) {
+            Resultado.Fallo(ErrorApp.DESCONOCIDO)
+        }
+    }
+
     private companion object {
         const val CODIGO_CONFLICTO = 409
+        const val CODIGO_NO_ENCONTRADO = 404
     }
 }

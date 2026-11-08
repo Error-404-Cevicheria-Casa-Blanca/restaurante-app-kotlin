@@ -87,6 +87,7 @@ class CarritoBottomSheet : BottomSheetDialogFragment() {
 
         binding.btnCerrarCarrito.setOnClickListener { dismiss() }
         binding.btnConfirmar.setOnClickListener { viewModel.enviarPedido(mesaId) }
+        binding.btnAgregarMas.setOnClickListener { dismiss() }
 
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -136,34 +137,58 @@ class CarritoBottomSheet : BottomSheetDialogFragment() {
     }
 
     private fun render(estado: CarritoUiState) {
-        carritoAdapter.submitList(estado.items)
+        carritoAdapter.submitList(estado.lineas)
 
         val cantidad = resources.getQuantityString(
             R.plurals.comanda_contador_items,
             estado.cantidadItems,
             estado.cantidadItems
         )
-        binding.textoSheetContador.text =
+        binding.textoSheetTitulo.text = if (estado.modoLectura) {
+            getString(R.string.carrito_sheet_titulo_lectura)
+        } else {
+            getString(R.string.carrito_sheet_titulo)
+        }
+        binding.textoSheetContador.text = if (estado.modoLectura) {
+            getString(R.string.carrito_sheet_contador_lectura, cantidad)
+        } else {
             getString(R.string.carrito_sheet_contador, cantidad)
+        }
 
-        binding.listaCarrito.isVisible = !estado.carritoVacio
-        binding.grupoCarritoVacio.isVisible = estado.carritoVacio
+        binding.listaCarrito.isVisible = !estado.sinLineas
+        binding.grupoCarritoVacio.isVisible = estado.sinLineas
+        binding.textoCarritoVacio.text = if (estado.modoLectura) {
+            getString(R.string.carrito_vacio_lectura)
+        } else {
+            getString(R.string.carrito_vacio_mensaje)
+        }
 
         binding.textoSubtotal.text = formatearMoneda(estado.subtotal)
         binding.textoIgv.text = formatearMoneda(estado.igv)
         binding.textoTotal.text = formatearMoneda(estado.total)
 
-        binding.btnConfirmar.isEnabled = !estado.carritoVacio && !estado.enviando
-        binding.btnConfirmar.text = if (estado.enviando) {
-            getString(R.string.comanda_enviando)
-        } else {
-            getString(R.string.comanda_confirmar)
+        // En modo lectura solo se habilitan las lineas NUEVAS: lo ya pedido no
+        // vuelve a viajar en el POST.
+        val hayNuevos = estado.items.isNotEmpty()
+        binding.btnConfirmar.isEnabled = hayNuevos && !estado.enviando
+        binding.btnConfirmar.text = when {
+            estado.enviando -> getString(R.string.comanda_enviando)
+            estado.modoLectura -> getString(R.string.comanda_confirmar_ampliacion)
+            else -> getString(R.string.comanda_confirmar)
         }
         binding.btnConfirmar.contentDescription = when {
             estado.enviando -> getString(R.string.comanda_enviando)
-            estado.carritoVacio -> getString(R.string.comanda_confirmar_deshabilitado)
-            else -> getString(R.string.comanda_confirmar)
+            hayNuevos -> if (estado.modoLectura) {
+                getString(R.string.comanda_confirmar_ampliacion)
+            } else {
+                getString(R.string.comanda_confirmar)
+            }
+
+            estado.modoLectura -> getString(R.string.comanda_confirmar_ampliacion_deshabilitado)
+            else -> getString(R.string.comanda_confirmar_deshabilitado)
         }
+
+        binding.btnAgregarMas.isVisible = estado.modoLectura
     }
 
     companion object {
