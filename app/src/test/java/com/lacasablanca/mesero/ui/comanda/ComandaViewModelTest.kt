@@ -128,4 +128,110 @@ class ComandaViewModelTest {
 
         coVerify(exactly = 1) { mesaRepository.cambiarEstado(atendida.id, EstadoMesa.LIBRE) }
     }
+
+    // ---------------------------------------------------------------------
+    // Pedir cuenta (PRB-83)
+    // ---------------------------------------------------------------------
+
+    @Test
+    fun `pedir cuenta hace patch a cuenta solicitada y avisa`() = runTest(testDispatcher) {
+        val enCuenta = atendida.copy(estado = EstadoMesa.CUENTA_SOLICITADA)
+        coEvery {
+            mesaRepository.cambiarEstado(atendida.id, EstadoMesa.CUENTA_SOLICITADA)
+        } returns Resultado.Exito(enCuenta)
+
+        val viewModel = ComandaViewModel(mesaRepository, testDispatcher)
+        val eventos = escucharEventos(viewModel)
+
+        viewModel.pedirCuenta(atendida.id)
+        advanceUntilIdle()
+
+        coVerify(exactly = 1) {
+            mesaRepository.cambiarEstado(atendida.id, EstadoMesa.CUENTA_SOLICITADA)
+        }
+        assertTrue(eventos.any { it is ComandaEvento.CuentaSolicitada })
+        assertFalse(viewModel.estado.value.solicitandoCuenta)
+    }
+
+    @Test
+    fun `si el patch de la cuenta falla por red avisa y deja reintentar`() =
+        runTest(testDispatcher) {
+            coEvery {
+                mesaRepository.cambiarEstado(atendida.id, EstadoMesa.CUENTA_SOLICITADA)
+            } returns Resultado.Fallo(ErrorApp.RED)
+
+            val viewModel = ComandaViewModel(mesaRepository, testDispatcher)
+            val eventos = escucharEventos(viewModel)
+
+            viewModel.pedirCuenta(atendida.id)
+            advanceUntilIdle()
+
+            val error = eventos.filterIsInstance<ComandaEvento.ErrorAlPedirCuenta>().single()
+            assertEquals(ErrorApp.RED, error.error)
+            assertTrue(eventos.none { it is ComandaEvento.CuentaSolicitada })
+            assertFalse(viewModel.estado.value.solicitandoCuenta)
+        }
+
+    @Test
+    fun `un 409 al pedir la cuenta avisa conflicto`() = runTest(testDispatcher) {
+        coEvery {
+            mesaRepository.cambiarEstado(atendida.id, EstadoMesa.CUENTA_SOLICITADA)
+        } returns Resultado.Fallo(ErrorApp.CONFLICTO)
+
+        val viewModel = ComandaViewModel(mesaRepository, testDispatcher)
+        val eventos = escucharEventos(viewModel)
+
+        viewModel.pedirCuenta(atendida.id)
+        advanceUntilIdle()
+
+        val error = eventos.filterIsInstance<ComandaEvento.ErrorAlPedirCuenta>().single()
+        assertEquals(ErrorApp.CONFLICTO, error.error)
+    }
+
+    @Test
+    fun `si el patch de la cuenta devuelve 401 avisa sesion expirada`() =
+        runTest(testDispatcher) {
+            coEvery {
+                mesaRepository.cambiarEstado(atendida.id, EstadoMesa.CUENTA_SOLICITADA)
+            } returns Resultado.Fallo(ErrorApp.SESION_EXPIRADA)
+
+            val viewModel = ComandaViewModel(mesaRepository, testDispatcher)
+            val eventos = escucharEventos(viewModel)
+
+            viewModel.pedirCuenta(atendida.id)
+            advanceUntilIdle()
+
+            assertTrue(eventos.any { it is ComandaEvento.SesionExpirada })
+            assertTrue(eventos.none { it is ComandaEvento.ErrorAlPedirCuenta })
+        }
+
+    @Test
+    fun `un id invalido no pide la cuenta`() = runTest(testDispatcher) {
+        val viewModel = ComandaViewModel(mesaRepository, testDispatcher)
+        val eventos = escucharEventos(viewModel)
+
+        viewModel.pedirCuenta(0L)
+        advanceUntilIdle()
+
+        coVerify(exactly = 0) { mesaRepository.cambiarEstado(any(), any()) }
+        assertTrue(eventos.isEmpty())
+    }
+
+    @Test
+    fun `los toques repetidos no duplican el patch de la cuenta`() = runTest(testDispatcher) {
+        coEvery {
+            mesaRepository.cambiarEstado(atendida.id, EstadoMesa.CUENTA_SOLICITADA)
+        } returns Resultado.Exito(atendida.copy(estado = EstadoMesa.CUENTA_SOLICITADA))
+
+        val viewModel = ComandaViewModel(mesaRepository, testDispatcher)
+        escucharEventos(viewModel)
+
+        viewModel.pedirCuenta(atendida.id)
+        viewModel.pedirCuenta(atendida.id)
+        advanceUntilIdle()
+
+        coVerify(exactly = 1) {
+            mesaRepository.cambiarEstado(atendida.id, EstadoMesa.CUENTA_SOLICITADA)
+        }
+    }
 }

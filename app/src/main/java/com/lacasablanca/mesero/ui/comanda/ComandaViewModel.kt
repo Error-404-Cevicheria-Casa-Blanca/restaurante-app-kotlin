@@ -61,4 +61,31 @@ class ComandaViewModel(
             }
         }
     }
+
+    /**
+     * Pide la cuenta a caja (PRB-83): PATCH /api/v1/mesas/{id}/estado con
+     * `CUENTA_SOLICITADA`. Es idempotente mientras el PATCH esta en vuelo.
+     */
+    fun pedirCuenta(mesaId: Long) {
+        if (mesaId <= 0L || _estado.value.solicitandoCuenta) return
+
+        _estado.update { it.copy(solicitandoCuenta = true) }
+        viewModelScope.launch(ioDispatcher) {
+            when (val resultado = mesaRepository.cambiarEstado(mesaId, EstadoMesa.CUENTA_SOLICITADA)) {
+                is Resultado.Exito -> {
+                    _estado.update { it.copy(solicitandoCuenta = false) }
+                    _eventos.send(ComandaEvento.CuentaSolicitada)
+                }
+
+                is Resultado.Fallo -> {
+                    _estado.update { it.copy(solicitandoCuenta = false) }
+                    if (resultado.error == ErrorApp.SESION_EXPIRADA) {
+                        _eventos.send(ComandaEvento.SesionExpirada)
+                    } else {
+                        _eventos.send(ComandaEvento.ErrorAlPedirCuenta(resultado.error))
+                    }
+                }
+            }
+        }
+    }
 }

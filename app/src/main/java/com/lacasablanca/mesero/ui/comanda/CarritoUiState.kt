@@ -28,8 +28,22 @@ sealed interface FilaCatalogo {
 enum class ErrorCarrito { RED, SERVIDOR, DESCONOCIDO }
 
 /**
+ * Una linea visible del carrito. Las lineas `editable = false` son platos ya
+ * pedidos en una mesa OCUPADA: se muestran pero no se pueden quitar ni
+ * cambiar (PRB-83).
+ */
+data class LineaCarrito(
+    val item: ItemCarrito,
+    val editable: Boolean
+)
+
+/**
  * Estado unico de la comanda (catalogo + carrito). El desglose se calcula
  * con la misma formula del backend: IGV = Total - Subtotal (D13).
+ *
+ * En modo lectura (mesa OCUPADA, PRB-83) [itemsExistentes] son los platos ya
+ * registrados y [items] solo contiene lo que el mesero agrega para ampliar la
+ * comanda; el envio manda unicamente las lineas nuevas.
  */
 data class CarritoUiState(
     val cargando: Boolean = true,
@@ -39,12 +53,26 @@ data class CarritoUiState(
     val categoriaSeleccionada: Long? = null,
     val items: List<ItemCarrito> = emptyList(),
     val errorCatalogo: ErrorCarrito? = null,
-    val enviando: Boolean = false
+    val enviando: Boolean = false,
+    val modoLectura: Boolean = false,
+    val itemsExistentes: List<ItemCarrito> = emptyList(),
+    val cargandoPedidoExistente: Boolean = false,
+    val pedidoExistenteCargado: Boolean = false,
+    val errorPedidoExistente: ErrorCarrito? = null
 ) {
+    /** Solo hay lineas nuevas (editables) en el carrito. */
     val carritoVacio: Boolean get() = items.isEmpty()
 
+    /** No hay nada que mostrar ni existente ni nuevo. */
+    val sinLineas: Boolean get() = itemsExistentes.isEmpty() && items.isEmpty()
+
+    /** Primero los platos ya pedidos (no editables) y luego los nuevos. */
+    val lineas: List<LineaCarrito>
+        get() = itemsExistentes.map { LineaCarrito(it, editable = false) } +
+            items.map { LineaCarrito(it, editable = true) }
+
     val totalBruto: BigDecimal
-        get() = items
+        get() = (itemsExistentes + items)
             .fold(BigDecimal.ZERO) { acumulado, item -> acumulado + item.subtotal }
             .setScale(2, RoundingMode.HALF_UP)
 
@@ -54,7 +82,7 @@ data class CarritoUiState(
     val igv: BigDecimal get() = desglose.igv
     val total: BigDecimal get() = desglose.total
 
-    val cantidadItems: Int get() = items.sumOf { it.cantidad }
+    val cantidadItems: Int get() = (itemsExistentes + items).sumOf { it.cantidad }
 
     val catalogoVacio: Boolean
         get() = !cargando && errorCatalogo == null && filas.isEmpty()

@@ -64,6 +64,10 @@
     <dimen name="icono_exito_dialogo">52dp</dimen>
     <dimen name="circulo_exito_dialogo">96dp</dimen>
 
+    <!-- Perfil del mesero (PRB-83) -->
+    <dimen name="circulo_perfil">96dp</dimen>
+    <dimen name="icono_perfil">48dp</dimen>
+
     <!-- Rediseno UI/UX (PRB-38): checkout flotante y bottom sheet -->
     <dimen name="espacio_checkout">112dp</dimen>
     <dimen name="radio_checkout">16dp</dimen>

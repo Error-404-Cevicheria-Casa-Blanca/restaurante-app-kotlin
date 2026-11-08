@@ -11,13 +11,18 @@ import com.lacasablanca.mesero.databinding.ItemCarritoBinding
 import com.lacasablanca.mesero.domain.model.ItemCarrito
 import com.lacasablanca.mesero.ui.common.formatearMoneda
 
-/** Carrito local. Solo pinta; +/-/eliminar se reenvian a la Activity. */
+/**
+ * Carrito local. Solo pinta; +/-/eliminar se reenvian a la Activity.
+ *
+ * Las lineas con `editable = false` son platos ya pedidos (PRB-83): muestran
+ * la etiqueta "Ya pedido" y no ofrecen controles de cantidad ni de borrado.
+ */
 class CarritoAdapter(
     private val alAumentar: (Long) -> Unit,
     private val alDisminuir: (Long) -> Unit,
     private val alEliminar: (Long) -> Unit,
     private val alEditarNotas: (ItemCarrito) -> Unit
-) : ListAdapter<ItemCarrito, CarritoAdapter.CarritoViewHolder>(DIFF) {
+) : ListAdapter<LineaCarrito, CarritoAdapter.CarritoViewHolder>(DIFF) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CarritoViewHolder {
         val binding = ItemCarritoBinding.inflate(LayoutInflater.from(parent.context), parent, false)
@@ -33,16 +38,20 @@ class CarritoAdapter(
     ) : RecyclerView.ViewHolder(binding.root) {
 
         fun pintar(
-            item: ItemCarrito,
+            linea: LineaCarrito,
             alAumentar: (Long) -> Unit,
             alDisminuir: (Long) -> Unit,
             alEliminar: (Long) -> Unit,
             alEditarNotas: (ItemCarrito) -> Unit
         ) {
             val contexto = binding.root.context
+            val item = linea.item
             val producto = item.producto
+            val editable = linea.editable
 
-            binding.textoNombreCarrito.text = producto.nombre
+            binding.textoNombreCarrito.text = producto.nombre.ifBlank {
+                contexto.getString(R.string.comanda_plato_sin_nombre, producto.id)
+            }
             binding.textoPrecioCarrito.text = contexto.getString(
                 R.string.comanda_carrito_precio,
                 formatearMoneda(producto.precio),
@@ -52,6 +61,10 @@ class CarritoAdapter(
             binding.textoCantidad.text = item.cantidad.toString()
             binding.textoCantidad.contentDescription =
                 contexto.getString(R.string.comanda_cantidad_cd, item.cantidad)
+
+            binding.textoYaPedido.isVisible = !editable
+            binding.btnNota.isVisible = editable
+            binding.filaControles.isVisible = editable
 
             binding.btnAumentar.contentDescription =
                 contexto.getString(R.string.cd_aumentar_producto, producto.nombre)
@@ -68,18 +81,21 @@ class CarritoAdapter(
                 item.notas
             )
 
-            binding.btnAumentar.setOnClickListener { alAumentar(producto.id) }
-            binding.btnDisminuir.setOnClickListener { alDisminuir(producto.id) }
-            binding.btnEliminar.setOnClickListener { alEliminar(producto.id) }
-            binding.btnNota.setOnClickListener { alEditarNotas(item) }
+            if (editable) {
+                binding.btnAumentar.setOnClickListener { alAumentar(producto.id) }
+                binding.btnDisminuir.setOnClickListener { alDisminuir(producto.id) }
+                binding.btnEliminar.setOnClickListener { alEliminar(producto.id) }
+                binding.btnNota.setOnClickListener { alEditarNotas(item) }
+            }
         }
     }
 }
 
-private val DIFF = object : DiffUtil.ItemCallback<ItemCarrito>() {
-    override fun areItemsTheSame(anterior: ItemCarrito, actual: ItemCarrito): Boolean =
-        anterior.producto.id == actual.producto.id
+private val DIFF = object : DiffUtil.ItemCallback<LineaCarrito>() {
+    override fun areItemsTheSame(anterior: LineaCarrito, actual: LineaCarrito): Boolean =
+        anterior.item.producto.id == actual.item.producto.id &&
+            anterior.editable == actual.editable
 
-    override fun areContentsTheSame(anterior: ItemCarrito, actual: ItemCarrito): Boolean =
+    override fun areContentsTheSame(anterior: LineaCarrito, actual: LineaCarrito): Boolean =
         anterior == actual
 }

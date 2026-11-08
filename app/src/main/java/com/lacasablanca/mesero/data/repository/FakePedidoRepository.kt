@@ -3,8 +3,10 @@ package com.lacasablanca.mesero.data.repository
 import com.lacasablanca.mesero.domain.ErrorApp
 import com.lacasablanca.mesero.domain.Resultado
 import com.lacasablanca.mesero.domain.model.CalculoIgv
+import com.lacasablanca.mesero.domain.model.ItemCarrito
 import com.lacasablanca.mesero.domain.model.ItemPedido
 import com.lacasablanca.mesero.domain.model.PedidoEnviado
+import com.lacasablanca.mesero.domain.model.PedidoExistente
 import kotlinx.coroutines.delay
 import java.math.BigDecimal
 
@@ -55,8 +57,35 @@ class FakePedidoRepository(
         return Resultado.Exito(pedido)
     }
 
+    /**
+     * DATOS FAKE (no reales). Simula `GET /api/v1/pedidos?mesa_id=X` para
+     * probar el modo lectura de PRB-83 mientras PRB-82 no esta cerrado.
+     */
+    override suspend fun obtenerPedidoDeMesa(mesaId: Long): Resultado<PedidoExistente> {
+        delay(latenciaMs)
+        if (mesaId <= 0L) return Resultado.Fallo(ErrorApp.VALIDACION)
+        return Resultado.Exito(PEDIDO_DE_MESA_FAKE)
+    }
+
     companion object {
         const val LATENCIA_SIMULADA_MS = 400L
         const val ESTADO_PENDIENTE = "PENDIENTE"
+
+        /** Pedido ficticio de 2 lineas (2 ceviches + 1 chicha) = S/ 111.00. */
+        val PEDIDO_DE_MESA_FAKE: PedidoExistente = PedidoExistente(
+            pedidoId = 100L,
+            estado = ESTADO_PENDIENTE,
+            lineas = listOf(
+                ItemCarrito(
+                    producto = FakeCatalogoRepository.PRODUCTOS_FAKE.first { it.id == 10L },
+                    cantidad = 2,
+                    notas = "sin picante"
+                ),
+                ItemCarrito(
+                    producto = FakeCatalogoRepository.PRODUCTOS_FAKE.first { it.id == 13L },
+                    cantidad = 1
+                )
+            )
+        )
     }
 }

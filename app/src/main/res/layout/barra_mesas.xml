@@ -32,8 +32,13 @@
             android:id="@+id/textoTitulo"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:autoSizeMaxTextSize="20sp"
+            android:autoSizeMinTextSize="14sp"
+            android:autoSizeStepGranularity="1sp"
+            android:autoSizeTextType="uniform"
             android:breakStrategy="simple"
             android:hyphenationFrequency="none"
+            android:maxLines="1"
             android:text="@string/mesas_titulo"
             android:textColor="@color/stitch_primary"
             android:textSize="20sp"
@@ -52,6 +57,16 @@
             tools:text="Hola, Mozo Demo" />
 
     </LinearLayout>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnPerfil"
+        style="@style/Boton.BarraAccion"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/toque_minimo"
+        android:layout_marginStart="@dimen/espacio_s"
+        android:contentDescription="@string/cd_abrir_perfil"
+        app:icon="@drawable/ic_person"
+        app:tooltipText="@string/perfil_titulo" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnActualizar"

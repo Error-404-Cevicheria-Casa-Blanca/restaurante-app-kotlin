@@ -5,8 +5,10 @@ import com.lacasablanca.mesero.data.repository.PedidoRepository
 import com.lacasablanca.mesero.domain.ErrorApp
 import com.lacasablanca.mesero.domain.Resultado
 import com.lacasablanca.mesero.domain.model.Categoria
+import com.lacasablanca.mesero.domain.model.ItemCarrito
 import com.lacasablanca.mesero.domain.model.ItemPedido
 import com.lacasablanca.mesero.domain.model.PedidoEnviado
+import com.lacasablanca.mesero.domain.model.PedidoExistente
 import com.lacasablanca.mesero.domain.model.Producto
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -83,6 +85,18 @@ class CarritoViewModelTest {
     )
     private val productos = listOf(ceviche, tiradito, suspiro)
 
+    /** Plato disponible que no esta en el catalogo simulado: solo se usa para ampliar. */
+    private val chicha = Producto(
+        id = 13,
+        nombre = "Chicha Morada 1L",
+        descripcion = "Bebida tradicional.",
+        precio = BigDecimal("15.00"),
+        disponible = true,
+        categoriaId = 3,
+        imagenUrl = null,
+        estacion = "BEBIDAS"
+    )
+
     @Before
     fun preparar() {
         Dispatchers.setMain(testDispatcher)
@@ -116,6 +130,15 @@ class CarritoViewModelTest {
         subtotal = BigDecimal("81.36"),
         igv = BigDecimal("14.64"),
         total = BigDecimal("96.00")
+    )
+
+    private fun pedidoExistente(): PedidoExistente = PedidoExistente(
+        pedidoId = 100L,
+        estado = "PENDIENTE",
+        lineas = listOf(
+            ItemCarrito(producto = ceviche, cantidad = 2, notas = "sin picante"),
+            ItemCarrito(producto = tiradito, cantidad = 1)
+        )
     )
 
     @Test
@@ -449,4 +472,133 @@ class CarritoViewModelTest {
             assertEquals(2, claves.size)
             assertNotEquals(claves[0], claves[1])
         }
+
+    // ---------------------------------------------------------------------
+    // Pedido existente / modo lectura (PRB-83)
+    // ---------------------------------------------------------------------
+
+    @Test
+    fun `activar modo lectura carga las lineas existentes como no editables`() =
+        runTest(testDispatcher) {
+            coEvery { pedidoRepository.obtenerPedidoDeMesa(7L) } returns
+                Resultado.Exito(pedidoExistente())
+
+            val viewModel = crearViewModel()
+            advanceUntilIdle()
+
+            viewModel.activarModoLecura(7L)
+            advanceUntilIdle()
+
+            val estado = viewModel.estado.value
+            assertTrue(estado.modoLectura)
+            assertTrue(estado.pedidoExistenteCargado)
+            assertNull(estado.errorPedidoExistente)
+            assertEquals(2, estado.lineas.size)
+            assertTrue(estado.lineas.all { !it.editable })
+            // 2 * 48.00 + 46.00 = 142.00
+            assertEquals("142.00", estado.total.toPlainString())
+            assertEquals(3, estado.cantidadItems)
+            coVerify(exactly = 1) { pedidoRepository.obtenerPedidoDeMesa(7L) }
+        }
+
+    @Test
+    fun `activar modo lectura dos veces no repite la consulta`() = runTest(testDispatcher) {
+        coEvery { pedidoRepository.obtenerPedidoDeMesa(7L) } returns
+            Resultado.Exito(pedidoExistente())
+
+        val viewModel = crearViewModel()
+        advanceUntilIdle()
+
+        viewModel.activarModoLecura(7L)
+        viewModel.activarModoLecura(7L)
+        advanceUntilIdle()
+
+        coVerify(exactly = 1) { pedidoRepository.obtenerPedidoDeMesa(7L) }
+    }
+
+    @Test
+    fun `en modo lectura las lineas existentes no se eliminan ni se disminuyen`() =
+        runTest(testDispatcher) {
+            coEvery { pedidoRepository.obtenerPedidoDeMesa(7L) } returns
+                Resultado.Exito(pedidoExistente())
+
+            val viewModel = crearViewModel()
+            advanceUntilIdle()
+            viewModel.activarModoLecura(7L)
+            advanceUntilIdle()
+
+            val idExistente = viewModel.estado.value.itemsExistentes.first().producto.id
+            viewModel.eliminarProducto(idExistente)
+            viewModel.disminuirCantidad(idExistente)
+
+            val estado = viewModel.estado.value
+            assertEquals(2, estado.itemsExistentes.size)
+            assertTrue(estado.items.isEmpty())
+            assertEquals(2, estado.itemsExistentes.first().cantidad)
+        }
+
+    @Test
+    fun `en modo lectura el envio manda solo los platos nuevos`() = runTest(testDispatcher) {
+        coEvery { pedidoRepository.obtenerPedidoDeMesa(7L) } returns
+            Resultado.Exito(pedidoExistente())
+        val itemsEnviados = slot<List<ItemPedido>>()
+        coEvery {
+            pedidoRepository.enviarPedido(7L, capture(itemsEnviados), any())
+        } returns Resultado.Exito(pedidoOk())
+
+        val viewModel = crearViewModel()
+        advanceUntilIdle()
+        viewModel.activarModoLecura(7L)
+        advanceUntilIdle()
+
+        viewModel.agregarProducto(chicha)
+        viewModel.enviarPedido(7L)
+        advanceUntilIdle()
+
+        assertEquals(1, itemsEnviados.captured.size)
+        assertEquals(chicha.id, itemsEnviados.captured.single().productoId)
+        assertEquals(1, itemsEnviados.captured.single().cantidad)
+        // Las lineas ya pedidas siguen visibles tras ampliar la comanda.
+        assertEquals(2, viewModel.estado.value.itemsExistentes.size)
+    }
+
+    @Test
+    fun `un error al cargar el pedido existente deja reintentar`() = runTest(testDispatcher) {
+        coEvery { pedidoRepository.obtenerPedidoDeMesa(7L) } returnsMany listOf(
+            Resultado.Fallo(ErrorApp.RED),
+            Resultado.Exito(pedidoExistente())
+        )
+
+        val viewModel = crearViewModel()
+        advanceUntilIdle()
+
+        viewModel.activarModoLecura(7L)
+        advanceUntilIdle()
+
+        assertEquals(ErrorCarrito.RED, viewModel.estado.value.errorPedidoExistente)
+        assertTrue(viewModel.estado.value.pedidoExistenteCargado)
+
+        viewModel.cargarPedidoExistente(7L)
+        advanceUntilIdle()
+
+        assertNull(viewModel.estado.value.errorPedidoExistente)
+        assertEquals(2, viewModel.estado.value.itemsExistentes.size)
+    }
+
+    @Test
+    fun `una mesa sin pedido existente queda vacia y sin error`() = runTest(testDispatcher) {
+        coEvery { pedidoRepository.obtenerPedidoDeMesa(7L) } returns
+            Resultado.Exito(PedidoExistente.VACIO)
+
+        val viewModel = crearViewModel()
+        advanceUntilIdle()
+
+        viewModel.activarModoLecura(7L)
+        advanceUntilIdle()
+
+        val estado = viewModel.estado.value
+        assertTrue(estado.itemsExistentes.isEmpty())
+        assertNull(estado.errorPedidoExistente)
+        assertTrue(estado.sinLineas)
+    }
 }

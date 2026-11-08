@@ -88,6 +88,25 @@
                     android:textStyle="bold" />
             </LinearLayout>
 
+            <!-- PRB-83: avisar a caja que la mesa pidio la cuenta -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnPedirCuenta"
+                style="@style/Boton.Outlined"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/alto_boton_primario"
+                android:layout_marginTop="@dimen/espacio_l"
+                android:autoSizeMaxTextSize="16sp"
+                android:autoSizeMinTextSize="11sp"
+                android:autoSizeStepGranularity="1sp"
+                android:autoSizeTextType="uniform"
+                android:breakStrategy="simple"
+                android:hyphenationFrequency="none"
+                android:maxLines="1"
+                android:text="@string/comanda_pedir_cuenta"
+                app:icon="@drawable/ic_receipt"
+                app:iconGravity="textStart"
+                app:iconPadding="@dimen/espacio_s" />
+
             <!-- Catalogo agrupado por categorias -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"

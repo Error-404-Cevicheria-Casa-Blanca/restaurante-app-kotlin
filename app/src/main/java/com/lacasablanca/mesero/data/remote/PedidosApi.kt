@@ -1,10 +1,13 @@
 package com.lacasablanca.mesero.data.remote
 
 import com.lacasablanca.mesero.data.remote.dto.CrearPedidoRequest
+import com.lacasablanca.mesero.data.remote.dto.PedidoExistenteDto
 import com.lacasablanca.mesero.data.remote.dto.PedidoResponseDto
 import retrofit2.http.Body
+import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.POST
+import retrofit2.http.Query
 
 /**
  * POST /api/v1/pedidos (PedidoController.java). Responde 201 Created
@@ -21,4 +24,11 @@ interface PedidosApi {
         @Header("Idempotency-Key") idempotencyKey: String,
         @Body request: CrearPedidoRequest
     ): PedidoResponseDto
+
+    /**
+     * PRB-83: pedido activo de una mesa OCUPADA. La forma de la respuesta se
+     * documenta como ASSUMPTION en [PedidoExistenteDto] hasta cerrar PRB-82.
+     */
+    @GET("api/v1/pedidos")
+    suspend fun obtenerPedidoDeMesa(@Query("mesa_id") mesaId: Long): PedidoExistenteDto?
 }
