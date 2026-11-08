@@ -11,4 +11,5 @@
     <dimen name="ancho_maximo_bloqueo">440dp</dimen>
     <dimen name="logo_bloqueo">128dp</dimen>
     <dimen name="espacio_superior_bloqueo">64dp</dimen>
+    <dimen name="texto_toolbar">20sp</dimen>
 </resources>

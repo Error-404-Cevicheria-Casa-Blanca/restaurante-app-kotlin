@@ -31,6 +31,7 @@ import com.lacasablanca.mesero.domain.ErrorApp
 import com.lacasablanca.mesero.domain.model.Categoria
 import com.lacasablanca.mesero.domain.model.ItemCarrito
 import com.lacasablanca.mesero.domain.model.PedidoEnviado
+import com.lacasablanca.mesero.ui.bloqueo.BloqueoActivity
 import com.lacasablanca.mesero.ui.common.aparecerConDesplazamiento
 import com.lacasablanca.mesero.ui.common.formatearMoneda
 import com.lacasablanca.mesero.ui.login.LoginActivity
@@ -164,6 +165,28 @@ class ComandaActivity : AppCompatActivity(), CarritoBottomSheet.Listener {
         binding.barraCheckout.btnVerCarrito.setOnClickListener { mostrarCarrito() }
         binding.btnReintentarCatalogo.setOnClickListener { carritoViewModel.cargar() }
         binding.btnPedirCuenta.setOnClickListener { comandaViewModel.pedirCuenta(mesaId) }
+        binding.barraComanda.setOnMenuItemClickListener { item ->
+            when (item.itemId) {
+                R.id.accionBloquear -> {
+                    abrirBloqueo()
+                    true
+                }
+
+                else -> false
+            }
+        }
+    }
+
+    /**
+     * Bloqueo rapido (PRB-81) desde la comanda.
+     *
+     * ComandaActivity solo pasa a STOPPED: su ViewModelStore conserva la misma
+     * instancia de [CarritoViewModel] con los platos. Al desbloquear se reanuda
+     * esta Activity y repeatOnLifecycle vuelve a recolectar el estado, sin
+     * recargar el catalogo ni vaciar el carrito.
+     */
+    private fun abrirBloqueo() {
+        startActivity(Intent(this, BloqueoActivity::class.java))
     }
 
     // ---------------------------------------------------------------------

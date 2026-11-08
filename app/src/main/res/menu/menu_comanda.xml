@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Accion de bloqueo rapido de la comanda (PRB-81). -->
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/accionBloquear"
+        android:icon="@drawable/ic_lock"
+        android:iconTint="@color/stitch_primary"
+        android:title="@string/accion_bloquear"
+        app:showAsAction="always" />
+</menu>

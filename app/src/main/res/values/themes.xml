@@ -106,6 +106,13 @@
         <item name="android:textStyle">bold</item>
     </style>
 
+    <!-- Titulo de la toolbar de comanda: cabe junto al boton de bloqueo (PRB-81). -->
+    <style name="Texto.Toolbar" parent="TextAppearance.Material3.TitleMedium">
+        <item name="android:textColor">@color/stitch_primary</item>
+        <item name="android:textSize">@dimen/texto_toolbar</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
     <!-- Dialogos Material 3: esquinas redondeadas y boton de aceptar en color de marca -->
     <style name="ThemeOverlay.LaCasaBlanca.Dialogo" parent="ThemeOverlay.Material3.MaterialAlertDialog">
         <item name="alertDialogStyle">@style/MaterialAlertDialog.LaCasaBlanca</item>

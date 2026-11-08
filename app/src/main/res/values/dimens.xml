@@ -45,6 +45,7 @@
     <dimen name="texto_cuerpo">16sp</dimen>
     <dimen name="texto_secundario">14sp</dimen>
     <dimen name="texto_etiqueta">12sp</dimen>
+    <dimen name="texto_toolbar">16sp</dimen>
 
     <!-- Marca -->
     <dimen name="logo_movil">96dp</dimen>
