@@ -42,7 +42,9 @@ data class ItemPedidoExistenteDto(
     /**
      * PRB-76: PENDIENTE, EN_PREPARACION, LISTO, SERVIDO o ANULADO. Se deja
      * como texto para que un valor nuevo del backend no rompa el parseo.
+     * PRB-80 (robustez): el backend Java tambien puede nombrarlo `estado_item`.
      */
+    @SerializedName(value = "estado", alternate = ["estado_item"])
     val estado: String? = null
 )
 

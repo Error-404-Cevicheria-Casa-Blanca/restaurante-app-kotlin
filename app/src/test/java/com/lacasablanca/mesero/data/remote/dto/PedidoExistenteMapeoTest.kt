@@ -26,7 +26,8 @@ class PedidoExistenteMapeoTest {
                 item(id = 502L, productoId = 11L, estado = "EN_PREPARACION"),
                 item(id = 503L, productoId = 12L, estado = "LISTO"),
                 item(id = 504L, productoId = 13L, estado = "SERVIDO"),
-                item(id = 505L, productoId = 14L, estado = "ANULADO")
+                item(id = 505L, productoId = 14L, estado = "ANULADO"),
+                item(id = 506L, productoId = 15L, estado = "COCINANDO")
             )
         ).aDominio()
 
@@ -36,7 +37,8 @@ class PedidoExistenteMapeoTest {
                 EstadoPlato.EN_PREPARACION,
                 EstadoPlato.LISTO,
                 EstadoPlato.SERVIDO,
-                EstadoPlato.ANULADO
+                EstadoPlato.ANULADO,
+                EstadoPlato.EN_PREPARACION
             ),
             pedido.lineas.map { it.estadoPlato }
         )
@@ -58,7 +60,7 @@ class PedidoExistenteMapeoTest {
         val pedido = PedidoExistenteDto(
             id = 100L,
             mesaId = 7L,
-            items = listOf(item(id = 501L, productoId = 10L, estado = "COCINANDO"))
+            items = listOf(item(id = 501L, productoId = 10L, estado = "FRIO"))
         ).aDominio()
 
         assertEquals(EstadoPlato.DESCONOCIDO, pedido.lineas.single().estadoPlato)
