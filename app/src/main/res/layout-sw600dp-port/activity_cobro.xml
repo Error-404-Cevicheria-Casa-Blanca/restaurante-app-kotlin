@@ -24,29 +24,6 @@
         app:titleTextColor="@color/primary"
         tools:title="Cobrar Mesa 7" />
 
-    <TextView
-        android:id="@+id/textoModoDemo"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/espacio_xl"
-        android:layout_marginTop="@dimen/espacio_s"
-        android:autoSizeMaxTextSize="12sp"
-        android:autoSizeMinTextSize="10sp"
-        android:autoSizeStepGranularity="1sp"
-        android:autoSizeTextType="uniform"
-        android:background="@drawable/bg_pill_demo"
-        android:breakStrategy="simple"
-        android:hyphenationFrequency="none"
-        android:maxLines="1"
-        android:paddingHorizontal="@dimen/espacio_s"
-        android:paddingVertical="@dimen/espacio_s"
-        android:text="@string/cobro_datos_prueba"
-        android:textColor="@color/texto_principal"
-        android:textSize="@dimen/texto_etiqueta"
-        android:textStyle="bold"
-        android:visibility="gone"
-        tools:visibility="visible" />
-
     <ProgressBar
         android:id="@+id/progresoCobro"
         android:layout_width="wrap_content"
