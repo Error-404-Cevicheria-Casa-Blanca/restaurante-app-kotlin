@@ -7,6 +7,7 @@ import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
@@ -16,6 +17,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import com.google.android.material.snackbar.Snackbar
 import com.lacasablanca.mesero.MeseroApp
 import com.lacasablanca.mesero.R
 import com.lacasablanca.mesero.core.GenericViewModelFactory
@@ -36,9 +38,12 @@ import kotlinx.coroutines.launch
  */
 class CarritoBottomSheet : BottomSheetDialogFragment() {
 
-    /** La Activity implementa esto para abrir el dialogo de nota del plato. */
+    /** La Activity implementa esto para abrir los dialogos de nota y anulacion. */
     interface Listener {
         fun onEditarNotas(item: ItemCarrito)
+
+        /** PRB-77: confirmar la anulacion de un plato ya enviado a cocina. */
+        fun onAnular(item: ItemCarrito)
     }
 
     private var _binding: BottomSheetCarritoBinding? = null
@@ -79,6 +84,9 @@ class CarritoBottomSheet : BottomSheetDialogFragment() {
             alEliminar = viewModel::eliminarProducto,
             alEditarNotas = { item ->
                 (activity as? Listener)?.onEditarNotas(item)
+            },
+            alAnular = { item ->
+                (activity as? Listener)?.onAnular(item)
             }
         )
 
@@ -134,6 +142,20 @@ class CarritoBottomSheet : BottomSheetDialogFragment() {
         binding.listaCarrito.adapter = null
         _binding = null
         super.onDestroyView()
+    }
+
+    /**
+     * Aviso dentro del sheet. El Snackbar de la Activity queda detras de la
+     * ventana del bottom sheet, asi que el aviso de "Plato anulado" se pinta
+     * aqui para que el mesero lo vea (PRB-77).
+     */
+    fun mostrarSnackbar(texto: String) {
+        val vista = _binding?.root ?: return
+        val snackbar = Snackbar.make(vista, texto, Snackbar.LENGTH_SHORT)
+        snackbar.setTextColor(ContextCompat.getColor(requireContext(), R.color.on_primary))
+        snackbar.show()
+        snackbar.view.background =
+            ContextCompat.getDrawable(requireContext(), R.drawable.bg_snackbar)
     }
 
     private fun render(estado: CarritoUiState) {

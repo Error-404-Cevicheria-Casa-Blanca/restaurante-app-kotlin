@@ -56,6 +56,10 @@ data class CarritoUiState(
     val enviando: Boolean = false,
     val modoLectura: Boolean = false,
     val itemsExistentes: List<ItemCarrito> = emptyList(),
+    /** Id del pedido de la mesa; lo exige el endpoint de anulacion (PRB-77). */
+    val pedidoExistenteId: Long = 0L,
+    /** Linea cuya anulacion esta en vuelo: bloquea dobles toques (PRB-77). */
+    val anulandoItemId: Long? = null,
     val cargandoPedidoExistente: Boolean = false,
     val pedidoExistenteCargado: Boolean = false,
     val errorPedidoExistente: ErrorCarrito? = null
@@ -92,5 +96,12 @@ data class CarritoUiState(
 sealed interface CarritoEvento {
     data class PedidoEnviadoOk(val pedido: PedidoEnviado) : CarritoEvento
     data class ErrorAlEnviar(val error: ErrorApp) : CarritoEvento
+
+    /** PRB-77: el backend confirmo la anulacion y la linea ya no esta. */
+    data class ItemAnulado(val nombrePlato: String) : CarritoEvento
+
+    /** PRB-77: no se pudo anular (409 = plato ya servido, red, etc.). */
+    data class ErrorAlAnular(val error: ErrorApp) : CarritoEvento
+
     object SesionExpirada : CarritoEvento
 }

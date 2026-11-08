@@ -17,6 +17,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.chip.Chip
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.snackbar.Snackbar
 import com.lacasablanca.mesero.BuildConfig
 import com.lacasablanca.mesero.MeseroApp
 import com.lacasablanca.mesero.R
@@ -73,6 +74,7 @@ class ComandaActivity : AppCompatActivity(), CarritoBottomSheet.Listener {
     private var saliendo = false
     private var dialogoAbierto: AlertDialog? = null
     private var dialogoLiberar: AlertDialog? = null
+    private var dialogoAnular: AnularPlatoDialog? = null
     private var pedidoExistenteMostrado = false
     private var errorPedidoExistenteMostrado = false
 
@@ -141,6 +143,7 @@ class ComandaActivity : AppCompatActivity(), CarritoBottomSheet.Listener {
 
     override fun onDestroy() {
         cerrarDialogoLiberar()
+        cerrarDialogoAnular()
         dialogoAbierto?.dismiss()
         dialogoAbierto = null
         super.onDestroy()
@@ -334,6 +337,15 @@ class ComandaActivity : AppCompatActivity(), CarritoBottomSheet.Listener {
         mostrarDialogoNota(item)
     }
 
+    /** PRB-77: el icono de anular pide confirmacion antes de llamar al backend. */
+    override fun onAnular(item: ItemCarrito) {
+        cerrarDialogoAbierto()
+        dialogoAnular?.cerrar()
+        dialogoAnular = AnularPlatoDialog(this, item) { elegido ->
+            carritoViewModel.anularItem(elegido)
+        }.also { it.mostrar() }
+    }
+
     private fun manejarEventoCarrito(evento: CarritoEvento) {
         when (evento) {
             is CarritoEvento.PedidoEnviadoOk -> {
@@ -344,6 +356,17 @@ class ComandaActivity : AppCompatActivity(), CarritoBottomSheet.Listener {
             }
 
             is CarritoEvento.ErrorAlEnviar -> mostrarDialogoErrorEnvio(evento.error)
+
+            is CarritoEvento.ItemAnulado -> {
+                cerrarDialogoAnular()
+                mostrarSnackbarAnulacion(getString(R.string.anular_plato_exito))
+            }
+
+            is CarritoEvento.ErrorAlAnular -> {
+                cerrarDialogoAnular()
+                mostrarDialogoErrorAnular(evento.error)
+            }
+
             CarritoEvento.SesionExpirada -> {
                 cerrarCarrito()
                 mostrarDialogoSesionExpirada()
@@ -403,6 +426,54 @@ class ComandaActivity : AppCompatActivity(), CarritoBottomSheet.Listener {
         dialogo.setOnDismissListener { if (dialogoAbierto === dialogo) dialogoAbierto = null }
         dialogo.show()
         dialogoAbierto = dialogo
+    }
+
+    // ---------------------------------------------------------------------
+    // Anulacion de platos enviados (PRB-77)
+    // ---------------------------------------------------------------------
+
+    private fun mostrarDialogoErrorAnular(error: ErrorApp) {
+        if (error == ErrorApp.SESION_EXPIRADA) {
+            mostrarDialogoSesionExpirada()
+            return
+        }
+
+        mostrarDialogo(
+            titulo = getString(R.string.anular_plato_error_titulo),
+            mensaje = mensajeErrorAnular(error),
+            cancelable = true,
+            textoPositivo = R.string.accion_entendido
+        )
+    }
+
+    private fun mensajeErrorAnular(error: ErrorApp): String = when (error) {
+        // 409 del endpoint de anulacion: el plato ya salio de cocina.
+        ErrorApp.PLATO_YA_SERVIDO -> getString(R.string.anular_plato_error_servido)
+        ErrorApp.RED -> getString(R.string.anular_plato_error_red)
+        else -> getString(R.string.anular_plato_error_generico)
+    }
+
+    /**
+     * El Snackbar se pinta dentro del bottom sheet cuando esta abierto; si no,
+     * se usa el Snackbar de marca de la Activity.
+     */
+    private fun mostrarSnackbarAnulacion(texto: String) {
+        val sheet = supportFragmentManager
+            .findFragmentByTag(CarritoBottomSheet.TAG) as? CarritoBottomSheet
+        if (sheet != null) {
+            sheet.mostrarSnackbar(texto)
+            return
+        }
+
+        val snackbar = Snackbar.make(binding.root, texto, Snackbar.LENGTH_SHORT)
+        snackbar.setTextColor(ContextCompat.getColor(this, R.color.on_primary))
+        snackbar.show()
+        snackbar.view.background = ContextCompat.getDrawable(this, R.drawable.bg_snackbar)
+    }
+
+    private fun cerrarDialogoAnular() {
+        dialogoAnular?.cerrar()
+        dialogoAnular = null
     }
 
     private fun mostrarDialogoErrorEnvio(error: ErrorApp) {
