@@ -3,10 +3,12 @@ package com.lacasablanca.mesero.data.remote
 import com.lacasablanca.mesero.data.remote.dto.CrearPedidoRequest
 import com.lacasablanca.mesero.data.remote.dto.PedidoExistenteDto
 import com.lacasablanca.mesero.data.remote.dto.PedidoResponseDto
+import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.POST
+import retrofit2.http.Path
 import retrofit2.http.Query
 
 /**
@@ -31,4 +33,15 @@ interface PedidosApi {
      */
     @GET("api/v1/pedidos")
     suspend fun obtenerPedidoDeMesa(@Query("mesa_id") mesaId: Long): PedidoExistenteDto?
+
+    /**
+     * PRB-77: anula un plato ya enviado a cocina. El backend responde 2xx sin
+     * cuerpo; un 409 significa que el plato ya fue servido. Se usa
+     * [Response] para leer el codigo sin depender de que el cuerpo venga vacio.
+     */
+    @POST("api/v1/pedidos/{pedidoId}/items/{itemId}/anular")
+    suspend fun anularItem(
+        @Path("pedidoId") pedidoId: Long,
+        @Path("itemId") itemId: Long
+    ): Response<Unit>
 }

@@ -23,4 +23,10 @@ interface PedidoRepository {
      * backend mientras PRB-82 no este cerrado.
      */
     suspend fun obtenerPedidoDeMesa(mesaId: Long): Resultado<PedidoExistente>
+
+    /**
+     * PRB-77: anula un plato ya enviado a cocina
+     * (`POST /api/v1/pedidos/{pedidoId}/items/{itemId}/anular`).
+     */
+    suspend fun anularItem(pedidoId: Long, itemId: Long): Resultado<Unit>
 }

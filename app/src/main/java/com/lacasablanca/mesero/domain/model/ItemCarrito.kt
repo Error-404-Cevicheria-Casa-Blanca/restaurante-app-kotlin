@@ -10,7 +10,14 @@ import java.math.RoundingMode
 data class ItemCarrito(
     val producto: Producto,
     val cantidad: Int,
-    val notas: String = ""
+    val notas: String = "",
+    /**
+     * Id del detalle en el backend (`pedido_item.id`). Null en las lineas que
+     * aun no se enviaron y cuando el backend no lo informa. Es el `itemId`
+     * que exige `POST /api/v1/pedidos/{pedidoId}/items/{itemId}/anular`
+     * (PRB-77).
+     */
+    val itemId: Long? = null
 ) {
     val subtotal: BigDecimal
         get() = producto.precio

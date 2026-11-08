@@ -24,6 +24,12 @@ class FakePedidoRepository(
     /** Respuestas ya creadas por clave: simula la idempotencia del backend. */
     private val respuestasPorClave = mutableMapOf<String, PedidoEnviado>()
 
+    /**
+     * Pedido de demostracion mutable: anular una linea la quita y el cambio
+     * se conserva si se vuelve a consultar la mesa.
+     */
+    private var pedidoActual: PedidoExistente = PEDIDO_DE_MESA_FAKE
+
     override suspend fun enviarPedido(
         mesaId: Long,
         items: List<ItemPedido>,
@@ -64,12 +70,34 @@ class FakePedidoRepository(
     override suspend fun obtenerPedidoDeMesa(mesaId: Long): Resultado<PedidoExistente> {
         delay(latenciaMs)
         if (mesaId <= 0L) return Resultado.Fallo(ErrorApp.VALIDACION)
-        return Resultado.Exito(PEDIDO_DE_MESA_FAKE)
+        return Resultado.Exito(pedidoActual)
+    }
+
+    /**
+     * DATOS FAKE (no reales). Simula el POST de anulacion (PRB-77). La linea
+     * [ITEM_YA_SERVIDO_FAKE] responde 409 para poder probar ese camino sin
+     * backend; la otra linea se elimina de verdad del pedido de demostracion.
+     */
+    override suspend fun anularItem(pedidoId: Long, itemId: Long): Resultado<Unit> {
+        delay(latenciaMs)
+        if (pedidoId <= 0L || itemId <= 0L) return Resultado.Fallo(ErrorApp.VALIDACION)
+        if (itemId == ITEM_YA_SERVIDO_FAKE) return Resultado.Fallo(ErrorApp.PLATO_YA_SERVIDO)
+
+        val linea = pedidoActual.lineas.firstOrNull { it.itemId == itemId }
+            ?: return Resultado.Fallo(ErrorApp.NO_ENCONTRADO)
+        pedidoActual = pedidoActual.copy(lineas = pedidoActual.lineas - linea)
+        return Resultado.Exito(Unit)
     }
 
     companion object {
         const val LATENCIA_SIMULADA_MS = 400L
         const val ESTADO_PENDIENTE = "PENDIENTE"
+
+        /** Id del detalle fake del ceviche: se puede anular correctamente. */
+        const val ITEM_CEVICHE_FAKE = 501L
+
+        /** Id del detalle fake que simula un plato ya servido (responde 409). */
+        const val ITEM_YA_SERVIDO_FAKE = 502L
 
         /** Pedido ficticio de 2 lineas (2 ceviches + 1 chicha) = S/ 111.00. */
         val PEDIDO_DE_MESA_FAKE: PedidoExistente = PedidoExistente(
@@ -79,11 +107,13 @@ class FakePedidoRepository(
                 ItemCarrito(
                     producto = FakeCatalogoRepository.PRODUCTOS_FAKE.first { it.id == 10L },
                     cantidad = 2,
-                    notas = "sin picante"
+                    notas = "sin picante",
+                    itemId = ITEM_CEVICHE_FAKE
                 ),
                 ItemCarrito(
                     producto = FakeCatalogoRepository.PRODUCTOS_FAKE.first { it.id == 13L },
-                    cantidad = 1
+                    cantidad = 1,
+                    itemId = ITEM_YA_SERVIDO_FAKE
                 )
             )
         )
