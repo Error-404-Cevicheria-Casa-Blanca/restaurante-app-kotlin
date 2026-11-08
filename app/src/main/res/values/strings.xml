@@ -17,24 +17,6 @@
     <string name="login_ingresar">Ingresar</string>
     <string name="login_mostrar_clave">Mostrar contraseña</string>
     <string name="login_ocultar_clave">Ocultar contraseña</string>
-    <string name="login_tab_credenciales">Credenciales</string>
-    <string name="login_tab_pin">PIN Rápido</string>
-    <string name="login_pin_titulo">Digita tu clave rápida asignada</string>
-    <string name="login_pin_limpiar">Limpiar PIN</string>
-    <string name="login_pin_borrar">Borrar último dígito</string>
-    <string name="login_pin_tecla">Tecla %1$s</string>
-    <string name="pin_0">0</string>
-    <string name="pin_1">1</string>
-    <string name="pin_2">2</string>
-    <string name="pin_3">3</string>
-    <string name="pin_4">4</string>
-    <string name="pin_5">5</string>
-    <string name="pin_6">6</string>
-    <string name="pin_7">7</string>
-    <string name="pin_8">8</string>
-    <string name="pin_9">9</string>
-    <string name="pin_tecla_limpiar">C</string>
-    <string name="login_pos_movil">POS Móvil</string>
     <string name="login_error_campos">Ingresa tu usuario y contraseña</string>
     <string name="login_error_credenciales">Usuario o contraseña incorrectos</string>
     <string name="login_error_red">No se pudo conectar con el servidor. Revisa la red local e inténtalo de nuevo.</string>
@@ -68,7 +50,6 @@
         <item quantity="one">%1$d persona</item>
         <item quantity="other">%1$d personas</item>
     </plurals>
-    <string name="mesa_capacidad_corta">Cap. %1$d pers</string>
     <string name="mesa_descripcion">Mesa %1$d, %2$s, %3$s</string>
     <string name="mesas_vacio">No hay mesas para estos filtros</string>
     <string name="mesas_vacio_ayuda">Cambia la zona o el estado seleccionado.</string>
@@ -207,7 +188,6 @@
 
     <!-- Cobro en tablet (PRB-56) -->
     <string name="cobro_titulo">Cobrar Mesa %1$d</string>
-    <string name="cobro_datos_prueba">Datos de prueba</string>
     <string name="cobro_cargando">Cargando cuenta…</string>
     <string name="cobro_reintentar">Reintentar</string>
     <string name="cobro_resumen_titulo">Resumen de cuenta</string>
