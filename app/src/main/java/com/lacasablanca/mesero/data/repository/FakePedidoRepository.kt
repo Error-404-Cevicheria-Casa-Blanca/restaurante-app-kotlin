@@ -3,6 +3,7 @@ package com.lacasablanca.mesero.data.repository
 import com.lacasablanca.mesero.domain.ErrorApp
 import com.lacasablanca.mesero.domain.Resultado
 import com.lacasablanca.mesero.domain.model.CalculoIgv
+import com.lacasablanca.mesero.domain.model.EstadoPlato
 import com.lacasablanca.mesero.domain.model.ItemCarrito
 import com.lacasablanca.mesero.domain.model.ItemPedido
 import com.lacasablanca.mesero.domain.model.PedidoEnviado
@@ -99,7 +100,12 @@ class FakePedidoRepository(
         /** Id del detalle fake que simula un plato ya servido (responde 409). */
         const val ITEM_YA_SERVIDO_FAKE = 502L
 
-        /** Pedido ficticio de 2 lineas (2 ceviches + 1 chicha) = S/ 111.00. */
+        /**
+         * Pedido ficticio de 2 lineas (2 ceviches + 1 chicha) = S/ 111.00.
+         * Los estados permiten probar la pildora de PRB-76 sin backend: el
+         * ceviche esta LISTO (pulso) y la chicha ya fue SERVIDA (responde 409
+         * al intentar anularla).
+         */
         val PEDIDO_DE_MESA_FAKE: PedidoExistente = PedidoExistente(
             pedidoId = 100L,
             estado = ESTADO_PENDIENTE,
@@ -108,12 +114,14 @@ class FakePedidoRepository(
                     producto = FakeCatalogoRepository.PRODUCTOS_FAKE.first { it.id == 10L },
                     cantidad = 2,
                     notas = "sin picante",
-                    itemId = ITEM_CEVICHE_FAKE
+                    itemId = ITEM_CEVICHE_FAKE,
+                    estadoPlato = EstadoPlato.LISTO
                 ),
                 ItemCarrito(
                     producto = FakeCatalogoRepository.PRODUCTOS_FAKE.first { it.id == 13L },
                     cantidad = 1,
-                    itemId = ITEM_YA_SERVIDO_FAKE
+                    itemId = ITEM_YA_SERVIDO_FAKE,
+                    estadoPlato = EstadoPlato.SERVIDO
                 )
             )
         )

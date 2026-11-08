@@ -17,7 +17,13 @@ data class ItemCarrito(
      * que exige `POST /api/v1/pedidos/{pedidoId}/items/{itemId}/anular`
      * (PRB-77).
      */
-    val itemId: Long? = null
+    val itemId: Long? = null,
+    /**
+     * PRB-76: estado de preparacion que informa el backend para un plato ya
+     * enviado. null = la linea es nueva (aun no viajo a cocina) o el backend
+     * todavia no informa el estado; en ambos casos la UI no pinta la pildora.
+     */
+    val estadoPlato: EstadoPlato? = null
 ) {
     val subtotal: BigDecimal
         get() = producto.precio
