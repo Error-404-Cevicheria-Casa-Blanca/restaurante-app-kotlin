@@ -202,7 +202,7 @@
     <string name="comanda_confirmar_ampliacion_deshabilitado">Agrega al menos un plato nuevo para ampliar la comanda.</string>
     <string name="comanda_plato_sin_nombre">Plato #%1$d</string>
     <string name="carrito_sheet_titulo_lectura">Pedido de la mesa</string>
-    <string name="carrito_sheet_contador_lectura">%1$s · Platos ya registrados en la mesa.</string>
+    <string name="carrito_sheet_contador_lectura">%1$s · Revisa el pedido y amplía la comanda.</string>
     <string name="carrito_vacio_lectura">Esta mesa aún no tiene platos registrados.</string>
     <string name="comanda_pedido_existente_error_titulo">No se pudo cargar el pedido</string>
     <string name="comanda_pedido_existente_error_red">No se pudo conectar con el servidor. Revisa la red local e inténtalo de nuevo.</string>
