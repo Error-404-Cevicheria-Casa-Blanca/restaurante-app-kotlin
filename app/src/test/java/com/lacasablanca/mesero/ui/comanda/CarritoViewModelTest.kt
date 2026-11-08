@@ -136,8 +136,13 @@ class CarritoViewModelTest {
         pedidoId = 100L,
         estado = "PENDIENTE",
         lineas = listOf(
-            ItemCarrito(producto = ceviche, cantidad = 2, notas = "sin picante"),
-            ItemCarrito(producto = tiradito, cantidad = 1)
+            ItemCarrito(
+                producto = ceviche,
+                cantidad = 2,
+                notas = "sin picante",
+                itemId = 501L
+            ),
+            ItemCarrito(producto = tiradito, cantidad = 1, itemId = 502L)
         )
     )
 
@@ -600,5 +605,122 @@ class CarritoViewModelTest {
         assertTrue(estado.itemsExistentes.isEmpty())
         assertNull(estado.errorPedidoExistente)
         assertTrue(estado.sinLineas)
+    }
+
+    // ---------------------------------------------------------------------
+    // Anulacion de platos enviados (PRB-77)
+    // ---------------------------------------------------------------------
+
+    @Test
+    fun `anular un plato existente lo quita y recalcula los totales`() =
+        runTest(testDispatcher) {
+            coEvery { pedidoRepository.obtenerPedidoDeMesa(7L) } returns
+                Resultado.Exito(pedidoExistente())
+            coEvery { pedidoRepository.anularItem(100L, 501L) } returns Resultado.Exito(Unit)
+
+            val viewModel = crearViewModel()
+            val eventos = escucharEventos(viewModel)
+            advanceUntilIdle()
+            viewModel.activarModoLecura(7L)
+            advanceUntilIdle()
+
+            viewModel.anularItem(viewModel.estado.value.itemsExistentes.first())
+            advanceUntilIdle()
+
+            val estado = viewModel.estado.value
+            assertEquals(1, estado.itemsExistentes.size)
+            assertEquals(502L, estado.itemsExistentes.single().itemId)
+            // Queda 1 tiradito de 46.00: 46/1.18 = 38.98; IGV = 46 - 38.98 = 7.02.
+            assertEquals("46.00", estado.total.toPlainString())
+            assertEquals("38.98", estado.subtotal.toPlainString())
+            assertEquals("7.02", estado.igv.toPlainString())
+            assertNull(estado.anulandoItemId)
+            assertTrue(eventos.any { it is CarritoEvento.ItemAnulado })
+            coVerify(exactly = 1) { pedidoRepository.anularItem(100L, 501L) }
+        }
+
+    @Test
+    fun `un 409 al anular conserva el plato y emite el error`() = runTest(testDispatcher) {
+        coEvery { pedidoRepository.obtenerPedidoDeMesa(7L) } returns
+            Resultado.Exito(pedidoExistente())
+        coEvery { pedidoRepository.anularItem(100L, 502L) } returns
+            Resultado.Fallo(ErrorApp.PLATO_YA_SERVIDO)
+
+        val viewModel = crearViewModel()
+        val eventos = escucharEventos(viewModel)
+        advanceUntilIdle()
+        viewModel.activarModoLecura(7L)
+        advanceUntilIdle()
+
+        viewModel.anularItem(viewModel.estado.value.itemsExistentes.last())
+        advanceUntilIdle()
+
+        val estado = viewModel.estado.value
+        assertEquals(2, estado.itemsExistentes.size)
+        assertEquals("142.00", estado.total.toPlainString())
+        assertNull(estado.anulandoItemId)
+        val error = eventos.filterIsInstance<CarritoEvento.ErrorAlAnular>().single()
+        assertEquals(ErrorApp.PLATO_YA_SERVIDO, error.error)
+        assertTrue(eventos.none { it is CarritoEvento.ItemAnulado })
+    }
+
+    @Test
+    fun `un error de red al anular conserva el plato y emite el error`() =
+        runTest(testDispatcher) {
+            coEvery { pedidoRepository.obtenerPedidoDeMesa(7L) } returns
+                Resultado.Exito(pedidoExistente())
+            coEvery { pedidoRepository.anularItem(100L, 501L) } returns
+                Resultado.Fallo(ErrorApp.RED)
+
+            val viewModel = crearViewModel()
+            val eventos = escucharEventos(viewModel)
+            advanceUntilIdle()
+            viewModel.activarModoLecura(7L)
+            advanceUntilIdle()
+
+            viewModel.anularItem(viewModel.estado.value.itemsExistentes.first())
+            advanceUntilIdle()
+
+            assertEquals(2, viewModel.estado.value.itemsExistentes.size)
+            val error = eventos.filterIsInstance<CarritoEvento.ErrorAlAnular>().single()
+            assertEquals(ErrorApp.RED, error.error)
+        }
+
+    @Test
+    fun `una linea nueva sin itemId no llama al endpoint de anulacion`() =
+        runTest(testDispatcher) {
+            coEvery { pedidoRepository.obtenerPedidoDeMesa(7L) } returns
+                Resultado.Exito(pedidoExistente())
+
+            val viewModel = crearViewModel()
+            advanceUntilIdle()
+            viewModel.activarModoLecura(7L)
+            advanceUntilIdle()
+
+            viewModel.agregarProducto(chicha)
+            viewModel.anularItem(viewModel.estado.value.items.single())
+            advanceUntilIdle()
+
+            coVerify(exactly = 0) { pedidoRepository.anularItem(any(), any()) }
+            assertEquals(1, viewModel.estado.value.items.size)
+        }
+
+    @Test
+    fun `anular dos veces la misma linea no repite la llamada`() = runTest(testDispatcher) {
+        coEvery { pedidoRepository.obtenerPedidoDeMesa(7L) } returns
+            Resultado.Exito(pedidoExistente())
+        coEvery { pedidoRepository.anularItem(100L, 501L) } returns Resultado.Exito(Unit)
+
+        val viewModel = crearViewModel()
+        advanceUntilIdle()
+        viewModel.activarModoLecura(7L)
+        advanceUntilIdle()
+
+        val item = viewModel.estado.value.itemsExistentes.first()
+        viewModel.anularItem(item)
+        viewModel.anularItem(item)
+        advanceUntilIdle()
+
+        coVerify(exactly = 1) { pedidoRepository.anularItem(100L, 501L) }
     }
 }
