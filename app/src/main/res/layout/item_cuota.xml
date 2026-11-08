@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="@dimen/espacio_s"
+    android:background="@drawable/bg_item_carrito"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:padding="@dimen/espacio_m">
+
+    <TextView
+        android:id="@+id/textoComensalCuota"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/espacio_s"
+        android:layout_weight="1"
+        android:autoSizeMaxTextSize="16sp"
+        android:autoSizeMinTextSize="11sp"
+        android:autoSizeStepGranularity="1sp"
+        android:autoSizeTextType="uniform"
+        android:breakStrategy="simple"
+        android:hyphenationFrequency="none"
+        android:maxLines="1"
+        android:textColor="@color/on_surface"
+        android:textSize="@dimen/texto_secundario"
+        android:textStyle="bold"
+        tools:text="Comensal 1" />
+
+    <TextView
+        android:id="@+id/textoMontoCuota"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:autoSizeMaxTextSize="16sp"
+        android:autoSizeMinTextSize="11sp"
+        android:autoSizeStepGranularity="1sp"
+        android:autoSizeTextType="uniform"
+        android:breakStrategy="simple"
+        android:hyphenationFrequency="none"
+        android:maxLines="1"
+        android:textColor="@color/stitch_primary"
+        android:textSize="@dimen/texto_secundario"
+        android:textStyle="bold"
+        tools:text="S/ 33.34" />
+</LinearLayout>
