@@ -109,6 +109,49 @@ class PedidoRepositoryTest {
         assertEquals("111.00", pedido.total.toPlainString())
     }
 
+    // ---------------------------------------------------------------------
+    // Anulacion de platos (PRB-77)
+    // ---------------------------------------------------------------------
+
+    @Test
+    fun `anular un item llama al endpoint y devuelve exito`() = runTest {
+        coEvery { api.anularItem(100L, 501L) } returns Response.success(Unit)
+
+        val resultado = repositorio.anularItem(100L, 501L)
+
+        assertTrue(resultado is Resultado.Exito)
+        coVerify(exactly = 1) { api.anularItem(100L, 501L) }
+    }
+
+    @Test
+    fun `un 409 al anular se traduce a plato ya servido`() = runTest {
+        coEvery { api.anularItem(100L, 502L) } returns Response.error(
+            409,
+            "{\"mensaje\":\"servido\"}".toResponseBody("application/json".toMediaType())
+        )
+
+        val resultado = repositorio.anularItem(100L, 502L)
+
+        assertEquals(ErrorApp.PLATO_YA_SERVIDO, (resultado as Resultado.Fallo).error)
+    }
+
+    @Test
+    fun `ids invalidos no llaman al endpoint de anulacion`() = runTest {
+        val resultado = repositorio.anularItem(0L, 501L)
+
+        assertEquals(ErrorApp.VALIDACION, (resultado as Resultado.Fallo).error)
+        coVerify(exactly = 0) { api.anularItem(any(), any()) }
+    }
+
+    @Test
+    fun `un fallo de red al anular se traduce a red`() = runTest {
+        coEvery { api.anularItem(100L, 501L) } throws IOException("sin red")
+
+        val resultado = repositorio.anularItem(100L, 501L)
+
+        assertEquals(ErrorApp.RED, (resultado as Resultado.Fallo).error)
+    }
+
     private fun errorHttp(codigo: Int): HttpException {
         val cuerpo = "{\"mensaje\":\"error\"}".toResponseBody("application/json".toMediaType())
         return HttpException(Response.error<Any>(codigo, cuerpo))

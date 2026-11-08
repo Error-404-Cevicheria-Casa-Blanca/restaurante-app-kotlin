@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    PRB-76: resalta la pildora LISTO para que el mesero sepa que debe
+    recoger el plato. Pulso suave de opacidad; el adapter la cancela al
+    reciclar el ViewHolder para que no quede animando una fila reutilizada.
+-->
+<alpha xmlns:android="http://schemas.android.com/apk/res/android"
+    android:duration="700"
+    android:fromAlpha="1.0"
+    android:repeatCount="infinite"
+    android:repeatMode="reverse"
+    android:toAlpha="0.45" />

@@ -68,6 +68,22 @@
     <!-- Solo defensivo: datos invalidos del API no deben romper la pantalla -->
     <color name="estado_desconocido">#6B7B80</color>
 
+    <!-- Estados de preparacion del plato (PRB-76). Fondo pastel + texto
+         oscuro del mismo tono para cumplir contraste AA; el texto de la
+         pildora comunica el estado ademas del color. -->
+    <color name="estado_plato_pendiente_fondo">#E0F1F7</color>
+    <color name="estado_plato_pendiente_texto">#0B5563</color>
+    <color name="estado_plato_preparacion_fondo">#FFE0B2</color>
+    <color name="estado_plato_preparacion_texto">#7A3E00</color>
+    <color name="estado_plato_listo_fondo">#C8E6C9</color>
+    <color name="estado_plato_listo_texto">#1B5E20</color>
+    <color name="estado_plato_servido_fondo">#0B5563</color>
+    <color name="estado_plato_servido_texto">#FFFFFF</color>
+    <color name="estado_plato_anulado_fondo">#E3E6E7</color>
+    <color name="estado_plato_anulado_texto">#4F5B60</color>
+    <color name="estado_plato_desconocido_fondo">#E3E6E7</color>
+    <color name="estado_plato_desconocido_texto">#40484B</color>
+
     <!-- Filtros (chips tipo pildora del HTML de Stitch) -->
     <color name="chip_filtro_activo">#003D48</color>
     <color name="chip_filtro_inactivo">#FFFFFF</color>

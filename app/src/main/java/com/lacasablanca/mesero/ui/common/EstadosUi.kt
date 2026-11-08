@@ -5,6 +5,7 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import com.lacasablanca.mesero.R
 import com.lacasablanca.mesero.domain.model.EstadoMesa
+import com.lacasablanca.mesero.domain.model.EstadoPlato
 
 /**
  * Semantica visual fija de los estados de mesa (DISENO-UI.md).
@@ -44,4 +45,39 @@ fun EstadoMesa.etiquetaPluralRes(): Int = when (this) {
     EstadoMesa.CUENTA_SOLICITADA -> R.string.estado_cuenta_plural
     EstadoMesa.ATENDIDA -> R.string.estado_atendida_plural
     EstadoMesa.DESCONOCIDO -> R.string.estado_desconocido
+}
+
+/*
+ * PRB-76: semantica visual de los estados de preparacion del plato.
+ * PENDIENTE azul claro, EN_PREPARACION naranja, LISTO verde, SERVIDO teal y
+ * ANULADO gris. La pildora siempre lleva texto: el color no es el unico canal.
+ */
+@StringRes
+fun EstadoPlato.etiquetaRes(): Int = when (this) {
+    EstadoPlato.PENDIENTE -> R.string.estado_plato_pendiente
+    EstadoPlato.EN_PREPARACION -> R.string.estado_plato_preparacion
+    EstadoPlato.LISTO -> R.string.estado_plato_listo
+    EstadoPlato.SERVIDO -> R.string.estado_plato_servido
+    EstadoPlato.ANULADO -> R.string.estado_plato_anulado
+    EstadoPlato.DESCONOCIDO -> R.string.estado_plato_desconocido
+}
+
+@ColorRes
+fun EstadoPlato.colorFondoRes(): Int = when (this) {
+    EstadoPlato.PENDIENTE -> R.color.estado_plato_pendiente_fondo
+    EstadoPlato.EN_PREPARACION -> R.color.estado_plato_preparacion_fondo
+    EstadoPlato.LISTO -> R.color.estado_plato_listo_fondo
+    EstadoPlato.SERVIDO -> R.color.estado_plato_servido_fondo
+    EstadoPlato.ANULADO -> R.color.estado_plato_anulado_fondo
+    EstadoPlato.DESCONOCIDO -> R.color.estado_plato_desconocido_fondo
+}
+
+@ColorRes
+fun EstadoPlato.colorTextoRes(): Int = when (this) {
+    EstadoPlato.PENDIENTE -> R.color.estado_plato_pendiente_texto
+    EstadoPlato.EN_PREPARACION -> R.color.estado_plato_preparacion_texto
+    EstadoPlato.LISTO -> R.color.estado_plato_listo_texto
+    EstadoPlato.SERVIDO -> R.color.estado_plato_servido_texto
+    EstadoPlato.ANULADO -> R.color.estado_plato_anulado_texto
+    EstadoPlato.DESCONOCIDO -> R.color.estado_plato_desconocido_texto
 }

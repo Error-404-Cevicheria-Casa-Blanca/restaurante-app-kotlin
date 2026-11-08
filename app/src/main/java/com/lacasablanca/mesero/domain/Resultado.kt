@@ -22,6 +22,9 @@ enum class ErrorApp {
     /** 409 al cobrar: la cuenta ya fue pagada. */
     CONFLICTO_COBRO,
 
+    /** 409 al anular un plato: ya fue servido y no se puede quitar (PRB-77). */
+    PLATO_YA_SERVIDO,
+
     /** 423 Locked: la mesa/cuenta esta bloqueada temporalmente. */
     BLOQUEADO,
     VALIDACION,

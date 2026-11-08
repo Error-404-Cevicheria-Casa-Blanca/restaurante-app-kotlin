@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Dialogo premium de anulacion de un plato ya enviado a cocina (PRB-77).
+    Sigue la paleta de la skill diseno-cevicheria: icono y titulo en rojo de
+    error (#D64545), texto slate, esquinas de 16dp y botones de 8dp.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_horizontal"
+    android:orientation="vertical"
+    android:paddingHorizontal="@dimen/espacio_xl"
+    android:paddingTop="@dimen/espacio_xl"
+    android:paddingBottom="@dimen/espacio_l">
+
+    <ImageView
+        android:id="@+id/iconoAnular"
+        android:layout_width="@dimen/icono_xl"
+        android:layout_height="@dimen/icono_xl"
+        android:contentDescription="@string/anular_plato_icono_cd"
+        android:src="@drawable/ic_delete"
+        app:tint="@color/estado_ocupada" />
+
+    <TextView
+        android:id="@+id/tituloAnular"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/espacio_m"
+        android:autoSizeMaxTextSize="20sp"
+        android:autoSizeMinTextSize="14sp"
+        android:autoSizeStepGranularity="1sp"
+        android:autoSizeTextType="uniform"
+        android:breakStrategy="simple"
+        android:gravity="center"
+        android:hyphenationFrequency="none"
+        android:maxLines="2"
+        android:text="@string/anular_plato_titulo"
+        android:textColor="@color/estado_ocupada"
+        android:textSize="@dimen/texto_titulo_tarjeta"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/textoPlatoAnular"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/espacio_m"
+        android:autoSizeMaxTextSize="18sp"
+        android:autoSizeMinTextSize="12sp"
+        android:autoSizeStepGranularity="1sp"
+        android:autoSizeTextType="uniform"
+        android:breakStrategy="simple"
+        android:ellipsize="end"
+        android:gravity="center"
+        android:hyphenationFrequency="none"
+        android:maxLines="2"
+        android:textColor="@color/texto_principal"
+        android:textSize="@dimen/texto_cuerpo"
+        android:textStyle="bold"
+        tools:text="Ceviche Clásico" />
+
+    <TextView
+        android:id="@+id/textoDetalleAnular"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/espacio_xs"
+        android:autoSizeMaxTextSize="14sp"
+        android:autoSizeMinTextSize="10sp"
+        android:autoSizeStepGranularity="1sp"
+        android:autoSizeTextType="uniform"
+        android:breakStrategy="simple"
+        android:gravity="center"
+        android:hyphenationFrequency="none"
+        android:maxLines="2"
+        android:textColor="@color/texto_secundario"
+        android:textSize="@dimen/texto_secundario"
+        tools:text="2 × S/ 48.00 = S/ 96.00" />
+
+    <TextView
+        android:id="@+id/textoMensajeAnular"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/espacio_m"
+        android:autoSizeMaxTextSize="16sp"
+        android:autoSizeMinTextSize="11sp"
+        android:autoSizeStepGranularity="1sp"
+        android:autoSizeTextType="uniform"
+        android:breakStrategy="simple"
+        android:gravity="center"
+        android:hyphenationFrequency="none"
+        android:lineSpacingExtra="2dp"
+        android:maxLines="4"
+        android:text="@string/anular_plato_mensaje"
+        android:textColor="@color/texto_principal"
+        android:textSize="@dimen/texto_cuerpo" />
+
+    <ProgressBar
+        android:id="@+id/progresoAnular"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="@dimen/espacio_xxl"
+        android:layout_height="@dimen/espacio_xxl"
+        android:layout_marginTop="@dimen/espacio_l"
+        android:contentDescription="@string/anular_plato_progreso"
+        android:indeterminate="true"
+        android:indeterminateTint="@color/estado_ocupada"
+        android:visibility="gone"
+        tools:visibility="visible" />
+
+    <TextView
+        android:id="@+id/textoProgresoAnular"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/espacio_s"
+        android:breakStrategy="simple"
+        android:hyphenationFrequency="none"
+        android:text="@string/anular_plato_progreso"
+        android:textColor="@color/texto_secundario"
+        android:textSize="@dimen/texto_etiqueta"
+        android:visibility="gone"
+        tools:visibility="visible" />
+
+    <LinearLayout
+        android:id="@+id/grupoBotonesAnular"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/espacio_l"
+        android:baselineAligned="false"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnCancelarAnular"
+            style="@style/Boton.Outlined"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/toque_minimo"
+            android:layout_weight="1"
+            android:autoSizeMaxTextSize="16sp"
+            android:autoSizeMinTextSize="11sp"
+            android:autoSizeStepGranularity="1sp"
+            android:autoSizeTextType="uniform"
+            android:breakStrategy="simple"
+            android:hyphenationFrequency="none"
+            android:maxLines="1"
+            android:text="@string/anular_plato_cancelar" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnConfirmarAnular"
+            style="@style/Boton.DialogoAnular"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/toque_minimo"
+            android:layout_marginStart="@dimen/espacio_s"
+            android:layout_weight="1"
+            android:autoSizeMaxTextSize="16sp"
+            android:autoSizeMinTextSize="11sp"
+            android:autoSizeStepGranularity="1sp"
+            android:autoSizeTextType="uniform"
+            android:breakStrategy="simple"
+            android:hyphenationFrequency="none"
+            android:maxLines="1"
+            android:text="@string/anular_plato_confirmar" />
+    </LinearLayout>
+</LinearLayout>

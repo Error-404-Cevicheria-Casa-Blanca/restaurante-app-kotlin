@@ -113,6 +113,7 @@ class CarritoViewModel(
                     it.copy(
                         cargandoPedidoExistente = false,
                         pedidoExistenteCargado = true,
+                        pedidoExistenteId = resultado.datos.pedidoId,
                         itemsExistentes = resultado.datos.lineas,
                         errorPedidoExistente = null
                     )
@@ -286,6 +287,49 @@ class CarritoViewModel(
                         _eventos.send(CarritoEvento.SesionExpirada)
                     } else {
                         _eventos.send(CarritoEvento.ErrorAlEnviar(resultado.error))
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Anula un plato ya enviado a cocina (PRB-77).
+     *
+     * Solo aplica en modo lectura a lineas con `itemId`; las lineas nuevas se
+     * quitan con el carrito local. Al exito se elimina la linea del estado y
+     * los getters de [CarritoUiState] recalculan Subtotal, IGV y Total con
+     * BigDecimal. Un 409 llega como [ErrorApp.PLATO_YA_SERVIDO].
+     */
+    fun anularItem(item: ItemCarrito) {
+        val itemId = item.itemId ?: return
+        val actual = _estado.value
+        if (!actual.modoLectura || actual.enviando || actual.anulandoItemId != null) return
+
+        val pedidoId = actual.pedidoExistenteId
+        if (pedidoId <= 0L) return
+        if (actual.itemsExistentes.none { it.itemId == itemId }) return
+
+        _estado.update { it.copy(anulandoItemId = itemId) }
+        viewModelScope.launch(ioDispatcher) {
+            when (val resultado = pedidoRepository.anularItem(pedidoId, itemId)) {
+                is Resultado.Exito -> {
+                    _estado.update { estado ->
+                        estado.copy(
+                            anulandoItemId = null,
+                            itemsExistentes = estado.itemsExistentes
+                                .filterNot { it.itemId == itemId }
+                        )
+                    }
+                    _eventos.send(CarritoEvento.ItemAnulado(item.producto.nombre))
+                }
+
+                is Resultado.Fallo -> {
+                    _estado.update { it.copy(anulandoItemId = null) }
+                    if (resultado.error == ErrorApp.SESION_EXPIRADA) {
+                        _eventos.send(CarritoEvento.SesionExpirada)
+                    } else {
+                        _eventos.send(CarritoEvento.ErrorAlAnular(resultado.error))
                     }
                 }
             }
