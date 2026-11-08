@@ -283,6 +283,23 @@
     <string name="cobro_confirmar">Confirmar cobro</string>
     <string name="cobro_linea_cantidad">x%1$d</string>
     <string name="cobro_linea_precio">%1$s c/u</string>
+    <!-- Descuentos (PRB-80) -->
+    <string name="cobro_aplicar_descuento">Aplicar descuento</string>
+    <string name="cobro_cambiar_descuento">Cambiar descuento</string>
+    <string name="cobro_descuento_titulo">Aplicar descuento</string>
+    <string name="cobro_descuento_mensaje">Elige el tipo de descuento e ingresa el valor para esta mesa.</string>
+    <string name="cobro_descuento_porcentaje_opcion">Porcentaje (%)</string>
+    <string name="cobro_descuento_monto_opcion">Monto fijo (S/)</string>
+    <string name="cobro_descuento_valor_porcentaje">Valor del descuento</string>
+    <string name="cobro_descuento_valor_monto">Monto del descuento</string>
+    <string name="cobro_descuento_linea">Descuento (%1$s): -%2$s</string>
+    <string name="cobro_descuento_porcentaje">%1$s%%</string>
+    <string name="cobro_descuento_monto_fijo">monto fijo</string>
+    <string name="cobro_descuento_aplicar">Aplicar</string>
+    <string name="cobro_descuento_quitar">Quitar descuento</string>
+    <string name="cobro_descuento_error">Ingresa un valor válido. El porcentaje debe estar entre 1 y 100 y el monto no puede superar el total.</string>
+    <string name="cobro_descuento_error_pagado">El descuento deja el total por debajo de lo que ya se pagó. Ajusta o elimina un pago.</string>
+    <string name="cd_descuento_icono">Descuento aplicado a la cuenta</string>
     <string name="cd_eliminar_pago">Eliminar pago de %1$s</string>
     <string name="cd_eliminar_pago_generico">Eliminar pago</string>
     <string name="cobro_dividir_titulo">Dividir cuenta</string>
