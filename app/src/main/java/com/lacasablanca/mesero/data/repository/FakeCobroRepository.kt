@@ -41,7 +41,12 @@ class FakeCobroRepository(
         }
 
         val cuenta = cuentaDe(mesaId)
-        val esperado = (cuenta.total ?: BigDecimal.ZERO).add(request.propina)
+        val totalCuenta = cuenta.total ?: BigDecimal.ZERO
+        val descuento = request.descuento.setScale(2, RoundingMode.HALF_UP)
+        if (descuento < BigDecimal.ZERO || descuento > totalCuenta) {
+            return Resultado.Fallo(ErrorApp.VALIDACION)
+        }
+        val esperado = totalCuenta.subtract(descuento).add(request.propina)
         val pagado = request.pagos.fold(BigDecimal.ZERO) { acumulado, pago ->
             acumulado.add(pago.monto)
         }
