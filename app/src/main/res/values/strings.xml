@@ -72,8 +72,7 @@
     <string name="aviso_mesa_icono_cd">Aviso de la mesa</string>
     <string name="dialogo_mesa_titulo">Mesa %1$d</string>
     <string name="mesa_dialogo_ocupada">La mesa %1$d está ocupada por otros comensales. Espera a que se libere para abrir una comanda.</string>
-    <string name="mesa_dialogo_atendida">La mesa %1$d ya está siendo atendida. Por ahora no se puede abrir otra comanda.</string>
-    <string name="mesa_dialogo_cuenta">La mesa %1$d pidió la cuenta. Acércate a cobrar antes de abrir otra comanda.</string>
+    <string name="mesa_dialogo_atendida">La mesa %1$d ya está siendo atendida. Por ahora no se puede abrir otra comanda.</string>    <string name="mesa_dialogo_cuenta">La mesa %1$d pidió la cuenta. Acércate a cobrar antes de abrir otra comanda.</string>
     <string name="mesa_dialogo_no_libre">La mesa %1$d no está libre para una nueva comanda.</string>
     <string name="mesa_tomada_titulo">Mesa ocupada</string>
     <string name="error_abrir_mesa_titulo">No se pudo abrir la mesa</string>
@@ -180,6 +179,15 @@
     <string name="dialogo_liberar_cancelar">Cancelar</string>
     <string name="dialogo_liberar_progreso">Liberando mesa…</string>
     <string name="dialogo_liberar_icono_cd">Advertencia: la mesa quedará disponible para otros meseros</string>
+
+    <!-- Mesa ATENDIDA sin pedido enviado (PRB-83) -->
+    <string name="dialogo_atendida_titulo">Mesa en atención (Sin pedido)</string>
+    <string name="dialogo_atendida_mensaje">Esta mesa está abierta pero no se ha enviado ningún pedido a cocina. ¿Qué deseas hacer?</string>
+    <string name="dialogo_atendida_retomar">Retomar comanda</string>
+    <string name="dialogo_atendida_liberar">Liberar mesa</string>
+    <string name="dialogo_atendida_liberar_mensaje">Se perderá el carrito actual de esta mesa y quedará disponible para otros meseros. ¿Deseas continuar?</string>
+    <string name="dialogo_atendida_icono_cd">Mesa en atención sin pedido enviado</string>
+    <string name="mesa_liberada">Mesa liberada</string>
 
     <!-- Pedir cuenta (PRB-83) -->
     <string name="comanda_pedir_cuenta">Pedir Cuenta</string>

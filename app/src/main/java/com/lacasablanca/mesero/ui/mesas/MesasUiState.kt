@@ -28,6 +28,15 @@ sealed interface MesasEvento {
     /** Mesa OCUPADA: se muestra el pedido existente en modo lectura (PRB-83). */
     data class IrAComandaLectura(val mesa: Mesa) : MesasEvento
 
+    /**
+     * Mesa ATENDIDA (azul): esta abierta pero sin pedido enviado. La pantalla
+     * ofrece retomar la comanda o liberar la mesa (PRB-83).
+     */
+    data class OpcionesMesaAtendida(val mesa: Mesa) : MesasEvento
+
+    /** El PATCH a LIBRE se confirmo: la pantalla cierra el dialogo de progreso. */
+    data class MesaLiberada(val mesaId: Long) : MesasEvento
+
     data class Aviso(val tipo: AvisoMesas, val mesa: Mesa? = null) : MesasEvento
     object SesionExpirada : MesasEvento
     object SesionCerrada : MesasEvento

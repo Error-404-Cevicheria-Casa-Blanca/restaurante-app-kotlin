@@ -169,6 +169,28 @@ class MesasViewModelTest {
     }
 
     @Test
+    fun `una mesa atendida ofrece retomar la comanda o liberarla`() = runTest(testDispatcher) {
+        val atendida = mesas.first { it.estado == EstadoMesa.ATENDIDA }
+        coEvery { mesaRepository.listarMesas() } returns Resultado.Exito(mesas)
+
+        val viewModel = crearViewModel()
+        val eventos = escucharEventos(viewModel)
+        advanceUntilIdle()
+
+        viewModel.seleccionarMesa(atendida)
+        advanceUntilIdle()
+
+        assertTrue(
+            eventos.any {
+                it is MesasEvento.OpcionesMesaAtendida && it.mesa.id == atendida.id
+            }
+        )
+        assertTrue(eventos.none { it is MesasEvento.Aviso })
+        // Tocar la mesa no cambia su estado: el PATCH solo ocurre al liberar.
+        coVerify(exactly = 0) { mesaRepository.cambiarEstado(any(), any()) }
+    }
+
+    @Test
     fun `si el patch falla por conflicto avisa y recarga`() = runTest(testDispatcher) {
         val libre = mesas.first { it.estaLibre }
         coEvery { mesaRepository.listarMesas() } returns Resultado.Exito(mesas)
@@ -266,6 +288,26 @@ class MesasViewModelTest {
         )
         assertEquals(libresAntes + 1, viewModel.estado.value.contadores[EstadoMesa.LIBRE])
         assertEquals(atendidasAntes - 1, viewModel.estado.value.contadores[EstadoMesa.ATENDIDA])
+    }
+
+    @Test
+    fun `liberar una mesa atendida emite el evento de liberada`() = runTest(testDispatcher) {
+        val atendida = mesas.first { it.estado == EstadoMesa.ATENDIDA }
+        coEvery { mesaRepository.listarMesas() } returns Resultado.Exito(mesas)
+        coEvery { mesaRepository.cambiarEstado(atendida.id, EstadoMesa.LIBRE) } returns
+            Resultado.Exito(atendida.copy(estado = EstadoMesa.LIBRE))
+
+        val viewModel = crearViewModel()
+        val eventos = escucharEventos(viewModel)
+        advanceUntilIdle()
+
+        viewModel.liberarMesa(atendida.id)
+        advanceUntilIdle()
+
+        assertTrue(
+            eventos.any { it is MesasEvento.MesaLiberada && it.mesaId == atendida.id }
+        )
+        coVerify(exactly = 1) { mesaRepository.cambiarEstado(atendida.id, EstadoMesa.LIBRE) }
     }
 
     @Test

@@ -150,12 +150,14 @@ class MesasViewModel(
     /**
      * Tocar una mesa LIBRE: PATCH ATENDIDA y abrir comanda.
      * Tocar una mesa OCUPADA: abrir el pedido existente en modo lectura (PRB-83).
-     * Las demas (ATENDIDA/CUENTA_SOLICITADA) conservan el aviso (D12).
+     * Tocar una mesa ATENDIDA: ofrecer retomar la comanda o liberarla (PRB-83).
+     * CUENTA_SOLICITADA se gestiona antes, en la Activity (abre el cobro).
      */
     fun seleccionarMesa(mesa: Mesa) {
         when (mesa.estado) {
             EstadoMesa.LIBRE -> abrirMesaLibre(mesa)
             EstadoMesa.OCUPADA -> _eventos.trySend(MesasEvento.IrAComandaLectura(mesa))
+            EstadoMesa.ATENDIDA -> _eventos.trySend(MesasEvento.OpcionesMesaAtendida(mesa))
             else -> _eventos.trySend(MesasEvento.Aviso(AvisoMesas.MESA_NO_LIBRE, mesa))
         }
     }
@@ -187,7 +189,11 @@ class MesasViewModel(
             if (mesa.estado != EstadoMesa.ATENDIDA) return@launch
 
             when (val resultado = mesaRepository.cambiarEstado(id, EstadoMesa.LIBRE)) {
-                is Resultado.Exito -> reemplazarMesa(resultado.datos)
+                is Resultado.Exito -> {
+                    reemplazarMesa(resultado.datos)
+                    _eventos.send(MesasEvento.MesaLiberada(id))
+                }
+
                 is Resultado.Fallo -> {
                     if (resultado.error == ErrorApp.SESION_EXPIRADA) {
                         manejarSesionExpirada()

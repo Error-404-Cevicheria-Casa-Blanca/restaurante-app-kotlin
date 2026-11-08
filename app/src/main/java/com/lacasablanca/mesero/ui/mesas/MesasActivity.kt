@@ -24,6 +24,8 @@ import com.lacasablanca.mesero.R
 import com.lacasablanca.mesero.core.GenericViewModelFactory
 import com.lacasablanca.mesero.databinding.ActivityMesasBinding
 import com.lacasablanca.mesero.databinding.DialogAvisoMesaBinding
+import com.lacasablanca.mesero.databinding.DialogLiberarMesaBinding
+import com.lacasablanca.mesero.databinding.DialogMesaAtendidaBinding
 import com.lacasablanca.mesero.databinding.ItemLeyendaBinding
 import com.lacasablanca.mesero.domain.model.EstadoMesa
 import com.lacasablanca.mesero.domain.model.Mesa
@@ -60,6 +62,7 @@ class MesasActivity : AppCompatActivity(), PerfilBottomSheet.Listener {
     private var primeraReanudacion = true
     private var liberarPendiente = false
     private var dialogoAbierto: AlertDialog? = null
+    private var dialogoLiberarMesa: AlertDialog? = null
     private var animacionInicialEjecutada = false
 
     /**
@@ -160,6 +163,8 @@ class MesasActivity : AppCompatActivity(), PerfilBottomSheet.Listener {
     override fun onDestroy() {
         dialogoAbierto?.dismiss()
         dialogoAbierto = null
+        dialogoLiberarMesa?.dismiss()
+        dialogoLiberarMesa = null
         super.onDestroy()
     }
 
@@ -321,8 +326,18 @@ class MesasActivity : AppCompatActivity(), PerfilBottomSheet.Listener {
         when (evento) {
             is MesasEvento.IrAComanda -> abrirComanda(evento.mesa)
             is MesasEvento.IrAComandaLectura -> abrirComanda(evento.mesa, modoLectura = true)
+            is MesasEvento.OpcionesMesaAtendida -> mostrarOpcionesMesaAtendida(evento.mesa)
+            is MesasEvento.MesaLiberada -> {
+                cerrarDialogoLiberarMesa()
+                mostrarSnackbar(getString(R.string.mesa_liberada))
+            }
+
             is MesasEvento.Aviso -> mostrarAviso(evento)
-            MesasEvento.SesionExpirada -> mostrarDialogoSesionExpirada()
+            MesasEvento.SesionExpirada -> {
+                cerrarDialogoLiberarMesa()
+                mostrarDialogoSesionExpirada()
+            }
+
             MesasEvento.SesionCerrada -> irALogin()
         }
     }
@@ -340,6 +355,76 @@ class MesasActivity : AppCompatActivity(), PerfilBottomSheet.Listener {
 
     override fun onCerrarSesionDesdePerfil() {
         viewModel.cerrarSesion()
+    }
+
+    /**
+     * Mesa ATENDIDA (azul): esta abierta pero sin pedido enviado a cocina.
+     * Se ofrece retomar la comanda editable o liberar la mesa con confirmacion
+     * (PRB-83), evitando dejar mesas bloqueadas.
+     */
+    private fun mostrarOpcionesMesaAtendida(mesa: Mesa) {
+        dialogoAbierto?.dismiss()
+        dialogoAbierto = null
+
+        val contenido = DialogMesaAtendidaBinding.inflate(layoutInflater)
+        val dialogo = MaterialAlertDialogBuilder(
+            this,
+            R.style.ThemeOverlay_LaCasaBlanca_Dialogo_LiberarMesa
+        )
+            .setView(contenido.root)
+            .setCancelable(true)
+            .create()
+
+        contenido.btnRetomarComanda.setOnClickListener {
+            dialogo.dismiss()
+            abrirComanda(mesa)
+        }
+        contenido.btnLiberarMesaAtendida.setOnClickListener {
+            dialogo.dismiss()
+            mostrarConfirmacionLiberar(mesa)
+        }
+
+        dialogo.setCanceledOnTouchOutside(true)
+        dialogo.setOnDismissListener { if (dialogoAbierto === dialogo) dialogoAbierto = null }
+        dialogo.show()
+        dialogoAbierto = dialogo
+    }
+
+    /** Confirma la liberacion avisando que se perdera el carrito de la mesa. */
+    private fun mostrarConfirmacionLiberar(mesa: Mesa) {
+        dialogoAbierto?.dismiss()
+        dialogoAbierto = null
+
+        val contenido = DialogLiberarMesaBinding.inflate(layoutInflater)
+        contenido.mensajeDialogo.text = getString(R.string.dialogo_atendida_liberar_mensaje)
+
+        val dialogo = MaterialAlertDialogBuilder(
+            this,
+            R.style.ThemeOverlay_LaCasaBlanca_Dialogo_LiberarMesa
+        )
+            .setView(contenido.root)
+            .setCancelable(true)
+            .create()
+
+        contenido.btnCancelar.setOnClickListener { dialogo.dismiss() }
+        contenido.btnLiberar.setOnClickListener {
+            dialogo.setCancelable(false)
+            dialogo.setCanceledOnTouchOutside(false)
+            contenido.grupoBotones.isVisible = false
+            contenido.progresoLiberar.isVisible = true
+            contenido.textoProgreso.isVisible = true
+            viewModel.liberarMesa(mesa.id)
+        }
+
+        dialogo.setCanceledOnTouchOutside(true)
+        dialogo.setOnDismissListener { if (dialogoLiberarMesa === dialogo) dialogoLiberarMesa = null }
+        dialogo.show()
+        dialogoLiberarMesa = dialogo
+    }
+
+    private fun cerrarDialogoLiberarMesa() {
+        dialogoLiberarMesa?.dismiss()
+        dialogoLiberarMesa = null
     }
 
     /**
@@ -376,11 +461,14 @@ class MesasActivity : AppCompatActivity(), PerfilBottomSheet.Listener {
                 mensaje = getString(R.string.error_abrir_mesa)
             )
 
-            AvisoMesas.ERROR_LIBERAR -> mostrarDialogo(
-                titulo = getString(R.string.error_liberar_mesa_titulo),
-                mensaje = mesa?.let { getString(R.string.error_liberar_mesa, it.numero) }
-                    ?: getString(R.string.error_generico)
-            )
+            AvisoMesas.ERROR_LIBERAR -> {
+                cerrarDialogoLiberarMesa()
+                mostrarDialogo(
+                    titulo = getString(R.string.error_liberar_mesa_titulo),
+                    mensaje = mesa?.let { getString(R.string.error_liberar_mesa, it.numero) }
+                        ?: getString(R.string.error_generico)
+                )
+            }
 
             AvisoMesas.ERROR_RED -> mostrarDialogo(
                 titulo = getString(R.string.error_red_titulo),
