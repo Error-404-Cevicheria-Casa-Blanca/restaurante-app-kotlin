@@ -476,8 +476,15 @@ class CobroActivity : AppCompatActivity() {
             if (viewModel.aplicarDescuento(tipo, texto)) {
                 dialogo.dismiss()
             } else {
-                contenido.campoValorDescuento.error =
-                    getString(R.string.cobro_descuento_error)
+                val codigo = viewModel.estado.value.error
+                contenido.campoValorDescuento.error = getString(
+                    if (codigo == CobroViewModel.ERROR_DESCUENTO_PAGADO) {
+                        R.string.cobro_descuento_error_pagado
+                    } else {
+                        R.string.cobro_descuento_error
+                    }
+                )
+                viewModel.limpiarError()
             }
         }
         dialogo.setOnDismissListener {
