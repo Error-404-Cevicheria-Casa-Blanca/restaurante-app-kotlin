@@ -35,6 +35,16 @@ class FakeAuthRepository(
         return sessionManager.sesion
     }
 
+    /** En modo demostracion el PIN no viaja al backend: se valida localmente. */
+    override suspend fun validarPin(usuario: String, pin: String): Resultado<Unit> {
+        delay(latenciaMs)
+        return if (usuario.isNotBlank() && pin == PIN_DEMO) {
+            Resultado.Exito(Unit)
+        } else {
+            Resultado.Fallo(ErrorApp.CREDENCIALES)
+        }
+    }
+
     override suspend fun cerrarSesion() {
         sessionManager.cerrar()
     }
@@ -42,6 +52,7 @@ class FakeAuthRepository(
     companion object {
         const val USUARIO_DEMO = "mozo"
         const val CLAVE_DEMO = "mozo123"
+        const val PIN_DEMO = "1234"
         const val LATENCIA_SIMULADA_MS = 700L
         const val TOKEN_FAKE = "token-fake-demo"
 
