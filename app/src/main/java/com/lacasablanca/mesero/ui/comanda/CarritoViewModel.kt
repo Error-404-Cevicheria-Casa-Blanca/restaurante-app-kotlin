@@ -142,7 +142,8 @@ class CarritoViewModel(
     }
 
     /** Filtra por categoria. null = "Todas". */
-    fun filtrarCategoria(categoriaId: Long?) {        _estado.update { actual ->
+    fun filtrarCategoria(categoriaId: Long?) {
+        _estado.update { actual ->
             if (actual.categoriaSeleccionada == categoriaId) {
                 actual
             } else {
