@@ -31,6 +31,7 @@ import com.lacasablanca.mesero.domain.model.EstadoMesa
 import com.lacasablanca.mesero.domain.model.Mesa
 import com.lacasablanca.mesero.ui.cobro.CobroActivity
 import com.lacasablanca.mesero.ui.comanda.ComandaActivity
+import com.lacasablanca.mesero.ui.perfil.PerfilActivity
 import com.lacasablanca.mesero.ui.common.aparecerConDesplazamiento
 import com.lacasablanca.mesero.ui.common.colorRes
 import com.lacasablanca.mesero.ui.common.etiquetaPluralRes
@@ -43,7 +44,7 @@ import kotlinx.coroutines.launch
  * Mapa de mesas: toolbar, pestanas de zona, chips de estado con contadores,
  * cuadricula (2 columnas en telefono, 4 en tablet) y estados cargando/vacio/error.
  */
-class MesasActivity : AppCompatActivity(), PerfilBottomSheet.Listener {
+class MesasActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMesasBinding
     private lateinit var adapter: MesaAdapter
@@ -109,7 +110,7 @@ class MesasActivity : AppCompatActivity(), PerfilBottomSheet.Listener {
         pintarLeyenda()
 
         binding.barra.btnActualizar.setOnClickListener { viewModel.refrescar() }
-        binding.barra.btnPerfil.setOnClickListener { mostrarPerfil() }
+        binding.barra.btnPerfil.setOnClickListener { abrirPerfil() }
         binding.barra.btnCerrarSesion.setOnClickListener { viewModel.cerrarSesion() }
         binding.btnReintentar.setOnClickListener { viewModel.cargar() }
 
@@ -343,18 +344,11 @@ class MesasActivity : AppCompatActivity(), PerfilBottomSheet.Listener {
     }
 
     /**
-     * Perfil del mesero (PRB-83): el nombre y el rol ya vienen del estado del
-     * ViewModel, resuelto desde el repositorio de autenticacion (SessionManager).
+     * Perfil del mesero (PRB-83): pantalla completa que resuelve el nombre y
+     * el rol desde el SessionManager y concentra el cierre de sesion.
      */
-    private fun mostrarPerfil() {
-        if (supportFragmentManager.findFragmentByTag(PerfilBottomSheet.TAG) != null) return
-        val estado = viewModel.estado.value
-        PerfilBottomSheet.nueva(estado.nombreUsuario, estado.rolUsuario)
-            .show(supportFragmentManager, PerfilBottomSheet.TAG)
-    }
-
-    override fun onCerrarSesionDesdePerfil() {
-        viewModel.cerrarSesion()
+    private fun abrirPerfil() {
+        startActivity(Intent(this, PerfilActivity::class.java))
     }
 
     /**

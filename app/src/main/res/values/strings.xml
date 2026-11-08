@@ -225,11 +225,16 @@
 
     <!-- Perfil del mesero (PRB-83) -->
     <string name="perfil_titulo">Mi Perfil</string>
-    <string name="perfil_sesion_activa">Sesión activa en este dispositivo</string>
     <string name="perfil_avatar_cd">Avatar del mesero</string>
     <string name="perfil_nombre_vacio">Mesero</string>
     <string name="perfil_rol_mozo">MOZO</string>
     <string name="cd_abrir_perfil">Abrir mi perfil</string>
+    <string name="perfil_datos_sesion">Datos de la sesión</string>
+    <string name="perfil_usuario">Usuario</string>
+    <string name="perfil_terminal">Terminal</string>
+    <string name="perfil_turno">Turno</string>
+    <string name="perfil_fecha">Fecha</string>
+    <string name="perfil_no_asignado">No asignado</string>
 
     <!-- Cobro en tablet (PRB-56) -->
     <string name="cobro_titulo">Cobrar Mesa %1$d</string>
