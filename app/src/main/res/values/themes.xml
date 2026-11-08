@@ -137,6 +137,22 @@
         <item name="cornerSize">16dp</item>
     </style>
 
+    <!-- Dialogo de anulacion de plato (PRB-77): 16dp, blanco y accion en rojo -->
+    <style name="ThemeOverlay.LaCasaBlanca.Dialogo.AnularPlato" parent="ThemeOverlay.Material3.MaterialAlertDialog">
+        <item name="alertDialogStyle">@style/MaterialAlertDialog.LaCasaBlanca.AnularPlato</item>
+    </style>
+
+    <style name="MaterialAlertDialog.LaCasaBlanca.AnularPlato" parent="MaterialAlertDialog.Material3">
+        <item name="shapeAppearance">@style/ShapeAppearance.LaCasaBlanca.Dialogo.AnularPlato</item>
+        <item name="shapeAppearanceOverlay">@null</item>
+        <item name="backgroundTint">@color/surface_container_lowest</item>
+    </style>
+
+    <style name="ShapeAppearance.LaCasaBlanca.Dialogo.AnularPlato" parent="ShapeAppearance.Material3.MediumComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">16dp</item>
+    </style>
+
     <!-- Botones -->
     <style name="Boton.Primario" parent="Widget.Material3.Button">
         <item name="android:layout_height">@dimen/alto_boton_primario</item>
@@ -282,6 +298,29 @@
         <item name="cornerRadius">8dp</item>
         <item name="backgroundTint">@color/primary</item>
         <item name="android:textColor">@color/on_primary</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">@dimen/texto_cuerpo</item>
+        <item name="android:autoSizeTextType">uniform</item>
+        <item name="android:autoSizeMinTextSize">11sp</item>
+        <item name="android:autoSizeMaxTextSize">16sp</item>
+        <item name="android:autoSizeStepGranularity">1sp</item>
+        <item name="android:hyphenationFrequency">none</item>
+        <item name="android:breakStrategy">simple</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:ellipsize">end</item>
+    </style>
+
+    <!-- Boton destructivo del dialogo de anulacion (PRB-77) -->
+    <style name="Boton.DialogoAnular" parent="Widget.Material3.Button">
+        <item name="android:layout_height">@dimen/toque_minimo</item>
+        <item name="android:minHeight">@dimen/toque_minimo</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+        <item name="cornerRadius">8dp</item>
+        <item name="backgroundTint">@color/estado_ocupada</item>
+        <item name="android:textColor">@color/on_primary</item>
+        <item name="iconTint">@color/on_primary</item>
         <item name="android:textAllCaps">false</item>
         <item name="android:textStyle">bold</item>
         <item name="android:textSize">@dimen/texto_cuerpo</item>

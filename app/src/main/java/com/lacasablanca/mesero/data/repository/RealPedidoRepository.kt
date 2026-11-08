@@ -75,6 +75,32 @@ class RealPedidoRepository(private val api: PedidosApi) : PedidoRepository {
         }
     }
 
+    /**
+     * PRB-77: anula un plato ya enviado a cocina. Un 409 significa que el
+     * plato ya fue servido y no se puede quitar de la comanda.
+     */
+    override suspend fun anularItem(pedidoId: Long, itemId: Long): Resultado<Unit> {
+        if (pedidoId <= 0L || itemId <= 0L) return Resultado.Fallo(ErrorApp.VALIDACION)
+
+        return try {
+            val respuesta = api.anularItem(pedidoId, itemId)
+            if (respuesta.isSuccessful) {
+                Resultado.Exito(Unit)
+            } else {
+                val error = if (respuesta.code() == CODIGO_CONFLICTO) {
+                    ErrorApp.PLATO_YA_SERVIDO
+                } else {
+                    errorDesdeCodigoHttp(respuesta.code())
+                }
+                Resultado.Fallo(error)
+            }
+        } catch (e: IOException) {
+            Resultado.Fallo(ErrorApp.RED)
+        } catch (e: Exception) {
+            Resultado.Fallo(ErrorApp.DESCONOCIDO)
+        }
+    }
+
     private companion object {
         const val CODIGO_CONFLICTO = 409
         const val CODIGO_NO_ENCONTRADO = 404

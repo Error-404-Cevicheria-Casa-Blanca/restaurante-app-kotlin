@@ -217,6 +217,22 @@
     <string name="comanda_pedido_existente_error_generico">No se pudo cargar el pedido de la mesa. Inténtalo de nuevo.</string>
     <string name="comanda_pedido_existente_seguir">Seguir agregando</string>
 
+    <!-- Anulacion de platos enviados (PRB-77) -->
+    <string name="anular_plato_titulo">¿Anular este plato?</string>
+    <string name="anular_plato_mensaje">Se descontará del total y se avisará a cocina.</string>
+    <string name="anular_plato_detalle">%1$d × %2$s = %3$s</string>
+    <string name="anular_plato_confirmar">Anular</string>
+    <string name="anular_plato_cancelar">Cancelar</string>
+    <string name="anular_plato_progreso">Anulando plato…</string>
+    <string name="anular_plato_icono_cd">Advertencia: el plato se quitará del pedido</string>
+    <string name="anular_plato_exito">Plato anulado</string>
+    <string name="anular_plato_error_titulo">No se pudo anular el plato</string>
+    <string name="anular_plato_error_servido">Este plato ya fue servido y no se puede anular.</string>
+    <string name="anular_plato_error_red">No se pudo conectar con el servidor. Revisa la red local e inténtalo de nuevo.</string>
+    <string name="anular_plato_error_generico">Ocurrió un error al anular el plato. Inténtalo de nuevo.</string>
+    <string name="cd_anular_producto">Anular %1$s</string>
+    <string name="cd_anular">Anular plato</string>
+
     <!-- Accesibilidad -->
     <string name="cd_actualizar">Actualizar la lista de mesas</string>
     <string name="cd_cerrar_sesion">Cerrar sesión</string>

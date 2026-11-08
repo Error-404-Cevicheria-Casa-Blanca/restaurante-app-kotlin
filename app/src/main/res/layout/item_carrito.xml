@@ -48,6 +48,20 @@
             android:scaleType="centerInside"
             android:src="@drawable/ic_edit"
             app:tint="@color/stitch_primary" />
+
+        <!-- PRB-77: anular un plato ya enviado a cocina -->
+        <ImageButton
+            android:id="@+id/btnAnular"
+            android:layout_width="@dimen/toque_minimo"
+            android:layout_height="@dimen/toque_minimo"
+            android:background="@drawable/bg_boton_cantidad"
+            android:contentDescription="@string/cd_anular"
+            android:padding="@dimen/espacio_m"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_delete"
+            android:visibility="gone"
+            app:tint="@color/estado_ocupada"
+            tools:visibility="visible" />
     </LinearLayout>
 
     <TextView
