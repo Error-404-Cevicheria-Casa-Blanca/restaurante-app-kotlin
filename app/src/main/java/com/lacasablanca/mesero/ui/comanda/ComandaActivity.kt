@@ -460,7 +460,7 @@ class ComandaActivity : AppCompatActivity(), CarritoBottomSheet.Listener {
     private fun mostrarSnackbarAnulacion(texto: String) {
         val sheet = supportFragmentManager
             .findFragmentByTag(CarritoBottomSheet.TAG) as? CarritoBottomSheet
-        if (sheet != null) {
+        if (sheet?.view != null) {
             sheet.mostrarSnackbar(texto)
             return
         }
