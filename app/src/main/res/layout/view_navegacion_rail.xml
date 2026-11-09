@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Rail lateral para tablet (PRB-88). La infla NavegacionPrincipalView. -->
+<com.google.android.material.navigationrail.NavigationRailView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/navegacionInterna"
+    android:layout_width="wrap_content"
+    android:layout_height="match_parent"
+    android:background="@color/surface_container_lowest"
+    android:elevation="@dimen/elevacion_tarjeta"
+    app:itemIconTint="@color/selector_nav_item"
+    app:itemTextColor="@color/selector_nav_item"
+    app:labelVisibilityMode="labeled"
+    app:menu="@menu/menu_navegacion"
+    app:menuGravity="center" />

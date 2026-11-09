@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Destinos principales de la app (PRB-88).
+    El mismo menu se usa en BottomNavigationView (movil) y NavigationRailView
+    (tablet); los ids tambien son los mismos para compartir el codigo Kotlin.
+-->
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/navSalon"
+        android:icon="@drawable/ic_restaurant"
+        android:title="@string/nav_salon" />
+
+    <item
+        android:id="@+id/navPedidos"
+        android:icon="@drawable/ic_receipt"
+        android:title="@string/nav_pedidos" />
+
+    <item
+        android:id="@+id/navPerfil"
+        android:icon="@drawable/ic_person"
+        android:title="@string/nav_perfil" />
+</menu>

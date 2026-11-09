@@ -416,4 +416,13 @@
     <string name="carrito_sheet_titulo_para_llevar">Pedido para llevar</string>
     <string name="comanda_pedido_enviado_mensaje_llevar">Para llevar: %1$s · Pedido #%2$d</string>
     <string name="para_llevar_pedido_enviado">Pedido para llevar enviado a cocina · #%1$d</string>
+
+    <!-- Navegacion principal (PRB-88) -->
+    <string name="nav_salon">Salón</string>
+    <string name="nav_pedidos">Pedidos</string>
+    <string name="nav_perfil">Perfil</string>
+    <string name="cd_nav_salon">Ir a Salón</string>
+    <string name="cd_nav_pedidos">Ir a Pedidos</string>
+    <string name="cd_nav_perfil">Ir a Perfil</string>
+    <string name="nav_placeholder_detalle">Contenido disponible en la siguiente fase.</string>
 </resources>

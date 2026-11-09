@@ -27,6 +27,10 @@
         </activity>
 
         <activity
+            android:name=".ui.main.MainActivity"
+            android:exported="false" />
+
+        <activity
             android:name=".ui.mesas.MesasActivity"
             android:exported="false" />
 
