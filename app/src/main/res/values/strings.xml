@@ -62,6 +62,7 @@
     <string name="mesa_tomada">La mesa %1$d acaba de ser tomada por otro mozo.</string>
     <string name="sesion_expirada">Tu sesión expiró. Vuelve a ingresar.</string>
     <string name="error_red">No se pudo conectar con el servidor. Revisa la red local.</string>
+    <string name="offline_banner">Sin conexión. Mostrando los últimos datos guardados.</string>
     <string name="error_abrir_mesa">No se pudo abrir la mesa. Inténtalo de nuevo.</string>
     <string name="error_liberar_mesa">No se pudo liberar la mesa %1$d.</string>
     <string name="error_generico">Ocurrió un error. Inténtalo de nuevo.</string>
@@ -144,7 +145,7 @@
     <string name="comanda_pedido_enviado_total">Total: %1$s</string>
     <string name="comanda_pedido_enviado_volver">Volver al Mapa</string>
     <string name="comanda_error_envio_titulo">No se pudo enviar el pedido</string>
-    <string name="comanda_error_envio_red">Revisa la red local e inténtalo de nuevo.</string>
+    <string name="comanda_error_envio_red">Sin conexión. El pedido quedó en cola y se enviará automáticamente cuando vuelva la red.</string>
     <string name="comanda_error_envio_conflicto">La mesa ya fue tomada por otro mesero. Actualiza el mapa e inténtalo de nuevo.</string>
     <string name="comanda_error_envio_bloqueado">La mesa está bloqueada temporalmente (por ejemplo, por un cobro en curso). Espera unos minutos e inténtalo de nuevo.</string>
     <string name="comanda_error_envio_validacion">Revisa las cantidades del pedido e inténtalo de nuevo.</string>

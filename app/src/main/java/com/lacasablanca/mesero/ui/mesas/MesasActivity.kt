@@ -121,6 +121,11 @@ class MesasActivity : AppCompatActivity() {
                 launch { viewModel.estado.collect(::render) }
                 launch { viewModel.eventos.collect(::manejarEvento) }
                 launch { viewModel.eventosError.collect(::mostrarErrorPolling) }
+                launch {
+                    contenedor.networkMonitor.enLinea.collect { enLinea ->
+                        binding.bannerOffline.isVisible = !enLinea
+                    }
+                }
             }
         }
     }
