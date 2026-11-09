@@ -40,6 +40,7 @@ data class ItemPedidoExistenteDto(
     val cantidad: Int? = null,
     @SerializedName(value = "precio_unitario", alternate = ["precio"])
     val precioUnitario: BigDecimal? = null,
+    val subtotal: BigDecimal? = null,
     val notas: String? = null,
     /**
      * PRB-76: PENDIENTE, EN_PREPARACION, LISTO, SERVIDO o ANULADO. Se deja

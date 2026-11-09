@@ -1,6 +1,5 @@
 package com.lacasablanca.mesero.ui.salon
 
-import android.app.Activity
 import android.content.Intent
 import android.content.res.ColorStateList
 import android.os.Bundle
@@ -8,7 +7,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
@@ -36,7 +34,7 @@ import com.lacasablanca.mesero.databinding.ItemLeyendaBinding
 import com.lacasablanca.mesero.domain.model.EstadoMesa
 import com.lacasablanca.mesero.domain.model.Mesa
 import com.lacasablanca.mesero.ui.bloqueo.BloqueoActivity
-import com.lacasablanca.mesero.ui.cobro.CobroActivity
+import com.lacasablanca.mesero.ui.cobro.CobroFragment
 import com.lacasablanca.mesero.ui.comanda.ComandaFragment
 import com.lacasablanca.mesero.ui.common.aparecerConDesplazamiento
 import com.lacasablanca.mesero.ui.common.colorRes
@@ -97,18 +95,9 @@ class SalonFragment : Fragment() {
     private var dialogoLiberarMesa: AlertDialog? = null
     private var animacionInicialEjecutada = false
 
-    /** La mesa amarilla abre el cobro; las demas siguen el flujo del mapa. */
-    private val lanzadorCobro = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) { resultado ->
-        if (resultado.resultCode == Activity.RESULT_OK) {
-            viewModel.recargarAlVolver()
-        }
-    }
-
     /**
-     * PRB-88: la comanda ya no es una Activity. Su resultado llega por
-     * FragmentResult desde ComandaFragment y se aplica al mapa.
+     * PRB-88: la comanda y el cobro ya no son Activities. Sus resultados
+     * llegan por FragmentResult; el mapa se refresca cuando corresponde.
      */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -116,6 +105,15 @@ class SalonFragment : Fragment() {
             ComandaFragment.REQUEST_KEY,
             this
         ) { _, datos -> manejarResultadoComanda(datos) }
+
+        parentFragmentManager.setFragmentResultListener(
+            CobroFragment.REQUEST_KEY,
+            this
+        ) { _, datos ->
+            if (datos.getBoolean(CobroFragment.EXTRA_COBRO_EXITOSO, false)) {
+                viewModel.recargarAlVolver()
+            }
+        }
     }
 
     override fun onCreateView(
@@ -663,11 +661,7 @@ class SalonFragment : Fragment() {
     }
 
     private fun abrirCobro(mesa: Mesa) {
-        val intent = Intent(requireContext(), CobroActivity::class.java).apply {
-            putExtra(CobroActivity.EXTRA_MESA_ID, mesa.id)
-            putExtra(CobroActivity.EXTRA_MESA_NUMERO, mesa.numero)
-        }
-        lanzadorCobro.launch(intent)
+        (requireActivity() as? MainActivity)?.abrirCobroMesa(mesa.id, mesa.numero)
     }
 
     private fun abrirComanda(mesa: Mesa, modoLectura: Boolean = false) {

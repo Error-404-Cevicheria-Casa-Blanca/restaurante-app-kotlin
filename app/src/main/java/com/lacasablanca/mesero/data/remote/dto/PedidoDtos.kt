@@ -48,8 +48,9 @@ data class CrearPedidoRequest(
 )
 
 /**
- * Respuesta 201 de POST /api/v1/pedidos (PedidoResponse.java).
- * Solo se modelan los campos que la app necesita para el dialogo de exito.
+ * Respuesta 201 de POST /api/v1/pedidos (PedidoResponse.java) y de
+ * GET /api/v1/pedidos/{id}. Solo se modelan los campos que la app necesita
+ * para el dialogo de exito y para armar la cuenta de un pedido sin mesa.
  */
 data class PedidoResponseDto(
     val id: Long? = null,
@@ -57,7 +58,12 @@ data class PedidoResponseDto(
     val estado: String? = null,
     val subtotal: BigDecimal? = null,
     val igv: BigDecimal? = null,
-    val total: BigDecimal? = null
+    val total: BigDecimal? = null,
+    @SerializedName(value = "items", alternate = ["detalle", "detalles"])
+    val items: List<ItemPedidoExistenteDto>? = null,
+    @SerializedName("tipo_pedido") val tipoPedido: String? = null,
+    @SerializedName("cliente_nombre") val clienteNombre: String? = null,
+    @SerializedName("para_llevar") val paraLlevar: Boolean? = null
 )
 
 fun PedidoResponseDto.aDominio(): PedidoEnviado = PedidoEnviado(

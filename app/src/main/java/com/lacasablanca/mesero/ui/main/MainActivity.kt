@@ -7,6 +7,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import com.lacasablanca.mesero.R
 import com.lacasablanca.mesero.databinding.ActivityMainBinding
+import com.lacasablanca.mesero.ui.cobro.CobroFragment
 import com.lacasablanca.mesero.ui.comanda.ComandaFragment
 import com.lacasablanca.mesero.ui.pedidos.PedidosFragment
 import com.lacasablanca.mesero.ui.perfil.PerfilFragment
@@ -33,6 +34,7 @@ class MainActivity : AppCompatActivity() {
     private val navegacion get() = binding.navegacionPrincipal
 
     private var tabActual = R.id.navSalon
+    private var detalleTab = R.id.navSalon
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,14 +44,17 @@ class MainActivity : AppCompatActivity() {
         configurarNavegacion()
 
         val tabInicial = savedInstanceState?.getInt(KEY_TAB, R.id.navSalon) ?: R.id.navSalon
+        detalleTab = savedInstanceState?.getInt(KEY_DETALLE_TAB, R.id.navSalon)
+            ?: R.id.navSalon
         seleccionarTab(tabInicial)
 
         onBackPressedDispatcher.addCallback(this) {
+            val detalle = supportFragmentManager.findFragmentByTag(TAG_DETALLE)
+            val detalleVisible = detalle != null && tabActual == detalleTab
+            // Si el detalle esta visible, su propio callback maneja Atras.
+            if (detalleVisible) return@addCallback
             if (tabActual == R.id.navSalon) {
-                // Si hay una comanda visible, su propio callback maneja Atras.
-                if (supportFragmentManager.findFragmentByTag(TAG_DETALLE) == null) {
-                    finish()
-                }
+                finish()
             } else {
                 seleccionarTab(R.id.navSalon)
             }
@@ -58,6 +63,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onSaveInstanceState(outState: Bundle) {
         outState.putInt(KEY_TAB, tabActual)
+        outState.putInt(KEY_DETALLE_TAB, detalleTab)
         super.onSaveInstanceState(outState)
     }
 
@@ -88,7 +94,7 @@ class MainActivity : AppCompatActivity() {
     private fun mostrarTab(tabId: Int) {
         tabActual = tabId
         val detalle = supportFragmentManager.findFragmentByTag(TAG_DETALLE)
-        val mostrarDetalle = detalle != null && tabId == R.id.navSalon
+        val mostrarDetalle = detalle != null && tabId == detalleTab
         val transaccion = supportFragmentManager.beginTransaction()
             .setReorderingAllowed(true)
 
@@ -125,30 +131,56 @@ class MainActivity : AppCompatActivity() {
         modoLectura: Boolean
     ) {
         mostrarDetalle(
-            ComandaFragment.nuevaMesa(mesaId, numeroMesa, ubicacion, modoLectura)
+            ComandaFragment.nuevaMesa(mesaId, numeroMesa, ubicacion, modoLectura),
+            R.id.navSalon
         )
     }
 
     fun abrirComandaParaLlevar(clienteNombre: String) {
-        mostrarDetalle(ComandaFragment.nuevaParaLlevar(clienteNombre))
+        mostrarDetalle(
+            ComandaFragment.nuevaParaLlevar(clienteNombre),
+            R.id.navSalon
+        )
     }
 
-    /** Cierra la comanda con popBackStack y vuelve a mostrar el mapa. */
+    /** Cobro de una mesa desde el tab Salón. */
+    fun abrirCobroMesa(mesaId: Long, numeroMesa: Int) {
+        mostrarDetalle(CobroFragment.nuevaMesa(mesaId, numeroMesa), R.id.navSalon)
+    }
+
+    /** Cobro de un pedido sin mesa (delivery/para llevar) desde Pedidos. */
+    fun abrirCobroPedido(pedidoId: Long, clienteNombre: String?) {
+        mostrarDetalle(CobroFragment.nuevaPedido(pedidoId, clienteNombre), R.id.navPedidos)
+    }
+
+    /** Cierra la comanda con popBackStack y vuelve al tab de origen. */
     fun cerrarComanda() {
+        cerrarDetalle()
+    }
+
+    /** Cierra el cobro con popBackStack y vuelve al tab de origen. */
+    fun cerrarCobro() {
+        cerrarDetalle()
+    }
+
+    private fun cerrarDetalle() {
+        val origen = detalleTab
         supportFragmentManager.popBackStackImmediate(
             TAG_DETALLE,
             FragmentManager.POP_BACK_STACK_INCLUSIVE
         )
-        seleccionarTab(R.id.navSalon)
+        detalleTab = R.id.navSalon
+        seleccionarTab(origen)
     }
 
-    private fun mostrarDetalle(fragment: Fragment) {
+    private fun mostrarDetalle(fragment: Fragment, tabOrigen: Int) {
         if (supportFragmentManager.findFragmentByTag(TAG_DETALLE) != null) return
 
+        detalleTab = tabOrigen
         val transaccion = supportFragmentManager.beginTransaction()
             .setReorderingAllowed(true)
         // El detalle ocupa el contenedor; se ocultan los tabs para que su
-        // polling no siga activo detras de la comanda.
+        // polling no siga activo detras del detalle.
         TABS.forEach { id ->
             supportFragmentManager.findFragmentByTag(tagDe(id))?.let { transaccion.hide(it) }
         }
@@ -170,7 +202,8 @@ class MainActivity : AppCompatActivity() {
 
     private companion object {
         const val KEY_TAB = "key_tab_actual"
-        const val TAG_DETALLE = "detalle_comanda"
+        const val KEY_DETALLE_TAB = "key_detalle_tab"
+        const val TAG_DETALLE = "detalle_operacion"
 
         val TABS = listOf(R.id.navSalon, R.id.navPedidos, R.id.navPerfil)
     }

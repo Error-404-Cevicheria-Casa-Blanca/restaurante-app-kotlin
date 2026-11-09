@@ -355,6 +355,8 @@
     <string name="cobro_error_comensales">El número de personas debe estar entre 2 y 50.</string>
     <string name="cobro_error_conflicto">La mesa cambió de estado. Actualiza la cuenta e inténtalo de nuevo.</string>
     <string name="cobro_error_conflicto_pagada">La cuenta ya fue pagada. Actualiza el mapa de mesas para ver su estado.</string>
+    <string name="cobro_error_conflicto_pedido">El pedido cambió de estado. Vuelve a intentarlo.</string>
+    <string name="cobro_error_conflicto_pagada_pedido">El pedido ya fue cobrado. Vuelve a Pedidos para actualizar la lista.</string>
     <string name="cobro_error_bloqueado">El cobro está bloqueado temporalmente. Espera unos minutos e inténtalo de nuevo.</string>
     <string name="cobro_error_servidor">Ocurrió un error en el servidor. Inténtalo de nuevo.</string>
     <string name="cobro_error_desconocido">Ocurrió un error inesperado. Inténtalo de nuevo.</string>
@@ -362,6 +364,11 @@
     <string name="cobro_exito_mensaje">Mesa %1$d · Cobro registrado</string>
     <string name="cobro_exito_total">Total cobrado: %1$s</string>
     <string name="cobro_exito_volver">Volver al mapa</string>
+    <!-- Cobro de pedido sin mesa / delivery (PRB-88, Fase 5) -->
+    <string name="cobro_titulo_pedido">Cobrar Pedido #%1$d</string>
+    <string name="cobro_exito_mensaje_pedido">Pedido #%1$d · Cobro registrado</string>
+    <string name="cobro_exito_mensaje_pedido_cliente">Pedido #%1$d · %2$s · Cobro registrado</string>
+    <string name="cobro_exito_volver_pedidos">Volver a Pedidos</string>
     <string name="cobro_salir_titulo">¿Salir sin cobrar?</string>
     <string name="cobro_salir_mensaje">La mesa seguirá ocupada. ¿Deseas salir sin registrar el cobro?</string>
     <string name="cobro_salir_confirmar">Salir</string>

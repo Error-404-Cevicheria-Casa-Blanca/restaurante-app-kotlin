@@ -34,11 +34,6 @@
             android:name=".ui.bloqueo.BloqueoActivity"
             android:exported="false"
             android:launchMode="singleTop" />
-
-        <activity
-            android:name=".ui.cobro.CobroActivity"
-            android:exported="false"
-            android:windowSoftInputMode="adjustResize" />
     </application>
 
 </manifest>
