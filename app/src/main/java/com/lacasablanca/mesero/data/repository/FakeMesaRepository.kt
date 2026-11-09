@@ -2,14 +2,22 @@ package com.lacasablanca.mesero.data.repository
 
 import com.lacasablanca.mesero.domain.ErrorApp
 import com.lacasablanca.mesero.domain.Resultado
+import com.lacasablanca.mesero.domain.model.CuentaMesa
+import com.lacasablanca.mesero.domain.model.DivisionMesa
 import com.lacasablanca.mesero.domain.model.EstadoMesa
 import com.lacasablanca.mesero.domain.model.Mesa
 import kotlinx.coroutines.delay
+import java.math.BigDecimal
 
 /**
  * DATOS FAKE (no reales). Simula la API de mesas mientras el backend no esta
  * levantado: 13 mesas confirmadas por el equipo (primer piso 1-7, segundo piso 8-13)
  * con mezcla de los 4 estados.
+ *
+ * PRB-93: las operaciones de salon respetan las validaciones de estado de
+ * `PedidoService` (origen no libre, destino disponible), pero no hay pedidos
+ * reales que mover ni consumos que sumar; por eso los totales son 0.00 y los
+ * ids de pedido son ficticios.
  */
 class FakeMesaRepository(private val latenciaMs: Long = LATENCIA_SIMULADA_MS) : MesaRepository {
 
@@ -33,6 +41,100 @@ class FakeMesaRepository(private val latenciaMs: Long = LATENCIA_SIMULADA_MS) : 
         mesas[indice] = actualizada
         return Resultado.Exito(actualizada)
     }
+
+    override suspend fun dividirMesa(
+        mesaOrigenId: Long,
+        itemIds: List<Long>,
+        mesaDestinoId: Long?
+    ): Resultado<DivisionMesa> {
+        delay(latenciaMs)
+        if (itemIds.isEmpty()) return Resultado.Fallo(ErrorApp.VALIDACION)
+        return aplicarDivision(mesaOrigenId, mesaDestinoId)
+    }
+
+    private fun aplicarDivision(
+        mesaOrigenId: Long,
+        mesaDestinoId: Long?
+    ): Resultado<DivisionMesa> {
+        val indiceOrigen = mesas.indexOfFirst { it.id == mesaOrigenId }
+        if (indiceOrigen < 0) return Resultado.Fallo(ErrorApp.NO_ENCONTRADO)
+        val origen = mesas[indiceOrigen]
+        if (origen.estado == EstadoMesa.LIBRE) return Resultado.Fallo(ErrorApp.CONFLICTO)
+
+        val destinoId = mesaDestinoId ?: mesaOrigenId
+        val indiceDestino = mesas.indexOfFirst { it.id == destinoId }
+        if (indiceDestino < 0) return Resultado.Fallo(ErrorApp.NO_ENCONTRADO)
+        val destino = mesas[indiceDestino]
+        if (destino.id != origen.id && !destino.disponibleParaRecibir) {
+            return Resultado.Fallo(ErrorApp.CONFLICTO)
+        }
+        if (destino.id != origen.id) {
+            mesas[indiceDestino] = destino.copy(estado = EstadoMesa.OCUPADA)
+        }
+
+        // DATOS FAKE: ids de pedido ficticios y total 0.00; el backend real
+        // devuelve los ids y el total calculado con BigDecimal.
+        return Resultado.Exito(
+            DivisionMesa(
+                mesaOrigenId = origen.id,
+                mesaDestinoId = destino.id,
+                pedidoOrigenId = 0L,
+                pedidoNuevoId = 0L,
+                totalCombinado = BigDecimal.ZERO
+            )
+        )
+    }
+
+    override suspend fun fusionarMesas(
+        mesaDestinoId: Long,
+        mesaOrigenId: Long
+    ): Resultado<CuentaMesa> {
+        delay(latenciaMs)
+        if (mesaDestinoId == mesaOrigenId) return Resultado.Fallo(ErrorApp.CONFLICTO)
+
+        val indiceDestino = mesas.indexOfFirst { it.id == mesaDestinoId }
+        val indiceOrigen = mesas.indexOfFirst { it.id == mesaOrigenId }
+        if (indiceDestino < 0 || indiceOrigen < 0) return Resultado.Fallo(ErrorApp.NO_ENCONTRADO)
+
+        val destino = mesas[indiceDestino]
+        val origen = mesas[indiceOrigen]
+        if (!destino.tienePedidoActivo || !origen.tienePedidoActivo) {
+            return Resultado.Fallo(ErrorApp.CONFLICTO)
+        }
+        mesas[indiceOrigen] = origen.copy(estado = EstadoMesa.LIBRE)
+        // DATOS FAKE: el backend devuelve la cuenta real de la mesa destino.
+        return Resultado.Exito(CuentaMesa(mesaId = destino.id, total = BigDecimal.ZERO))
+    }
+
+    override suspend fun transferirMesa(
+        mesaOrigenId: Long,
+        mesaDestinoId: Long
+    ): Resultado<CuentaMesa> {
+        delay(latenciaMs)
+        if (mesaOrigenId == mesaDestinoId) return Resultado.Fallo(ErrorApp.CONFLICTO)
+
+        val indiceOrigen = mesas.indexOfFirst { it.id == mesaOrigenId }
+        val indiceDestino = mesas.indexOfFirst { it.id == mesaDestinoId }
+        if (indiceOrigen < 0 || indiceDestino < 0) return Resultado.Fallo(ErrorApp.NO_ENCONTRADO)
+
+        val origen = mesas[indiceOrigen]
+        val destino = mesas[indiceDestino]
+        if (origen.estado == EstadoMesa.LIBRE || !destino.disponibleParaRecibir) {
+            return Resultado.Fallo(ErrorApp.CONFLICTO)
+        }
+        mesas[indiceDestino] = destino.copy(estado = origen.estado)
+        mesas[indiceOrigen] = origen.copy(estado = EstadoMesa.LIBRE)
+        // DATOS FAKE: el backend devuelve la cuenta real tras mover los pedidos.
+        return Resultado.Exito(CuentaMesa(mesaId = destino.id, total = BigDecimal.ZERO))
+    }
+
+    /** El backend solo rechaza destinos OCUPADA o CUENTA_SOLICITADA. */
+    private val Mesa.disponibleParaRecibir: Boolean
+        get() = estado == EstadoMesa.LIBRE || estado == EstadoMesa.ATENDIDA
+
+    /** El backend exige que ambas mesas tengan pedidos activos. */
+    private val Mesa.tienePedidoActivo: Boolean
+        get() = estado == EstadoMesa.OCUPADA || estado == EstadoMesa.ATENDIDA
 
     companion object {
         const val LATENCIA_SIMULADA_MS = 500L
