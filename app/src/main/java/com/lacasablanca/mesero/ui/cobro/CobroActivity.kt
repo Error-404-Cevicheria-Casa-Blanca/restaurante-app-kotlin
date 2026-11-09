@@ -10,6 +10,7 @@ import androidx.activity.addCallback
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
@@ -20,9 +21,11 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputEditText
 import com.lacasablanca.mesero.MeseroApp
 import com.lacasablanca.mesero.R
+import com.lacasablanca.mesero.core.GenericViewModelFactory
 import com.lacasablanca.mesero.databinding.ActivityCobroBinding
 import com.lacasablanca.mesero.databinding.DialogAplicarDescuentoBinding
 import com.lacasablanca.mesero.databinding.DialogCobroExitosoBinding
@@ -33,6 +36,9 @@ import com.lacasablanca.mesero.domain.model.MetodoPago
 import com.lacasablanca.mesero.domain.model.TipoDescuento
 import com.lacasablanca.mesero.ui.bloqueo.BloqueoActivity
 import com.lacasablanca.mesero.ui.common.formatearMoneda
+import com.lacasablanca.mesero.ui.impresion.AvisoImpresion
+import com.lacasablanca.mesero.ui.impresion.ImpresionPrecuentaViewModel
+import com.lacasablanca.mesero.ui.impresion.ImpresionUiState
 import kotlinx.coroutines.launch
 import java.math.BigDecimal
 
@@ -54,6 +60,12 @@ class CobroActivity : AppCompatActivity() {
 
     private val viewModel: CobroViewModel by viewModels {
         CobroViewModelFactory(mesaId, contenedor.cobroRepository)
+    }
+
+    private val impresionViewModel: ImpresionPrecuentaViewModel by viewModels {
+        GenericViewModelFactory {
+            ImpresionPrecuentaViewModel(mesaId, contenedor.cobroRepository)
+        }
     }
 
     private var actualizandoChips = false
@@ -86,7 +98,8 @@ class CobroActivity : AppCompatActivity() {
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.estado.collect(::render)
+                launch { viewModel.estado.collect(::render) }
+                launch { impresionViewModel.estado.collect(::renderImpresion) }
             }
         }
     }
@@ -164,6 +177,8 @@ class CobroActivity : AppCompatActivity() {
         binding.btnConfirmarCobro.setOnClickListener { viewModel.confirmarCobro() }
         binding.btnReintentarCobro.setOnClickListener { viewModel.cargarCuenta() }
         binding.btnAplicarDescuento.setOnClickListener { mostrarDialogoDescuento() }
+        binding.btnImprimir.setOnClickListener { impresionViewModel.imprimirPrecuenta() }
+        binding.btnReimprimir.setOnClickListener { impresionViewModel.reimprimirPrecuenta() }
 
         binding.grupoMediosPago.setOnCheckedStateChangeListener { _, ids ->
             if (actualizandoChips) return@setOnCheckedStateChangeListener
@@ -216,6 +231,30 @@ class CobroActivity : AppCompatActivity() {
         renderBarra(estado)
         mostrarErrorDeAccion(estado)
         mostrarExito(estado)
+    }
+
+    /** Botones de impresion (PRB-73) y Snackbar del resultado. */
+    private fun renderImpresion(estado: ImpresionUiState) {
+        binding.btnImprimir.isEnabled = !estado.imprimiendo
+        binding.btnReimprimir.isEnabled = !estado.imprimiendo
+
+        val aviso = estado.aviso ?: return
+        impresionViewModel.consumirAviso()
+        val snackbar = Snackbar.make(
+            binding.root,
+            textoAvisoImpresion(aviso),
+            Snackbar.LENGTH_SHORT
+        )
+        snackbar.setTextColor(ContextCompat.getColor(this, R.color.on_primary))
+        snackbar.show()
+        snackbar.view.background = ContextCompat.getDrawable(this, R.drawable.bg_snackbar)
+    }
+
+    private fun textoAvisoImpresion(aviso: AvisoImpresion): String = when (aviso) {
+        AvisoImpresion.ENVIADA -> getString(R.string.impresion_enviada)
+        AvisoImpresion.ERROR_CONEXION -> getString(R.string.impresion_error_conexion)
+        AvisoImpresion.SESION_EXPIRADA -> getString(R.string.impresion_sesion_expirada)
+        AvisoImpresion.ERROR -> getString(R.string.impresion_error)
     }
 
     private fun renderCuenta(estado: CobroUiState) {

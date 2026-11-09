@@ -368,6 +368,13 @@
     <string name="cobro_salir_icono_cd">Advertencia: la mesa seguirá ocupada</string>
 
     <!-- Cobro desde la comanda (PRB-56) -->
+    <!-- Impresion de pre-cuenta (PRB-73) -->
+    <string name="impresion_imprimir">Imprimir</string>
+    <string name="impresion_reimprimir">Reimprimir</string>
+    <string name="impresion_enviada">Enviado a impresora</string>
+    <string name="impresion_error_conexion">Error de conexión</string>
+    <string name="impresion_error">No se pudo imprimir</string>
+    <string name="impresion_sesion_expirada">Tu sesión expiró. Vuelve a ingresar.</string>
     <string name="comanda_cobrar">Cobrar</string>
     <string name="comanda_cobrar_ahora">Cobrar ahora</string>
 

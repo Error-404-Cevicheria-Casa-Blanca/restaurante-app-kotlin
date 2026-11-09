@@ -34,6 +34,9 @@ import com.lacasablanca.mesero.domain.model.PedidoEnviado
 import com.lacasablanca.mesero.ui.bloqueo.BloqueoActivity
 import com.lacasablanca.mesero.ui.common.aparecerConDesplazamiento
 import com.lacasablanca.mesero.ui.common.formatearMoneda
+import com.lacasablanca.mesero.ui.impresion.AvisoImpresion
+import com.lacasablanca.mesero.ui.impresion.ImpresionPrecuentaViewModel
+import com.lacasablanca.mesero.ui.impresion.ImpresionUiState
 import com.lacasablanca.mesero.ui.login.LoginActivity
 import kotlinx.coroutines.launch
 
@@ -63,6 +66,12 @@ class ComandaActivity : AppCompatActivity(), CarritoBottomSheet.Listener {
 
     private val comandaViewModel: ComandaViewModel by viewModels {
         GenericViewModelFactory { ComandaViewModel(contenedor.mesaRepository) }
+    }
+
+    private val impresionViewModel: ImpresionPrecuentaViewModel by viewModels {
+        GenericViewModelFactory {
+            ImpresionPrecuentaViewModel(mesaId, contenedor.cobroRepository)
+        }
     }
 
     private lateinit var catalogoAdapter: CatalogoAdapter
@@ -128,6 +137,7 @@ class ComandaActivity : AppCompatActivity(), CarritoBottomSheet.Listener {
                 launch { carritoViewModel.eventos.collect(::manejarEventoCarrito) }
                 launch { comandaViewModel.estado.collect(::renderComanda) }
                 launch { comandaViewModel.eventos.collect(::manejarEventoComanda) }
+                launch { impresionViewModel.estado.collect(::renderImpresion) }
             }
         }
     }
@@ -165,6 +175,8 @@ class ComandaActivity : AppCompatActivity(), CarritoBottomSheet.Listener {
         binding.barraCheckout.btnVerCarrito.setOnClickListener { mostrarCarrito() }
         binding.btnReintentarCatalogo.setOnClickListener { carritoViewModel.cargar() }
         binding.btnPedirCuenta.setOnClickListener { comandaViewModel.pedirCuenta(mesaId) }
+        binding.btnImprimir.setOnClickListener { impresionViewModel.imprimirPrecuenta() }
+        binding.btnReimprimir.setOnClickListener { impresionViewModel.reimprimirPrecuenta() }
         binding.barraComanda.setOnMenuItemClickListener { item ->
             when (item.itemId) {
                 R.id.accionBloquear -> {
@@ -382,7 +394,7 @@ class ComandaActivity : AppCompatActivity(), CarritoBottomSheet.Listener {
 
             is CarritoEvento.ItemAnulado -> {
                 cerrarDialogoAnular()
-                mostrarSnackbarAnulacion(getString(R.string.anular_plato_exito))
+                mostrarSnackbar(getString(R.string.anular_plato_exito))
             }
 
             is CarritoEvento.ErrorAlAnular -> {
@@ -480,7 +492,7 @@ class ComandaActivity : AppCompatActivity(), CarritoBottomSheet.Listener {
      * El Snackbar se pinta dentro del bottom sheet cuando esta abierto; si no,
      * se usa el Snackbar de marca de la Activity.
      */
-    private fun mostrarSnackbarAnulacion(texto: String) {
+    private fun mostrarSnackbar(texto: String) {
         val sheet = supportFragmentManager
             .findFragmentByTag(CarritoBottomSheet.TAG) as? CarritoBottomSheet
         if (sheet?.view != null) {
@@ -492,6 +504,23 @@ class ComandaActivity : AppCompatActivity(), CarritoBottomSheet.Listener {
         snackbar.setTextColor(ContextCompat.getColor(this, R.color.on_primary))
         snackbar.show()
         snackbar.view.background = ContextCompat.getDrawable(this, R.drawable.bg_snackbar)
+    }
+
+    /** Botones de impresion (PRB-73) y Snackbar del resultado. */
+    private fun renderImpresion(estado: ImpresionUiState) {
+        binding.btnImprimir.isEnabled = !estado.imprimiendo
+        binding.btnReimprimir.isEnabled = !estado.imprimiendo
+
+        val aviso = estado.aviso ?: return
+        impresionViewModel.consumirAviso()
+        mostrarSnackbar(textoAvisoImpresion(aviso))
+    }
+
+    private fun textoAvisoImpresion(aviso: AvisoImpresion): String = when (aviso) {
+        AvisoImpresion.ENVIADA -> getString(R.string.impresion_enviada)
+        AvisoImpresion.ERROR_CONEXION -> getString(R.string.impresion_error_conexion)
+        AvisoImpresion.SESION_EXPIRADA -> getString(R.string.impresion_sesion_expirada)
+        AvisoImpresion.ERROR -> getString(R.string.impresion_error)
     }
 
     private fun cerrarDialogoAnular() {
