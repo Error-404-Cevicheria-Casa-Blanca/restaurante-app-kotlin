@@ -12,3 +12,6 @@ local.properties
 *.aab
 *.keystore
 !debug.keystore
+
+# Sesion del compilador Kotlin (Gradle 9)
+.kotlin/

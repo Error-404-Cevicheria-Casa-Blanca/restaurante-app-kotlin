@@ -2,34 +2,26 @@ package com.lacasablanca.mesero.ui.comanda
 
 import android.content.Intent
 import android.content.res.ColorStateList
-import android.graphics.text.LineBreaker
 import android.os.Bundle
-import android.text.Layout
-import android.view.View
 import androidx.activity.addCallback
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
+import androidx.core.widget.TextViewCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.google.android.material.chip.Chip
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.lacasablanca.mesero.BuildConfig
 import com.lacasablanca.mesero.MeseroApp
 import com.lacasablanca.mesero.R
 import com.lacasablanca.mesero.core.GenericViewModelFactory
 import com.lacasablanca.mesero.databinding.ActivityComandaBinding
-import com.lacasablanca.mesero.databinding.DialogCuentaSolicitadaBinding
-import com.lacasablanca.mesero.databinding.DialogLiberarMesaBinding
-import com.lacasablanca.mesero.databinding.DialogNotaPlatoBinding
-import com.lacasablanca.mesero.databinding.DialogPedidoEnviadoBinding
+
 import com.lacasablanca.mesero.domain.ErrorApp
-import com.lacasablanca.mesero.domain.model.Categoria
 import com.lacasablanca.mesero.domain.model.DestinoPedido
 import com.lacasablanca.mesero.domain.model.ItemCarrito
 import com.lacasablanca.mesero.domain.model.PedidoEnviado
@@ -81,6 +73,7 @@ class ComandaActivity : AppCompatActivity(), CarritoBottomSheet.Listener {
     }
 
     private lateinit var catalogoAdapter: CatalogoAdapter
+    private lateinit var catalogoChips: CatalogoChips
 
     private var mesaId = -1L
     private var numeroMesa = 0
@@ -96,8 +89,11 @@ class ComandaActivity : AppCompatActivity(), CarritoBottomSheet.Listener {
     private var modoLectura = false
     private var saliendo = false
     private var dialogoAbierto: AlertDialog? = null
-    private var dialogoLiberar: AlertDialog? = null
+    private var dialogoLiberar: LiberarMesaDialog? = null
     private var dialogoAnular: AnularPlatoDialog? = null
+    private var dialogoPedidoEnviado: PedidoEnviadoDialog? = null
+    private var dialogoNota: NotaPlatoDialog? = null
+    private var dialogoCuentaSolicitada: CuentaSolicitadaDialog? = null
 
     /** PRB-92: selector de modificadores con un solo dialogo a la vez. */
     private val selectorModificadores: SelectorModificadores by lazy {
@@ -108,8 +104,6 @@ class ComandaActivity : AppCompatActivity(), CarritoBottomSheet.Listener {
     private var pedidoExistenteMostrado = false
     private var errorPedidoExistenteMostrado = false
 
-    private var categoriasRenderizadas: List<Categoria>? = null
-    private var seleccionRenderizada: Long? = null
     private var animacionCatalogoEjecutada = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -141,32 +135,7 @@ class ComandaActivity : AppCompatActivity(), CarritoBottomSheet.Listener {
             return
         }
 
-        if (paraLlevar) {
-            binding.barraComanda.title = getString(R.string.comanda_barra_titulo_para_llevar)
-            binding.textoTitulo.text = getString(
-                R.string.comanda_titulo_para_llevar,
-                clienteNombre
-            )
-            binding.badgeEstado.text = getString(R.string.comanda_badge_para_llevar)
-            binding.badgeEstado.setCompoundDrawablesRelativeWithIntrinsicBounds(
-                R.drawable.ic_para_llevar,
-                0,
-                0,
-                0
-            )
-            binding.badgeEstado.compoundDrawableTintList =
-                ColorStateList.valueOf(ContextCompat.getColor(this, R.color.tertiary))
-            // Sin mesa no hay "Pedir Cuenta" ni pre-cuenta por mesa.
-            binding.btnPedirCuenta.isVisible = false
-            binding.grupoImpresion.isVisible = false
-        } else {
-            binding.textoTitulo.text = getString(R.string.comanda_titulo, numeroMesa, ubicacion)
-            binding.badgeEstado.text = if (modoLectura) {
-                getString(R.string.comanda_badge_lectura)
-            } else {
-                getString(R.string.comanda_badge)
-            }
-        }
+        configurarCabecera(ubicacion)
         binding.textoModoDemo.isVisible = BuildConfig.USE_FAKE_DATA
 
         prepararListas()
@@ -187,6 +156,38 @@ class ComandaActivity : AppCompatActivity(), CarritoBottomSheet.Listener {
                 launch { comandaViewModel.estado.collect(::renderComanda) }
                 launch { comandaViewModel.eventos.collect(::manejarEventoComanda) }
                 launch { impresionViewModel.estado.collect(::renderImpresion) }
+            }
+        }
+    }
+
+    /** Cabecera y acciones propias de una comanda de mesa o para llevar. */
+    private fun configurarCabecera(ubicacion: String) {
+        if (paraLlevar) {
+            binding.barraComanda.title = getString(R.string.comanda_barra_titulo_para_llevar)
+            binding.textoTitulo.text = getString(
+                R.string.comanda_titulo_para_llevar,
+                clienteNombre
+            )
+            binding.badgeEstado.text = getString(R.string.comanda_badge_para_llevar)
+            binding.badgeEstado.setCompoundDrawablesRelativeWithIntrinsicBounds(
+                R.drawable.ic_para_llevar,
+                0,
+                0,
+                0
+            )
+            TextViewCompat.setCompoundDrawableTintList(
+                binding.badgeEstado,
+                ColorStateList.valueOf(ContextCompat.getColor(this, R.color.tertiary))
+            )
+            // Sin mesa no hay "Pedir Cuenta" ni pre-cuenta por mesa.
+            binding.btnPedirCuenta.isVisible = false
+            binding.grupoImpresion.isVisible = false
+        } else {
+            binding.textoTitulo.text = getString(R.string.comanda_titulo, numeroMesa, ubicacion)
+            binding.badgeEstado.text = if (modoLectura) {
+                getString(R.string.comanda_badge_lectura)
+            } else {
+                getString(R.string.comanda_badge)
             }
         }
     }
@@ -225,6 +226,12 @@ class ComandaActivity : AppCompatActivity(), CarritoBottomSheet.Listener {
     override fun onDestroy() {
         cerrarDialogoLiberar()
         cerrarDialogoAnular()
+        dialogoPedidoEnviado?.cerrar()
+        dialogoPedidoEnviado = null
+        dialogoNota?.cerrar()
+        dialogoNota = null
+        dialogoCuentaSolicitada?.cerrar()
+        dialogoCuentaSolicitada = null
         selectorModificadores.cerrar()
         dialogoAbierto?.dismiss()
         dialogoAbierto = null
@@ -252,6 +259,10 @@ class ComandaActivity : AppCompatActivity(), CarritoBottomSheet.Listener {
 
         binding.listaCatalogo.layoutManager = LinearLayoutManager(this)
         binding.listaCatalogo.adapter = catalogoAdapter
+
+        catalogoChips = CatalogoChips(this, binding.grupoCategorias) { categoriaId ->
+            carritoViewModel.filtrarCategoria(categoriaId)
+        }
     }
 
     private fun prepararAcciones() {
@@ -295,7 +306,7 @@ class ComandaActivity : AppCompatActivity(), CarritoBottomSheet.Listener {
     }
 
     private fun renderCatalogo(estado: CarritoUiState) {
-        renderCategorias(estado.categorias, estado.categoriaSeleccionada)
+        catalogoChips.render(estado.categorias, estado.categoriaSeleccionada)
 
         val hayErrorCatalogo = estado.errorCatalogo != null
         val mostrarCatalogo = !estado.cargando && !hayErrorCatalogo && !estado.catalogoVacio
@@ -384,63 +395,6 @@ class ComandaActivity : AppCompatActivity(), CarritoBottomSheet.Listener {
         )
     }
 
-    /**
-     * Reconstruye los chips solo cuando cambian las categorias o la seleccion.
-     * Evita parpadeos y llamadas al ViewModel durante cada cambio del carrito.
-     */
-    private fun renderCategorias(categorias: List<Categoria>, seleccionada: Long?) {
-        if (categorias == categoriasRenderizadas &&
-            seleccionada == seleccionRenderizada &&
-            binding.grupoCategorias.childCount > 0
-        ) {
-            return
-        }
-
-        categoriasRenderizadas = categorias
-        seleccionRenderizada = seleccionada
-        binding.grupoCategorias.removeAllViews()
-
-        binding.grupoCategorias.addView(
-            crearChip(
-                texto = getString(R.string.comanda_categoria_todas),
-                categoriaId = null,
-                marcado = seleccionada == null
-            )
-        )
-        categorias.forEach { categoria ->
-            binding.grupoCategorias.addView(
-                crearChip(
-                    texto = categoria.nombre,
-                    categoriaId = categoria.id,
-                    marcado = seleccionada == categoria.id
-                )
-            )
-        }
-    }
-
-    private fun crearChip(texto: String, categoriaId: Long?, marcado: Boolean): Chip {
-        val chip = Chip(this)
-        chip.id = View.generateViewId()
-        chip.text = texto
-        chip.isCheckable = true
-        chip.isChecked = marcado
-        chip.isClickable = true
-        chip.setEnsureMinTouchTargetSize(true)
-        chip.minHeight = resources.getDimensionPixelSize(R.dimen.toque_minimo)
-        chip.chipStrokeWidth = 0f
-        chip.setChipBackgroundColorResource(R.color.selector_fondo_chip_categoria)
-        chip.setTextColor(
-            ContextCompat.getColorStateList(this, R.color.selector_texto_chip_categoria)
-        )
-        chip.setBreakStrategy(LineBreaker.BREAK_STRATEGY_SIMPLE)
-        chip.hyphenationFrequency = Layout.HYPHENATION_FREQUENCY_NONE
-        chip.contentDescription = getString(R.string.cd_categoria, texto)
-        chip.setOnCheckedChangeListener { _, isChecked ->
-            if (isChecked) carritoViewModel.filtrarCategoria(categoriaId)
-        }
-        return chip
-    }
-
     /** Abre el carrito en el bottom sheet (un solo fragmento a la vez). */
     private fun mostrarCarrito() {
         if (!paraLlevar && mesaId <= 0L) return
@@ -456,7 +410,11 @@ class ComandaActivity : AppCompatActivity(), CarritoBottomSheet.Listener {
 
     /** La nota se edita desde la linea del carrito del bottom sheet. */
     override fun onEditarNotas(item: ItemCarrito) {
-        mostrarDialogoNota(item)
+        cerrarDialogoAbierto()
+        dialogoNota?.cerrar()
+        dialogoNota = NotaPlatoDialog(this, item) { notas ->
+            carritoViewModel.actualizarNotas(item, notas)
+        }.also { it.mostrar() }
     }
 
     /** PRB-77: el icono de anular pide confirmacion antes de llamar al backend. */
@@ -501,68 +459,20 @@ class ComandaActivity : AppCompatActivity(), CarritoBottomSheet.Listener {
 
     private fun mostrarDialogoPedidoEnviado(pedido: PedidoEnviado) {
         cerrarDialogoAbierto()
-
-        val contenido = DialogPedidoEnviadoBinding.inflate(layoutInflater)
-        contenido.textoExitoMensaje.text = if (paraLlevar) {
-            getString(
-                R.string.comanda_pedido_enviado_mensaje_llevar,
-                clienteNombre,
-                pedido.id
-            )
-        } else {
-            getString(
-                R.string.comanda_pedido_enviado_mensaje,
-                numeroMesa,
-                pedido.id
-            )
-        }
-        contenido.textoExitoTotal.text = getString(
-            R.string.comanda_pedido_enviado_total,
-            formatearMoneda(pedido.total)
-        )
-
-        val dialogo = MaterialAlertDialogBuilder(this)
-            .setView(contenido.root)
-            .setCancelable(false)
-            .create()
-
-        contenido.btnVolverMapa.setOnClickListener {
-            dialogo.dismiss()
+        dialogoPedidoEnviado?.cerrar()
+        dialogoPedidoEnviado = PedidoEnviadoDialog(
+            activity = this,
+            paraLlevar = paraLlevar,
+            clienteNombre = clienteNombre,
+            numeroMesa = numeroMesa,
+            pedido = pedido
+        ) {
             terminar(
                 mesaLiberada = false,
                 liberarPendiente = false,
                 pedidoParaLlevarId = pedidoIdParaLlevar
             )
-        }
-
-        dialogo.setCanceledOnTouchOutside(false)
-        dialogo.setOnDismissListener { if (dialogoAbierto === dialogo) dialogoAbierto = null }
-        dialogo.show()
-        dialogoAbierto = dialogo
-    }
-
-    private fun mostrarDialogoNota(item: ItemCarrito) {
-        cerrarDialogoAbierto()
-
-        val contenido = DialogNotaPlatoBinding.inflate(layoutInflater)
-        contenido.textoNota.setText(item.notas)
-        contenido.textoNota.setSelection(item.notas.length)
-
-        val dialogo = MaterialAlertDialogBuilder(this)
-            .setTitle(getString(R.string.comanda_nota_titulo, item.producto.nombre))
-            .setView(contenido.root)
-            .setPositiveButton(R.string.comanda_nota_guardar) { _, _ ->
-                carritoViewModel.actualizarNotas(
-                    item,
-                    contenido.textoNota.text?.toString().orEmpty()
-                )
-            }
-            .setNegativeButton(R.string.accion_cancelar, null)
-            .create()
-
-        dialogo.setOnDismissListener { if (dialogoAbierto === dialogo) dialogoAbierto = null }
-        dialogo.show()
-        dialogoAbierto = dialogo
+        }.also { it.mostrar() }
     }
 
     // ---------------------------------------------------------------------
@@ -654,9 +564,9 @@ class ComandaActivity : AppCompatActivity(), CarritoBottomSheet.Listener {
      * pantalla es de solo lectura (mesa de otro mozo), la mesa no se libera.
      */
     private fun intentarSalir() {
-        if (saliendo || dialogoLiberar?.isShowing == true) return
+        if (saliendo || dialogoLiberar?.estaMostrando() == true) return
         // PRB-94: un pedido para llevar no tiene mesa que liberar.
-        if (paraLlevar || pedidoEnviado || cuentaSolicitada || modoLectura) {
+        if (noDebeLiberarMesa()) {
             terminar(
                 mesaLiberada = false,
                 liberarPendiente = false,
@@ -667,43 +577,21 @@ class ComandaActivity : AppCompatActivity(), CarritoBottomSheet.Listener {
         mostrarDialogoLiberarMesa()
     }
 
-    private fun mostrarDialogoLiberarMesa() {
-        cerrarDialogoAbierto()
-
-        val contenido = DialogLiberarMesaBinding.inflate(layoutInflater)
-        val dialogo = MaterialAlertDialogBuilder(
-            this,
-            R.style.ThemeOverlay_LaCasaBlanca_Dialogo_LiberarMesa
-        )
-            .setView(contenido.root)
-            .setCancelable(true)
-            .create()
-
-        contenido.btnCancelar.setOnClickListener { dialogo.dismiss() }
-        contenido.btnLiberar.setOnClickListener { confirmarLiberacion(contenido) }
-
-        dialogo.setCanceledOnTouchOutside(true)
-        dialogo.setOnDismissListener {
-            if (dialogoLiberar === dialogo) dialogoLiberar = null
-            if (dialogoAbierto === dialogo) dialogoAbierto = null
-        }
-        dialogo.show()
-
-        dialogoLiberar = dialogo
-        dialogoAbierto = dialogo
+    /** Un pedido enviado, cobrado, de otro mozo o para llevar no libera mesa. */
+    private fun noDebeLiberarMesa(): Boolean {
+        if (paraLlevar || pedidoEnviado) return true
+        return cuentaSolicitada || modoLectura
     }
 
-    private fun confirmarLiberacion(contenido: DialogLiberarMesaBinding) {
+    private fun mostrarDialogoLiberarMesa() {
+        cerrarDialogoAbierto()
+        dialogoLiberar?.cerrar()
+        dialogoLiberar = LiberarMesaDialog(this) { confirmarLiberacion() }.also { it.mostrar() }
+    }
+
+    private fun confirmarLiberacion() {
         if (saliendo) return
         saliendo = true
-
-        dialogoLiberar?.setCancelable(false)
-        dialogoLiberar?.setCanceledOnTouchOutside(false)
-
-        contenido.grupoBotones.isVisible = false
-        contenido.progresoLiberar.isVisible = true
-        contenido.textoProgreso.isVisible = true
-
         comandaViewModel.liberarMesa(mesaId)
     }
 
@@ -739,25 +627,10 @@ class ComandaActivity : AppCompatActivity(), CarritoBottomSheet.Listener {
     /** Exito de "Pedir Cuenta" (PRB-83): confirma y vuelve al mapa. */
     private fun mostrarDialogoCuentaSolicitada() {
         cerrarDialogoAbierto()
-
-        val contenido = DialogCuentaSolicitadaBinding.inflate(layoutInflater)
-        contenido.textoCuentaMensaje.text = getString(R.string.comanda_cuenta_mensaje)
-        contenido.textoCuentaDetalle.text = getString(R.string.comanda_cuenta_detalle, numeroMesa)
-
-        val dialogo = MaterialAlertDialogBuilder(this)
-            .setView(contenido.root)
-            .setCancelable(false)
-            .create()
-
-        contenido.btnVolverMapaCuenta.setOnClickListener {
-            dialogo.dismiss()
+        dialogoCuentaSolicitada?.cerrar()
+        dialogoCuentaSolicitada = CuentaSolicitadaDialog(this, numeroMesa) {
             terminar(mesaLiberada = false, liberarPendiente = false)
-        }
-
-        dialogo.setCanceledOnTouchOutside(false)
-        dialogo.setOnDismissListener { if (dialogoAbierto === dialogo) dialogoAbierto = null }
-        dialogo.show()
-        dialogoAbierto = dialogo
+        }.also { it.mostrar() }
     }
 
     private fun mostrarDialogoErrorCuenta(error: ErrorApp) {
@@ -834,35 +707,33 @@ class ComandaActivity : AppCompatActivity(), CarritoBottomSheet.Listener {
     ) {
         cerrarDialogoLiberar()
         dialogoAbierto?.dismiss()
-        val constructor = MaterialAlertDialogBuilder(this)
-            .setTitle(titulo)
-            .setMessage(mensaje)
-            .setCancelable(cancelable)
-            .setPositiveButton(textoPositivo) { dialog, _ ->
-                dialog.dismiss()
-                alAceptar?.invoke()
-            }
-        if (textoNegativo != null) {
-            constructor.setNegativeButton(textoNegativo) { dialog, _ ->
-                dialog.dismiss()
-                alCancelar?.invoke()
-            }
-        }
-        val dialogo = constructor.create()
-        dialogo.setCanceledOnTouchOutside(cancelable)
+        val dialogo = ComandaDialogos.crear(
+            activity = this,
+            titulo = titulo,
+            mensaje = mensaje,
+            cancelable = cancelable,
+            textoPositivo = textoPositivo,
+            alAceptar = alAceptar,
+            textoNegativo = textoNegativo,
+            alCancelar = alCancelar
+        )
         dialogo.setOnDismissListener { if (dialogoAbierto === dialogo) dialogoAbierto = null }
         dialogo.show()
         dialogoAbierto = dialogo
     }
 
     private fun cerrarDialogoLiberar() {
-        dialogoLiberar?.dismiss()
+        dialogoLiberar?.cerrar()
         dialogoLiberar = null
     }
 
     private fun cerrarDialogoAbierto() {
         dialogoAbierto?.dismiss()
         dialogoAbierto = null
+        dialogoNota?.cerrar()
+        dialogoNota = null
+        dialogoCuentaSolicitada?.cerrar()
+        dialogoCuentaSolicitada = null
     }
 
     /**

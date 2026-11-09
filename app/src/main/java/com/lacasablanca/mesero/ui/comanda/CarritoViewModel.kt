@@ -11,6 +11,7 @@ import com.lacasablanca.mesero.domain.model.DestinoPedido
 import com.lacasablanca.mesero.domain.model.ItemCarrito
 import com.lacasablanca.mesero.domain.model.ItemPedido
 import com.lacasablanca.mesero.domain.model.Modificador
+import com.lacasablanca.mesero.domain.model.PedidoEnviado
 import com.lacasablanca.mesero.domain.model.Producto
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -438,9 +439,7 @@ class CarritoViewModel(
 
     private fun enviarPedidoA(destino: DestinoPedido) {
         val actual = _estado.value
-        if (actual.enviando || actual.carritoVacio) return
-        if (destino is DestinoPedido.Mesa && destino.mesaId <= 0L) return
-        if (destino is DestinoPedido.ParaLlevar && destino.clienteNombre.isBlank()) return
+        if (actual.enviando || actual.carritoVacio || !destino.esValido()) return
 
         // PRB-90: al enviar una nueva comanda se detiene el refresco. Si el
         // envio falla y la pantalla sigue visible, se reanuda mas abajo.
@@ -464,45 +463,58 @@ class CarritoViewModel(
 
         _estado.update { it.copy(enviando = true) }
         viewModelScope.launch(ioDispatcher) {
-            val resultado = when (destino) {
-                is DestinoPedido.Mesa -> pedidoRepository.enviarPedido(
-                    destino.mesaId,
-                    itemsParaEnviar,
-                    clave
-                )
+            val resultado = enviarSegunDestino(destino, itemsParaEnviar, clave)
+            manejarResultadoEnvio(resultado, reanudarPolling, mesaIdPolling)
+        }
+    }
 
-                is DestinoPedido.ParaLlevar -> pedidoRepository.enviarPedidoParaLlevar(
-                    items = itemsParaEnviar,
-                    clientRequestId = clave,
-                    clienteNombre = destino.clienteNombre.trim()
-                )
+    private fun DestinoPedido.esValido(): Boolean = when (this) {
+        is DestinoPedido.Mesa -> mesaId > 0L
+        is DestinoPedido.ParaLlevar -> clienteNombre.isNotBlank()
+    }
+
+    private suspend fun enviarSegunDestino(
+        destino: DestinoPedido,
+        items: List<ItemPedido>,
+        clave: String
+    ): Resultado<PedidoEnviado> = when (destino) {
+        is DestinoPedido.Mesa -> pedidoRepository.enviarPedido(destino.mesaId, items, clave)
+
+        is DestinoPedido.ParaLlevar -> pedidoRepository.enviarPedidoParaLlevar(
+            items = items,
+            clientRequestId = clave,
+            clienteNombre = destino.clienteNombre.trim()
+        )
+    }
+
+    private suspend fun manejarResultadoEnvio(
+        resultado: Resultado<PedidoEnviado>,
+        reanudarPolling: Boolean,
+        mesaIdPolling: Long?
+    ) {
+        when (resultado) {
+            is Resultado.Exito -> {
+                claveIdempotencia = null
+                _estado.update { it.copy(enviando = false, items = emptyList()) }
+                _eventos.send(CarritoEvento.PedidoEnviadoOk(resultado.datos))
             }
 
-            when (resultado) {
-                is Resultado.Exito -> {
-                    claveIdempotencia = null
-                    _estado.update { it.copy(enviando = false, items = emptyList()) }
-                    _eventos.send(CarritoEvento.PedidoEnviadoOk(resultado.datos))
-                }
-
-                is Resultado.Fallo -> {
-                    _estado.update { it.copy(enviando = false) }
-                    if (resultado.error == ErrorApp.SESION_EXPIRADA) {
-                        _eventos.send(CarritoEvento.SesionExpirada)
-                    } else {
-                        if (reanudarPolling &&
-                            pantallaVisible &&
-                            _estado.value.modoLectura &&
-                            mesaIdPolling != null
-                        ) {
-                            startPolling(mesaIdPolling)
-                        }
-                        _eventos.send(CarritoEvento.ErrorAlEnviar(resultado.error))
+            is Resultado.Fallo -> {
+                _estado.update { it.copy(enviando = false) }
+                if (resultado.error == ErrorApp.SESION_EXPIRADA) {
+                    _eventos.send(CarritoEvento.SesionExpirada)
+                } else {
+                    if (mesaIdPolling != null && debeReanudarPolling(reanudarPolling)) {
+                        startPolling(mesaIdPolling)
                     }
+                    _eventos.send(CarritoEvento.ErrorAlEnviar(resultado.error))
                 }
             }
         }
     }
+
+    private fun debeReanudarPolling(reanudar: Boolean): Boolean =
+        reanudar && pantallaVisible && _estado.value.modoLectura
 
     /**
      * Anula un plato ya enviado a cocina (PRB-77).
