@@ -24,11 +24,13 @@ import com.google.android.material.textfield.TextInputEditText
 import com.lacasablanca.mesero.MeseroApp
 import com.lacasablanca.mesero.R
 import com.lacasablanca.mesero.databinding.ActivityCobroBinding
+import com.lacasablanca.mesero.databinding.DialogAplicarDescuentoBinding
 import com.lacasablanca.mesero.databinding.DialogCobroExitosoBinding
 import com.lacasablanca.mesero.databinding.DialogDividirCuentaBinding
 import com.lacasablanca.mesero.databinding.DialogErrorPremiumBinding
 import com.lacasablanca.mesero.databinding.DialogSalirCobroBinding
 import com.lacasablanca.mesero.domain.model.MetodoPago
+import com.lacasablanca.mesero.domain.model.TipoDescuento
 import com.lacasablanca.mesero.ui.common.formatearMoneda
 import kotlinx.coroutines.launch
 import java.math.BigDecimal
@@ -60,6 +62,7 @@ class CobroActivity : AppCompatActivity() {
     private var dialogoExito: AlertDialog? = null
     private var dialogoError: AlertDialog? = null
     private var dialogoDivision: AlertDialog? = null
+    private var dialogoDescuento: AlertDialog? = null
     private var dialogoExitoMostrado = false
     private var terminando = false
 
@@ -96,6 +99,8 @@ class CobroActivity : AppCompatActivity() {
         dialogoError = null
         dialogoDivision?.dismiss()
         dialogoDivision = null
+        dialogoDescuento?.dismiss()
+        dialogoDescuento = null
         super.onDestroy()
     }
 
@@ -135,6 +140,7 @@ class CobroActivity : AppCompatActivity() {
         binding.btnAgregarPago.setOnClickListener { viewModel.agregarPago() }
         binding.btnConfirmarCobro.setOnClickListener { viewModel.confirmarCobro() }
         binding.btnReintentarCobro.setOnClickListener { viewModel.cargarCuenta() }
+        binding.btnAplicarDescuento.setOnClickListener { mostrarDialogoDescuento() }
 
         binding.grupoMediosPago.setOnCheckedStateChangeListener { _, ids ->
             if (actualizandoChips) return@setOnCheckedStateChangeListener
@@ -194,12 +200,40 @@ class CobroActivity : AppCompatActivity() {
         val items = cuenta.items.orEmpty()
         adaptadorCuenta.submitList(items)
         binding.textoCuentaVacia.isVisible = items.isEmpty()
-        binding.textoSubtotal.text = formatearMoneda(cuenta.subtotal ?: BigDecimal.ZERO)
-        binding.textoIgv.text = formatearMoneda(cuenta.igv ?: BigDecimal.ZERO)
-        binding.textoTotal.text = formatearMoneda(cuenta.total ?: BigDecimal.ZERO)
+        binding.textoSubtotal.text = formatearMoneda(estado.subtotal)
+        binding.textoIgv.text = formatearMoneda(estado.igv)
+        binding.textoTotal.text = formatearMoneda(estado.total)
         binding.textoPropinaSugerida.text = getString(
             R.string.cobro_propina_sugerida,
             formatearMoneda(cuenta.propinaSugerida ?: BigDecimal.ZERO)
+        )
+        renderDescuento(estado)
+    }
+
+    private fun renderDescuento(estado: CobroUiState) {
+        val descuento = estado.descuento
+        binding.filaDescuento.isVisible = descuento != null
+        binding.btnAplicarDescuento.text = getString(
+            if (descuento == null) {
+                R.string.cobro_aplicar_descuento
+            } else {
+                R.string.cobro_cambiar_descuento
+            }
+        )
+        binding.btnAplicarDescuento.isEnabled = !estado.loading
+        if (descuento == null) return
+        val etiqueta = when (descuento.tipo) {
+            TipoDescuento.PORCENTAJE -> getString(
+                R.string.cobro_descuento_porcentaje,
+                descuento.valor.stripTrailingZeros().toPlainString()
+            )
+
+            TipoDescuento.MONTO_FIJO -> getString(R.string.cobro_descuento_monto_fijo)
+        }
+        binding.textoDescuento.text = getString(
+            R.string.cobro_descuento_linea,
+            etiqueta,
+            formatearMoneda(estado.montoDescuento)
         )
     }
 
@@ -403,6 +437,79 @@ class CobroActivity : AppCompatActivity() {
         actualizandoDivision = false
     }
 
+    private fun mostrarDialogoDescuento() {
+        dialogoDescuento?.dismiss()
+        val contenido = DialogAplicarDescuentoBinding.inflate(layoutInflater)
+        val dialogo = crearDialogo(contenido.root)
+        dialogo.setCancelable(true)
+        dialogo.setCanceledOnTouchOutside(true)
+
+        val descuentoActual = viewModel.estado.value.descuento
+        var tipo = descuentoActual?.tipo ?: TipoDescuento.PORCENTAJE
+        if (tipo == TipoDescuento.MONTO_FIJO) {
+            contenido.btnTipoMonto.isChecked = true
+        }
+        actualizarEtiquetaDescuento(contenido, tipo)
+        descuentoActual?.let {
+            contenido.textoValorDescuento.setText(it.valor.stripTrailingZeros().toPlainString())
+            contenido.textoValorDescuento.setSelection(contenido.textoValorDescuento.text?.length ?: 0)
+        }
+
+        contenido.grupoTipoDescuento.addOnButtonCheckedListener { _, checkedId, isChecked ->
+            if (!isChecked) return@addOnButtonCheckedListener
+            tipo = if (checkedId == R.id.btnTipoPorcentaje) {
+                TipoDescuento.PORCENTAJE
+            } else {
+                TipoDescuento.MONTO_FIJO
+            }
+            actualizarEtiquetaDescuento(contenido, tipo)
+        }
+
+        contenido.btnQuitarDescuento.isVisible = descuentoActual != null
+        contenido.btnQuitarDescuento.setOnClickListener {
+            viewModel.quitarDescuento()
+            dialogo.dismiss()
+        }
+        contenido.btnCancelarDescuento.setOnClickListener { dialogo.dismiss() }
+        contenido.btnConfirmarDescuento.setOnClickListener {
+            val texto = contenido.textoValorDescuento.text?.toString().orEmpty()
+            if (viewModel.aplicarDescuento(tipo, texto)) {
+                dialogo.dismiss()
+            } else {
+                val codigo = viewModel.estado.value.error
+                contenido.campoValorDescuento.error = getString(
+                    if (codigo == CobroViewModel.ERROR_DESCUENTO_PAGADO) {
+                        R.string.cobro_descuento_error_pagado
+                    } else {
+                        R.string.cobro_descuento_error
+                    }
+                )
+                viewModel.limpiarError()
+            }
+        }
+        dialogo.setOnDismissListener {
+            if (dialogoDescuento === dialogo) dialogoDescuento = null
+        }
+        dialogo.show()
+        dialogoDescuento = dialogo
+    }
+
+    private fun actualizarEtiquetaDescuento(
+        contenido: DialogAplicarDescuentoBinding,
+        tipo: TipoDescuento
+    ) {
+        val esPorcentaje = tipo == TipoDescuento.PORCENTAJE
+        contenido.campoValorDescuento.setHint(
+            if (esPorcentaje) {
+                R.string.cobro_descuento_valor_porcentaje
+            } else {
+                R.string.cobro_descuento_valor_monto
+            }
+        )
+        contenido.campoValorDescuento.suffixText = if (esPorcentaje) "%" else "S/"
+        contenido.campoValorDescuento.error = null
+    }
+
     private fun crearDialogo(contenido: View): AlertDialog {
         val dialogo = AlertDialog.Builder(this)
             .setView(contenido)
@@ -427,21 +534,8 @@ class CobroActivity : AppCompatActivity() {
         finish()
     }
 
-    private fun mensajeError(codigo: String): String = when (codigo) {
-        CobroViewModel.ERROR_RED -> getString(R.string.cobro_error_red)
-        CobroViewModel.ERROR_SESION -> getString(R.string.cobro_error_sesion)
-        CobroViewModel.ERROR_MONTO -> getString(R.string.cobro_error_monto)
-        CobroViewModel.ERROR_MONTO_EXCEDE -> getString(R.string.cobro_error_monto_excede)
-        CobroViewModel.ERROR_SIN_SALDO -> getString(R.string.cobro_error_sin_saldo)
-        CobroViewModel.ERROR_REFERENCIA -> getString(R.string.cobro_error_referencia)
-        CobroViewModel.ERROR_COMENSALES -> getString(R.string.cobro_error_comensales)
-        CobroViewModel.ERROR_CONFLICTO -> getString(R.string.cobro_error_conflicto)
-        CobroViewModel.ERROR_CONFLICTO_PAGADA -> getString(R.string.cobro_error_conflicto_pagada)
-        CobroViewModel.ERROR_BLOQUEADO -> getString(R.string.cobro_error_bloqueado)
-        CobroViewModel.ERROR_SERVIDOR -> getString(R.string.cobro_error_servidor)
-        CobroViewModel.ERROR_VALIDACION -> getString(R.string.cobro_error_validacion)
-        else -> getString(R.string.cobro_error_desconocido)
-    }
+    private fun mensajeError(codigo: String): String =
+        getString(MENSAJES_ERROR[codigo] ?: R.string.cobro_error_desconocido)
 
     private fun BigDecimal.aTextoEditable(): String =
         if (compareTo(BigDecimal.ZERO) == 0) "" else toPlainString()
@@ -449,5 +543,23 @@ class CobroActivity : AppCompatActivity() {
     companion object {
         const val EXTRA_MESA_ID = "extra_mesa_id"
         const val EXTRA_MESA_NUMERO = "extra_mesa_numero"
+
+        /** Codigo de error del ViewModel -> texto visible (siempre en strings.xml). */
+        private val MENSAJES_ERROR: Map<String, Int> = mapOf(
+            CobroViewModel.ERROR_RED to R.string.cobro_error_red,
+            CobroViewModel.ERROR_SESION to R.string.cobro_error_sesion,
+            CobroViewModel.ERROR_VALIDACION to R.string.cobro_error_validacion,
+            CobroViewModel.ERROR_MONTO to R.string.cobro_error_monto,
+            CobroViewModel.ERROR_MONTO_EXCEDE to R.string.cobro_error_monto_excede,
+            CobroViewModel.ERROR_SIN_SALDO to R.string.cobro_error_sin_saldo,
+            CobroViewModel.ERROR_REFERENCIA to R.string.cobro_error_referencia,
+            CobroViewModel.ERROR_COMENSALES to R.string.cobro_error_comensales,
+            CobroViewModel.ERROR_DESCUENTO to R.string.cobro_descuento_error,
+            CobroViewModel.ERROR_DESCUENTO_PAGADO to R.string.cobro_descuento_error_pagado,
+            CobroViewModel.ERROR_CONFLICTO to R.string.cobro_error_conflicto,
+            CobroViewModel.ERROR_CONFLICTO_PAGADA to R.string.cobro_error_conflicto_pagada,
+            CobroViewModel.ERROR_BLOQUEADO to R.string.cobro_error_bloqueado,
+            CobroViewModel.ERROR_SERVIDOR to R.string.cobro_error_servidor
+        )
     }
 }

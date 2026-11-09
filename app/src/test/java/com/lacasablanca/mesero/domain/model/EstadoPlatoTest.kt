@@ -42,7 +42,9 @@ class EstadoPlatoTest {
     }
 
     @Test
-    fun `un valor no reconocido se traduce a desconocido`() {
-        assertEquals(EstadoPlato.DESCONOCIDO, EstadoPlato.desdeApi("COCINANDO"))
+    fun `COCINANDO es alias de EN_PREPARACION y lo no reconocido cae en desconocido`() {
+        assertEquals(EstadoPlato.EN_PREPARACION, EstadoPlato.desdeApi("COCINANDO"))
+        assertEquals(EstadoPlato.EN_PREPARACION, EstadoPlato.desdeApi("  cocinando  "))
+        assertEquals(EstadoPlato.DESCONOCIDO, EstadoPlato.desdeApi("FRIO"))
     }
 }

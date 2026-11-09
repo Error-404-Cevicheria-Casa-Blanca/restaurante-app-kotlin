@@ -8,7 +8,9 @@ import com.lacasablanca.mesero.data.remote.dto.PagoRequest
 import com.lacasablanca.mesero.data.repository.CobroRepository
 import com.lacasablanca.mesero.domain.ErrorApp
 import com.lacasablanca.mesero.domain.Resultado
+import com.lacasablanca.mesero.domain.model.Descuento
 import com.lacasablanca.mesero.domain.model.MetodoPago
+import com.lacasablanca.mesero.domain.model.TipoDescuento
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -208,6 +210,48 @@ class CobroViewModel(
         _estado.update { it.copy(error = null) }
     }
 
+    /**
+     * Aplica un descuento sobre el total de la cuenta (PRB-80).
+     * El porcentaje debe estar entre 0 y 100; el monto fijo, entre 0 y el total.
+     * Tampoco se permite que el nuevo total quede por debajo de lo ya pagado.
+     * Devuelve `false` y deja un codigo de error si el valor no es valido.
+     */
+    fun aplicarDescuento(tipo: TipoDescuento, valorTexto: String): Boolean {
+        val actual = _estado.value
+        val base = actual.totalBruto
+        val valor = valorTexto.aTextoMonto().aBigDecimal().setScale(2, RoundingMode.HALF_UP)
+        val valido = base > BigDecimal.ZERO && when (tipo) {
+            TipoDescuento.PORCENTAJE ->
+                valor > BigDecimal.ZERO && valor <= VALOR_PORCENTAJE_MAXIMO
+
+            TipoDescuento.MONTO_FIJO ->
+                valor > BigDecimal.ZERO && valor <= base
+        }
+        if (!valido) {
+            _estado.update { it.copy(error = ERROR_DESCUENTO) }
+            return false
+        }
+        val descuento = Descuento(tipo = tipo, valor = valor)
+        val totalConDescuento = base.subtract(descuento.montoSobre(base)).add(actual.propina)
+        if (actual.totalPagado > totalConDescuento) {
+            _estado.update { it.copy(error = ERROR_DESCUENTO_PAGADO) }
+            return false
+        }
+        _estado.update {
+            it.copy(
+                descuento = descuento,
+                error = null
+            ).calcularTotales()
+        }
+        return true
+    }
+
+    fun quitarDescuento() {
+        _estado.update {
+            it.copy(descuento = null, error = null).calcularTotales()
+        }
+    }
+
     fun confirmarCobro() {
         val actual = _estado.value
         if (actual.loading) return
@@ -219,6 +263,7 @@ class CobroViewModel(
         val request = CobrarRequest(
             pagos = actual.pagos,
             propina = actual.propina,
+            descuento = actual.montoDescuento,
             observacion = null,
             clientRequestId = clientRequestId
         )
@@ -274,6 +319,9 @@ class CobroViewModel(
         const val MIN_COMENSALES = 2
         const val MAX_COMENSALES = 50
 
+        /** Limite superior aceptado para un descuento porcentual. */
+        val VALOR_PORCENTAJE_MAXIMO: BigDecimal = BigDecimal("100")
+
         private const val KEY_CLIENT_REQUEST_ID = "client_request_id"
 
         const val ERROR_RED = "RED"
@@ -284,6 +332,8 @@ class CobroViewModel(
         const val ERROR_SIN_SALDO = "SIN_SALDO"
         const val ERROR_REFERENCIA = "REFERENCIA"
         const val ERROR_COMENSALES = "COMENSALES"
+        const val ERROR_DESCUENTO = "DESCUENTO"
+        const val ERROR_DESCUENTO_PAGADO = "DESCUENTO_PAGADO"
         const val ERROR_CONFLICTO = "CONFLICTO"
         const val ERROR_CONFLICTO_PAGADA = "CONFLICTO_PAGADA"
         const val ERROR_BLOQUEADO = "BLOQUEADO"

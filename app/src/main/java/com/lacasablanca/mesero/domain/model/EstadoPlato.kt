@@ -20,12 +20,21 @@ enum class EstadoPlato(val valorApi: String) {
     DESCONOCIDO("DESCONOCIDO");
 
     companion object {
+        /** Alias que usa el backend Java para "en preparacion" (PRB-80). */
+        private const val ALIAS_EN_PREPARACION = "COCINANDO"
+
         /**
          * Compara sin distinguir mayusculas y tolera espacios alrededor del
-         * valor. Un valor nulo o no reconocido cae en [DESCONOCIDO].
+         * valor. `COCINANDO` se acepta como alias de [EN_PREPARACION]; un valor
+         * nulo o no reconocido cae en [DESCONOCIDO].
          */
-        fun desdeApi(valor: String?): EstadoPlato =
-            values().firstOrNull { it.valorApi.equals(valor?.trim(), ignoreCase = true) }
+        fun desdeApi(valor: String?): EstadoPlato {
+            val limpio = valor?.trim()
+            if (limpio.equals(ALIAS_EN_PREPARACION, ignoreCase = true)) {
+                return EN_PREPARACION
+            }
+            return values().firstOrNull { it.valorApi.equals(limpio, ignoreCase = true) }
                 ?: DESCONOCIDO
+        }
     }
 }

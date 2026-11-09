@@ -49,6 +49,12 @@ data class PagoRequest(
 data class CobrarRequest(
     val pagos: List<PagoRequest>,
     val propina: BigDecimal = BigDecimal.ZERO,
+    /**
+     * Monto del descuento ya aplicado en soles (PRB-80).
+     * ASSUMPTION(PRB-80): el contrato v1 aun no define este campo; se envia
+     * el monto final y no el tipo/porcentaje, que es solo de la UI.
+     */
+    val descuento: BigDecimal = BigDecimal.ZERO,
     val observacion: String? = null,
     @SerializedName("client_request_id") val clientRequestId: String
 )

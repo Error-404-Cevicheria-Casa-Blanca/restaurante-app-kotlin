@@ -9,6 +9,7 @@ import com.lacasablanca.mesero.data.repository.FakeCobroRepository
 import com.lacasablanca.mesero.data.repository.FakeConsumoStore
 import com.lacasablanca.mesero.domain.Resultado
 import com.lacasablanca.mesero.domain.model.MetodoPago
+import com.lacasablanca.mesero.domain.model.TipoDescuento
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
@@ -396,5 +397,128 @@ class CobroViewModelTest {
             assertEquals(2, enviados.size)
             assertTrue(enviados.first().isNotBlank())
             assertEquals(enviados.first(), enviados.last())
+        }
+
+    @Test
+    fun `el descuento porcentual recalcula subtotal igv y total`() = runTest(testDispatcher) {
+        val viewModel = crearViewModel("96.00")
+        advanceUntilIdle()
+
+        assertTrue(viewModel.aplicarDescuento(TipoDescuento.PORCENTAJE, "10"))
+
+        val estado = viewModel.estado.value
+        assertEquals(TipoDescuento.PORCENTAJE, estado.descuento?.tipo)
+        assertEquals("10.00", estado.descuento?.valor?.toPlainString())
+        assertEquals("9.60", estado.montoDescuento.toPlainString())
+        assertEquals("86.40", estado.total.toPlainString())
+        assertEquals("73.22", estado.subtotal.toPlainString())
+        assertEquals("13.18", estado.igv.toPlainString())
+    }
+
+    @Test
+    fun `el descuento de monto fijo se resta del total sin tocar la cuenta`() =
+        runTest(testDispatcher) {
+            val viewModel = crearViewModel("96.00")
+            advanceUntilIdle()
+
+            assertTrue(viewModel.aplicarDescuento(TipoDescuento.MONTO_FIJO, "20"))
+
+            val estado = viewModel.estado.value
+            assertEquals(TipoDescuento.MONTO_FIJO, estado.descuento?.tipo)
+            assertEquals("20.00", estado.montoDescuento.toPlainString())
+            assertEquals("76.00", estado.total.toPlainString())
+            assertEquals("64.41", estado.subtotal.toPlainString())
+            assertEquals("11.59", estado.igv.toPlainString())
+            assertEquals("96.00", estado.totalBruto.toPlainString())
+        }
+
+    @Test
+    fun `un descuento fuera de rango no se aplica`() = runTest(testDispatcher) {
+        val viewModel = crearViewModel("96.00")
+        advanceUntilIdle()
+
+        assertFalse(viewModel.aplicarDescuento(TipoDescuento.PORCENTAJE, "101"))
+        assertEquals(CobroViewModel.ERROR_DESCUENTO, viewModel.estado.value.error)
+        assertNull(viewModel.estado.value.descuento)
+
+        viewModel.limpiarError()
+        assertFalse(viewModel.aplicarDescuento(TipoDescuento.MONTO_FIJO, "96.01"))
+        assertEquals(CobroViewModel.ERROR_DESCUENTO, viewModel.estado.value.error)
+        assertNull(viewModel.estado.value.descuento)
+
+        viewModel.limpiarError()
+        assertFalse(viewModel.aplicarDescuento(TipoDescuento.PORCENTAJE, "0"))
+        assertEquals(CobroViewModel.ERROR_DESCUENTO, viewModel.estado.value.error)
+        assertNull(viewModel.estado.value.descuento)
+    }
+
+    @Test
+    fun `quitar el descuento devuelve los totales originales`() = runTest(testDispatcher) {
+        val viewModel = crearViewModel("96.00")
+        advanceUntilIdle()
+
+        assertTrue(viewModel.aplicarDescuento(TipoDescuento.PORCENTAJE, "10"))
+        viewModel.quitarDescuento()
+
+        val estado = viewModel.estado.value
+        assertNull(estado.descuento)
+        assertEquals("96.00", estado.total.toPlainString())
+        assertEquals("81.36", estado.subtotal.toPlainString())
+        assertEquals("14.64", estado.igv.toPlainString())
+    }
+
+    @Test
+    fun `el cobro envia el descuento y se completa con el total rebajado`() =
+        runTest(testDispatcher) {
+            coEvery { repositorio.obtenerCuenta(7L) } returns Resultado.Exito(cuenta("96.00"))
+            val enviados = mutableListOf<CobrarRequest>()
+            coEvery { repositorio.cobrar(7L, any()) } answers {
+                enviados += secondArg<CobrarRequest>()
+                Resultado.Exito(CobroResponse())
+            }
+            val viewModel = CobroViewModel(7L, repositorio, SavedStateHandle(), testDispatcher)
+            advanceUntilIdle()
+
+            assertTrue(viewModel.aplicarDescuento(TipoDescuento.PORCENTAJE, "10"))
+            agregar(viewModel, MetodoPago.EFECTIVO, "86.40")
+
+            assertTrue(viewModel.estado.value.confirmarHabilitado)
+            viewModel.confirmarCobro()
+            advanceUntilIdle()
+
+            assertEquals(1, enviados.size)
+            assertEquals("9.60", enviados.single().descuento.toPlainString())
+            assertTrue(viewModel.estado.value.exito)
+        }
+
+    @Test
+    fun `un descuento que deja el total bajo lo pagado se rechaza`() =
+        runTest(testDispatcher) {
+            val viewModel = crearViewModel("96.00")
+            advanceUntilIdle()
+            agregar(viewModel, MetodoPago.EFECTIVO, "90")
+
+            assertFalse(viewModel.aplicarDescuento(TipoDescuento.MONTO_FIJO, "20"))
+
+            assertEquals(CobroViewModel.ERROR_DESCUENTO_PAGADO, viewModel.estado.value.error)
+            assertNull(viewModel.estado.value.descuento)
+            assertEquals("96.00", viewModel.estado.value.total.toPlainString())
+        }
+
+    @Test
+    fun `la cuenta fake acepta el descuento y cobra el saldo rebajado`() =
+        runTest(testDispatcher) {
+            val consumo = FakeConsumoStore().apply { registrar(7L, BigDecimal("100.00")) }
+            val fake = FakeCobroRepository(consumoStore = consumo, latenciaMs = 0)
+            val viewModel = CobroViewModel(7L, fake, SavedStateHandle(), testDispatcher)
+            advanceUntilIdle()
+
+            assertTrue(viewModel.aplicarDescuento(TipoDescuento.MONTO_FIJO, "20"))
+            agregar(viewModel, MetodoPago.EFECTIVO, "80")
+            viewModel.confirmarCobro()
+            advanceUntilIdle()
+
+            assertTrue(viewModel.estado.value.exito)
+            assertEquals("80.00", viewModel.estado.value.totalConPropina.toPlainString())
         }
 }

@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Dialogo premium para aplicar un descuento (PRB-80).
+    Dos modos simetricos: porcentaje o monto fijo, y acciones de igual peso.
+-->
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_dialogo_premium"
+    android:padding="@dimen/espacio_xl">
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <FrameLayout
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:background="@drawable/bg_circulo_vacio">
+
+            <ImageView
+                android:layout_width="@dimen/icono_grande"
+                android:layout_height="@dimen/icono_grande"
+                android:layout_gravity="center"
+                android:contentDescription="@string/cd_descuento_icono"
+                android:src="@drawable/ic_descuento"
+                app:tint="@color/primary" />
+        </FrameLayout>
+
+        <TextView
+            android:id="@+id/tituloDescuento"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/espacio_m"
+            android:autoSizeMaxTextSize="22sp"
+            android:autoSizeMinTextSize="15sp"
+            android:autoSizeStepGranularity="1sp"
+            android:autoSizeTextType="uniform"
+            android:breakStrategy="simple"
+            android:gravity="center"
+            android:hyphenationFrequency="none"
+            android:maxLines="2"
+            android:text="@string/cobro_descuento_titulo"
+            android:textColor="@color/primary"
+            android:textSize="@dimen/texto_titulo_tarjeta"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/textoMensajeDescuento"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/espacio_s"
+            android:autoSizeMaxTextSize="16sp"
+            android:autoSizeMinTextSize="11sp"
+            android:autoSizeStepGranularity="1sp"
+            android:autoSizeTextType="uniform"
+            android:breakStrategy="simple"
+            android:gravity="center"
+            android:hyphenationFrequency="none"
+            android:lineSpacingExtra="2dp"
+            android:maxLines="4"
+            android:text="@string/cobro_descuento_mensaje"
+            android:textColor="@color/texto_principal"
+            android:textSize="@dimen/texto_cuerpo" />
+
+        <com.google.android.material.button.MaterialButtonToggleGroup
+            android:id="@+id/grupoTipoDescuento"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/espacio_l"
+            app:selectionRequired="true"
+            app:singleSelection="true">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnTipoPorcentaje"
+                style="@style/Boton.Secundario"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/toque_minimo"
+                android:layout_weight="1"
+                android:checked="true"
+                android:text="@string/cobro_descuento_porcentaje_opcion"
+                app:backgroundTint="@color/selector_fondo_toggle_descuento"
+                app:iconTint="@color/selector_texto_toggle_descuento"
+                android:textColor="@color/selector_texto_toggle_descuento" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnTipoMonto"
+                style="@style/Boton.Secundario"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/toque_minimo"
+                android:layout_weight="1"
+                android:text="@string/cobro_descuento_monto_opcion"
+                app:backgroundTint="@color/selector_fondo_toggle_descuento"
+                app:iconTint="@color/selector_texto_toggle_descuento"
+                android:textColor="@color/selector_texto_toggle_descuento" />
+        </com.google.android.material.button.MaterialButtonToggleGroup>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/campoValorDescuento"
+            style="@style/Campo.Cobro"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/espacio_l"
+            android:hint="@string/cobro_descuento_valor_porcentaje"
+            app:suffixText="%">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/textoValorDescuento"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:imeOptions="actionDone"
+                android:inputType="numberDecimal"
+                android:maxLines="1"
+                tools:text="10" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnQuitarDescuento"
+            style="@style/Boton.Secundario"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/toque_minimo"
+            android:layout_marginTop="@dimen/espacio_m"
+            android:visibility="gone"
+            android:text="@string/cobro_descuento_quitar"
+            tools:visibility="visible" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/espacio_l"
+            android:baselineAligned="false"
+            android:orientation="horizontal">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnCancelarDescuento"
+                style="@style/Boton.Outlined"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/toque_minimo"
+                android:layout_weight="1"
+                android:text="@string/cobro_salir_cancelar" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnConfirmarDescuento"
+                style="@style/Boton.Primario"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/toque_minimo"
+                android:layout_marginStart="@dimen/espacio_s"
+                android:layout_weight="1"
+                android:text="@string/cobro_descuento_aplicar" />
+        </LinearLayout>
+    </LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

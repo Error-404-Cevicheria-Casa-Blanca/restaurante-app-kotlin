@@ -2,6 +2,9 @@ package com.lacasablanca.mesero.ui.cobro
 
 import com.lacasablanca.mesero.data.remote.dto.CuentaResponse
 import com.lacasablanca.mesero.data.remote.dto.PagoRequest
+import com.lacasablanca.mesero.domain.model.CalculoIgv
+import com.lacasablanca.mesero.domain.model.Descuento
+import com.lacasablanca.mesero.domain.model.DesglosePedido
 import com.lacasablanca.mesero.domain.model.MetodoPago
 import java.math.BigDecimal
 import java.math.RoundingMode
@@ -29,9 +32,23 @@ data class CobroUiState(
     val referencia: String = "",
     val dividirCuenta: Boolean = false,
     val numeroComensales: Int = 0,
-    val cuotas: List<CuotaComensal> = emptyList()
+    val cuotas: List<CuotaComensal> = emptyList(),
+    val descuento: Descuento? = null
 ) {
-    val total: BigDecimal get() = cuenta?.total ?: BigDecimal.ZERO
+    /** Total de la cuenta tal como lo devuelve el backend, antes del descuento. */
+    val totalBruto: BigDecimal get() = cuenta?.total ?: BigDecimal.ZERO
+
+    val montoDescuento: BigDecimal get() = descuento?.montoSobre(totalBruto) ?: BigDecimal.ZERO
+
+    /** Total a cobrar con el descuento aplicado (nunca negativo). */
+    val total: BigDecimal get() = totalBruto.subtract(montoDescuento).max(BigDecimal.ZERO)
+
+    /** Subtotal e IGV recalculados sobre el total con descuento (D13). */
+    val desglose: DesglosePedido get() = CalculoIgv.desglosar(total)
+
+    val subtotal: BigDecimal get() = desglose.subtotal
+
+    val igv: BigDecimal get() = desglose.igv
 
     val totalConPropina: BigDecimal get() = total.add(propina)
 
