@@ -75,6 +75,9 @@ class MainActivityNavegacionTest {
 
             pressBack()
             onView(withId(R.id.btnActualizar)).check(matches(isDisplayed()))
+            // La barra anima el cambio de seleccion; se espera antes del
+            // siguiente toque para que el test no dependa de la animacion.
+            Thread.sleep(ESPERA_SELECCION_MS)
 
             onView(withId(R.id.navPerfil)).perform(click())
             onView(withId(R.id.barraPerfil)).check(matches(isDisplayed()))
@@ -107,4 +110,8 @@ class MainActivityNavegacionTest {
         withId(R.id.textoPlaceholder),
         withEffectiveVisibility(Visibility.VISIBLE)
     )
+
+    private companion object {
+        const val ESPERA_SELECCION_MS = 500L
+    }
 }
