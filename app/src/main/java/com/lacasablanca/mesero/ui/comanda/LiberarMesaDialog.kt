@@ -8,7 +8,7 @@ import com.lacasablanca.mesero.R
 import com.lacasablanca.mesero.databinding.DialogLiberarMesaBinding
 
 /**
- * Confirmacion de liberacion de mesa (PRB-39) extraida de [ComandaActivity].
+ * Confirmacion de liberacion de mesa (PRB-39) extraida de [ComandaFragment].
  * Al confirmar muestra el progreso y delega el PATCH en la Activity.
  */
 class LiberarMesaDialog(

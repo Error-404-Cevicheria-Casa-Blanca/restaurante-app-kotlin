@@ -7,7 +7,7 @@ import com.lacasablanca.mesero.ui.impresion.AvisoImpresion
 
 /**
  * Textos de error y avisos de la comanda. Se mantienen fuera de
- * [ComandaActivity] para que la Activity solo dibuje y reenvie eventos.
+ * [ComandaFragment] para que el fragmento solo dibuje y reenvie eventos.
  *
  * El ViewModel no tiene `Context`: las claves de error viajan hasta aqui y se
  * traducen con `strings.xml`.

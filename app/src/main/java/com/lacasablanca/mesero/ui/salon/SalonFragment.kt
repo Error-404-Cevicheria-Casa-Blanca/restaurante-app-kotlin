@@ -37,7 +37,7 @@ import com.lacasablanca.mesero.domain.model.EstadoMesa
 import com.lacasablanca.mesero.domain.model.Mesa
 import com.lacasablanca.mesero.ui.bloqueo.BloqueoActivity
 import com.lacasablanca.mesero.ui.cobro.CobroActivity
-import com.lacasablanca.mesero.ui.comanda.ComandaActivity
+import com.lacasablanca.mesero.ui.comanda.ComandaFragment
 import com.lacasablanca.mesero.ui.common.aparecerConDesplazamiento
 import com.lacasablanca.mesero.ui.common.colorRes
 import com.lacasablanca.mesero.ui.common.etiquetaPluralRes
@@ -92,40 +92,10 @@ class SalonFragment : Fragment() {
     private var firmaChips = ""
     private var primeraReanudacion = true
     private var liberarPendiente = false
+    private var iniciado = false
     private var dialogoAbierto: AlertDialog? = null
     private var dialogoLiberarMesa: AlertDialog? = null
     private var animacionInicialEjecutada = false
-
-    /**
-     * La comanda puede devolver la mesa sin liberar (el PATCH fallo y el mozo
-     * eligio salir). En ese caso se reintenta aqui con [MesasViewModel.liberarMesa].
-     */
-    private val lanzadorComanda = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) { resultado ->
-        if (resultado.resultCode != Activity.RESULT_OK) return@registerForActivityResult
-        val datos = resultado.data
-        // PRB-94: pedido para llevar enviado. Ninguna mesa cambio de estado;
-        // solo se muestra el aviso de exito y se sincroniza el mapa.
-        val pedidoParaLlevar = datos
-            ?.getLongExtra(ComandaActivity.EXTRA_PEDIDO_PARA_LLEVAR_ID, 0L)
-            ?: 0L
-        if (pedidoParaLlevar > 0L) {
-            mostrarSnackbar(getString(R.string.para_llevar_pedido_enviado, pedidoParaLlevar))
-            viewModel.recargarAlVolver()
-            return@registerForActivityResult
-        }
-        if (datos?.getBooleanExtra(ComandaActivity.EXTRA_LIBERAR_PENDIENTE, false) == true) {
-            val id = datos.getLongExtra(ComandaActivity.EXTRA_MESA_ID, -1L)
-            if (id > 0L) {
-                liberarPendiente = true
-                viewModel.liberarMesa(id)
-            }
-            return@registerForActivityResult
-        }
-        // Pedido enviado: el mapa debe reflejar el nuevo estado de la mesa.
-        viewModel.recargarAlVolver()
-    }
 
     /** La mesa amarilla abre el cobro; las demas siguen el flujo del mapa. */
     private val lanzadorCobro = registerForActivityResult(
@@ -134,6 +104,18 @@ class SalonFragment : Fragment() {
         if (resultado.resultCode == Activity.RESULT_OK) {
             viewModel.recargarAlVolver()
         }
+    }
+
+    /**
+     * PRB-88: la comanda ya no es una Activity. Su resultado llega por
+     * FragmentResult desde ComandaFragment y se aplica al mapa.
+     */
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        parentFragmentManager.setFragmentResultListener(
+            ComandaFragment.REQUEST_KEY,
+            this
+        ) { _, datos -> manejarResultadoComanda(datos) }
     }
 
     override fun onCreateView(
@@ -184,10 +166,12 @@ class SalonFragment : Fragment() {
      */
     override fun onStart() {
         super.onStart()
+        iniciado = true
         actualizarPolling()
     }
 
     override fun onStop() {
+        iniciado = false
         viewModel.stopPolling()
         super.onStop()
     }
@@ -202,7 +186,9 @@ class SalonFragment : Fragment() {
     }
 
     private fun actualizarPolling() {
-        if (!isHidden && lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) {
+        // No se consulta lifecycle.currentState: dentro de onStart el Fragment
+        // aun puede figurar en CREATED. El flag iniciado refleja onStart/onStop.
+        if (iniciado && !isHidden && !liberarPendiente) {
             viewModel.startPolling()
         } else {
             viewModel.stopPolling()
@@ -410,17 +396,53 @@ class SalonFragment : Fragment() {
         }
     }
 
+    /**
+     * Resultado de la comanda (FragmentResult):
+     * - pedido para llevar enviado: aviso y refresco;
+     * - liberacion pendiente: reintenta el PATCH con el ViewModel;
+     * - cualquier otro cierre: refresca el mapa.
+     */
+    private fun manejarResultadoComanda(datos: Bundle) {
+        val pedidoParaLlevar = datos.getLong(
+            ComandaFragment.EXTRA_PEDIDO_PARA_LLEVAR_ID,
+            0L
+        )
+        if (pedidoParaLlevar > 0L) {
+            mostrarSnackbar(getString(R.string.para_llevar_pedido_enviado, pedidoParaLlevar))
+            viewModel.recargarAlVolver()
+            return
+        }
+        if (datos.getBoolean(ComandaFragment.EXTRA_LIBERAR_PENDIENTE, false)) {
+            val id = datos.getLong(ComandaFragment.EXTRA_MESA_ID, -1L)
+            if (id > 0L) {
+                liberarPendiente = true
+                viewModel.liberarMesa(id)
+            }
+            return
+        }
+        // Pedido enviado o salida normal: el mapa refleja el nuevo estado.
+        viewModel.recargarAlVolver()
+    }
+
     private fun manejarEvento(evento: MesasEvento) {
         when (evento) {
             is MesasEvento.IrAComanda -> abrirComanda(evento.mesa)
             is MesasEvento.IrAComandaLectura -> abrirComanda(evento.mesa, modoLectura = true)
             is MesasEvento.OpcionesMesaAtendida -> mostrarOpcionesMesaAtendida(evento.mesa)
             is MesasEvento.MesaLiberada -> {
+                liberarPendiente = false
                 cerrarDialogoLiberarMesa()
                 mostrarSnackbar(getString(R.string.mesa_liberada))
+                actualizarPolling()
             }
 
-            is MesasEvento.Aviso -> mostrarAviso(evento)
+            is MesasEvento.Aviso -> {
+                if (evento.tipo == AvisoMesas.ERROR_LIBERAR) {
+                    liberarPendiente = false
+                    actualizarPolling()
+                }
+                mostrarAviso(evento)
+            }
             MesasEvento.SesionExpirada -> {
                 cerrarDialogoLiberarMesa()
                 mostrarDialogoSesionExpirada()
@@ -649,18 +671,17 @@ class SalonFragment : Fragment() {
     }
 
     private fun abrirComanda(mesa: Mesa, modoLectura: Boolean = false) {
-        val intent = Intent(requireContext(), ComandaActivity::class.java).apply {
-            putExtra(ComandaActivity.EXTRA_MESA_ID, mesa.id)
-            putExtra(ComandaActivity.EXTRA_MESA_NUMERO, mesa.numero)
-            putExtra(ComandaActivity.EXTRA_MESA_UBICACION, mesa.ubicacion)
-            putExtra(ComandaActivity.EXTRA_MODO_LECTURA, modoLectura)
-        }
-        lanzadorComanda.launch(intent)
+        (requireActivity() as? MainActivity)?.abrirComanda(
+            mesaId = mesa.id,
+            numeroMesa = mesa.numero,
+            ubicacion = mesa.ubicacion,
+            modoLectura = modoLectura
+        )
     }
 
     /**
      * PRB-94: dialogo premium para identificar el pedido para llevar. El
-     * nombre viaja a [ComandaActivity], que reutiliza catalogo, carrito,
+     * nombre viaja a [ComandaFragment], que reutiliza catalogo, carrito,
      * modificadores y notas sin asociarse a ninguna mesa.
      */
     private fun mostrarDialogoParaLlevar() {
@@ -705,11 +726,7 @@ class SalonFragment : Fragment() {
     }
 
     private fun abrirComandaParaLlevar(nombre: String) {
-        val intent = Intent(requireContext(), ComandaActivity::class.java).apply {
-            putExtra(ComandaActivity.EXTRA_PARA_LLEVAR, true)
-            putExtra(ComandaActivity.EXTRA_CLIENTE_NOMBRE, nombre)
-        }
-        lanzadorComanda.launch(intent)
+        (requireActivity() as? MainActivity)?.abrirComandaParaLlevar(nombre)
     }
 
     private fun irALogin() {

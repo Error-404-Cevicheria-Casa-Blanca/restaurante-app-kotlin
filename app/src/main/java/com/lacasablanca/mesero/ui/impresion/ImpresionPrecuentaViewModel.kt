@@ -31,7 +31,7 @@ data class ImpresionUiState(
  *
  * El backend Java centraliza la ticketera: la app solo encola el trabajo con
  * `POST /api/v1/mesas/{id}/precuenta` o `.../precuenta/reimprimir` (ADR-02).
- * Se comparte entre CobroActivity y ComandaActivity para no duplicar estado.
+ * Se comparte entre CobroActivity y ComandaFragment para no duplicar estado.
  */
 class ImpresionPrecuentaViewModel(
     private val mesaId: Long,

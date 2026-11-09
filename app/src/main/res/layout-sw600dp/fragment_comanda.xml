@@ -2,7 +2,8 @@
 <!--
     Comanda tablet (rediseno PRB-38): catalogo a todo el ancho y barra
     flotante de checkout. El carrito se abre en CarritoBottomSheet; ya no
-    existe el panel derecho estatico. Los IDs coinciden con el layout movil.
+    existe el panel derecho estatico. Los IDs coinciden con
+    layout/fragment_comanda.xml.
 -->
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -10,8 +11,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/background"
-    android:fitsSystemWindows="true"
-    tools:context=".ui.comanda.ComandaActivity">
+    tools:context=".ui.comanda.ComandaFragment">
 
     <LinearLayout
         android:layout_width="match_parent"

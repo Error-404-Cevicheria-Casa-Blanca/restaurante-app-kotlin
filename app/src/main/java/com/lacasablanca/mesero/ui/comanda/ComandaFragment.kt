@@ -3,13 +3,19 @@ package com.lacasablanca.mesero.ui.comanda
 import android.content.Intent
 import android.content.res.ColorStateList
 import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.addCallback
-import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.core.widget.TextViewCompat
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -19,8 +25,7 @@ import com.lacasablanca.mesero.BuildConfig
 import com.lacasablanca.mesero.MeseroApp
 import com.lacasablanca.mesero.R
 import com.lacasablanca.mesero.core.GenericViewModelFactory
-import com.lacasablanca.mesero.databinding.ActivityComandaBinding
-
+import com.lacasablanca.mesero.databinding.FragmentComandaBinding
 import com.lacasablanca.mesero.domain.ErrorApp
 import com.lacasablanca.mesero.domain.model.DestinoPedido
 import com.lacasablanca.mesero.domain.model.ItemCarrito
@@ -31,33 +36,84 @@ import com.lacasablanca.mesero.ui.common.formatearMoneda
 import com.lacasablanca.mesero.ui.impresion.ImpresionPrecuentaViewModel
 import com.lacasablanca.mesero.ui.impresion.ImpresionUiState
 import com.lacasablanca.mesero.ui.login.LoginActivity
+import com.lacasablanca.mesero.ui.main.MainActivity
 import kotlinx.coroutines.launch
 
 /**
- * Comanda del mesero (PRB-38 + PRB-39).
+ * Comanda del mesero dentro del contenedor principal (PRB-88, Fase 4).
  *
- * - Catalogo y carrito: [CarritoViewModel] (GET /categorias, GET /productos,
- *   POST /pedidos). La Activity solo dibuja y reenvia eventos.
- * - Al salir sin enviar, [ComandaViewModel] libera la mesa (D11/PRB-39).
- * - Al enviar con exito se marca [EXTRA_PEDIDO_ENVIADO] para que la mesa NO
- *   se libere al volver al mapa.
+ * - Es la migracion de la antigua pantalla de comanda: mismo layout y mismo flujo de
+ *   catalogo, carrito, modificadores, notas, envio, anulacion, cuenta y
+ *   liberacion de mesa.
+ * - [CarritoViewModel] vive en el scope de MainActivity (`activityViewModels`):
+ *   cambiar de tab oculta la comanda pero no destruye el carrito.
+ * - El destino (mesa o para llevar) se fija en [onCreate] y se aplica con
+ *   [CarritoViewModel.configurarDestino]; si se abre otra mesa, el carrito
+ *   anterior se descarta.
+ * - Al terminar (enviar, liberar o salir) publica el resultado por
+ *   `FragmentResult`, limpia el carrito y pide a MainActivity volver al mapa.
  */
-class ComandaActivity : AppCompatActivity(), CarritoBottomSheet.Listener {
+// Migracion directa de la pantalla de comanda; dividir en renderer/controller
+// en un refactor posterior.
+@Suppress("LargeClass")
+class ComandaFragment : Fragment(), CarritoBottomSheet.Listener {
 
-    private lateinit var binding: ActivityComandaBinding
+    private var _binding: FragmentComandaBinding? = null
+    private val binding get() = _binding!!
 
-    private val contenedor get() = (application as MeseroApp).container
+    private val contenedor get() = (requireActivity().application as MeseroApp).container
 
-    private val carritoViewModel: CarritoViewModel by viewModels {
+    /** Los dialogos de la comanda piden un AppCompatActivity. */
+    private val activityHost: AppCompatActivity get() = requireActivity() as AppCompatActivity
+
+    private lateinit var destino: DestinoPedido
+
+    private var mesaId = -1L
+    private var numeroMesa = 0
+    private var ubicacionMesa = ""
+    private var paraLlevar = false
+    private var clienteNombre = ""
+    private var pedidoIdParaLlevar = 0L
+    private var pedidoEnviado = false
+    private var cuentaSolicitada = false
+    private var modoLectura = false
+    private var argumentosInvalidos = false
+    private var saliendo = false
+    private var yendoALogin = false
+
+    private lateinit var catalogoAdapter: CatalogoAdapter
+    private lateinit var catalogoChips: CatalogoChips
+
+    private val selectorModificadores: SelectorModificadores by lazy {
+        SelectorModificadores(activityHost) { producto, seleccionados ->
+            carritoViewModel.agregarProducto(producto, seleccionados)
+        }
+    }
+
+    private var callbackAtras: OnBackPressedCallback? = null
+
+    private var dialogoAbierto: AlertDialog? = null
+    private var dialogoLiberar: LiberarMesaDialog? = null
+    private var dialogoAnular: AnularPlatoDialog? = null
+    private var dialogoPedidoEnviado: PedidoEnviadoDialog? = null
+    private var dialogoNota: NotaPlatoDialog? = null
+    private var dialogoCuentaSolicitada: CuentaSolicitadaDialog? = null
+
+    private var pedidoExistenteMostrado = false
+    private var errorPedidoExistenteMostrado = false
+    private var animacionCatalogoEjecutada = false
+
+    /**
+     * PRB-88: el carrito vive en MainActivity. La primera comanda crea la
+     * instancia con su destino; las siguientes reutilizan la misma y llaman a
+     * `configurarDestino` para no mezclar mesas/clientes.
+     */
+    private val carritoViewModel: CarritoViewModel by activityViewModels {
         GenericViewModelFactory {
             CarritoViewModel(
                 catalogoRepository = contenedor.catalogoRepository,
                 pedidoRepository = contenedor.pedidoRepository,
-                destino = if (paraLlevar) {
-                    DestinoPedido.ParaLlevar(clienteNombre)
-                } else {
-                    DestinoPedido.Mesa(mesaId)
-                }
+                destino = destino
             )
         }
     }
@@ -72,85 +128,133 @@ class ComandaActivity : AppCompatActivity(), CarritoBottomSheet.Listener {
         }
     }
 
-    private lateinit var catalogoAdapter: CatalogoAdapter
-    private lateinit var catalogoChips: CatalogoChips
-
-    private var mesaId = -1L
-    private var numeroMesa = 0
-
-    /** PRB-94: comanda sin mesa, identificada por el nombre del cliente. */
-    private var paraLlevar = false
-    private var clienteNombre = ""
-
-    /** Id del pedido para llevar enviado; se devuelve al mapa para el aviso. */
-    private var pedidoIdParaLlevar = 0L
-    private var pedidoEnviado = false
-    private var cuentaSolicitada = false
-    private var modoLectura = false
-    private var saliendo = false
-    private var dialogoAbierto: AlertDialog? = null
-    private var dialogoLiberar: LiberarMesaDialog? = null
-    private var dialogoAnular: AnularPlatoDialog? = null
-    private var dialogoPedidoEnviado: PedidoEnviadoDialog? = null
-    private var dialogoNota: NotaPlatoDialog? = null
-    private var dialogoCuentaSolicitada: CuentaSolicitadaDialog? = null
-
-    /** PRB-92: selector de modificadores con un solo dialogo a la vez. */
-    private val selectorModificadores: SelectorModificadores by lazy {
-        SelectorModificadores(this) { producto, seleccionados ->
-            carritoViewModel.agregarProducto(producto, seleccionados)
-        }
-    }
-    private var pedidoExistenteMostrado = false
-    private var errorPedidoExistenteMostrado = false
-
-    private var animacionCatalogoEjecutada = false
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityComandaBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-
-        mesaId = intent.getLongExtra(EXTRA_MESA_ID, -1L)
-        numeroMesa = intent.getIntExtra(EXTRA_MESA_NUMERO, 0)
-        val ubicacion = intent.getStringExtra(EXTRA_MESA_UBICACION).orEmpty()
+        val args = requireArguments()
+        mesaId = args.getLong(EXTRA_MESA_ID, -1L)
+        numeroMesa = args.getInt(EXTRA_MESA_NUMERO, 0)
+        ubicacionMesa = args.getString(EXTRA_MESA_UBICACION).orEmpty()
         paraLlevar = savedInstanceState?.getBoolean(EXTRA_PARA_LLEVAR, false)
-            ?: intent.getBooleanExtra(EXTRA_PARA_LLEVAR, false)
-        clienteNombre = intent.getStringExtra(EXTRA_CLIENTE_NOMBRE).orEmpty().trim()
+            ?: args.getBoolean(EXTRA_PARA_LLEVAR, false)
+        clienteNombre = savedInstanceState?.getString(EXTRA_CLIENTE_NOMBRE)
+            ?: args.getString(EXTRA_CLIENTE_NOMBRE).orEmpty().trim()
         pedidoIdParaLlevar = savedInstanceState?.getLong(EXTRA_PEDIDO_PARA_LLEVAR_ID, 0L) ?: 0L
         pedidoEnviado = savedInstanceState?.getBoolean(EXTRA_PEDIDO_ENVIADO, false)
-            ?: intent.getBooleanExtra(EXTRA_PEDIDO_ENVIADO, false)
+            ?: args.getBoolean(EXTRA_PEDIDO_ENVIADO, false)
         cuentaSolicitada = savedInstanceState?.getBoolean(EXTRA_CUENTA_SOLICITADA, false)
             ?: false
         modoLectura = savedInstanceState?.getBoolean(EXTRA_MODO_LECTURA, false)
-            ?: intent.getBooleanExtra(EXTRA_MODO_LECTURA, false)
+            ?: args.getBoolean(EXTRA_MODO_LECTURA, false)
+        destino = if (paraLlevar) {
+            DestinoPedido.ParaLlevar(clienteNombre)
+        } else {
+            DestinoPedido.Mesa(mesaId)
+        }
+        argumentosInvalidos = if (paraLlevar) {
+            clienteNombre.isBlank()
+        } else {
+            mesaId <= 0L || numeroMesa <= 0
+        }
+    }
 
-        if (paraLlevar) {
-            if (clienteNombre.isBlank()) {
-                finish()
-                return
-            }
-        } else if (mesaId <= 0L || numeroMesa <= 0) {
-            finish()
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        _binding = FragmentComandaBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        if (argumentosInvalidos) {
+            view.post { (requireActivity() as? MainActivity)?.cerrarComanda() }
             return
         }
 
-        configurarCabecera(ubicacion)
+        configurarCabecera()
         binding.textoModoDemo.isVisible = BuildConfig.USE_FAKE_DATA
-
         prepararListas()
         prepararAcciones()
+        configurarAtras()
 
-        // Mesa OCUPADA (PRB-83): consultar el pedido ya registrado y mostrarlo
-        // en modo lectura. La mesa NO se libera al salir.
+        carritoViewModel.configurarDestino(destino)
         if (modoLectura) carritoViewModel.activarModoLecura(mesaId)
 
-        // Atras y la flecha de la toolbar piden confirmacion antes de liberar.
-        binding.barraComanda.setNavigationOnClickListener { intentarSalir() }
-        onBackPressedDispatcher.addCallback(this) { intentarSalir() }
+        observarEstado()
+    }
 
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
+    /**
+     * PRB-90: refresca el pedido existente solo mientras la comanda esta
+     * visible en modo lectura. Al cambiar de tab se detiene; al volver, se
+     * reanuda sin perder el carrito.
+     */
+    override fun onStart() {
+        super.onStart()
+        actualizarPolling()
+    }
+
+    override fun onStop() {
+        if (!argumentosInvalidos) carritoViewModel.stopPolling()
+        super.onStop()
+    }
+
+    override fun onHiddenChanged(hidden: Boolean) {
+        super.onHiddenChanged(hidden)
+        callbackAtras?.isEnabled = !hidden
+        actualizarPolling()
+    }
+
+    private fun actualizarPolling() {
+        if (argumentosInvalidos) return
+        if (!isHidden && modoLectura && !pedidoEnviado) {
+            carritoViewModel.startPolling(mesaId)
+        } else {
+            carritoViewModel.stopPolling()
+        }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putBoolean(EXTRA_PEDIDO_ENVIADO, pedidoEnviado)
+        outState.putBoolean(EXTRA_CUENTA_SOLICITADA, cuentaSolicitada)
+        outState.putBoolean(EXTRA_MODO_LECTURA, modoLectura)
+        outState.putBoolean(EXTRA_PARA_LLEVAR, paraLlevar)
+        outState.putString(EXTRA_CLIENTE_NOMBRE, clienteNombre)
+        outState.putLong(EXTRA_PEDIDO_PARA_LLEVAR_ID, pedidoIdParaLlevar)
+        super.onSaveInstanceState(outState)
+    }
+
+    override fun onDestroyView() {
+        cerrarDialogoLiberar()
+        cerrarDialogoAnular()
+        dialogoPedidoEnviado?.cerrar()
+        dialogoPedidoEnviado = null
+        dialogoNota?.cerrar()
+        dialogoNota = null
+        dialogoCuentaSolicitada?.cerrar()
+        dialogoCuentaSolicitada = null
+        selectorModificadores.cerrar()
+        dialogoAbierto?.dismiss()
+        dialogoAbierto = null
+        callbackAtras = null
+        pedidoExistenteMostrado = false
+        errorPedidoExistenteMostrado = false
+        animacionCatalogoEjecutada = false
+        _binding = null
+        super.onDestroyView()
+    }
+
+    private fun configurarAtras() {
+        binding.barraComanda.setNavigationOnClickListener { intentarSalir() }
+        callbackAtras = requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
+            intentarSalir()
+        }
+    }
+
+    private fun observarEstado() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch { carritoViewModel.estado.collect(::renderCarrito) }
                 launch { carritoViewModel.eventos.collect(::manejarEventoCarrito) }
                 launch { comandaViewModel.estado.collect(::renderComanda) }
@@ -161,7 +265,7 @@ class ComandaActivity : AppCompatActivity(), CarritoBottomSheet.Listener {
     }
 
     /** Cabecera y acciones propias de una comanda de mesa o para llevar. */
-    private fun configurarCabecera(ubicacion: String) {
+    private fun configurarCabecera() {
         if (paraLlevar) {
             binding.barraComanda.title = getString(R.string.comanda_barra_titulo_para_llevar)
             binding.textoTitulo.text = getString(
@@ -177,13 +281,17 @@ class ComandaActivity : AppCompatActivity(), CarritoBottomSheet.Listener {
             )
             TextViewCompat.setCompoundDrawableTintList(
                 binding.badgeEstado,
-                ColorStateList.valueOf(ContextCompat.getColor(this, R.color.tertiary))
+                ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.tertiary))
             )
             // Sin mesa no hay "Pedir Cuenta" ni pre-cuenta por mesa.
             binding.btnPedirCuenta.isVisible = false
             binding.grupoImpresion.isVisible = false
         } else {
-            binding.textoTitulo.text = getString(R.string.comanda_titulo, numeroMesa, ubicacion)
+            binding.textoTitulo.text = getString(
+                R.string.comanda_titulo,
+                numeroMesa,
+                ubicacionMesa
+            )
             binding.badgeEstado.text = if (modoLectura) {
                 getString(R.string.comanda_badge_lectura)
             } else {
@@ -192,56 +300,8 @@ class ComandaActivity : AppCompatActivity(), CarritoBottomSheet.Listener {
         }
     }
 
-    /**
-     * PRB-90: en una comanda en modo lectura, refrescar el estado de los
-     * platos mientras la pantalla esta visible. Se detiene en onStop para no
-     * consultar en segundo plano (mismo criterio que el mapa de mesas).
-     * Tras enviar una nueva comanda no se reanuda.
-     */
-    override fun onStart() {
-        super.onStart()
-        if (modoLectura && !pedidoEnviado) carritoViewModel.startPolling(mesaId)
-    }
-
-    override fun onStop() {
-        carritoViewModel.stopPolling()
-        super.onStop()
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        // Si el pedido ya viajo, una rotacion no debe permitir liberar la mesa.
-        outState.putBoolean(EXTRA_PEDIDO_ENVIADO, pedidoEnviado)
-        // Si la cuenta ya se pidio, tampoco se debe liberar la mesa al salir.
-        outState.putBoolean(EXTRA_CUENTA_SOLICITADA, cuentaSolicitada)
-        // El modo lectura es parte del contexto de la pantalla.
-        outState.putBoolean(EXTRA_MODO_LECTURA, modoLectura)
-        // PRB-94: el destino para llevar y el id ya enviado sobreviven a la
-        // recreacion para no perder el aviso al volver al mapa.
-        outState.putBoolean(EXTRA_PARA_LLEVAR, paraLlevar)
-        outState.putString(EXTRA_CLIENTE_NOMBRE, clienteNombre)
-        outState.putLong(EXTRA_PEDIDO_PARA_LLEVAR_ID, pedidoIdParaLlevar)
-        super.onSaveInstanceState(outState)
-    }
-
-    override fun onDestroy() {
-        cerrarDialogoLiberar()
-        cerrarDialogoAnular()
-        dialogoPedidoEnviado?.cerrar()
-        dialogoPedidoEnviado = null
-        dialogoNota?.cerrar()
-        dialogoNota = null
-        dialogoCuentaSolicitada?.cerrar()
-        dialogoCuentaSolicitada = null
-        selectorModificadores.cerrar()
-        dialogoAbierto?.dismiss()
-        dialogoAbierto = null
-        super.onDestroy()
-    }
-
     private fun prepararListas() {
         catalogoAdapter = CatalogoAdapter(
-            // PRB-92: con modificadores, "+" abre el selector; sin ellos,
-            // conserva el alta directa de PRB-38.
             alAgregar = { producto ->
                 selectorModificadores.abrirSiCorresponde(producto) {
                     carritoViewModel.agregarProducto(producto)
@@ -252,15 +312,13 @@ class ComandaActivity : AppCompatActivity(), CarritoBottomSheet.Listener {
                     carritoViewModel.aumentarCantidad(producto.id)
                 }
             },
-            // El "-" baja una unidad de la primera linea de ese plato; el
-            // detalle del carrito permite ajustar cada combinacion.
             alDisminuir = { producto -> carritoViewModel.disminuirCantidad(producto.id) }
         )
 
-        binding.listaCatalogo.layoutManager = LinearLayoutManager(this)
+        binding.listaCatalogo.layoutManager = LinearLayoutManager(requireContext())
         binding.listaCatalogo.adapter = catalogoAdapter
 
-        catalogoChips = CatalogoChips(this, binding.grupoCategorias) { categoriaId ->
+        catalogoChips = CatalogoChips(activityHost, binding.grupoCategorias) { categoriaId ->
             carritoViewModel.filtrarCategoria(categoriaId)
         }
     }
@@ -283,16 +341,8 @@ class ComandaActivity : AppCompatActivity(), CarritoBottomSheet.Listener {
         }
     }
 
-    /**
-     * Bloqueo rapido (PRB-81) desde la comanda.
-     *
-     * ComandaActivity solo pasa a STOPPED: su ViewModelStore conserva la misma
-     * instancia de [CarritoViewModel] con los platos. Al desbloquear se reanuda
-     * esta Activity y repeatOnLifecycle vuelve a recolectar el estado, sin
-     * recargar el catalogo ni vaciar el carrito.
-     */
     private fun abrirBloqueo() {
-        startActivity(Intent(this, BloqueoActivity::class.java))
+        startActivity(Intent(requireContext(), BloqueoActivity::class.java))
     }
 
     // ---------------------------------------------------------------------
@@ -326,26 +376,18 @@ class ComandaActivity : AppCompatActivity(), CarritoBottomSheet.Listener {
         }
 
         catalogoAdapter.submitList(estado.filas)
-        // Puede haber dos lineas del mismo plato con modificadores distintos:
-        // la tarjeta del catalogo muestra la cantidad total de ese plato.
         catalogoAdapter.actualizarCantidades(
             estado.items
                 .groupBy { it.producto.id }
                 .mapValues { entrada -> entrada.value.sumOf { it.cantidad } }
         )
 
-        // Fade + slide-up solo la primera vez que el catalogo tiene platos.
         if (!animacionCatalogoEjecutada && mostrarCatalogo && estado.filas.isNotEmpty()) {
             animacionCatalogoEjecutada = true
             binding.listaCatalogo.aparecerConDesplazamiento()
         }
     }
 
-    /**
-     * Modo lectura (PRB-83): cuando termina la carga del pedido existente se
-     * abre el carrito una sola vez; si el GET falla, se avisa sin bloquear el
-     * catalogo.
-     */
     private fun renderModoLecura(estado: CarritoUiState) {
         if (!estado.modoLectura || !estado.pedidoExistenteCargado) return
 
@@ -361,7 +403,7 @@ class ComandaActivity : AppCompatActivity(), CarritoBottomSheet.Listener {
         if (pedidoExistenteMostrado) return
         pedidoExistenteMostrado = true
         binding.root.post {
-            if (!isFinishing && !isDestroyed) mostrarCarrito()
+            if (isAdded && _binding != null) mostrarCarrito()
         }
     }
 
@@ -395,33 +437,30 @@ class ComandaActivity : AppCompatActivity(), CarritoBottomSheet.Listener {
         )
     }
 
-    /** Abre el carrito en el bottom sheet (un solo fragmento a la vez). */
     private fun mostrarCarrito() {
         if (!paraLlevar && mesaId <= 0L) return
-        if (supportFragmentManager.findFragmentByTag(CarritoBottomSheet.TAG) != null) return
+        if (childFragmentManager.findFragmentByTag(CarritoBottomSheet.TAG) != null) return
         CarritoBottomSheet.nueva(mesaId)
-            .show(supportFragmentManager, CarritoBottomSheet.TAG)
+            .show(childFragmentManager, CarritoBottomSheet.TAG)
     }
 
     private fun cerrarCarrito() {
-        (supportFragmentManager.findFragmentByTag(CarritoBottomSheet.TAG) as? CarritoBottomSheet)
+        (childFragmentManager.findFragmentByTag(CarritoBottomSheet.TAG) as? CarritoBottomSheet)
             ?.dismissAllowingStateLoss()
     }
 
-    /** La nota se edita desde la linea del carrito del bottom sheet. */
     override fun onEditarNotas(item: ItemCarrito) {
         cerrarDialogoAbierto()
         dialogoNota?.cerrar()
-        dialogoNota = NotaPlatoDialog(this, item) { notas ->
+        dialogoNota = NotaPlatoDialog(activityHost, item) { notas ->
             carritoViewModel.actualizarNotas(item, notas)
         }.also { it.mostrar() }
     }
 
-    /** PRB-77: el icono de anular pide confirmacion antes de llamar al backend. */
     override fun onAnular(item: ItemCarrito) {
         cerrarDialogoAbierto()
         dialogoAnular?.cerrar()
-        dialogoAnular = AnularPlatoDialog(this, item) { elegido ->
+        dialogoAnular = AnularPlatoDialog(activityHost, item) { elegido ->
             carritoViewModel.anularItem(elegido)
         }.also { it.mostrar() }
     }
@@ -429,10 +468,8 @@ class ComandaActivity : AppCompatActivity(), CarritoBottomSheet.Listener {
     private fun manejarEventoCarrito(evento: CarritoEvento) {
         when (evento) {
             is CarritoEvento.PedidoEnviadoOk -> {
-                // A partir de aqui la mesa NO debe liberarse al salir.
                 pedidoEnviado = true
                 if (paraLlevar) pedidoIdParaLlevar = evento.pedido.id
-                // PRB-90: el pedido ya viajo; no seguir refrescando esta vista.
                 carritoViewModel.stopPolling()
                 cerrarCarrito()
                 mostrarDialogoPedidoEnviado(evento.pedido)
@@ -461,7 +498,7 @@ class ComandaActivity : AppCompatActivity(), CarritoBottomSheet.Listener {
         cerrarDialogoAbierto()
         dialogoPedidoEnviado?.cerrar()
         dialogoPedidoEnviado = PedidoEnviadoDialog(
-            activity = this,
+            activity = activityHost,
             paraLlevar = paraLlevar,
             clienteNombre = clienteNombre,
             numeroMesa = numeroMesa,
@@ -487,7 +524,7 @@ class ComandaActivity : AppCompatActivity(), CarritoBottomSheet.Listener {
 
         mostrarDialogo(
             titulo = getString(R.string.anular_plato_error_titulo),
-            mensaje = ComandaMensajes.errorAnular(this, error),
+            mensaje = ComandaMensajes.errorAnular(requireContext(), error),
             cancelable = true,
             textoPositivo = R.string.accion_entendido
         )
@@ -495,10 +532,10 @@ class ComandaActivity : AppCompatActivity(), CarritoBottomSheet.Listener {
 
     /**
      * El Snackbar se pinta dentro del bottom sheet cuando esta abierto; si no,
-     * se usa el Snackbar de marca de la Activity.
+     * se usa el Snackbar de marca de la comanda.
      */
     private fun mostrarSnackbar(texto: String) {
-        val sheet = supportFragmentManager
+        val sheet = childFragmentManager
             .findFragmentByTag(CarritoBottomSheet.TAG) as? CarritoBottomSheet
         if (sheet?.view != null) {
             sheet.mostrarSnackbar(texto)
@@ -506,19 +543,19 @@ class ComandaActivity : AppCompatActivity(), CarritoBottomSheet.Listener {
         }
 
         val snackbar = Snackbar.make(binding.root, texto, Snackbar.LENGTH_SHORT)
-        snackbar.setTextColor(ContextCompat.getColor(this, R.color.on_primary))
+        snackbar.setTextColor(ContextCompat.getColor(requireContext(), R.color.on_primary))
         snackbar.show()
-        snackbar.view.background = ContextCompat.getDrawable(this, R.drawable.bg_snackbar)
+        snackbar.view.background =
+            ContextCompat.getDrawable(requireContext(), R.drawable.bg_snackbar)
     }
 
-    /** Botones de impresion (PRB-73) y Snackbar del resultado. */
     private fun renderImpresion(estado: ImpresionUiState) {
         binding.btnImprimir.isEnabled = !estado.imprimiendo
         binding.btnReimprimir.isEnabled = !estado.imprimiendo
 
         val aviso = estado.aviso ?: return
         impresionViewModel.consumirAviso()
-        mostrarSnackbar(ComandaMensajes.avisoImpresion(this, aviso))
+        mostrarSnackbar(ComandaMensajes.avisoImpresion(requireContext(), aviso))
     }
 
     private fun cerrarDialogoAnular() {
@@ -534,10 +571,10 @@ class ComandaActivity : AppCompatActivity(), CarritoBottomSheet.Listener {
 
         mostrarDialogo(
             titulo = getString(R.string.comanda_error_envio_titulo),
-            mensaje = ComandaMensajes.errorEnvio(this, error),
+            mensaje = ComandaMensajes.errorEnvio(requireContext(), error),
             cancelable = true,
             textoPositivo = R.string.accion_reintentar,
-            alAceptar = { carritoViewModel.enviarPedido(mesaId) },
+            alAceptar = { carritoViewModel.enviarPedido() },
             textoNegativo = R.string.accion_cancelar
         )
     }
@@ -558,14 +595,8 @@ class ComandaActivity : AppCompatActivity(), CarritoBottomSheet.Listener {
         }
     }
 
-    /**
-     * Atras y la flecha de la toolbar abren el dialogo de confirmacion.
-     * Si el pedido ya se envio (PRB-38), la cuenta ya se pidio (PRB-83) o la
-     * pantalla es de solo lectura (mesa de otro mozo), la mesa no se libera.
-     */
     private fun intentarSalir() {
         if (saliendo || dialogoLiberar?.estaMostrando() == true) return
-        // PRB-94: un pedido para llevar no tiene mesa que liberar.
         if (noDebeLiberarMesa()) {
             terminar(
                 mesaLiberada = false,
@@ -586,7 +617,8 @@ class ComandaActivity : AppCompatActivity(), CarritoBottomSheet.Listener {
     private fun mostrarDialogoLiberarMesa() {
         cerrarDialogoAbierto()
         dialogoLiberar?.cerrar()
-        dialogoLiberar = LiberarMesaDialog(this) { confirmarLiberacion() }.also { it.mostrar() }
+        dialogoLiberar = LiberarMesaDialog(activityHost) { confirmarLiberacion() }
+            .also { it.mostrar() }
     }
 
     private fun confirmarLiberacion() {
@@ -609,7 +641,6 @@ class ComandaActivity : AppCompatActivity(), CarritoBottomSheet.Listener {
             }
 
             ComandaEvento.CuentaSolicitada -> {
-                // A partir de aqui la mesa queda en amarillo: no se libera al salir.
                 cuentaSolicitada = true
                 mostrarDialogoCuentaSolicitada()
             }
@@ -624,11 +655,10 @@ class ComandaActivity : AppCompatActivity(), CarritoBottomSheet.Listener {
         }
     }
 
-    /** Exito de "Pedir Cuenta" (PRB-83): confirma y vuelve al mapa. */
     private fun mostrarDialogoCuentaSolicitada() {
         cerrarDialogoAbierto()
         dialogoCuentaSolicitada?.cerrar()
-        dialogoCuentaSolicitada = CuentaSolicitadaDialog(this, numeroMesa) {
+        dialogoCuentaSolicitada = CuentaSolicitadaDialog(activityHost, numeroMesa) {
             terminar(mesaLiberada = false, liberarPendiente = false)
         }.also { it.mostrar() }
     }
@@ -641,7 +671,7 @@ class ComandaActivity : AppCompatActivity(), CarritoBottomSheet.Listener {
 
         mostrarDialogo(
             titulo = getString(R.string.comanda_cuenta_error_titulo),
-            mensaje = ComandaMensajes.errorCuenta(this, error),
+            mensaje = ComandaMensajes.errorCuenta(requireContext(), error),
             cancelable = true,
             textoPositivo = R.string.accion_reintentar,
             alAceptar = { comandaViewModel.pedirCuenta(mesaId) },
@@ -708,7 +738,7 @@ class ComandaActivity : AppCompatActivity(), CarritoBottomSheet.Listener {
         cerrarDialogoLiberar()
         dialogoAbierto?.dismiss()
         val dialogo = ComandaDialogos.crear(
-            activity = this,
+            activity = activityHost,
             titulo = titulo,
             mensaje = mensaje,
             cancelable = cancelable,
@@ -737,38 +767,43 @@ class ComandaActivity : AppCompatActivity(), CarritoBottomSheet.Listener {
     }
 
     /**
-     * Devuelve el control al mapa de mesas.
-     * [liberarPendiente] pide al mapa de Salón un ultimo intento con
-     * `MesasViewModel.liberarMesa()` si el PATCH fallo aqui.
-     * [EXTRA_PEDIDO_ENVIADO] queda en true cuando el POST /pedidos fue exitoso:
-     * la mesa se queda en su estado de atencion y no se libera.
+     * Cierra la comanda: limpia el carrito (scope de MainActivity), publica el
+     * resultado para que SalonFragment refresque el mapa y pide volver al
+     * contenedor. MainActivity hace el popBackStack del detalle.
      */
     private fun terminar(
         mesaLiberada: Boolean,
         liberarPendiente: Boolean,
         pedidoParaLlevarId: Long = 0L
     ) {
-        if (isFinishing) return
-        val datos = Intent().apply {
-            putExtra(EXTRA_MESA_ID, mesaId)
-            putExtra(EXTRA_MESA_LIBERADA, mesaLiberada)
-            putExtra(EXTRA_LIBERAR_PENDIENTE, liberarPendiente)
-            putExtra(EXTRA_PEDIDO_ENVIADO, pedidoEnviado)
-            putExtra(EXTRA_PEDIDO_PARA_LLEVAR_ID, pedidoParaLlevarId)
+        if (!isAdded) return
+        carritoViewModel.limpiarCarrito()
+        val datos = Bundle().apply {
+            putLong(EXTRA_MESA_ID, mesaId)
+            putBoolean(EXTRA_MESA_LIBERADA, mesaLiberada)
+            putBoolean(EXTRA_LIBERAR_PENDIENTE, liberarPendiente)
+            putBoolean(EXTRA_PEDIDO_ENVIADO, pedidoEnviado)
+            putLong(EXTRA_PEDIDO_PARA_LLEVAR_ID, pedidoParaLlevarId)
         }
-        setResult(RESULT_OK, datos)
-        finish()
+        parentFragmentManager.setFragmentResult(REQUEST_KEY, datos)
+        (requireActivity() as? MainActivity)?.cerrarComanda()
     }
 
     private fun irALogin() {
-        val intent = Intent(this, LoginActivity::class.java).apply {
+        if (yendoALogin) return
+        yendoALogin = true
+        carritoViewModel.limpiarCarrito()
+        val intent = Intent(requireContext(), LoginActivity::class.java).apply {
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
         }
         startActivity(intent)
-        finish()
+        requireActivity().finish()
     }
 
     companion object {
+        /** Clave del FragmentResult que escucha SalonFragment. */
+        const val REQUEST_KEY = "comanda_result"
+
         const val EXTRA_MESA_ID = "extra_mesa_id"
         const val EXTRA_MESA_NUMERO = "extra_mesa_numero"
         const val EXTRA_MESA_UBICACION = "extra_mesa_ubicacion"
@@ -796,5 +831,26 @@ class ComandaActivity : AppCompatActivity(), CarritoBottomSheet.Listener {
 
         private const val ALPHA_ACTIVO = 255
         private const val ALPHA_DESHABILITADO = 120
+
+        fun nuevaMesa(
+            mesaId: Long,
+            numeroMesa: Int,
+            ubicacion: String,
+            modoLectura: Boolean
+        ): ComandaFragment = ComandaFragment().apply {
+            arguments = Bundle().apply {
+                putLong(EXTRA_MESA_ID, mesaId)
+                putInt(EXTRA_MESA_NUMERO, numeroMesa)
+                putString(EXTRA_MESA_UBICACION, ubicacion)
+                putBoolean(EXTRA_MODO_LECTURA, modoLectura)
+            }
+        }
+
+        fun nuevaParaLlevar(clienteNombre: String): ComandaFragment = ComandaFragment().apply {
+            arguments = Bundle().apply {
+                putBoolean(EXTRA_PARA_LLEVAR, true)
+                putString(EXTRA_CLIENTE_NOMBRE, clienteNombre)
+            }
+        }
     }
 }
