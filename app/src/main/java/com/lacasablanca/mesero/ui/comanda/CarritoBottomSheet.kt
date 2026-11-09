@@ -49,8 +49,6 @@ class CarritoBottomSheet : BottomSheetDialogFragment() {
     private var _binding: BottomSheetCarritoBinding? = null
     private val binding get() = _binding!!
 
-    private val mesaId: Long get() = requireArguments().getLong(ARG_MESA_ID)
-
     private val viewModel: CarritoViewModel by lazy {
         val contenedor = (requireActivity().application as MeseroApp).container
         ViewModelProvider(
@@ -94,7 +92,9 @@ class CarritoBottomSheet : BottomSheetDialogFragment() {
         binding.listaCarrito.adapter = carritoAdapter
 
         binding.btnCerrarCarrito.setOnClickListener { dismiss() }
-        binding.btnConfirmar.setOnClickListener { viewModel.enviarPedido(mesaId) }
+        // El ViewModel conoce el destino (mesa o para llevar); el sheet no
+        // necesita distinguirlo (PRB-94).
+        binding.btnConfirmar.setOnClickListener { viewModel.enviarPedido() }
         binding.btnAgregarMas.setOnClickListener { dismiss() }
 
         viewLifecycleOwner.lifecycleScope.launch {
@@ -166,10 +166,10 @@ class CarritoBottomSheet : BottomSheetDialogFragment() {
             estado.cantidadItems,
             estado.cantidadItems
         )
-        binding.textoSheetTitulo.text = if (estado.modoLectura) {
-            getString(R.string.carrito_sheet_titulo_lectura)
-        } else {
-            getString(R.string.carrito_sheet_titulo)
+        binding.textoSheetTitulo.text = when {
+            estado.esParaLlevar -> getString(R.string.carrito_sheet_titulo_para_llevar)
+            estado.modoLectura -> getString(R.string.carrito_sheet_titulo_lectura)
+            else -> getString(R.string.carrito_sheet_titulo)
         }
         binding.textoSheetContador.text = if (estado.modoLectura) {
             getString(R.string.carrito_sheet_contador_lectura, cantidad)

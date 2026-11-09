@@ -1,6 +1,7 @@
 package com.lacasablanca.mesero.ui.comanda
 
 import android.content.Intent
+import android.content.res.ColorStateList
 import android.graphics.text.LineBreaker
 import android.os.Bundle
 import android.text.Layout
@@ -29,6 +30,7 @@ import com.lacasablanca.mesero.databinding.DialogNotaPlatoBinding
 import com.lacasablanca.mesero.databinding.DialogPedidoEnviadoBinding
 import com.lacasablanca.mesero.domain.ErrorApp
 import com.lacasablanca.mesero.domain.model.Categoria
+import com.lacasablanca.mesero.domain.model.DestinoPedido
 import com.lacasablanca.mesero.domain.model.ItemCarrito
 import com.lacasablanca.mesero.domain.model.PedidoEnviado
 import com.lacasablanca.mesero.ui.bloqueo.BloqueoActivity
@@ -58,7 +60,12 @@ class ComandaActivity : AppCompatActivity(), CarritoBottomSheet.Listener {
         GenericViewModelFactory {
             CarritoViewModel(
                 catalogoRepository = contenedor.catalogoRepository,
-                pedidoRepository = contenedor.pedidoRepository
+                pedidoRepository = contenedor.pedidoRepository,
+                destino = if (paraLlevar) {
+                    DestinoPedido.ParaLlevar(clienteNombre)
+                } else {
+                    DestinoPedido.Mesa(mesaId)
+                }
             )
         }
     }
@@ -77,6 +84,13 @@ class ComandaActivity : AppCompatActivity(), CarritoBottomSheet.Listener {
 
     private var mesaId = -1L
     private var numeroMesa = 0
+
+    /** PRB-94: comanda sin mesa, identificada por el nombre del cliente. */
+    private var paraLlevar = false
+    private var clienteNombre = ""
+
+    /** Id del pedido para llevar enviado; se devuelve al mapa para el aviso. */
+    private var pedidoIdParaLlevar = 0L
     private var pedidoEnviado = false
     private var cuentaSolicitada = false
     private var modoLectura = false
@@ -106,6 +120,10 @@ class ComandaActivity : AppCompatActivity(), CarritoBottomSheet.Listener {
         mesaId = intent.getLongExtra(EXTRA_MESA_ID, -1L)
         numeroMesa = intent.getIntExtra(EXTRA_MESA_NUMERO, 0)
         val ubicacion = intent.getStringExtra(EXTRA_MESA_UBICACION).orEmpty()
+        paraLlevar = savedInstanceState?.getBoolean(EXTRA_PARA_LLEVAR, false)
+            ?: intent.getBooleanExtra(EXTRA_PARA_LLEVAR, false)
+        clienteNombre = intent.getStringExtra(EXTRA_CLIENTE_NOMBRE).orEmpty().trim()
+        pedidoIdParaLlevar = savedInstanceState?.getLong(EXTRA_PEDIDO_PARA_LLEVAR_ID, 0L) ?: 0L
         pedidoEnviado = savedInstanceState?.getBoolean(EXTRA_PEDIDO_ENVIADO, false)
             ?: intent.getBooleanExtra(EXTRA_PEDIDO_ENVIADO, false)
         cuentaSolicitada = savedInstanceState?.getBoolean(EXTRA_CUENTA_SOLICITADA, false)
@@ -113,16 +131,41 @@ class ComandaActivity : AppCompatActivity(), CarritoBottomSheet.Listener {
         modoLectura = savedInstanceState?.getBoolean(EXTRA_MODO_LECTURA, false)
             ?: intent.getBooleanExtra(EXTRA_MODO_LECTURA, false)
 
-        if (mesaId <= 0L || numeroMesa <= 0) {
+        if (paraLlevar) {
+            if (clienteNombre.isBlank()) {
+                finish()
+                return
+            }
+        } else if (mesaId <= 0L || numeroMesa <= 0) {
             finish()
             return
         }
 
-        binding.textoTitulo.text = getString(R.string.comanda_titulo, numeroMesa, ubicacion)
-        binding.badgeEstado.text = if (modoLectura) {
-            getString(R.string.comanda_badge_lectura)
+        if (paraLlevar) {
+            binding.barraComanda.title = getString(R.string.comanda_barra_titulo_para_llevar)
+            binding.textoTitulo.text = getString(
+                R.string.comanda_titulo_para_llevar,
+                clienteNombre
+            )
+            binding.badgeEstado.text = getString(R.string.comanda_badge_para_llevar)
+            binding.badgeEstado.setCompoundDrawablesRelativeWithIntrinsicBounds(
+                R.drawable.ic_para_llevar,
+                0,
+                0,
+                0
+            )
+            binding.badgeEstado.compoundDrawableTintList =
+                ColorStateList.valueOf(ContextCompat.getColor(this, R.color.tertiary))
+            // Sin mesa no hay "Pedir Cuenta" ni pre-cuenta por mesa.
+            binding.btnPedirCuenta.isVisible = false
+            binding.grupoImpresion.isVisible = false
         } else {
-            getString(R.string.comanda_badge)
+            binding.textoTitulo.text = getString(R.string.comanda_titulo, numeroMesa, ubicacion)
+            binding.badgeEstado.text = if (modoLectura) {
+                getString(R.string.comanda_badge_lectura)
+            } else {
+                getString(R.string.comanda_badge)
+            }
         }
         binding.textoModoDemo.isVisible = BuildConfig.USE_FAKE_DATA
 
@@ -171,6 +214,11 @@ class ComandaActivity : AppCompatActivity(), CarritoBottomSheet.Listener {
         outState.putBoolean(EXTRA_CUENTA_SOLICITADA, cuentaSolicitada)
         // El modo lectura es parte del contexto de la pantalla.
         outState.putBoolean(EXTRA_MODO_LECTURA, modoLectura)
+        // PRB-94: el destino para llevar y el id ya enviado sobreviven a la
+        // recreacion para no perder el aviso al volver al mapa.
+        outState.putBoolean(EXTRA_PARA_LLEVAR, paraLlevar)
+        outState.putString(EXTRA_CLIENTE_NOMBRE, clienteNombre)
+        outState.putLong(EXTRA_PEDIDO_PARA_LLEVAR_ID, pedidoIdParaLlevar)
         super.onSaveInstanceState(outState)
     }
 
@@ -395,7 +443,7 @@ class ComandaActivity : AppCompatActivity(), CarritoBottomSheet.Listener {
 
     /** Abre el carrito en el bottom sheet (un solo fragmento a la vez). */
     private fun mostrarCarrito() {
-        if (mesaId <= 0L) return
+        if (!paraLlevar && mesaId <= 0L) return
         if (supportFragmentManager.findFragmentByTag(CarritoBottomSheet.TAG) != null) return
         CarritoBottomSheet.nueva(mesaId)
             .show(supportFragmentManager, CarritoBottomSheet.TAG)
@@ -425,6 +473,7 @@ class ComandaActivity : AppCompatActivity(), CarritoBottomSheet.Listener {
             is CarritoEvento.PedidoEnviadoOk -> {
                 // A partir de aqui la mesa NO debe liberarse al salir.
                 pedidoEnviado = true
+                if (paraLlevar) pedidoIdParaLlevar = evento.pedido.id
                 // PRB-90: el pedido ya viajo; no seguir refrescando esta vista.
                 carritoViewModel.stopPolling()
                 cerrarCarrito()
@@ -454,11 +503,19 @@ class ComandaActivity : AppCompatActivity(), CarritoBottomSheet.Listener {
         cerrarDialogoAbierto()
 
         val contenido = DialogPedidoEnviadoBinding.inflate(layoutInflater)
-        contenido.textoExitoMensaje.text = getString(
-            R.string.comanda_pedido_enviado_mensaje,
-            numeroMesa,
-            pedido.id
-        )
+        contenido.textoExitoMensaje.text = if (paraLlevar) {
+            getString(
+                R.string.comanda_pedido_enviado_mensaje_llevar,
+                clienteNombre,
+                pedido.id
+            )
+        } else {
+            getString(
+                R.string.comanda_pedido_enviado_mensaje,
+                numeroMesa,
+                pedido.id
+            )
+        }
         contenido.textoExitoTotal.text = getString(
             R.string.comanda_pedido_enviado_total,
             formatearMoneda(pedido.total)
@@ -471,7 +528,11 @@ class ComandaActivity : AppCompatActivity(), CarritoBottomSheet.Listener {
 
         contenido.btnVolverMapa.setOnClickListener {
             dialogo.dismiss()
-            terminar(mesaLiberada = false, liberarPendiente = false)
+            terminar(
+                mesaLiberada = false,
+                liberarPendiente = false,
+                pedidoParaLlevarId = pedidoIdParaLlevar
+            )
         }
 
         dialogo.setCanceledOnTouchOutside(false)
@@ -594,8 +655,13 @@ class ComandaActivity : AppCompatActivity(), CarritoBottomSheet.Listener {
      */
     private fun intentarSalir() {
         if (saliendo || dialogoLiberar?.isShowing == true) return
-        if (pedidoEnviado || cuentaSolicitada || modoLectura) {
-            terminar(mesaLiberada = false, liberarPendiente = false)
+        // PRB-94: un pedido para llevar no tiene mesa que liberar.
+        if (paraLlevar || pedidoEnviado || cuentaSolicitada || modoLectura) {
+            terminar(
+                mesaLiberada = false,
+                liberarPendiente = false,
+                pedidoParaLlevarId = if (paraLlevar) pedidoIdParaLlevar else 0L
+            )
             return
         }
         mostrarDialogoLiberarMesa()
@@ -806,13 +872,18 @@ class ComandaActivity : AppCompatActivity(), CarritoBottomSheet.Listener {
      * [EXTRA_PEDIDO_ENVIADO] queda en true cuando el POST /pedidos fue exitoso:
      * la mesa se queda en su estado de atencion y no se libera.
      */
-    private fun terminar(mesaLiberada: Boolean, liberarPendiente: Boolean) {
+    private fun terminar(
+        mesaLiberada: Boolean,
+        liberarPendiente: Boolean,
+        pedidoParaLlevarId: Long = 0L
+    ) {
         if (isFinishing) return
         val datos = Intent().apply {
             putExtra(EXTRA_MESA_ID, mesaId)
             putExtra(EXTRA_MESA_LIBERADA, mesaLiberada)
             putExtra(EXTRA_LIBERAR_PENDIENTE, liberarPendiente)
             putExtra(EXTRA_PEDIDO_ENVIADO, pedidoEnviado)
+            putExtra(EXTRA_PEDIDO_PARA_LLEVAR_ID, pedidoParaLlevarId)
         }
         setResult(RESULT_OK, datos)
         finish()
@@ -842,6 +913,15 @@ class ComandaActivity : AppCompatActivity(), CarritoBottomSheet.Listener {
 
         const val EXTRA_MESA_LIBERADA = "extra_mesa_liberada"
         const val EXTRA_LIBERAR_PENDIENTE = "extra_liberar_pendiente"
+
+        /** PRB-94: comanda para llevar (sin mesa). */
+        const val EXTRA_PARA_LLEVAR = "extra_para_llevar"
+
+        /** PRB-94: nombre del cliente que identifica el pedido para llevar. */
+        const val EXTRA_CLIENTE_NOMBRE = "extra_cliente_nombre"
+
+        /** PRB-94: id del pedido enviado, para el aviso al volver al mapa. */
+        const val EXTRA_PEDIDO_PARA_LLEVAR_ID = "extra_pedido_para_llevar_id"
 
         private const val ALPHA_ACTIVO = 255
         private const val ALPHA_DESHABILITADO = 120

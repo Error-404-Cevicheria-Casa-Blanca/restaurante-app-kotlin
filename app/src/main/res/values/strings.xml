@@ -400,4 +400,20 @@
     <string name="comanda_modificadores_extra">%1$s (+%2$s)</string>
     <string name="cd_modificadores_linea">Modificadores: %1$s</string>
     <string name="cd_modificadores_producto">Elegir los modificadores de %1$s</string>
+
+    <!-- Pedidos para llevar / delivery (PRB-94) -->
+    <string name="para_llevar_accion">Para Llevar</string>
+    <string name="cd_para_llevar">Iniciar un pedido para llevar</string>
+    <string name="para_llevar_dialogo_titulo">Pedido para llevar</string>
+    <string name="para_llevar_dialogo_mensaje">Ingresa el nombre del cliente para identificar el pedido en cocina y en caja.</string>
+    <string name="para_llevar_campo_nombre">Nombre del cliente</string>
+    <string name="para_llevar_campo_error">Ingresa el nombre del cliente</string>
+    <string name="para_llevar_continuar">Continuar</string>
+    <string name="para_llevar_icono_cd">Pedido para llevar</string>
+    <string name="comanda_barra_titulo_para_llevar">Detalle del Pedido</string>
+    <string name="comanda_titulo_para_llevar">Para Llevar: %1$s</string>
+    <string name="comanda_badge_para_llevar">Para llevar</string>
+    <string name="carrito_sheet_titulo_para_llevar">Pedido para llevar</string>
+    <string name="comanda_pedido_enviado_mensaje_llevar">Para llevar: %1$s · Pedido #%2$d</string>
+    <string name="para_llevar_pedido_enviado">Pedido para llevar #%1$d enviado a cocina</string>
 </resources>
