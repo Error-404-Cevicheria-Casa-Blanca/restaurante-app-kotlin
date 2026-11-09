@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Dialogo premium para elegir la mesa destino (PRB-93). Una sola seleccion,
+    lista con scroll y estado de progreso mientras el backend responde.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_horizontal"
+    android:orientation="vertical"
+    android:paddingHorizontal="@dimen/espacio_xl"
+    android:paddingTop="@dimen/espacio_xl"
+    android:paddingBottom="@dimen/espacio_l">
+
+    <ImageView
+        android:id="@+id/iconoSeleccionMesa"
+        android:layout_width="@dimen/icono_xl"
+        android:layout_height="@dimen/icono_xl"
+        android:contentDescription="@string/accion_dialogo_icono_cd"
+        android:src="@drawable/ic_restaurant"
+        app:tint="@color/primary" />
+
+    <TextView
+        android:id="@+id/tituloSeleccionMesa"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/espacio_m"
+        android:autoSizeMaxTextSize="20sp"
+        android:autoSizeMinTextSize="14sp"
+        android:autoSizeStepGranularity="1sp"
+        android:autoSizeTextType="uniform"
+        android:breakStrategy="simple"
+        android:gravity="center"
+        android:hyphenationFrequency="none"
+        android:maxLines="2"
+        android:textColor="@color/primary"
+        android:textSize="@dimen/texto_titulo_tarjeta"
+        android:textStyle="bold"
+        tools:text="Transferir Mesa 7" />
+
+    <TextView
+        android:id="@+id/mensajeSeleccionMesa"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/espacio_s"
+        android:autoSizeMaxTextSize="15sp"
+        android:autoSizeMinTextSize="11sp"
+        android:autoSizeStepGranularity="1sp"
+        android:autoSizeTextType="uniform"
+        android:breakStrategy="simple"
+        android:gravity="center"
+        android:hyphenationFrequency="none"
+        android:lineSpacingExtra="2dp"
+        android:maxLines="3"
+        android:textColor="@color/texto_principal"
+        android:textSize="@dimen/texto_cuerpo"
+        tools:text="Elige la mesa que recibirá el pedido." />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/listaDestinos"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/alto_lista_destinos"
+        android:layout_marginTop="@dimen/espacio_m"
+        android:clipToPadding="false"
+        android:overScrollMode="never"
+        android:scrollbars="vertical"
+        tools:listitem="@layout/item_mesa_destino" />
+
+    <LinearLayout
+        android:id="@+id/grupoProgreso"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/espacio_m"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:visibility="gone"
+        tools:visibility="visible">
+
+        <ProgressBar
+            android:id="@+id/progresoAccion"
+            style="?android:attr/progressBarStyle"
+            android:layout_width="@dimen/espacio_xxl"
+            android:layout_height="@dimen/espacio_xxl"
+            android:contentDescription="@string/destino_aplicando"
+            android:indeterminate="true"
+            android:indeterminateTint="@color/primary" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/espacio_s"
+            android:breakStrategy="simple"
+            android:hyphenationFrequency="none"
+            android:maxLines="1"
+            android:text="@string/destino_aplicando"
+            android:textColor="@color/texto_secundario"
+            android:textSize="@dimen/texto_etiqueta" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/grupoBotones"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/espacio_l"
+        android:baselineAligned="false"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnCancelarDestino"
+            style="@style/Boton.Outlined"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/toque_minimo"
+            android:layout_weight="1"
+            android:autoSizeMaxTextSize="16sp"
+            android:autoSizeMinTextSize="11sp"
+            android:autoSizeStepGranularity="1sp"
+            android:autoSizeTextType="uniform"
+            android:breakStrategy="simple"
+            android:hyphenationFrequency="none"
+            android:maxLines="1"
+            android:text="@string/destino_cancelar" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnConfirmarDestino"
+            style="@style/Boton.DialogoLiberar"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/toque_minimo"
+            android:layout_marginStart="@dimen/espacio_s"
+            android:layout_weight="1"
+            android:autoSizeMaxTextSize="16sp"
+            android:autoSizeMinTextSize="11sp"
+            android:autoSizeStepGranularity="1sp"
+            android:autoSizeTextType="uniform"
+            android:breakStrategy="simple"
+            android:enabled="false"
+            android:hyphenationFrequency="none"
+            android:maxLines="1"
+            android:text="@string/destino_confirmar" />
+    </LinearLayout>
+</LinearLayout>

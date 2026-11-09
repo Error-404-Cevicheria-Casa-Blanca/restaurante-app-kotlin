@@ -81,6 +81,55 @@
     <string name="error_red_titulo">Sin conexión</string>
     <string name="sesion_expirada_titulo">Sesión finalizada</string>
 
+    <!-- Acciones de mesa: dividir, fusionar y transferir (PRB-93) -->
+    <string name="cd_acciones_mesa">Abrir acciones de la mesa %1$d</string>
+    <string name="acciones_mesa_titulo">Acciones de Mesa %1$d</string>
+    <string name="acciones_mesa_subtitulo">Elige la operación que deseas realizar.</string>
+    <string name="acciones_mesa_cerrar">Cerrar acciones de mesa</string>
+    <string name="accion_dividir_titulo">Dividir cuenta</string>
+    <string name="accion_dividir_descripcion">Separa platos en una cuenta nueva.</string>
+    <string name="accion_fusionar_titulo">Fusionar mesas</string>
+    <string name="accion_fusionar_descripcion">Une otra mesa ocupada a esta.</string>
+    <string name="accion_transferir_titulo">Transferir mesa</string>
+    <string name="accion_transferir_descripcion">Mueve el pedido a otra mesa disponible.</string>
+
+    <string name="division_titulo">Dividir cuenta · Mesa %1$d</string>
+    <string name="division_mensaje">Selecciona los platos que pasarán a la nueva cuenta.</string>
+    <string name="division_sin_platos">Esta mesa no tiene platos enviados que se puedan dividir.</string>
+    <string name="division_continuar">Continuar</string>
+    <string name="division_seleccion_requerida">Selecciona al menos un plato para continuar.</string>
+    <string name="cd_division_plato">%1$s, cantidad %2$d, %3$s</string>
+    <string name="division_item_cantidad">x%1$d</string>
+    <string name="plato_sin_nombre">Plato</string>
+
+    <string name="destino_titulo_dividir">Mesa destino de la división</string>
+    <string name="destino_mensaje_dividir">Elige dónde quedará la nueva cuenta. Puedes usar la misma mesa.</string>
+    <string name="destino_titulo_fusionar">Unir otra mesa a la Mesa %1$d</string>
+    <string name="destino_mensaje_fusionar">Elige la mesa cuyos pedidos pasarán a la Mesa %1$d. La mesa elegida quedará libre.</string>
+    <string name="destino_titulo_transferir">Transferir Mesa %1$d</string>
+    <string name="destino_mensaje_transferir">Elige la mesa que recibirá el pedido. La Mesa %1$d quedará libre.</string>
+    <string name="destino_sin_opciones">No hay mesas disponibles para esta operación.</string>
+    <string name="destino_confirmar">Confirmar</string>
+    <string name="destino_cancelar">Cancelar</string>
+    <string name="destino_aplicando">Aplicando…</string>
+    <string name="destino_misma_mesa">Misma mesa (cuenta separada)</string>
+    <string name="cd_mesa_destino">Mesa %1$d, %2$s</string>
+
+    <plurals name="accion_exito_dividir">
+        <item quantity="one">División realizada: %1$d plato a la Mesa %2$d.</item>
+        <item quantity="other">División realizada: %1$d platos a la Mesa %2$d.</item>
+    </plurals>
+    <string name="accion_exito_fusionar">Mesa %1$d fusionada con la Mesa %2$d.</string>
+    <string name="accion_exito_transferir">Pedido transferido de la Mesa %1$d a la Mesa %2$d.</string>
+    <string name="accion_error_conflicto">No se pudo completar: la mesa ya está ocupada por otro mozo o cambió de estado. Actualiza el mapa e inténtalo de nuevo.</string>
+    <string name="accion_error_red">Sin conexión. No se pudo completar la operación; inténtalo de nuevo.</string>
+    <string name="accion_error_generica">No se pudo completar la operación de mesa.</string>
+    <string name="accion_sin_destinos">No hay mesas disponibles para esta operación.</string>
+    <string name="accion_dialogo_titulo">No se pudo completar</string>
+    <string name="accion_dialogo_icono_cd">Aviso de la operación de mesa</string>
+    <string name="accion_sin_platos_titulo">Sin platos para dividir</string>
+    <string name="accion_sin_destinos_titulo">Sin mesas disponibles</string>
+
     <!-- Comanda (base, el catálogo llega en la siguiente entrega) -->
     <string name="comanda_barra_titulo">Detalle de Mesa y Pedido</string>
     <string name="comanda_titulo">Mesa %1$d · %2$s</string>

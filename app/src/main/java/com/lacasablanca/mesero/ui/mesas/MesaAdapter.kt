@@ -15,9 +15,14 @@ import com.lacasablanca.mesero.ui.common.colorRes
 import com.lacasablanca.mesero.ui.common.etiquetaRes
 import com.lacasablanca.mesero.ui.common.iconoRes
 
-/** Cuadricula de mesas. Solo pinta; los eventos los reenvia a la Activity. */
+/**
+ * Cuadricula de mesas. Solo pinta; los eventos los reenvia al Fragment.
+ * PRB-93: [alAccionar] abre el menu de dividir/fusionar/transferir desde el
+ * boton de la tarjeta o con un long press.
+ */
 class MesaAdapter(
-    private val alTocar: (Mesa) -> Unit
+    private val alTocar: (Mesa) -> Unit,
+    private val alAccionar: (Mesa) -> Unit
 ) : ListAdapter<Mesa, MesaAdapter.MesaViewHolder>(DIFF) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MesaViewHolder {
@@ -26,12 +31,12 @@ class MesaAdapter(
     }
 
     override fun onBindViewHolder(holder: MesaViewHolder, position: Int) {
-        holder.pintar(getItem(position), alTocar)
+        holder.pintar(getItem(position), alTocar, alAccionar)
     }
 
     class MesaViewHolder(private val binding: ItemMesaBinding) : RecyclerView.ViewHolder(binding.root) {
 
-        fun pintar(mesa: Mesa, alTocar: (Mesa) -> Unit) {
+        fun pintar(mesa: Mesa, alTocar: (Mesa) -> Unit, alAccionar: (Mesa) -> Unit) {
             val contexto = binding.root.context
             val color = ContextCompat.getColor(contexto, mesa.estado.colorRes())
             val etiqueta = contexto.getString(mesa.estado.etiquetaRes())
@@ -63,6 +68,15 @@ class MesaAdapter(
                 capacidad
             )
             binding.cardMesa.setOnClickListener { alTocar(mesa) }
+            binding.cardMesa.setOnLongClickListener {
+                alAccionar(mesa)
+                true
+            }
+            binding.btnAccionesMesa.contentDescription = contexto.getString(
+                R.string.cd_acciones_mesa,
+                mesa.numero
+            )
+            binding.btnAccionesMesa.setOnClickListener { alAccionar(mesa) }
         }
     }
 

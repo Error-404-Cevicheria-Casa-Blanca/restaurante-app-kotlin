@@ -89,4 +89,11 @@
 
     <!-- Mapa de mesas: espacio para que el FAB "Para Llevar" no tape tarjetas -->
     <dimen name="espacio_fab_mesas">88dp</dimen>
+
+    <!-- Acciones de mesa (PRB-93): listas y anchos maximos de dialogos -->
+    <dimen name="alto_lista_destinos">240dp</dimen>
+    <dimen name="ancho_maximo_dialogo_acciones">480dp</dimen>
+    <dimen name="ancho_maximo_sheet_acciones">560dp</dimen>
+    <dimen name="alto_fila_accion">64dp</dimen>
+    <dimen name="alto_fila_destino">56dp</dimen>
 </resources>

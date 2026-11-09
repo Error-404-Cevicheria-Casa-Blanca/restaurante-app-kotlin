@@ -7,7 +7,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
-import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
@@ -20,12 +19,10 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.GridLayoutManager
 import com.google.android.material.chip.Chip
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.tabs.TabLayout
 import com.lacasablanca.mesero.MeseroApp
 import com.lacasablanca.mesero.R
 import com.lacasablanca.mesero.core.GenericViewModelFactory
-import com.lacasablanca.mesero.databinding.DialogAvisoMesaBinding
 import com.lacasablanca.mesero.databinding.DialogLiberarMesaBinding
 import com.lacasablanca.mesero.databinding.DialogMesaAtendidaBinding
 import com.lacasablanca.mesero.databinding.DialogParaLlevarBinding
@@ -43,6 +40,8 @@ import com.lacasablanca.mesero.ui.common.etiquetaRes
 import com.lacasablanca.mesero.ui.common.iconoRes
 import com.lacasablanca.mesero.ui.login.LoginActivity
 import com.lacasablanca.mesero.ui.main.MainActivity
+import com.lacasablanca.mesero.ui.mesas.AccionMesa
+import com.lacasablanca.mesero.ui.mesas.AccionesMesaUi
 import com.lacasablanca.mesero.ui.mesas.AvisoMesas
 import com.lacasablanca.mesero.ui.mesas.ErrorMesas
 import com.lacasablanca.mesero.ui.mesas.MesaAdapter
@@ -80,10 +79,20 @@ class SalonFragment : Fragment() {
         ViewModelProvider(
             requireActivity(),
             GenericViewModelFactory {
-                MesasViewModel(contenedor.mesaRepository, contenedor.authRepository)
+                MesasViewModel(
+                    mesaRepository = contenedor.mesaRepository,
+                    authRepository = contenedor.authRepository,
+                    pedidoRepository = contenedor.pedidoRepository
+                )
             }
         )[MesasViewModel::class.java]
     }
+
+    /** PRB-93: menu y dialogos de dividir, fusionar y transferir. */
+    private lateinit var accionesUi: AccionesMesaUi
+
+    /** Avisos y Snackbars del mapa (extraidos para reducir el tamano de la clase). */
+    private lateinit var avisosUi: AvisosMesasUi
 
     private var actualizandoTabs = false
     private var firmaTabs = ""
@@ -128,7 +137,46 @@ class SalonFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        adapter = MesaAdapter { mesa -> alSeleccionarMesa(mesa) }
+        accionesUi = AccionesMesaUi(
+            fragment = this,
+            eventos = object : AccionesMesaUi.Eventos {
+                override fun alElegirAccion(accion: AccionMesa, mesa: Mesa) {
+                    when (accion) {
+                        AccionMesa.DIVIDIR -> viewModel.prepararDivision(mesa)
+                        AccionMesa.FUSIONAR -> viewModel.prepararFusion(mesa)
+                        AccionMesa.TRANSFERIR -> viewModel.prepararTransferencia(mesa)
+                    }
+                }
+
+                override fun alConfirmar(
+                    accion: AccionMesa,
+                    mesa: Mesa,
+                    destino: Mesa,
+                    itemIds: List<Long>
+                ) {
+                    when (accion) {
+                        AccionMesa.DIVIDIR ->
+                            viewModel.dividirMesa(mesa, itemIds, destino)
+
+                        AccionMesa.FUSIONAR ->
+                            viewModel.fusionarMesas(mesaDestino = mesa, mesaOrigen = destino)
+
+                        AccionMesa.TRANSFERIR ->
+                            viewModel.transferirMesa(mesaOrigen = mesa, mesaDestino = destino)
+                    }
+                }
+            }
+        )
+
+        avisosUi = AvisosMesasUi(
+            fragment = this,
+            alAceptarSesionExpirada = ::irALogin
+        )
+
+        adapter = MesaAdapter(
+            alTocar = { mesa -> alSeleccionarMesa(mesa) },
+            alAccionar = { mesa -> viewModel.abrirAcciones(mesa) }
+        )
         binding.recyclerMesas.layoutManager =
             GridLayoutManager(requireContext(), resources.getInteger(R.integer.columnas_mesas))
         binding.recyclerMesas.adapter = adapter
@@ -147,7 +195,7 @@ class SalonFragment : Fragment() {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch { viewModel.estado.collect(::render) }
                 launch { viewModel.eventos.collect(::manejarEvento) }
-                launch { viewModel.eventosError.collect(::mostrarErrorPolling) }
+                launch { viewModel.eventosError.collect(avisosUi::mostrarErrorPolling) }
                 launch {
                     contenedor.networkMonitor.enLinea.collect { enLinea ->
                         binding.bannerOffline.isVisible = !enLinea
@@ -219,6 +267,8 @@ class SalonFragment : Fragment() {
     }
 
     override fun onDestroyView() {
+        accionesUi.cerrar()
+        avisosUi.cerrar()
         dialogoAbierto?.dismiss()
         dialogoAbierto = null
         dialogoLiberarMesa?.dismiss()
@@ -406,7 +456,9 @@ class SalonFragment : Fragment() {
             0L
         )
         if (pedidoParaLlevar > 0L) {
-            mostrarSnackbar(getString(R.string.para_llevar_pedido_enviado, pedidoParaLlevar))
+            avisosUi.mostrarSnackbar(
+                getString(R.string.para_llevar_pedido_enviado, pedidoParaLlevar)
+            )
             viewModel.recargarAlVolver()
             return
         }
@@ -430,23 +482,63 @@ class SalonFragment : Fragment() {
             is MesasEvento.MesaLiberada -> {
                 liberarPendiente = false
                 cerrarDialogoLiberarMesa()
-                mostrarSnackbar(getString(R.string.mesa_liberada))
+                avisosUi.mostrarSnackbar(getString(R.string.mesa_liberada))
                 actualizarPolling()
             }
+
+            is MesasEvento.MostrarAcciones,
+            is MesasEvento.MostrarDivision,
+            is MesasEvento.MostrarDestino,
+            is MesasEvento.AccionMesaCompletada -> manejarEventoAccion(evento)
 
             is MesasEvento.Aviso -> {
                 if (evento.tipo == AvisoMesas.ERROR_LIBERAR) {
                     liberarPendiente = false
+                    cerrarDialogoLiberarMesa()
                     actualizarPolling()
                 }
                 mostrarAviso(evento)
             }
             MesasEvento.SesionExpirada -> {
+                accionesUi.cerrar()
                 cerrarDialogoLiberarMesa()
-                mostrarDialogoSesionExpirada()
+                mostrarSesionExpirada()
             }
 
             MesasEvento.SesionCerrada -> irALogin()
+        }
+    }
+
+    /** PRB-93: eventos del menu de acciones, separados para bajar complejidad. */
+    private fun manejarEventoAccion(evento: MesasEvento) {
+        when (evento) {
+            is MesasEvento.MostrarAcciones -> accionesUi.abrirMenu(evento.mesa)
+            is MesasEvento.MostrarDivision -> {
+                if (evento.destinos.isEmpty()) {
+                    mostrarAviso(MesasEvento.Aviso(AvisoMesas.SIN_DESTINOS, evento.mesa))
+                } else {
+                    accionesUi.mostrarDivision(evento.mesa, evento.lineas, evento.destinos)
+                }
+            }
+
+            is MesasEvento.MostrarDestino -> {
+                if (evento.destinos.isEmpty()) {
+                    mostrarAviso(MesasEvento.Aviso(AvisoMesas.SIN_DESTINOS, evento.mesa))
+                } else {
+                    accionesUi.mostrarDestinos(
+                        accion = evento.accion,
+                        mesa = evento.mesa,
+                        destinos = evento.destinos
+                    )
+                }
+            }
+
+            is MesasEvento.AccionMesaCompletada -> {
+                accionesUi.cerrar()
+                avisosUi.mostrarExitoAccion(evento)
+            }
+
+            else -> Unit
         }
     }
 
@@ -472,6 +564,7 @@ class SalonFragment : Fragment() {
      * (PRB-83), evitando dejar mesas bloqueadas.
      */
     private fun mostrarOpcionesMesaAtendida(mesa: Mesa) {
+        avisosUi.cerrar()
         dialogoAbierto?.dismiss()
         dialogoAbierto = null
 
@@ -501,6 +594,7 @@ class SalonFragment : Fragment() {
 
     /** Confirma la liberacion avisando que se perdera el carrito de la mesa. */
     private fun mostrarConfirmacionLiberar(mesa: Mesa) {
+        avisosUi.cerrar()
         dialogoAbierto?.dismiss()
         dialogoAbierto = null
 
@@ -539,117 +633,21 @@ class SalonFragment : Fragment() {
     }
 
     /**
-     * Avisos del mapa: los estados de mesa y los errores se explican con un
-     * MaterialAlertDialog; la confirmacion de refresco usa un Snackbar de marca.
+     * PRB-93: antes de mostrar cualquier aviso se cierran los dialogos de
+     * accion y el aviso anterior para no apilar ventanas.
      */
     private fun mostrarAviso(evento: MesasEvento.Aviso) {
-        val mesa = evento.mesa
-        when (evento.tipo) {
-            AvisoMesas.ACTUALIZADAS -> mostrarSnackbar(getString(R.string.mesas_actualizadas))
-
-            AvisoMesas.MESA_NO_LIBRE -> if (mesa == null) {
-                mostrarDialogo(
-                    titulo = getString(R.string.mesas_titulo),
-                    mensaje = getString(R.string.error_generico)
-                )
-            } else {
-                mostrarDialogo(
-                    titulo = getString(R.string.dialogo_mesa_titulo, mesa.numero),
-                    mensaje = getString(mesa.mensajeEstadoRes(), mesa.numero),
-                    iconoRes = mesa.estado.iconoRes()
-                )
-            }
-
-            AvisoMesas.MESA_TOMADA -> mostrarDialogo(
-                titulo = getString(R.string.mesa_tomada_titulo),
-                mensaje = mesa?.let { getString(R.string.mesa_tomada, it.numero) }
-                    ?: getString(R.string.error_generico),
-                iconoRes = R.drawable.ic_error_outline
-            )
-
-            AvisoMesas.ERROR_ABRIR -> mostrarDialogo(
-                titulo = getString(R.string.error_abrir_mesa_titulo),
-                mensaje = getString(R.string.error_abrir_mesa)
-            )
-
-            AvisoMesas.ERROR_LIBERAR -> {
-                cerrarDialogoLiberarMesa()
-                mostrarDialogo(
-                    titulo = getString(R.string.error_liberar_mesa_titulo),
-                    mensaje = mesa?.let { getString(R.string.error_liberar_mesa, it.numero) }
-                        ?: getString(R.string.error_generico)
-                )
-            }
-
-            AvisoMesas.ERROR_RED -> mostrarDialogo(
-                titulo = getString(R.string.error_red_titulo),
-                mensaje = getString(R.string.error_red)
-            )
-        }
-    }
-
-    @StringRes
-    private fun Mesa.mensajeEstadoRes(): Int = when (estado) {
-        EstadoMesa.OCUPADA -> R.string.mesa_dialogo_ocupada
-        EstadoMesa.ATENDIDA -> R.string.mesa_dialogo_atendida
-        EstadoMesa.CUENTA_SOLICITADA -> R.string.mesa_dialogo_cuenta
-        else -> R.string.mesa_dialogo_no_libre
-    }
-
-    private fun mostrarDialogo(
-        titulo: CharSequence,
-        mensaje: CharSequence,
-        cancelable: Boolean = true,
-        @DrawableRes iconoRes: Int = R.drawable.ic_error_outline,
-        alAceptar: (() -> Unit)? = null
-    ) {
+        accionesUi.cerrar()
         dialogoAbierto?.dismiss()
-        val contenido = DialogAvisoMesaBinding.inflate(layoutInflater)
-        contenido.iconoAviso.setImageResource(iconoRes)
-        contenido.iconoAviso.contentDescription = titulo
-        contenido.tituloAviso.text = titulo
-        contenido.mensajeAviso.text = mensaje
-
-        val dialogo = MaterialAlertDialogBuilder(requireContext())
-            .setView(contenido.root)
-            .setCancelable(cancelable)
-            .create()
-
-        contenido.btnEntendido.setOnClickListener {
-            dialogo.dismiss()
-            alAceptar?.invoke()
-        }
-        dialogo.setCanceledOnTouchOutside(cancelable)
-        dialogo.setOnDismissListener { if (dialogoAbierto === dialogo) dialogoAbierto = null }
-        dialogo.show()
-        dialogoAbierto = dialogo
+        dialogoAbierto = null
+        avisosUi.mostrarAviso(evento)
     }
 
-    private fun mostrarDialogoSesionExpirada() {
-        mostrarDialogo(
-            titulo = getString(R.string.sesion_expirada_titulo),
-            mensaje = getString(R.string.sesion_expirada),
-            cancelable = false,
-            iconoRes = R.drawable.ic_lock,
-            alAceptar = ::irALogin
-        )
-    }
-
-    /** Fallo de red del refresco automatico: aviso discreto, sin tapar el mapa. */
-    private fun mostrarErrorPolling(codigo: String) {
-        val texto = when (codigo) {
-            MesasViewModel.ERROR_RED -> getString(R.string.mesas_polling_sin_conexion)
-            else -> getString(R.string.mesas_polling_error)
-        }
-        mostrarSnackbar(texto)
-    }
-
-    private fun mostrarSnackbar(texto: String) {
-        val snackbar = Snackbar.make(binding.root, texto, Snackbar.LENGTH_SHORT)
-        snackbar.setTextColor(ContextCompat.getColor(requireContext(), R.color.on_primary))
-        snackbar.show()
-        snackbar.view.background =
-            ContextCompat.getDrawable(requireContext(), R.drawable.bg_snackbar)
+    private fun mostrarSesionExpirada() {
+        accionesUi.cerrar()
+        dialogoAbierto?.dismiss()
+        dialogoAbierto = null
+        avisosUi.mostrarSesionExpirada()
     }
 
     private fun alSeleccionarMesa(mesa: Mesa) {
@@ -679,6 +677,7 @@ class SalonFragment : Fragment() {
      * modificadores y notas sin asociarse a ninguna mesa.
      */
     private fun mostrarDialogoParaLlevar() {
+        avisosUi.cerrar()
         dialogoAbierto?.dismiss()
         dialogoAbierto = null
 
