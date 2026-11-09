@@ -23,11 +23,11 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 /**
- * Prueba de humo de la navegacion de PRB-88 (Fase 1/2).
+ * Prueba de humo de la navegacion de PRB-88 (Fases 1 a 3).
  *
  * Verifica el contenedor comun: barra visible, 3 destinos, mapa real en Salon,
- * cambio de tab, conservacion del tab al recrear la Activity y back de Pedidos
- * a Salon.
+ * perfil real, cambio de tab, conservacion del tab al recrear la Activity,
+ * back de Pedidos a Salon y cierre de sesion desde el perfil.
  */
 @RunWith(AndroidJUnit4::class)
 class MainActivityNavegacionTest {
@@ -77,7 +77,23 @@ class MainActivityNavegacionTest {
             onView(withId(R.id.btnActualizar)).check(matches(isDisplayed()))
 
             onView(withId(R.id.navPerfil)).perform(click())
-            onView(tituloVisible()).check(matches(withText(R.string.nav_perfil)))
+            onView(withId(R.id.barraPerfil)).check(matches(isDisplayed()))
+        } finally {
+            scenario.close()
+        }
+    }
+
+    @Test
+    fun cerrarSesionDesdePerfilVuelveAlLogin() {
+        val scenario = ActivityScenario.launch(MainActivity::class.java)
+        try {
+            onView(withId(R.id.navPerfil)).perform(click())
+            onView(withId(R.id.btnCerrarSesionPerfil))
+                .check(matches(isDisplayed()))
+                .perform(click())
+
+            // LoginActivity arranca con CLEAR_TASK y MainActivity se termina.
+            onView(withId(R.id.btnIngresar)).check(matches(isDisplayed()))
         } finally {
             scenario.close()
         }
