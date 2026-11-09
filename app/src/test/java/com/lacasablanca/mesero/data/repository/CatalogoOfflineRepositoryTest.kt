@@ -3,9 +3,12 @@ package com.lacasablanca.mesero.data.repository
 import com.lacasablanca.mesero.data.local.offline.CatalogoDao
 import com.lacasablanca.mesero.data.local.offline.CategoriaEntity
 import com.lacasablanca.mesero.data.local.offline.ProductoEntity
+import com.lacasablanca.mesero.data.local.offline.aDominio
+import com.lacasablanca.mesero.data.local.offline.aEntidad
 import com.lacasablanca.mesero.domain.ErrorApp
 import com.lacasablanca.mesero.domain.Resultado
 import com.lacasablanca.mesero.domain.model.Categoria
+import com.lacasablanca.mesero.domain.model.Modificador
 import com.lacasablanca.mesero.domain.model.Producto
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -93,6 +96,23 @@ class CatalogoOfflineRepositoryTest {
 
         assertEquals(ErrorApp.SERVIDOR, (resultado as Resultado.Fallo).error)
         coVerify(exactly = 0) { dao.productos() }
+    }
+
+    @Test
+    fun `los modificadores sobreviven a la cache local`() {
+        val conModificadores = producto.copy(
+            modificadores = listOf(
+                Modificador("Extra queso", BigDecimal("2.00")),
+                Modificador("Sin cebolla", BigDecimal("0.00"))
+            )
+        )
+
+        val recuperado = conModificadores.aEntidad().aDominio()
+
+        assertEquals(2, recuperado.modificadores.size)
+        assertEquals("Extra queso", recuperado.modificadores[0].nombre)
+        assertEquals("2.00", recuperado.modificadores[0].precioAdicional.toPlainString())
+        assertEquals("Sin cebolla", recuperado.modificadores[1].nombre)
     }
 
     @Test
