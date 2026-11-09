@@ -4,6 +4,7 @@ import com.lacasablanca.mesero.data.remote.CobroApi
 import com.lacasablanca.mesero.data.remote.dto.CobrarRequest
 import com.lacasablanca.mesero.data.remote.dto.CobroResponse
 import com.lacasablanca.mesero.data.remote.dto.CuentaResponse
+import com.lacasablanca.mesero.data.remote.dto.TrabajoImpresionDto
 import com.lacasablanca.mesero.domain.ErrorApp
 import com.lacasablanca.mesero.domain.Resultado
 import com.lacasablanca.mesero.domain.errorDesdeCodigoHttp
@@ -18,6 +19,12 @@ class RealCobroRepository(private val api: CobroApi) : CobroRepository {
 
     override suspend fun cobrar(mesaId: Long, request: CobrarRequest): Resultado<CobroResponse> =
         ejecutar(errorConflicto = ErrorApp.CONFLICTO_COBRO) { api.cobrar(mesaId, request) }
+
+    override suspend fun imprimirPrecuenta(mesaId: Long): Resultado<CuentaResponse> =
+        ejecutar { api.imprimirPrecuenta(mesaId) }
+
+    override suspend fun reimprimirPrecuenta(mesaId: Long): Resultado<TrabajoImpresionDto> =
+        ejecutar { api.reimprimirPrecuenta(mesaId) }
 
     /**
      * [errorConflicto] distingue el significado del 409: en el cobro es

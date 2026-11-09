@@ -3,6 +3,7 @@ package com.lacasablanca.mesero.data.remote
 import com.lacasablanca.mesero.data.remote.dto.CobrarRequest
 import com.lacasablanca.mesero.data.remote.dto.CobroResponse
 import com.lacasablanca.mesero.data.remote.dto.CuentaResponse
+import com.lacasablanca.mesero.data.remote.dto.TrabajoImpresionDto
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -25,5 +26,8 @@ interface CobroApi {
     ): Response<CobroResponse>
 
     @POST("api/v1/mesas/{id}/precuenta")
-    suspend fun imprimirPrecuenta(@Path("id") mesaId: Long): Response<Unit>
+    suspend fun imprimirPrecuenta(@Path("id") mesaId: Long): Response<CuentaResponse>
+
+    @POST("api/v1/mesas/{id}/precuenta/reimprimir")
+    suspend fun reimprimirPrecuenta(@Path("id") mesaId: Long): Response<TrabajoImpresionDto>
 }
