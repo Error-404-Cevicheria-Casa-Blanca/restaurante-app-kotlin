@@ -22,10 +22,6 @@ internal class DivisionLineaAdapter(
     private val alCambiarSeleccion: (DivisionLineaItem) -> Unit
 ) : ListAdapter<DivisionLineaItem, DivisionLineaAdapter.LineaViewHolder>(DIFF) {
 
-    /** Ids del detalle que el backend acepta en `item_ids`. */
-    fun seleccionados(): List<Long> =
-        currentList.filter { it.seleccionada }.map { it.itemId }.filter { it > 0L }
-
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): LineaViewHolder {
         val binding = ItemDivisionLineaBinding.inflate(
             LayoutInflater.from(parent.context),

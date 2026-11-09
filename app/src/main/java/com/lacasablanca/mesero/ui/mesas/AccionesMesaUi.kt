@@ -107,7 +107,12 @@ internal class AccionesMesaUi(
         val alerta = crearDialogo(binding.root)
         binding.btnCancelarDividir.setOnClickListener { alerta.dismiss() }
         binding.btnContinuarDividir.setOnClickListener {
-            val ids = adapter.seleccionados()
+            // Se lee la seleccion local, no el currentList del adapter: el
+            // diff de ListAdapter es asincrono y podria llegar un instante tarde.
+            val ids = seleccion
+                .filter { it.seleccionada }
+                .map { it.itemId }
+                .filter { it > 0L }
             if (ids.isEmpty()) {
                 binding.errorDividir.isVisible = true
                 return@setOnClickListener
