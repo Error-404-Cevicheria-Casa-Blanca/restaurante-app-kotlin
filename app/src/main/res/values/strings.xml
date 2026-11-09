@@ -62,6 +62,7 @@
     <string name="mesa_tomada">La mesa %1$d acaba de ser tomada por otro mozo.</string>
     <string name="sesion_expirada">Tu sesión expiró. Vuelve a ingresar.</string>
     <string name="error_red">No se pudo conectar con el servidor. Revisa la red local.</string>
+    <string name="offline_banner">Sin conexión. Mostrando los últimos datos guardados.</string>
     <string name="error_abrir_mesa">No se pudo abrir la mesa. Inténtalo de nuevo.</string>
     <string name="error_liberar_mesa">No se pudo liberar la mesa %1$d.</string>
     <string name="error_generico">Ocurrió un error. Inténtalo de nuevo.</string>
@@ -144,7 +145,7 @@
     <string name="comanda_pedido_enviado_total">Total: %1$s</string>
     <string name="comanda_pedido_enviado_volver">Volver al Mapa</string>
     <string name="comanda_error_envio_titulo">No se pudo enviar el pedido</string>
-    <string name="comanda_error_envio_red">Revisa la red local e inténtalo de nuevo.</string>
+    <string name="comanda_error_envio_red">Sin conexión. El pedido quedó en cola y se enviará automáticamente cuando vuelva la red.</string>
     <string name="comanda_error_envio_conflicto">La mesa ya fue tomada por otro mesero. Actualiza el mapa e inténtalo de nuevo.</string>
     <string name="comanda_error_envio_bloqueado">La mesa está bloqueada temporalmente (por ejemplo, por un cobro en curso). Espera unos minutos e inténtalo de nuevo.</string>
     <string name="comanda_error_envio_validacion">Revisa las cantidades del pedido e inténtalo de nuevo.</string>
@@ -232,6 +233,34 @@
     <string name="anular_plato_error_generico">Ocurrió un error al anular el plato. Inténtalo de nuevo.</string>
     <string name="cd_anular_producto">Anular %1$s</string>
     <string name="cd_anular">Anular plato</string>
+
+    <!-- Bloqueo rapido con PIN (PRB-81) -->
+    <string name="bloqueo_titulo">Pantalla bloqueada</string>
+    <string name="bloqueo_subtitulo">Ingresa tu PIN de 4 dígitos para continuar</string>
+    <string name="bloqueo_sesion">Sesión de %1$s</string>
+    <string name="bloqueo_pin_demo">PIN de demostración: %1$s</string>
+    <string name="bloqueo_borrar">Borrar último dígito</string>
+    <string name="bloqueo_tecla_0">0</string>
+    <string name="bloqueo_tecla_1">1</string>
+    <string name="bloqueo_tecla_2">2</string>
+    <string name="bloqueo_tecla_3">3</string>
+    <string name="bloqueo_tecla_4">4</string>
+    <string name="bloqueo_tecla_5">5</string>
+    <string name="bloqueo_tecla_6">6</string>
+    <string name="bloqueo_tecla_7">7</string>
+    <string name="bloqueo_tecla_8">8</string>
+    <string name="bloqueo_tecla_9">9</string>
+    <string name="bloqueo_puntos_descripcion">Dígitos del PIN</string>
+    <string name="bloqueo_puntos_cd">%1$d de %2$d dígitos ingresados</string>
+    <string name="bloqueo_error_pin">PIN incorrecto. Inténtalo de nuevo.</string>
+    <string name="bloqueo_error_red">No se pudo conectar con el servidor. Revisa la red local e inténtalo de nuevo.</string>
+    <string name="bloqueo_error_bloqueado">Cuenta bloqueada temporalmente tras varios intentos fallidos. Inténtalo de nuevo en 15 minutos.</string>
+    <string name="bloqueo_error_sesion">Tu sesión expiró. Vuelve a ingresar.</string>
+    <string name="bloqueo_error_generico">Ocurrió un error al verificar el PIN. Inténtalo de nuevo.</string>
+    <string name="bloqueo_verificando">Verificando PIN…</string>
+    <string name="bloqueo_atras_bloqueado">Ingresa tu PIN para desbloquear la pantalla.</string>
+    <string name="accion_bloquear">Bloquear</string>
+    <string name="cd_bloquear">Bloquear la pantalla</string>
 
     <!-- Accesibilidad -->
     <string name="cd_actualizar">Actualizar la lista de mesas</string>
@@ -340,6 +369,13 @@
     <string name="cobro_salir_icono_cd">Advertencia: la mesa seguirá ocupada</string>
 
     <!-- Cobro desde la comanda (PRB-56) -->
+    <!-- Impresion de pre-cuenta (PRB-73) -->
+    <string name="impresion_imprimir">Imprimir</string>
+    <string name="impresion_reimprimir">Reimprimir</string>
+    <string name="impresion_enviada">Enviado a impresora</string>
+    <string name="impresion_error_conexion">Error de conexión</string>
+    <string name="impresion_error">No se pudo imprimir</string>
+    <string name="impresion_sesion_expirada">Tu sesión expiró. Vuelve a ingresar.</string>
     <string name="comanda_cobrar">Cobrar</string>
     <string name="comanda_cobrar_ahora">Cobrar ahora</string>
 

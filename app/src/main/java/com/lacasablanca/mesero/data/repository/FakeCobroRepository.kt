@@ -5,6 +5,7 @@ import com.lacasablanca.mesero.data.remote.dto.CobroResponse
 import com.lacasablanca.mesero.data.remote.dto.CuentaResponse
 import com.lacasablanca.mesero.data.remote.dto.ItemCuenta
 import com.lacasablanca.mesero.data.remote.dto.PedidoResumenCuenta
+import com.lacasablanca.mesero.data.remote.dto.TrabajoImpresionDto
 import com.lacasablanca.mesero.domain.ErrorApp
 import com.lacasablanca.mesero.domain.Resultado
 import com.lacasablanca.mesero.domain.model.CalculoIgv
@@ -72,6 +73,31 @@ class FakeCobroRepository(
         )
     }
 
+    override suspend fun imprimirPrecuenta(mesaId: Long): Resultado<CuentaResponse> {
+        delay(latenciaMs)
+        return if (mesaId <= 0L) {
+            Resultado.Fallo(ErrorApp.VALIDACION)
+        } else {
+            Resultado.Exito(cuentaDe(mesaId))
+        }
+    }
+
+    override suspend fun reimprimirPrecuenta(mesaId: Long): Resultado<TrabajoImpresionDto> {
+        delay(latenciaMs)
+        if (mesaId <= 0L) return Resultado.Fallo(ErrorApp.VALIDACION)
+        return Resultado.Exito(
+            TrabajoImpresionDto(
+                jobId = "fake-precuenta-$mesaId",
+                mesaId = mesaId,
+                tipo = FAKE_TIPO_IMPRESION,
+                estado = FAKE_ESTADO_IMPRESION,
+                intentos = 0,
+                mensajeError = null,
+                fechaSolicitud = null
+            )
+        )
+    }
+
     private fun cuentaDe(mesaId: Long): CuentaResponse {
         val desglose = CalculoIgv.desglosar(totalDe(mesaId))
         val propina = desglose.total
@@ -107,6 +133,12 @@ class FakeCobroRepository(
     companion object {
         const val LATENCIA_SIMULADA_MS = 500L
         private const val ITEM_GENERICO = "Consumo de Mesa"
+
+        /** DATO FAKE: rotula el trabajo de impresion simulado. */
+        private const val FAKE_TIPO_IMPRESION = "PRECUENTA_80MM"
+
+        /** DATO FAKE: estado simulado de la cola de impresion. */
+        private const val FAKE_ESTADO_IMPRESION = "PENDIENTE"
         private val TOTAL_POR_DEFECTO = BigDecimal("96.00")
         private val PROPINA_SUGERIDA = BigDecimal("0.10")
     }

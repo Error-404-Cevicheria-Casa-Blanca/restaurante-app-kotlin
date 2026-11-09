@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Cabecera tablet del mapa de mesas: fondo blanco, logo y titulo teal (Stitch). -->
+<!--
+    Cabecera tablet del mapa de mesas (PRB-81).
+    Dos filas para que las cuatro acciones con texto quepan tambien en una
+    tablet de 600dp en vertical, sin recortar el titulo ni los botones.
+-->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -7,96 +11,142 @@
     android:layout_height="wrap_content"
     android:background="@color/surface_container_lowest"
     android:elevation="@dimen/elevacion_tarjeta"
-    android:gravity="center_vertical"
     android:minHeight="@dimen/alto_barra_superior"
-    android:orientation="horizontal"
-    android:paddingHorizontal="@dimen/espacio_xl"
-    android:paddingVertical="@dimen/espacio_m">
-
-    <ImageView
-        android:id="@+id/logoBarra"
-        android:layout_width="@dimen/logo_barra_tablet"
-        android:layout_height="@dimen/logo_barra_tablet"
-        android:contentDescription="@string/marca_descripcion_logo"
-        android:scaleType="fitCenter"
-        android:src="@drawable/logo_casa_blanca" />
+    android:orientation="vertical"
+    android:paddingHorizontal="@dimen/espacio_m"
+    android:paddingVertical="@dimen/espacio_s">
 
     <LinearLayout
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/espacio_m"
-        android:layout_weight="1"
-        android:orientation="vertical">
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
 
-        <TextView
-            android:id="@+id/textoTitulo"
-            android:layout_width="wrap_content"
+        <ImageView
+            android:id="@+id/logoBarra"
+            android:layout_width="@dimen/logo_barra_tablet"
+            android:layout_height="@dimen/logo_barra_tablet"
+            android:contentDescription="@string/marca_descripcion_logo"
+            android:scaleType="fitCenter"
+            android:src="@drawable/logo_casa_blanca" />
+
+        <LinearLayout
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:autoSizeMaxTextSize="26sp"
-            android:autoSizeMinTextSize="16sp"
+            android:layout_marginStart="@dimen/espacio_m"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/textoTitulo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:autoSizeMaxTextSize="26sp"
+                android:autoSizeMinTextSize="16sp"
+                android:autoSizeStepGranularity="1sp"
+                android:autoSizeTextType="uniform"
+                android:breakStrategy="simple"
+                android:hyphenationFrequency="none"
+                android:maxLines="1"
+                android:text="@string/mesas_titulo"
+                android:textColor="@color/stitch_primary"
+                android:textSize="26sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/textoSaludo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:breakStrategy="simple"
+                android:hyphenationFrequency="none"
+                android:textColor="@color/on_surface_variant"
+                android:textSize="@dimen/texto_secundario"
+                android:visibility="visible"
+                tools:text="Hola, Mozo Demo" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/espacio_xs"
+        android:gravity="end"
+        android:orientation="horizontal">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnPerfil"
+            style="@style/Boton.BarraAccion"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/toque_minimo"
+            android:autoSizeMaxTextSize="14sp"
+            android:autoSizeMinTextSize="10sp"
             android:autoSizeStepGranularity="1sp"
             android:autoSizeTextType="uniform"
             android:breakStrategy="simple"
             android:hyphenationFrequency="none"
             android:maxLines="1"
-            android:text="@string/mesas_titulo"
-            android:textColor="@color/stitch_primary"
-            android:textSize="26sp"
-            android:textStyle="bold" />
+            android:paddingHorizontal="@dimen/espacio_m"
+            android:text="@string/perfil_titulo"
+            app:icon="@drawable/ic_person"
+            app:iconGravity="textStart"
+            app:iconPadding="@dimen/espacio_xs" />
 
-        <TextView
-            android:id="@+id/textoSaludo"
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnBloquear"
+            style="@style/Boton.BarraAccion"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
+            android:layout_height="@dimen/toque_minimo"
+            android:layout_marginStart="@dimen/espacio_s"
+            android:autoSizeMaxTextSize="14sp"
+            android:autoSizeMinTextSize="10sp"
+            android:autoSizeStepGranularity="1sp"
+            android:autoSizeTextType="uniform"
             android:breakStrategy="simple"
             android:hyphenationFrequency="none"
-            android:textColor="@color/on_surface_variant"
-            android:textSize="@dimen/texto_secundario"
-            android:visibility="visible"
-            tools:text="Hola, Mozo Demo" />
+            android:maxLines="1"
+            android:paddingHorizontal="@dimen/espacio_m"
+            android:text="@string/accion_bloquear"
+            app:icon="@drawable/ic_lock"
+            app:iconGravity="textStart"
+            app:iconPadding="@dimen/espacio_xs" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnActualizar"
+            style="@style/Boton.BarraAccion"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/toque_minimo"
+            android:layout_marginStart="@dimen/espacio_s"
+            android:autoSizeMaxTextSize="14sp"
+            android:autoSizeMinTextSize="10sp"
+            android:autoSizeStepGranularity="1sp"
+            android:autoSizeTextType="uniform"
+            android:breakStrategy="simple"
+            android:hyphenationFrequency="none"
+            android:maxLines="1"
+            android:paddingHorizontal="@dimen/espacio_m"
+            android:text="@string/accion_actualizar"
+            app:icon="@drawable/ic_refresh"
+            app:iconGravity="textStart"
+            app:iconPadding="@dimen/espacio_xs" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnCerrarSesion"
+            style="@style/Boton.BarraSalir"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/toque_minimo"
+            android:layout_marginStart="@dimen/espacio_s"
+            android:autoSizeMaxTextSize="14sp"
+            android:autoSizeMinTextSize="10sp"
+            android:autoSizeStepGranularity="1sp"
+            android:autoSizeTextType="uniform"
+            android:breakStrategy="simple"
+            android:hyphenationFrequency="none"
+            android:maxLines="1"
+            android:paddingHorizontal="@dimen/espacio_m"
+            android:text="@string/accion_cerrar_sesion"
+            app:icon="@drawable/ic_logout"
+            app:iconGravity="textStart"
+            app:iconPadding="@dimen/espacio_xs" />
     </LinearLayout>
-
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnPerfil"
-        style="@style/Boton.BarraAccion"
-        android:layout_width="wrap_content"
-        android:layout_height="@dimen/toque_minimo"
-        android:layout_marginStart="@dimen/espacio_l"
-        android:autoSizeMaxTextSize="14sp"
-        android:autoSizeMinTextSize="10sp"
-        android:autoSizeStepGranularity="1sp"
-        android:autoSizeTextType="uniform"
-        android:breakStrategy="simple"
-        android:hyphenationFrequency="none"
-        android:maxLines="1"
-        android:paddingHorizontal="@dimen/espacio_l"
-        android:text="@string/perfil_titulo"
-        app:icon="@drawable/ic_person"
-        app:iconGravity="textStart"
-        app:iconPadding="@dimen/espacio_xs" />
-
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnActualizar"
-        style="@style/Boton.BarraAccion"
-        android:layout_width="wrap_content"
-        android:layout_height="@dimen/toque_minimo"
-        android:layout_marginStart="@dimen/espacio_l"
-        android:paddingHorizontal="@dimen/espacio_l"
-        android:text="@string/accion_actualizar"
-        app:icon="@drawable/ic_refresh"
-        app:iconGravity="textStart"
-        app:iconPadding="@dimen/espacio_xs" />
-
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnCerrarSesion"
-        style="@style/Boton.BarraSalir"
-        android:layout_width="wrap_content"
-        android:layout_height="@dimen/toque_minimo"
-        android:layout_marginStart="@dimen/espacio_l"
-        android:paddingHorizontal="@dimen/espacio_l"
-        android:text="@string/accion_cerrar_sesion"
-        app:icon="@drawable/ic_logout"
-        app:iconGravity="textStart"
-        app:iconPadding="@dimen/espacio_xs" />
 </LinearLayout>

@@ -3,6 +3,7 @@ package com.lacasablanca.mesero.data.repository
 import com.lacasablanca.mesero.data.local.SessionManager
 import com.lacasablanca.mesero.data.remote.AuthApi
 import com.lacasablanca.mesero.data.remote.dto.LoginRequestDto
+import com.lacasablanca.mesero.data.remote.dto.PinRequestDto
 import com.lacasablanca.mesero.domain.ErrorApp
 import com.lacasablanca.mesero.domain.Resultado
 import com.lacasablanca.mesero.domain.errorDesdeCodigoHttp
@@ -59,6 +60,29 @@ class RealAuthRepository(
     override suspend fun sesionGuardada(): Sesion? {
         sessionManager.cargar()
         return sessionManager.sesion
+    }
+
+    /**
+     * POST /api/v1/auth/pin (PRB-54). El backend devuelve un token nuevo, pero
+     * la app conserva el de la sesion: este endpoint solo confirma el PIN.
+     */
+    override suspend fun validarPin(usuario: String, pin: String): Resultado<Unit> {
+        return try {
+            api.validarPin(PinRequestDto(usuario = usuario.trim(), pin = pin))
+            Resultado.Exito(Unit)
+        } catch (e: HttpException) {
+            val error = when (e.code()) {
+                400 -> ErrorApp.VALIDACION
+                401 -> ErrorApp.CREDENCIALES
+                423 -> ErrorApp.BLOQUEADO
+                else -> errorDesdeCodigoHttp(e.code())
+            }
+            Resultado.Fallo(error)
+        } catch (e: IOException) {
+            Resultado.Fallo(ErrorApp.RED)
+        } catch (e: Exception) {
+            Resultado.Fallo(ErrorApp.DESCONOCIDO)
+        }
     }
 
     override suspend fun cerrarSesion() {

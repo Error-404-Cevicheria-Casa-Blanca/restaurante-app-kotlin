@@ -13,6 +13,12 @@
     <dimen name="alto_boton_primario">56dp</dimen>
     <dimen name="alto_barra_superior">72dp</dimen>
     <dimen name="alto_pin_tecla">52dp</dimen>
+    <!-- Bloqueo rapido con PIN (PRB-81) -->
+    <dimen name="alto_tecla_bloqueo">56dp</dimen>
+    <dimen name="ancho_tecla_bloqueo">88dp</dimen>
+    <dimen name="ancho_maximo_bloqueo">400dp</dimen>
+    <dimen name="logo_bloqueo">96dp</dimen>
+    <dimen name="espacio_superior_bloqueo">24dp</dimen>
     <dimen name="alto_chip_filtro">44dp</dimen>
     <dimen name="alto_campo_login">56dp</dimen>
 
@@ -39,6 +45,7 @@
     <dimen name="texto_cuerpo">16sp</dimen>
     <dimen name="texto_secundario">14sp</dimen>
     <dimen name="texto_etiqueta">12sp</dimen>
+    <dimen name="texto_toolbar">16sp</dimen>
 
     <!-- Marca -->
     <dimen name="logo_movil">96dp</dimen>

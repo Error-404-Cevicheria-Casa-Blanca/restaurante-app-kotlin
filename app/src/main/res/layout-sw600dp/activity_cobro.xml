@@ -19,9 +19,11 @@
         android:layout_height="?attr/actionBarSize"
         android:background="@color/surface_container_lowest"
         android:elevation="@dimen/elevacion_tarjeta"
+        app:menu="@menu/menu_cobro"
         app:navigationContentDescription="@string/cd_volver"
         app:navigationIcon="@drawable/ic_arrow_back"
         app:navigationIconTint="@color/primary"
+        app:titleTextAppearance="@style/Texto.Toolbar"
         app:titleTextColor="@color/primary"
         tools:title="Cobrar Mesa 7" />
 
@@ -305,6 +307,50 @@
                                     android:textSize="24sp"
                                     android:textStyle="bold"
                                     tools:text="S/ 96.00" />
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="@dimen/espacio_l"
+                                android:orientation="horizontal">
+
+                                <com.google.android.material.button.MaterialButton
+                                    android:id="@+id/btnImprimir"
+                                    style="@style/Boton.Outlined"
+                                    android:layout_width="0dp"
+                                    android:layout_height="@dimen/toque_minimo"
+                                    android:layout_marginEnd="@dimen/espacio_s"
+                                    android:layout_weight="1"
+                                    android:autoSizeMaxTextSize="16sp"
+                                    android:autoSizeMinTextSize="11sp"
+                                    android:autoSizeStepGranularity="1sp"
+                                    android:autoSizeTextType="uniform"
+                                    android:breakStrategy="simple"
+                                    android:hyphenationFrequency="none"
+                                    android:maxLines="1"
+                                    android:text="@string/impresion_imprimir"
+                                    app:icon="@drawable/ic_receipt"
+                                    app:iconGravity="textStart"
+                                    app:iconPadding="@dimen/espacio_s" />
+
+                                <com.google.android.material.button.MaterialButton
+                                    android:id="@+id/btnReimprimir"
+                                    style="@style/Boton.Outlined"
+                                    android:layout_width="0dp"
+                                    android:layout_height="@dimen/toque_minimo"
+                                    android:layout_weight="1"
+                                    android:autoSizeMaxTextSize="16sp"
+                                    android:autoSizeMinTextSize="11sp"
+                                    android:autoSizeStepGranularity="1sp"
+                                    android:autoSizeTextType="uniform"
+                                    android:breakStrategy="simple"
+                                    android:hyphenationFrequency="none"
+                                    android:maxLines="1"
+                                    android:text="@string/impresion_reimprimir"
+                                    app:icon="@drawable/ic_refresh"
+                                    app:iconGravity="textStart"
+                                    app:iconPadding="@dimen/espacio_s" />
                             </LinearLayout>
 
                             <com.google.android.material.button.MaterialButton

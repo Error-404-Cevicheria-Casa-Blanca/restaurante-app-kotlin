@@ -1,0 +1,336 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Bloqueo rapido con PIN de 4 digitos (PRB-81).
+    Fondo blanco, logo de la cevicheria, puntos de progreso y teclado numerico
+    de 3 columnas. El contenido se limita a un ancho maximo para que tambien
+    se vea centrado en tablet; las variantes sw600dp solo cambian dimensiones.
+-->
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/surface"
+    android:fitsSystemWindows="true"
+    tools:context=".ui.bloqueo.BloqueoActivity">
+
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/scrollBloqueo"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        android:scrollbars="none"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintWidth_max="@dimen/ancho_maximo_bloqueo">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:paddingHorizontal="@dimen/espacio_xl"
+            android:paddingTop="@dimen/espacio_superior_bloqueo"
+            android:paddingBottom="@dimen/espacio_xl">
+
+            <FrameLayout
+                android:layout_width="@dimen/logo_bloqueo"
+                android:layout_height="@dimen/logo_bloqueo"
+                android:background="@drawable/bg_circulo_vacio"
+                android:padding="@dimen/espacio_m">
+
+                <ImageView
+                    android:id="@+id/logoBloqueo"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:contentDescription="@string/marca_descripcion_logo"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/logo_casa_blanca" />
+            </FrameLayout>
+
+            <TextView
+                android:id="@+id/tituloBloqueo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/espacio_l"
+                android:autoSizeMaxTextSize="26sp"
+                android:autoSizeMinTextSize="18sp"
+                android:autoSizeStepGranularity="1sp"
+                android:autoSizeTextType="uniform"
+                android:breakStrategy="simple"
+                android:gravity="center"
+                android:hyphenationFrequency="none"
+                android:maxLines="1"
+                android:text="@string/bloqueo_titulo"
+                android:textColor="@color/on_surface"
+                android:textSize="26sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/subtituloBloqueo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/espacio_xs"
+                android:autoSizeMaxTextSize="16sp"
+                android:autoSizeMinTextSize="12sp"
+                android:autoSizeStepGranularity="1sp"
+                android:autoSizeTextType="uniform"
+                android:breakStrategy="simple"
+                android:gravity="center"
+                android:hyphenationFrequency="none"
+                android:maxLines="2"
+                android:text="@string/bloqueo_subtitulo"
+                android:textColor="@color/on_surface_variant"
+                android:textSize="@dimen/texto_cuerpo" />
+
+            <TextView
+                android:id="@+id/textoUsuario"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/espacio_s"
+                android:autoSizeMaxTextSize="14sp"
+                android:autoSizeMinTextSize="10sp"
+                android:autoSizeStepGranularity="1sp"
+                android:autoSizeTextType="uniform"
+                android:breakStrategy="simple"
+                android:gravity="center"
+                android:hyphenationFrequency="none"
+                android:maxLines="1"
+                android:textColor="@color/primary"
+                android:textSize="@dimen/texto_secundario"
+                android:textStyle="bold"
+                android:visibility="gone"
+                tools:text="Sesión de mozo_01" />
+
+            <TextView
+                android:id="@+id/textoError"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/espacio_l"
+                android:accessibilityLiveRegion="assertive"
+                android:autoSizeMaxTextSize="14sp"
+                android:autoSizeMinTextSize="11sp"
+                android:autoSizeStepGranularity="1sp"
+                android:autoSizeTextType="uniform"
+                android:background="@drawable/bg_error_banner"
+                android:breakStrategy="simple"
+                android:drawablePadding="@dimen/espacio_s"
+                app:drawableStartCompat="@drawable/ic_error_outline"
+                app:drawableTint="@color/error"
+                android:gravity="center_vertical"
+                android:hyphenationFrequency="none"
+                android:maxLines="4"
+                android:padding="@dimen/espacio_m"
+                android:textColor="@color/on_error_container"
+                android:textSize="@dimen/texto_secundario"
+                android:visibility="gone"
+                tools:text="PIN incorrecto. Inténtalo de nuevo."
+                tools:visibility="visible" />
+
+            <LinearLayout
+                android:id="@+id/puntosPin"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/espacio_l"
+                android:contentDescription="@string/bloqueo_puntos_descripcion"
+                android:focusable="true"
+                android:gravity="center"
+                android:importantForAccessibility="yes"
+                android:orientation="horizontal"
+                android:padding="@dimen/espacio_xs">
+
+                <View
+                    android:id="@+id/punto1"
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:layout_marginHorizontal="@dimen/espacio_xs"
+                    android:background="@drawable/bg_punto_pin"
+                    android:importantForAccessibility="no" />
+
+                <View
+                    android:id="@+id/punto2"
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:layout_marginHorizontal="@dimen/espacio_xs"
+                    android:background="@drawable/bg_punto_pin"
+                    android:importantForAccessibility="no" />
+
+                <View
+                    android:id="@+id/punto3"
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:layout_marginHorizontal="@dimen/espacio_xs"
+                    android:background="@drawable/bg_punto_pin"
+                    android:importantForAccessibility="no" />
+
+                <View
+                    android:id="@+id/punto4"
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:layout_marginHorizontal="@dimen/espacio_xs"
+                    android:background="@drawable/bg_punto_pin"
+                    android:importantForAccessibility="no" />
+            </LinearLayout>
+
+            <ProgressBar
+                android:id="@+id/progresoVerificando"
+                android:layout_width="@dimen/icono_grande"
+                android:layout_height="@dimen/icono_grande"
+                android:layout_marginTop="@dimen/espacio_s"
+                android:indeterminate="true"
+                android:indeterminateTint="@color/primary"
+                android:visibility="gone"
+                tools:visibility="visible" />
+
+            <TextView
+                android:id="@+id/textoVerificando"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/espacio_xs"
+                android:autoSizeMaxTextSize="14sp"
+                android:autoSizeMinTextSize="10sp"
+                android:autoSizeStepGranularity="1sp"
+                android:autoSizeTextType="uniform"
+                android:breakStrategy="simple"
+                android:gravity="center"
+                android:hyphenationFrequency="none"
+                android:maxLines="1"
+                android:text="@string/bloqueo_verificando"
+                android:textColor="@color/on_surface_variant"
+                android:textSize="@dimen/texto_secundario"
+                android:visibility="gone"
+                tools:visibility="visible" />
+
+            <GridLayout
+                android:id="@+id/tecladoBloqueo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="@dimen/espacio_l"
+                android:alignmentMode="alignMargins"
+                android:columnCount="3"
+                android:rowCount="4"
+                android:useDefaultMargins="false">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnTecla1"
+                    style="@style/Boton.PinTecla"
+                    android:layout_width="@dimen/ancho_tecla_bloqueo"
+                    android:layout_height="@dimen/alto_tecla_bloqueo"
+                    android:layout_margin="@dimen/espacio_xs"
+                    android:text="@string/bloqueo_tecla_1" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnTecla2"
+                    style="@style/Boton.PinTecla"
+                    android:layout_width="@dimen/ancho_tecla_bloqueo"
+                    android:layout_height="@dimen/alto_tecla_bloqueo"
+                    android:layout_margin="@dimen/espacio_xs"
+                    android:text="@string/bloqueo_tecla_2" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnTecla3"
+                    style="@style/Boton.PinTecla"
+                    android:layout_width="@dimen/ancho_tecla_bloqueo"
+                    android:layout_height="@dimen/alto_tecla_bloqueo"
+                    android:layout_margin="@dimen/espacio_xs"
+                    android:text="@string/bloqueo_tecla_3" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnTecla4"
+                    style="@style/Boton.PinTecla"
+                    android:layout_width="@dimen/ancho_tecla_bloqueo"
+                    android:layout_height="@dimen/alto_tecla_bloqueo"
+                    android:layout_margin="@dimen/espacio_xs"
+                    android:text="@string/bloqueo_tecla_4" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnTecla5"
+                    style="@style/Boton.PinTecla"
+                    android:layout_width="@dimen/ancho_tecla_bloqueo"
+                    android:layout_height="@dimen/alto_tecla_bloqueo"
+                    android:layout_margin="@dimen/espacio_xs"
+                    android:text="@string/bloqueo_tecla_5" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnTecla6"
+                    style="@style/Boton.PinTecla"
+                    android:layout_width="@dimen/ancho_tecla_bloqueo"
+                    android:layout_height="@dimen/alto_tecla_bloqueo"
+                    android:layout_margin="@dimen/espacio_xs"
+                    android:text="@string/bloqueo_tecla_6" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnTecla7"
+                    style="@style/Boton.PinTecla"
+                    android:layout_width="@dimen/ancho_tecla_bloqueo"
+                    android:layout_height="@dimen/alto_tecla_bloqueo"
+                    android:layout_margin="@dimen/espacio_xs"
+                    android:text="@string/bloqueo_tecla_7" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnTecla8"
+                    style="@style/Boton.PinTecla"
+                    android:layout_width="@dimen/ancho_tecla_bloqueo"
+                    android:layout_height="@dimen/alto_tecla_bloqueo"
+                    android:layout_margin="@dimen/espacio_xs"
+                    android:text="@string/bloqueo_tecla_8" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnTecla9"
+                    style="@style/Boton.PinTecla"
+                    android:layout_width="@dimen/ancho_tecla_bloqueo"
+                    android:layout_height="@dimen/alto_tecla_bloqueo"
+                    android:layout_margin="@dimen/espacio_xs"
+                    android:text="@string/bloqueo_tecla_9" />
+
+                <Space
+                    android:layout_width="@dimen/ancho_tecla_bloqueo"
+                    android:layout_height="@dimen/alto_tecla_bloqueo"
+                    android:layout_margin="@dimen/espacio_xs" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnTecla0"
+                    style="@style/Boton.PinTecla"
+                    android:layout_width="@dimen/ancho_tecla_bloqueo"
+                    android:layout_height="@dimen/alto_tecla_bloqueo"
+                    android:layout_margin="@dimen/espacio_xs"
+                    android:text="@string/bloqueo_tecla_0" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnBorrar"
+                    style="@style/Boton.PinAccion"
+                    android:layout_width="@dimen/ancho_tecla_bloqueo"
+                    android:layout_height="@dimen/alto_tecla_bloqueo"
+                    android:layout_margin="@dimen/espacio_xs"
+                    android:contentDescription="@string/bloqueo_borrar"
+                    app:icon="@drawable/ic_backspace"
+                    app:iconGravity="textStart"
+                    app:iconTint="@color/on_surface_variant" />
+            </GridLayout>
+
+            <TextView
+                android:id="@+id/textoPinDemo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/espacio_l"
+                android:autoSizeMaxTextSize="12sp"
+                android:autoSizeMinTextSize="10sp"
+                android:autoSizeStepGranularity="1sp"
+                android:autoSizeTextType="uniform"
+                android:background="@drawable/bg_pill_superficie"
+                android:breakStrategy="simple"
+                android:hyphenationFrequency="none"
+                android:maxLines="1"
+                android:paddingHorizontal="@dimen/espacio_m"
+                android:paddingVertical="@dimen/espacio_xs"
+                android:textColor="@color/on_surface_variant"
+                android:textSize="@dimen/texto_etiqueta"
+                android:visibility="gone"
+                tools:text="PIN de demostración: 1234"
+                tools:visibility="visible" />
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+</androidx.constraintlayout.widget.ConstraintLayout>
