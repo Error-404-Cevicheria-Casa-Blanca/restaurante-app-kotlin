@@ -1,5 +1,6 @@
 package com.lacasablanca.mesero.data.repository
 
+import com.lacasablanca.mesero.data.local.offline.OutboxPedidoStore
 import com.lacasablanca.mesero.data.remote.PedidosApi
 import com.lacasablanca.mesero.data.remote.dto.CrearPedidoRequest
 import com.lacasablanca.mesero.data.remote.dto.ItemPedidoRequest
@@ -13,8 +14,18 @@ import com.lacasablanca.mesero.domain.model.PedidoExistente
 import retrofit2.HttpException
 import java.io.IOException
 
-/** Envio real del pedido (POST /api/v1/pedidos). */
-class RealPedidoRepository(private val api: PedidosApi) : PedidoRepository {
+/**
+ * Envio real del pedido (POST /api/v1/pedidos).
+ *
+ * Si la peticion falla por red y hay un [outbox] configurado, el pedido se
+ * guarda en la cola local (PRB-63) para que el worker de sincronizacion lo
+ * reenvie cuando vuelva la conexion. La UI sigue viendo `RED` y decide como
+ * informarlo.
+ */
+class RealPedidoRepository(
+    private val api: PedidosApi,
+    private val outbox: OutboxPedidoStore? = null
+) : PedidoRepository {
 
     override suspend fun enviarPedido(
         mesaId: Long,
@@ -25,18 +36,19 @@ class RealPedidoRepository(private val api: PedidosApi) : PedidoRepository {
             return Resultado.Fallo(ErrorApp.VALIDACION)
         }
 
+        val request = CrearPedidoRequest(
+            mesaId = mesaId,
+            items = items.map { item ->
+                ItemPedidoRequest(
+                    productoId = item.productoId,
+                    cantidad = item.cantidad,
+                    notas = item.notas.takeIf { it.isNotBlank() }
+                )
+            },
+            clientRequestId = clientRequestId
+        )
+
         return try {
-            val request = CrearPedidoRequest(
-                mesaId = mesaId,
-                items = items.map { item ->
-                    ItemPedidoRequest(
-                        productoId = item.productoId,
-                        cantidad = item.cantidad,
-                        notas = item.notas.takeIf { it.isNotBlank() }
-                    )
-                },
-                clientRequestId = clientRequestId
-            )
             Resultado.Exito(api.crearPedido(clientRequestId, request).aDominio())
         } catch (e: HttpException) {
             // En el POST de pedidos un 409 significa que la mesa ya fue tomada
@@ -48,6 +60,7 @@ class RealPedidoRepository(private val api: PedidosApi) : PedidoRepository {
             }
             Resultado.Fallo(error)
         } catch (e: IOException) {
+            outbox?.guardar(request)
             Resultado.Fallo(ErrorApp.RED)
         } catch (e: Exception) {
             Resultado.Fallo(ErrorApp.DESCONOCIDO)

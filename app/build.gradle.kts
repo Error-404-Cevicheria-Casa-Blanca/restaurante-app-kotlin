@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.detekt)
+    alias(libs.plugins.ksp)
 }
 
 /**
@@ -95,6 +96,12 @@ dependencies {
     implementation(libs.androidx.recyclerview)
     implementation(libs.glide)
     implementation(libs.androidx.datastore.preferences)
+
+    // Cache local del catalogo y cola de pedidos offline (PRB-62/63).
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+    ksp(libs.androidx.room.compiler)
+    implementation(libs.androidx.work.runtime.ktx)
 
     // ApiClient compila el interceptor en todas las variantes; su nivel queda
     // en NONE cuando BuildConfig.DEBUG es false, asi que release no registra nada.

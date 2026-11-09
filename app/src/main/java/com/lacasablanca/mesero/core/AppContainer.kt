@@ -6,6 +6,10 @@ import com.lacasablanca.mesero.data.local.CryptoManager
 import com.lacasablanca.mesero.data.local.EncryptedTokenStore
 import com.lacasablanca.mesero.data.local.SessionManager
 import com.lacasablanca.mesero.data.local.TokenStore
+import com.lacasablanca.mesero.data.local.offline.AppDatabase
+import com.lacasablanca.mesero.data.local.offline.OutboxPedidoStore
+import com.lacasablanca.mesero.data.local.offline.PedidoSync
+import com.lacasablanca.mesero.data.local.offline.RoomOutboxPedidoStore
 import com.lacasablanca.mesero.data.remote.ApiClient
 import com.lacasablanca.mesero.data.remote.AuthApi
 import com.lacasablanca.mesero.data.remote.CatalogoApi
@@ -13,6 +17,7 @@ import com.lacasablanca.mesero.data.remote.CobroApi
 import com.lacasablanca.mesero.data.remote.MesasApi
 import com.lacasablanca.mesero.data.remote.PedidosApi
 import com.lacasablanca.mesero.data.repository.AuthRepository
+import com.lacasablanca.mesero.data.repository.CatalogoOfflineRepository
 import com.lacasablanca.mesero.data.repository.CatalogoRepository
 import com.lacasablanca.mesero.data.repository.CobroRepository
 import com.lacasablanca.mesero.data.repository.FakeAuthRepository
@@ -21,6 +26,7 @@ import com.lacasablanca.mesero.data.repository.FakeCobroRepository
 import com.lacasablanca.mesero.data.repository.FakeConsumoStore
 import com.lacasablanca.mesero.data.repository.FakeMesaRepository
 import com.lacasablanca.mesero.data.repository.FakePedidoRepository
+import com.lacasablanca.mesero.data.repository.MesaOfflineRepository
 import com.lacasablanca.mesero.data.repository.MesaRepository
 import com.lacasablanca.mesero.data.repository.PedidoRepository
 import com.lacasablanca.mesero.data.repository.RealAuthRepository
@@ -34,11 +40,20 @@ import retrofit2.Retrofit
  * Inyeccion manual de dependencias (sin Hilt).
  * Con BuildConfig.USE_FAKE_DATA = true la app funciona sin backend (datos FAKE).
  */
-class AppContainer(contexto: Context) {
+class AppContainer(private val contexto: Context) {
 
     private val tokenStore: TokenStore = EncryptedTokenStore(contexto, CryptoManager())
 
     val sessionManager = SessionManager(tokenStore)
+
+    /** Room: cache del catalogo/mesas + outbox de pedidos (PRB-62/63). */
+    private val database: AppDatabase by lazy { AppDatabase.crear(contexto) }
+
+    val outbox: OutboxPedidoStore by lazy {
+        RoomOutboxPedidoStore(database.pedidoPendienteDao())
+    }
+
+    val networkMonitor: NetworkMonitor = NetworkMonitor(contexto).also { it.iniciar() }
 
     /** Consumo simulado compartido por los repositorios fake de pedido y cobro. */
     private val fakeConsumoStore = FakeConsumoStore()
@@ -64,22 +79,25 @@ class AppContainer(contexto: Context) {
         if (BuildConfig.USE_FAKE_DATA) {
             FakeMesaRepository()
         } else {
-            RealMesaRepository(mesasApi)
+            MesaOfflineRepository(RealMesaRepository(mesasApi), database.mesaDao())
         }
 
     val catalogoRepository: CatalogoRepository =
         if (BuildConfig.USE_FAKE_DATA) {
             FakeCatalogoRepository()
         } else {
-            RealCatalogoRepository(catalogoApi)
+            CatalogoOfflineRepository(RealCatalogoRepository(catalogoApi), database.catalogoDao())
         }
 
     val pedidoRepository: PedidoRepository =
         if (BuildConfig.USE_FAKE_DATA) {
             FakePedidoRepository(fakeConsumoStore)
         } else {
-            RealPedidoRepository(pedidosApi)
+            RealPedidoRepository(pedidosApi, outbox)
         }
+
+    /** Logica del SyncWorker (PRB-63); WorkManager la ejecuta en segundo plano. */
+    val pedidoSync: PedidoSync by lazy { PedidoSync(outbox, pedidosApi) }
 
     val cobroRepository: CobroRepository =
         if (BuildConfig.USE_FAKE_DATA) {

@@ -21,6 +21,28 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
+    <!-- PRB-62: indicador persistente de modo offline -->
+    <TextView
+        android:id="@+id/bannerOffline"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:autoSizeMaxTextSize="14sp"
+        android:autoSizeMinTextSize="11sp"
+        android:autoSizeStepGranularity="1sp"
+        android:autoSizeTextType="uniform"
+        android:background="@color/estado_ocupada"
+        android:breakStrategy="simple"
+        android:gravity="center"
+        android:hyphenationFrequency="none"
+        android:maxLines="2"
+        android:padding="@dimen/espacio_s"
+        android:text="@string/offline_banner"
+        android:textColor="@color/on_primary"
+        android:textSize="@dimen/texto_secundario"
+        android:textStyle="bold"
+        android:visibility="gone"
+        tools:visibility="visible" />
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
