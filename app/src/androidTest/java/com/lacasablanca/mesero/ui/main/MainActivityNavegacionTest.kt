@@ -6,16 +6,12 @@ import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.Espresso.pressBack
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.ViewMatchers.Visibility
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
-import androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibility
 import androidx.test.espresso.matcher.ViewMatchers.withId
-import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.lacasablanca.mesero.MeseroApp
 import com.lacasablanca.mesero.R
 import kotlinx.coroutines.runBlocking
-import org.hamcrest.Matchers.allOf
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before
@@ -68,10 +64,10 @@ class MainActivityNavegacionTest {
             }
 
             onView(withId(R.id.navPedidos)).perform(click())
-            onView(tituloVisible()).check(matches(withText(R.string.nav_pedidos)))
+            onView(withId(R.id.textoTituloPedidos)).check(matches(isDisplayed()))
 
             scenario.recreate()
-            onView(tituloVisible()).check(matches(withText(R.string.nav_pedidos)))
+            onView(withId(R.id.textoTituloPedidos)).check(matches(isDisplayed()))
 
             pressBack()
             onView(withId(R.id.btnActualizar)).check(matches(isDisplayed()))
@@ -101,15 +97,6 @@ class MainActivityNavegacionTest {
             scenario.close()
         }
     }
-
-    /**
-     * Los 3 fragmentos quedan vivos (hide/show) y comparten el id del titulo;
-     * solo el visible debe participar en la asercion.
-     */
-    private fun tituloVisible() = allOf(
-        withId(R.id.textoPlaceholder),
-        withEffectiveVisibility(Visibility.VISIBLE)
-    )
 
     private companion object {
         const val ESPERA_SELECCION_MS = 500L

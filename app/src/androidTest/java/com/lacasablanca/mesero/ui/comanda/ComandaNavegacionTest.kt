@@ -71,12 +71,7 @@ class ComandaNavegacionTest {
             onView(withId(R.id.navegacionPrincipal)).check(matches(isDisplayed()))
 
             onView(withId(R.id.navPedidos)).perform(click())
-            onView(
-                allOf(
-                    withId(R.id.textoPlaceholder),
-                    withText(R.string.nav_pedidos)
-                )
-            ).check(matches(isDisplayed()))
+            onView(withId(R.id.textoTituloPedidos)).check(matches(isDisplayed()))
 
             onView(withId(R.id.navSalon)).perform(click())
             onView(withId(R.id.barraComanda)).check(matches(isDisplayed()))

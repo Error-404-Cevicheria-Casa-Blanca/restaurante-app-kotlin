@@ -18,7 +18,6 @@ import com.lacasablanca.mesero.R
 import com.lacasablanca.mesero.ui.main.MainActivity
 import kotlinx.coroutines.runBlocking
 import org.hamcrest.Matcher
-import org.hamcrest.Matchers.allOf
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -52,12 +51,7 @@ class CobroPedidoNavegacionTest {
         val scenario = ActivityScenario.launch(MainActivity::class.java)
         try {
             onView(withId(R.id.navPedidos)).perform(click())
-            onView(
-                allOf(
-                    withId(R.id.textoPlaceholder),
-                    withText(R.string.nav_pedidos)
-                )
-            ).check(matches(isDisplayed()))
+            onView(withId(R.id.textoTituloPedidos)).check(matches(isDisplayed()))
 
             scenario.onActivity { activity ->
                 activity.abrirCobroPedido(7L, "Carlos Mendoza")
