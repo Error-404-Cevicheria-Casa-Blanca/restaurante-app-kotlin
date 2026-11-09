@@ -4,8 +4,10 @@ import android.view.View
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.Espresso.pressBack
 import androidx.test.espresso.NoMatchingViewException
 import androidx.test.espresso.action.ViewActions.click
+import androidx.test.espresso.assertion.ViewAssertions.doesNotExist
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.hasDescendant
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
@@ -75,6 +77,30 @@ class ComandaNavegacionTest {
 
             onView(withId(R.id.navSalon)).perform(click())
             onView(withId(R.id.barraComanda)).check(matches(isDisplayed()))
+        } finally {
+            scenario.close()
+        }
+    }
+
+    @Test
+    fun atrasEnComandaVuelveAlMapaTrasLiberar() {
+        val scenario = ActivityScenario.launch(MainActivity::class.java)
+        try {
+            val mesa1 = allOf(
+                withId(R.id.cardMesa),
+                hasDescendant(withText("Mesa 1"))
+            )
+            esperarVista(mesa1)
+            onView(mesa1).perform(click())
+            esperarVista(withId(R.id.barraComanda))
+
+            pressBack()
+            onView(withId(R.id.btnLiberar))
+                .check(matches(isDisplayed()))
+                .perform(click())
+
+            esperarVista(withId(R.id.btnActualizar))
+            onView(withId(R.id.barraComanda)).check(doesNotExist())
         } finally {
             scenario.close()
         }

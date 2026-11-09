@@ -4,8 +4,10 @@ import android.view.View
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.Espresso.pressBack
 import androidx.test.espresso.NoMatchingViewException
 import androidx.test.espresso.action.ViewActions.click
+import androidx.test.espresso.assertion.ViewAssertions.doesNotExist
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.Visibility
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
@@ -71,6 +73,30 @@ class CobroPedidoNavegacionTest {
             onView(withId(R.id.btnActualizar)).check(matches(isDisplayed()))
             onView(withId(R.id.navPedidos)).perform(click())
             onView(withId(R.id.barraCobro)).check(matches(isDisplayed()))
+        } finally {
+            scenario.close()
+        }
+    }
+
+    @Test
+    fun atrasEnCobroVuelveAPedidos() {
+        val scenario = ActivityScenario.launch(MainActivity::class.java)
+        try {
+            onView(withId(R.id.navPedidos)).perform(click())
+            onView(withId(R.id.textoTituloPedidos)).check(matches(isDisplayed()))
+
+            scenario.onActivity { activity ->
+                activity.abrirCobroPedido(7L, "Carlos Mendoza")
+            }
+            esperarVista(withId(R.id.barraCobro))
+
+            pressBack()
+            onView(withId(R.id.btnSalirSinCobrar))
+                .check(matches(isDisplayed()))
+                .perform(click())
+
+            esperarVista(withId(R.id.textoTituloPedidos))
+            onView(withId(R.id.barraCobro)).check(doesNotExist())
         } finally {
             scenario.close()
         }

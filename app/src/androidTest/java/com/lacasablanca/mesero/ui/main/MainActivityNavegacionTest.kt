@@ -77,6 +77,8 @@ class MainActivityNavegacionTest {
 
             onView(withId(R.id.navPerfil)).perform(click())
             onView(withId(R.id.barraPerfil)).check(matches(isDisplayed()))
+            pressBack()
+            onView(withId(R.id.btnActualizar)).check(matches(isDisplayed()))
         } finally {
             scenario.close()
         }
