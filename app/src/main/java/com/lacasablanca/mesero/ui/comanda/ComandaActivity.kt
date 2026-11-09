@@ -738,7 +738,7 @@ class ComandaActivity : AppCompatActivity(), CarritoBottomSheet.Listener {
 
     /**
      * Devuelve el control al mapa de mesas.
-     * [liberarPendiente] pide a MesasActivity un ultimo intento con
+     * [liberarPendiente] pide al mapa de Salón un ultimo intento con
      * `MesasViewModel.liberarMesa()` si el PATCH fallo aqui.
      * [EXTRA_PEDIDO_ENVIADO] queda en true cuando el POST /pedidos fue exitoso:
      * la mesa se queda en su estado de atencion y no se libera.

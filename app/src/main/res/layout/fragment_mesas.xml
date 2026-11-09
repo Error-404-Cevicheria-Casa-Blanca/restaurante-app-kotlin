@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    Mapa de mesas (Stitch m_vil_mapa_de_mesas / tablet_mapa_de_mesas):
-    cabecera blanca, zonas en pildora teal, chips de filtro tipo pill,
-    tarjetas blancas con franja de estado y leyenda.
+    Mapa de mesas dentro del tab Salón (PRB-88, Fase 2).
+    Es la misma estructura de activity_mesas.xml, pero como fragmento:
+    los insets del sistema los aplica MainActivity, no este layout.
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -10,9 +10,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/background"
-    android:fitsSystemWindows="true"
     android:orientation="vertical"
-    tools:context=".ui.mesas.MesasActivity">
+    tools:context=".ui.salon.SalonFragment">
 
     <!-- Barra superior (variante con texto en tablet: layout-sw600dp/barra_mesas.xml) -->
     <include

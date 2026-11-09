@@ -31,10 +31,6 @@
             android:exported="false" />
 
         <activity
-            android:name=".ui.mesas.MesasActivity"
-            android:exported="false" />
-
-        <activity
             android:name=".ui.perfil.PerfilActivity"
             android:exported="false" />
 
