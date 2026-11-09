@@ -31,10 +31,6 @@
             android:exported="false" />
 
         <activity
-            android:name=".ui.perfil.PerfilActivity"
-            android:exported="false" />
-
-        <activity
             android:name=".ui.bloqueo.BloqueoActivity"
             android:exported="false"
             android:launchMode="singleTop" />
