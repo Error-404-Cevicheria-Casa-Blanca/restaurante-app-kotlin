@@ -25,7 +25,13 @@ data class Producto(
     val disponible: Boolean,
     val categoriaId: Long,
     val imagenUrl: String?,
-    val estacion: String?
+    val estacion: String?,
+    /**
+     * PRB-92: modificadores disponibles que el backend devuelve junto al plato
+     * (`nombre`, `precio_adicional`). Vacio = el plato no admite modificadores
+     * y el boton "+" lo agrega directo, sin abrir el selector.
+     */
+    val modificadores: List<Modificador> = emptyList()
 ) {
     val sinImagenRemota: Boolean get() = imagenUrl.isNullOrBlank()
 }

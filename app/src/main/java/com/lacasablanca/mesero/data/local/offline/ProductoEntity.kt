@@ -16,5 +16,11 @@ data class ProductoEntity(
     val disponible: Boolean,
     val categoriaId: Long,
     val imagenUrl: String?,
-    val estacion: String?
+    val estacion: String?,
+    /**
+     * PRB-92: modificadores del plato serializados como JSON. Se guardan en
+     * texto para conservar los nombres y los `BigDecimal` sin perder
+     * precision. La migracion 1->2 agrega la columna con `[]` por defecto.
+     */
+    val modificadores: String = "[]"
 )

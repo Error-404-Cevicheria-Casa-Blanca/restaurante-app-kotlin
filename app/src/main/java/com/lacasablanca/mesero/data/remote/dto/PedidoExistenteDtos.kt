@@ -3,9 +3,11 @@ package com.lacasablanca.mesero.data.remote.dto
 import com.google.gson.annotations.SerializedName
 import com.lacasablanca.mesero.domain.model.EstadoPlato
 import com.lacasablanca.mesero.domain.model.ItemCarrito
+import com.lacasablanca.mesero.domain.model.Modificador
 import com.lacasablanca.mesero.domain.model.PedidoExistente
 import com.lacasablanca.mesero.domain.model.Producto
 import java.math.BigDecimal
+import java.math.RoundingMode
 
 /**
  * GET /api/v1/pedidos?mesa_id=X (PRB-83, depende de PRB-82).
@@ -45,7 +47,13 @@ data class ItemPedidoExistenteDto(
      * PRB-80 (robustez): el backend Java tambien puede nombrarlo `estado_item`.
      */
     @SerializedName(value = "estado", alternate = ["estado_item"])
-    val estado: String? = null
+    val estado: String? = null,
+    /**
+     * PRB-92: modificadores elegidos que devuelve `DetallePedidoResponse`
+     * (`nombre`, `precio_adicional`). Si el backend aun no los envia, la lista
+     * queda vacia y la linea se muestra igual que antes.
+     */
+    val modificadores: List<ModificadorDto>? = null
 )
 
 /**
@@ -62,12 +70,23 @@ fun PedidoExistenteDto.aDominio(): PedidoExistente = PedidoExistente(
 private fun ItemPedidoExistenteDto.aItemCarrito(): ItemCarrito? {
     val cantidadValida = (cantidad ?: 0).takeIf { it > 0 } ?: return null
     val productoId = productoId ?: return null
+    val modificadoresDominio = modificadores.orEmpty().mapNotNull { it.aDominio() }
+
+    // El backend devuelve `precio_unitario` YA con el recargo de modificadores
+    // (PedidoService: precio + recargo). Para que ItemCarrito no sume dos veces
+    // el recargo, se reconstruye el precio base restandolo. Si el backend
+    // enviara el base, el recargo seria cero y el resultado no cambia.
+    val precioUnitarioFinal = precioUnitario ?: BigDecimal.ZERO
+    val precioBase = (precioUnitarioFinal - Modificador.recargoTotal(modificadoresDominio))
+        .max(BigDecimal.ZERO)
+        .setScale(2, RoundingMode.HALF_UP)
+
     return ItemCarrito(
         producto = Producto(
             id = productoId,
             nombre = nombre.orEmpty(),
             descripcion = "",
-            precio = precioUnitario ?: BigDecimal.ZERO,
+            precio = precioBase,
             disponible = true,
             categoriaId = 0L,
             imagenUrl = null,
@@ -81,6 +100,7 @@ private fun ItemPedidoExistenteDto.aItemCarrito(): ItemCarrito? {
         estadoPlato = estado
             ?.trim()
             ?.takeIf { it.isNotEmpty() }
-            ?.let(EstadoPlato::desdeApi)
+            ?.let(EstadoPlato::desdeApi),
+        modificadores = modificadoresDominio
     )
 }

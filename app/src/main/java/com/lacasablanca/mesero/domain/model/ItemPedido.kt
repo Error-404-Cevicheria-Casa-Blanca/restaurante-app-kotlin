@@ -11,5 +11,10 @@ data class ItemPedido(
     val productoId: Long,
     val cantidad: Int,
     val notas: String,
-    val precioUnitario: BigDecimal
+    val precioUnitario: BigDecimal,
+    /**
+     * PRB-92: modificadores elegidos. Viajan en `modificadores` de
+     * ItemPedidoRequest y el backend vuelve a calcular el recargo.
+     */
+    val modificadores: List<Modificador> = emptyList()
 )
