@@ -7,6 +7,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.widget.FrameLayout
 import com.google.android.material.navigation.NavigationBarView
+import com.google.android.material.navigationrail.NavigationRailView
 import com.lacasablanca.mesero.databinding.ViewNavegacionBottomBinding
 import com.lacasablanca.mesero.databinding.ViewNavegacionRailBinding
 
@@ -63,6 +64,9 @@ class NavegacionPrincipalView @JvmOverloads constructor(
 
     /** Texto del ítem seleccionado (util para pruebas y accesibilidad). */
     fun itemSeleccionado(): MenuItem? = menu.findItem(selectedItemId)
+
+    /** true si la variante inflada es NavigationRailView (tablet >= 600dp). */
+    fun usaRail(): Boolean = barra is NavigationRailView
 
     private fun esTablet(context: Context): Boolean =
         context.resources.configuration.smallestScreenWidthDp >= UMBRAL_TABLET_DP
