@@ -387,4 +387,17 @@
     <string name="estado_plato_anulado">Anulado</string>
     <string name="estado_plato_desconocido">Estado desconocido</string>
     <string name="cd_estado_plato">Estado del plato: %1$s</string>
+
+    <!-- Modificadores por plato (PRB-92) -->
+    <string name="modificadores_titulo">Personaliza tu plato</string>
+    <string name="modificadores_subtitulo">Elige los modificadores. Puedes marcar varios; el precio se actualiza al instante.</string>
+    <string name="modificadores_agregar">Agregar al pedido</string>
+    <string name="modificadores_cancelar">Cancelar</string>
+    <string name="modificadores_total">Total del plato</string>
+    <string name="modificadores_precio_extra">+ %1$s</string>
+    <string name="modificadores_icono_cd">Modificadores del plato</string>
+    <string name="cd_modificador_precio">%1$s, precio adicional %2$s</string>
+    <string name="comanda_modificadores_extra">%1$s (+%2$s)</string>
+    <string name="cd_modificadores_linea">Modificadores: %1$s</string>
+    <string name="cd_modificadores_producto">Elegir los modificadores de %1$s</string>
 </resources>

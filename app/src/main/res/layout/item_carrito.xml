@@ -113,6 +113,29 @@
             tools:visibility="visible" />
     </LinearLayout>
 
+    <!-- PRB-92: modificadores elegidos, debajo del nombre del plato -->
+    <TextView
+        android:id="@+id/textoModificadoresCarrito"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/espacio_xs"
+        android:autoSizeMaxTextSize="13sp"
+        android:autoSizeMinTextSize="10sp"
+        android:autoSizeStepGranularity="1sp"
+        android:autoSizeTextType="uniform"
+        android:background="@drawable/bg_pill_superficie"
+        android:breakStrategy="simple"
+        android:ellipsize="none"
+        android:hyphenationFrequency="none"
+        android:maxLines="3"
+        android:paddingHorizontal="@dimen/espacio_s"
+        android:paddingVertical="@dimen/espacio_xs"
+        android:textColor="@color/on_surface_variant"
+        android:textSize="@dimen/texto_etiqueta"
+        android:visibility="gone"
+        tools:text="Sin cebolla, Extra queso (+S/ 2.00)"
+        tools:visibility="visible" />
+
     <TextView
         android:id="@+id/textoNotaCarrito"
         android:layout_width="match_parent"

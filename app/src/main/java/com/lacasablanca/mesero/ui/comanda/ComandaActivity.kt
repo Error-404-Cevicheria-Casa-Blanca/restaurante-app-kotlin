@@ -84,6 +84,13 @@ class ComandaActivity : AppCompatActivity(), CarritoBottomSheet.Listener {
     private var dialogoAbierto: AlertDialog? = null
     private var dialogoLiberar: AlertDialog? = null
     private var dialogoAnular: AnularPlatoDialog? = null
+
+    /** PRB-92: selector de modificadores con un solo dialogo a la vez. */
+    private val selectorModificadores: SelectorModificadores by lazy {
+        SelectorModificadores(this) { producto, seleccionados ->
+            carritoViewModel.agregarProducto(producto, seleccionados)
+        }
+    }
     private var pedidoExistenteMostrado = false
     private var errorPedidoExistenteMostrado = false
 
@@ -170,6 +177,7 @@ class ComandaActivity : AppCompatActivity(), CarritoBottomSheet.Listener {
     override fun onDestroy() {
         cerrarDialogoLiberar()
         cerrarDialogoAnular()
+        selectorModificadores.cerrar()
         dialogoAbierto?.dismiss()
         dialogoAbierto = null
         super.onDestroy()
@@ -177,9 +185,21 @@ class ComandaActivity : AppCompatActivity(), CarritoBottomSheet.Listener {
 
     private fun prepararListas() {
         catalogoAdapter = CatalogoAdapter(
-            alAgregar = carritoViewModel::agregarProducto,
-            alAumentar = carritoViewModel::aumentarCantidad,
-            alDisminuir = carritoViewModel::disminuirCantidad
+            // PRB-92: con modificadores, "+" abre el selector; sin ellos,
+            // conserva el alta directa de PRB-38.
+            alAgregar = { producto ->
+                selectorModificadores.abrirSiCorresponde(producto) {
+                    carritoViewModel.agregarProducto(producto)
+                }
+            },
+            alAumentar = { producto ->
+                selectorModificadores.abrirSiCorresponde(producto) {
+                    carritoViewModel.aumentarCantidad(producto.id)
+                }
+            },
+            // El "-" baja una unidad de la primera linea de ese plato; el
+            // detalle del carrito permite ajustar cada combinacion.
+            alDisminuir = { producto -> carritoViewModel.disminuirCantidad(producto.id) }
         )
 
         binding.listaCatalogo.layoutManager = LinearLayoutManager(this)
@@ -247,8 +267,12 @@ class ComandaActivity : AppCompatActivity(), CarritoBottomSheet.Listener {
         }
 
         catalogoAdapter.submitList(estado.filas)
+        // Puede haber dos lineas del mismo plato con modificadores distintos:
+        // la tarjeta del catalogo muestra la cantidad total de ese plato.
         catalogoAdapter.actualizarCantidades(
-            estado.items.associate { it.producto.id to it.cantidad }
+            estado.items
+                .groupBy { it.producto.id }
+                .mapValues { entrada -> entrada.value.sumOf { it.cantidad } }
         )
 
         // Fade + slide-up solo la primera vez que el catalogo tiene platos.
@@ -468,7 +492,7 @@ class ComandaActivity : AppCompatActivity(), CarritoBottomSheet.Listener {
             .setView(contenido.root)
             .setPositiveButton(R.string.comanda_nota_guardar) { _, _ ->
                 carritoViewModel.actualizarNotas(
-                    item.producto.id,
+                    item,
                     contenido.textoNota.text?.toString().orEmpty()
                 )
             }
