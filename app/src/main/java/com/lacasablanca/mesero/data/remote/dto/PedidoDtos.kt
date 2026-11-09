@@ -31,14 +31,20 @@ data class ModificadorRequest(
 /**
  * POST /api/v1/pedidos (CrearPedidoRequest.java): `mesa_id` + lista `items`.
  *
+ * PRB-94: `mesa_id` es opcional. Un pedido para llevar lo envia en `null`,
+ * con `tipo_pedido = PARA_LLEVAR` y `cliente_nombre`. Un pedido de salon
+ * conserva `mesa_id` y `tipo_pedido = SALON`.
+ *
  * [clientRequestId] es la clave de idempotencia del pedido. Se envia tambien
  * en el header `Idempotency-Key`; el backend la usa para no duplicar el
  * pedido si el mesero reintenta tras un fallo de red (PRB-2).
  */
 data class CrearPedidoRequest(
-    @SerializedName("mesa_id") val mesaId: Long,
+    @SerializedName("mesa_id") val mesaId: Long? = null,
     val items: List<ItemPedidoRequest>,
-    @SerializedName("client_request_id") val clientRequestId: String
+    @SerializedName("client_request_id") val clientRequestId: String,
+    @SerializedName("tipo_pedido") val tipoPedido: String? = null,
+    @SerializedName("cliente_nombre") val clienteNombre: String? = null
 )
 
 /**

@@ -12,6 +12,7 @@ import com.lacasablanca.mesero.domain.errorDesdeCodigoHttp
 import com.lacasablanca.mesero.domain.model.ItemPedido
 import com.lacasablanca.mesero.domain.model.PedidoEnviado
 import com.lacasablanca.mesero.domain.model.PedidoExistente
+import com.lacasablanca.mesero.domain.model.TipoPedido
 import retrofit2.HttpException
 import java.io.IOException
 
@@ -33,11 +34,56 @@ class RealPedidoRepository(
         items: List<ItemPedido>,
         clientRequestId: String
     ): Resultado<PedidoEnviado> {
-        if (mesaId <= 0L || items.isEmpty() || clientRequestId.isBlank()) {
-            return Resultado.Fallo(ErrorApp.VALIDACION)
-        }
+        if (mesaId <= 0L) return Resultado.Fallo(ErrorApp.VALIDACION)
 
-        val request = CrearPedidoRequest(
+        val request = crearRequest(
+            mesaId = mesaId,
+            tipoPedido = TipoPedido.SALON,
+            clienteNombre = null,
+            items = items,
+            clientRequestId = clientRequestId
+        )
+        if (request == null) return Resultado.Fallo(ErrorApp.VALIDACION)
+        return enviar(request)
+    }
+
+    /**
+     * PRB-94: pedido para llevar sin mesa. El backend lo registra con
+     * `mesa_id = null` y `tipo_pedido = PARA_LLEVAR`, y no toca el salon.
+     */
+    override suspend fun enviarPedidoParaLlevar(
+        items: List<ItemPedido>,
+        clientRequestId: String,
+        clienteNombre: String
+    ): Resultado<PedidoEnviado> {
+        val nombre = clienteNombre.trim()
+        if (nombre.isEmpty()) return Resultado.Fallo(ErrorApp.VALIDACION)
+
+        val request = crearRequest(
+            mesaId = null,
+            tipoPedido = TipoPedido.PARA_LLEVAR,
+            clienteNombre = nombre,
+            items = items,
+            clientRequestId = clientRequestId
+        )
+        if (request == null) return Resultado.Fallo(ErrorApp.VALIDACION)
+        return enviar(request)
+    }
+
+    /**
+     * Construye el contrato del pedido. Devuelve null si faltan datos que el
+     * backend rechazaria (items vacios o clave de idempotencia en blanco).
+     */
+    private fun crearRequest(
+        mesaId: Long?,
+        tipoPedido: TipoPedido,
+        clienteNombre: String?,
+        items: List<ItemPedido>,
+        clientRequestId: String
+    ): CrearPedidoRequest? {
+        if (items.isEmpty() || clientRequestId.isBlank()) return null
+
+        return CrearPedidoRequest(
             mesaId = mesaId,
             items = items.map { item ->
                 ItemPedidoRequest(
@@ -52,11 +98,15 @@ class RealPedidoRepository(
                     }
                 )
             },
-            clientRequestId = clientRequestId
+            clientRequestId = clientRequestId,
+            tipoPedido = tipoPedido.name,
+            clienteNombre = clienteNombre
         )
+    }
 
-        return try {
-            Resultado.Exito(api.crearPedido(clientRequestId, request).aDominio())
+    private suspend fun enviar(request: CrearPedidoRequest): Resultado<PedidoEnviado> =
+        try {
+            Resultado.Exito(api.crearPedido(request.clientRequestId, request).aDominio())
         } catch (e: HttpException) {
             // En el POST de pedidos un 409 significa que la mesa ya fue tomada
             // por otro mesero (no es el 409 de "cuenta ya pagada" del cobro).
@@ -72,7 +122,6 @@ class RealPedidoRepository(
         } catch (e: Exception) {
             Resultado.Fallo(ErrorApp.DESCONOCIDO)
         }
-    }
 
     override suspend fun obtenerPedidoDeMesa(mesaId: Long): Resultado<PedidoExistente> {
         if (mesaId <= 0L) return Resultado.Fallo(ErrorApp.VALIDACION)
