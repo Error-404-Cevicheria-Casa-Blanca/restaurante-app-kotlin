@@ -431,5 +431,31 @@
     <string name="cd_nav_salon">Ir a Salón</string>
     <string name="cd_nav_pedidos">Ir a Pedidos</string>
     <string name="cd_nav_perfil">Ir a Perfil</string>
-    <string name="nav_placeholder_detalle">Contenido disponible en la siguiente fase.</string>
+
+    <!-- Pedidos activos (PRB-88, Fase 6) -->
+    <string name="pedidos_titulo">Pedidos</string>
+    <string name="pedidos_filtro_todos">Todos</string>
+    <string name="pedidos_filtro_mesa">Mesa</string>
+    <string name="pedidos_filtro_para_llevar">Para Llevar</string>
+    <string name="pedidos_numero">Pedido #%1$d</string>
+    <string name="pedidos_origen_mesa">Mesa %1$d</string>
+    <string name="pedidos_origen_mesa_sin_numero">Mesa</string>
+    <string name="pedidos_origen_para_llevar">Para Llevar: %1$s</string>
+    <string name="pedidos_origen_para_llevar_sin_cliente">Para Llevar</string>
+    <string name="pedidos_origen_delivery">Delivery: %1$s</string>
+    <string name="pedidos_origen_delivery_sin_cliente">Delivery</string>
+    <string name="pedidos_estado_pendiente">Pendiente</string>
+    <string name="pedidos_estado_en_preparacion">En preparación</string>
+    <string name="pedidos_estado_listo">Listo</string>
+    <string name="pedidos_estado_servido">Servido</string>
+    <string name="pedidos_estado_desconocido">Estado desconocido</string>
+    <string name="pedidos_total">Total: %1$s</string>
+    <string name="pedidos_cobrar">Cobrar</string>
+    <string name="cd_cobrar_pedido">Cobrar pedido #%1$d</string>
+    <string name="pedidos_vacio">No hay pedidos activos</string>
+    <string name="pedidos_vacio_ayuda">Los pedidos nuevos aparecerán aquí.</string>
+    <string name="pedidos_error">No se pudieron cargar los pedidos</string>
+    <string name="pedidos_actualizados">Pedidos actualizados</string>
+    <string name="cd_actualizar_pedidos">Actualizar la lista de pedidos</string>
+    <string name="pedidos_actualizar">Actualizar</string>
 </resources>

@@ -1,6 +1,8 @@
 package com.lacasablanca.mesero.data.remote.dto
 
 import com.google.gson.annotations.SerializedName
+import com.lacasablanca.mesero.domain.model.OrigenPedido
+import com.lacasablanca.mesero.domain.model.PedidoActivo
 import com.lacasablanca.mesero.domain.model.PedidoEnviado
 import java.math.BigDecimal
 
@@ -73,3 +75,31 @@ fun PedidoResponseDto.aDominio(): PedidoEnviado = PedidoEnviado(
     igv = igv ?: BigDecimal.ZERO,
     total = total ?: BigDecimal.ZERO
 )
+
+/**
+ * PRB-88: mapea el pedido consolidado de `GET /api/v1/pedidos` al dominio de
+ * la lista de Pedidos. Un pedido sin id no se puede cobrar y se descarta.
+ *
+ * El origen se decide por `mesa_id` y `tipo_pedido`; si el backend omite
+ * `tipo_pedido` pero `para_llevar = true`, se asume PARA_LLEVAR. Nunca se
+ * inventa una mesa para un pedido sin `mesa_id`.
+ */
+fun PedidoResponseDto.aPedidoActivo(): PedidoActivo? {
+    val pedidoId = id?.takeIf { it > 0L } ?: return null
+    val origen = when {
+        mesaId != null -> OrigenPedido.MESA
+        tipoPedido.equals("DELIVERY", ignoreCase = true) -> OrigenPedido.DELIVERY
+        tipoPedido.equals("PARA_LLEVAR", ignoreCase = true) ||
+            paraLlevar == true -> OrigenPedido.PARA_LLEVAR
+
+        else -> OrigenPedido.PARA_LLEVAR
+    }
+    return PedidoActivo(
+        id = pedidoId,
+        mesaId = mesaId,
+        tipoPedido = origen,
+        clienteNombre = clienteNombre?.trim()?.takeIf { it.isNotEmpty() },
+        estado = estado.orEmpty(),
+        total = total ?: BigDecimal.ZERO
+    )
+}

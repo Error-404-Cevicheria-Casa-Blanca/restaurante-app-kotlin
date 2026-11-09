@@ -424,6 +424,25 @@
         <item name="android:ellipsize">end</item>
     </style>
 
+    <!-- Chips de filtro de la pantalla Pedidos (PRB-88, Fase 6) -->
+    <style name="Chip.FiltroPedido" parent="Widget.Material3.Chip.Filter">
+        <item name="android:checkable">true</item>
+        <item name="android:clickable">true</item>
+        <item name="android:textColor">@color/selector_texto_chip_categoria</item>
+        <item name="chipBackgroundColor">@color/selector_fondo_chip_categoria</item>
+        <item name="checkedIconVisible">false</item>
+        <item name="chipMinHeight">@dimen/toque_minimo</item>
+        <item name="ensureMinTouchTargetSize">true</item>
+        <item name="android:autoSizeTextType">uniform</item>
+        <item name="android:autoSizeMinTextSize">11sp</item>
+        <item name="android:autoSizeMaxTextSize">14sp</item>
+        <item name="android:autoSizeStepGranularity">1sp</item>
+        <item name="android:hyphenationFrequency">none</item>
+        <item name="android:breakStrategy">simple</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:ellipsize">end</item>
+    </style>
+
     <!-- Campos del formulario de cobro (PRB-56) -->
     <style name="Campo.Cobro" parent="Widget.Material3.TextInputLayout.OutlinedBox">
         <item name="boxCornerRadiusTopStart">@dimen/radio_boton</item>

@@ -7,6 +7,8 @@ import com.lacasablanca.mesero.domain.model.EstadoPlato
 import com.lacasablanca.mesero.domain.model.ItemCarrito
 import com.lacasablanca.mesero.domain.model.ItemPedido
 import com.lacasablanca.mesero.domain.model.Modificador
+import com.lacasablanca.mesero.domain.model.OrigenPedido
+import com.lacasablanca.mesero.domain.model.PedidoActivo
 import com.lacasablanca.mesero.domain.model.PedidoEnviado
 import com.lacasablanca.mesero.domain.model.PedidoExistente
 import kotlinx.coroutines.delay
@@ -31,6 +33,13 @@ class FakePedidoRepository(
      * se conserva si se vuelve a consultar la mesa.
      */
     private var pedidoActual: PedidoExistente = PEDIDO_DE_MESA_FAKE
+
+    /**
+     * DATOS FAKE (no reales): pedidos para la pantalla Pedidos. El pedido 105
+     * esta COBRADO para probar que el ViewModel descarta estados no activos.
+     */
+    private val pedidosActivos: MutableList<PedidoActivo> =
+        PEDIDOS_ACTIVOS_FAKE.toMutableList()
 
     override suspend fun enviarPedido(
         mesaId: Long,
@@ -125,15 +134,83 @@ class FakePedidoRepository(
         return Resultado.Exito(Unit)
     }
 
+    /**
+     * DATOS FAKE (no reales): listado de pedidos. Devuelve todos los del
+     * store; el ViewModel filtra los estados activos.
+     */
+    override suspend fun listarPedidosActivos(): Resultado<List<PedidoActivo>> {
+        delay(latenciaMs)
+        return Resultado.Exito(pedidosActivos.toList())
+    }
+
+    /**
+     * DATOS FAKE (no reales): marca el pedido como COBRADO para que la lista
+     * lo descarte al volver de CobroFragment. Lo usa FakeCobroRepository.
+     */
+    fun marcarCobrado(pedidoId: Long) {
+        val indice = pedidosActivos.indexOfFirst { it.id == pedidoId }
+        if (indice >= 0) {
+            pedidosActivos[indice] = pedidosActivos[indice].copy(estado = ESTADO_COBRADO)
+        }
+    }
+
     companion object {
         const val LATENCIA_SIMULADA_MS = 400L
         const val ESTADO_PENDIENTE = "PENDIENTE"
+        const val ESTADO_COBRADO = "COBRADO"
 
         /** Id del detalle fake del ceviche: se puede anular correctamente. */
         const val ITEM_CEVICHE_FAKE = 501L
 
         /** Id del detalle fake que simula un plato ya servido (responde 409). */
         const val ITEM_YA_SERVIDO_FAKE = 502L
+
+        /**
+         * DATOS FAKE (no reales): 2 pedidos de mesa, 1 para llevar, 1 delivery
+         * y 1 cobrado (este ultimo lo descarta PedidosViewModel).
+         */
+        val PEDIDOS_ACTIVOS_FAKE: List<PedidoActivo> = listOf(
+            PedidoActivo(
+                id = 101L,
+                mesaId = 3L,
+                tipoPedido = OrigenPedido.MESA,
+                clienteNombre = null,
+                estado = "PENDIENTE",
+                total = BigDecimal("84.00")
+            ),
+            PedidoActivo(
+                id = 102L,
+                mesaId = 5L,
+                tipoPedido = OrigenPedido.MESA,
+                clienteNombre = null,
+                estado = "LISTO",
+                total = BigDecimal("96.00")
+            ),
+            PedidoActivo(
+                id = 103L,
+                mesaId = null,
+                tipoPedido = OrigenPedido.PARA_LLEVAR,
+                clienteNombre = "Carlos Mendoza",
+                estado = "PENDIENTE",
+                total = BigDecimal("60.00")
+            ),
+            PedidoActivo(
+                id = 104L,
+                mesaId = null,
+                tipoPedido = OrigenPedido.DELIVERY,
+                clienteNombre = "Lucía Torres",
+                estado = "EN_PREPARACION",
+                total = BigDecimal("75.00")
+            ),
+            PedidoActivo(
+                id = 105L,
+                mesaId = null,
+                tipoPedido = OrigenPedido.DELIVERY,
+                clienteNombre = "Pedido antiguo",
+                estado = ESTADO_COBRADO,
+                total = BigDecimal("50.00")
+            )
+        )
 
         /**
          * Pedido ficticio de 2 lineas (2 ceviches + 1 chicha) = S/ 111.00.

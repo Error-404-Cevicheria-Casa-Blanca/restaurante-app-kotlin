@@ -6,10 +6,12 @@ import com.lacasablanca.mesero.data.remote.dto.CrearPedidoRequest
 import com.lacasablanca.mesero.data.remote.dto.ItemPedidoRequest
 import com.lacasablanca.mesero.data.remote.dto.ModificadorRequest
 import com.lacasablanca.mesero.data.remote.dto.aDominio
+import com.lacasablanca.mesero.data.remote.dto.aPedidoActivo
 import com.lacasablanca.mesero.domain.ErrorApp
 import com.lacasablanca.mesero.domain.Resultado
 import com.lacasablanca.mesero.domain.errorDesdeCodigoHttp
 import com.lacasablanca.mesero.domain.model.ItemPedido
+import com.lacasablanca.mesero.domain.model.PedidoActivo
 import com.lacasablanca.mesero.domain.model.PedidoEnviado
 import com.lacasablanca.mesero.domain.model.PedidoExistente
 import com.lacasablanca.mesero.domain.model.TipoPedido
@@ -137,6 +139,22 @@ class RealPedidoRepository(
             } else {
                 Resultado.Fallo(errorDesdeCodigoHttp(e.code()))
             }
+        } catch (e: IOException) {
+            Resultado.Fallo(ErrorApp.RED)
+        } catch (e: Exception) {
+            Resultado.Fallo(ErrorApp.DESCONOCIDO)
+        }
+    }
+
+    /**
+     * PRB-88: listado de pedidos. El ViewModel filtra los estados activos.
+     * Un pedido sin id valido se descarta en el mapeo.
+     */
+    override suspend fun listarPedidosActivos(): Resultado<List<PedidoActivo>> {
+        return try {
+            Resultado.Exito(api.listarPedidos().mapNotNull { it.aPedidoActivo() })
+        } catch (e: HttpException) {
+            Resultado.Fallo(errorDesdeCodigoHttp(e.code()))
         } catch (e: IOException) {
             Resultado.Fallo(ErrorApp.RED)
         } catch (e: Exception) {

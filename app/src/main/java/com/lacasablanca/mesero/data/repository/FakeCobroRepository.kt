@@ -23,7 +23,8 @@ import java.math.RoundingMode
 class FakeCobroRepository(
     private val mesaRepository: MesaRepository? = null,
     private val consumoStore: FakeConsumoStore? = null,
-    private val latenciaMs: Long = LATENCIA_SIMULADA_MS
+    private val latenciaMs: Long = LATENCIA_SIMULADA_MS,
+    private val pedidoRepository: FakePedidoRepository? = null
 ) : CobroRepository {
 
     override suspend fun obtenerCuenta(mesaId: Long): Resultado<CuentaResponse> {
@@ -113,6 +114,9 @@ class FakeCobroRepository(
             .filter { it.metodo == MetodoPago.EFECTIVO.valorApi }
             .fold(BigDecimal.ZERO) { acumulado, pago -> acumulado.add(pago.monto) }
         val vuelto = efectivo.subtract(esperado).max(BigDecimal.ZERO)
+
+        // Fase 6: el pedido cobrado desaparece de la lista de Pedidos.
+        pedidoRepository?.marcarCobrado(pedidoId)
 
         return Resultado.Exito(
             CobroResponse(
