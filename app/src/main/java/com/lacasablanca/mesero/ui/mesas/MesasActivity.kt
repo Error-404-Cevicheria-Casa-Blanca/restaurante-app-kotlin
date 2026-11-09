@@ -3,6 +3,8 @@ package com.lacasablanca.mesero.ui.mesas
 import android.content.Intent
 import android.content.res.ColorStateList
 import android.os.Bundle
+import android.view.ViewGroup
+import android.view.WindowManager
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.annotation.DrawableRes
@@ -26,6 +28,7 @@ import com.lacasablanca.mesero.databinding.ActivityMesasBinding
 import com.lacasablanca.mesero.databinding.DialogAvisoMesaBinding
 import com.lacasablanca.mesero.databinding.DialogLiberarMesaBinding
 import com.lacasablanca.mesero.databinding.DialogMesaAtendidaBinding
+import com.lacasablanca.mesero.databinding.DialogParaLlevarBinding
 import com.lacasablanca.mesero.databinding.ItemLeyendaBinding
 import com.lacasablanca.mesero.domain.model.EstadoMesa
 import com.lacasablanca.mesero.domain.model.Mesa
@@ -76,6 +79,16 @@ class MesasActivity : AppCompatActivity() {
     ) { resultado ->
         if (resultado.resultCode != RESULT_OK) return@registerForActivityResult
         val datos = resultado.data
+        // PRB-94: pedido para llevar enviado. Ninguna mesa cambio de estado;
+        // solo se muestra el aviso de exito y se sincroniza el mapa.
+        val pedidoParaLlevar = datos
+            ?.getLongExtra(ComandaActivity.EXTRA_PEDIDO_PARA_LLEVAR_ID, 0L)
+            ?: 0L
+        if (pedidoParaLlevar > 0L) {
+            mostrarSnackbar(getString(R.string.para_llevar_pedido_enviado, pedidoParaLlevar))
+            viewModel.recargarAlVolver()
+            return@registerForActivityResult
+        }
         if (datos?.getBooleanExtra(ComandaActivity.EXTRA_LIBERAR_PENDIENTE, false) == true) {
             val id = datos.getLongExtra(ComandaActivity.EXTRA_MESA_ID, -1L)
             if (id > 0L) {
@@ -115,6 +128,7 @@ class MesasActivity : AppCompatActivity() {
         binding.barra.btnBloquear.setOnClickListener { abrirBloqueo() }
         binding.barra.btnCerrarSesion.setOnClickListener { viewModel.cerrarSesion() }
         binding.btnReintentar.setOnClickListener { viewModel.cargar() }
+        binding.fabParaLlevar.setOnClickListener { mostrarDialogoParaLlevar() }
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -571,6 +585,60 @@ class MesasActivity : AppCompatActivity() {
             putExtra(ComandaActivity.EXTRA_MESA_NUMERO, mesa.numero)
             putExtra(ComandaActivity.EXTRA_MESA_UBICACION, mesa.ubicacion)
             putExtra(ComandaActivity.EXTRA_MODO_LECTURA, modoLectura)
+        }
+        lanzadorComanda.launch(intent)
+    }
+
+    /**
+     * PRB-94: dialogo premium para identificar el pedido para llevar. El
+     * nombre viaja a [ComandaActivity], que reutiliza catalogo, carrito,
+     * modificadores y notas sin asociarse a ninguna mesa.
+     */
+    private fun mostrarDialogoParaLlevar() {
+        dialogoAbierto?.dismiss()
+        dialogoAbierto = null
+
+        val contenido = DialogParaLlevarBinding.inflate(layoutInflater)
+        val dialogo = MaterialAlertDialogBuilder(
+            this,
+            R.style.ThemeOverlay_LaCasaBlanca_Dialogo_LiberarMesa
+        )
+            .setView(contenido.root)
+            .setCancelable(true)
+            .create()
+
+        contenido.btnCancelarParaLlevar.setOnClickListener { dialogo.dismiss() }
+        contenido.btnContinuarParaLlevar.setOnClickListener {
+            val nombre = contenido.textoNombreCliente.text?.toString().orEmpty().trim()
+            if (nombre.isEmpty()) {
+                contenido.campoNombreCliente.error = getString(R.string.para_llevar_campo_error)
+                return@setOnClickListener
+            }
+            contenido.campoNombreCliente.error = null
+            dialogo.dismiss()
+            abrirComandaParaLlevar(nombre)
+        }
+
+        dialogo.setCanceledOnTouchOutside(true)
+        dialogo.setOnDismissListener { if (dialogoAbierto === dialogo) dialogoAbierto = null }
+        dialogo.show()
+
+        // Ancho premium tambien en tablet y teclado listo para escribir.
+        val anchoPantalla = (resources.displayMetrics.widthPixels * 0.92f).toInt()
+        val anchoMaximo = (480 * resources.displayMetrics.density).toInt()
+        dialogo.window?.setLayout(
+            minOf(anchoPantalla, anchoMaximo),
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        )
+        dialogo.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE)
+        contenido.textoNombreCliente.requestFocus()
+        dialogoAbierto = dialogo
+    }
+
+    private fun abrirComandaParaLlevar(nombre: String) {
+        val intent = Intent(this, ComandaActivity::class.java).apply {
+            putExtra(ComandaActivity.EXTRA_PARA_LLEVAR, true)
+            putExtra(ComandaActivity.EXTRA_CLIENTE_NOMBRE, nombre)
         }
         lanzadorComanda.launch(intent)
     }

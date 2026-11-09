@@ -86,4 +86,7 @@
     <dimen name="alto_drag_handle">4dp</dimen>
     <dimen name="ancho_cantidad_stepper">32dp</dimen>
     <dimen name="circulo_vacio_carrito">88dp</dimen>
+
+    <!-- Mapa de mesas: espacio para que el FAB "Para Llevar" no tape tarjetas -->
+    <dimen name="espacio_fab_mesas">88dp</dimen>
 </resources>

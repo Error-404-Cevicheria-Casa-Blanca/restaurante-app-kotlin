@@ -156,6 +156,7 @@
             android:layout_height="match_parent"
             android:clipToPadding="false"
             android:padding="@dimen/espacio_s"
+            android:paddingBottom="@dimen/espacio_fab_mesas"
             tools:itemCount="4"
             tools:listitem="@layout/item_mesa" />
 
@@ -241,5 +242,29 @@
                 android:paddingHorizontal="@dimen/espacio_xl"
                 android:text="@string/accion_reintentar" />
         </LinearLayout>
+
+        <!-- PRB-94: entrada directa al flujo de pedido para llevar -->
+        <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+            android:id="@+id/fabParaLlevar"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/alto_boton_primario"
+            android:layout_gravity="bottom|end"
+            android:layout_margin="@dimen/espacio_l"
+            android:autoSizeMaxTextSize="16sp"
+            android:autoSizeMinTextSize="11sp"
+            android:autoSizeStepGranularity="1sp"
+            android:autoSizeTextType="uniform"
+            android:breakStrategy="simple"
+            android:contentDescription="@string/cd_para_llevar"
+            android:hyphenationFrequency="none"
+            android:maxLines="1"
+            android:text="@string/para_llevar_accion"
+            android:textColor="@color/on_primary"
+            android:textSize="@dimen/texto_cuerpo"
+            android:textStyle="bold"
+            app:backgroundTint="@color/primary"
+            app:icon="@drawable/ic_para_llevar"
+            app:iconPadding="@dimen/espacio_s"
+            app:iconTint="@color/on_primary" />
     </FrameLayout>
 </LinearLayout>
