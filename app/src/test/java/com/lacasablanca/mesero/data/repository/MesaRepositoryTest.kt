@@ -2,9 +2,17 @@ package com.lacasablanca.mesero.data.repository
 
 import com.lacasablanca.mesero.data.remote.MesasApi
 import com.lacasablanca.mesero.data.remote.dto.CambioEstadoDto
+import com.lacasablanca.mesero.data.remote.dto.CuentaResponse
+import com.lacasablanca.mesero.data.remote.dto.DividirMesaRequest
+import com.lacasablanca.mesero.data.remote.dto.DivisionMesaResponseDto
+import com.lacasablanca.mesero.data.remote.dto.FusionarMesasRequest
 import com.lacasablanca.mesero.data.remote.dto.MesaDto
+import com.lacasablanca.mesero.data.remote.dto.PedidoResponseDto
+import com.lacasablanca.mesero.data.remote.dto.TransferirMesaRequest
 import com.lacasablanca.mesero.domain.ErrorApp
 import com.lacasablanca.mesero.domain.Resultado
+import com.lacasablanca.mesero.domain.model.CuentaMesa
+import com.lacasablanca.mesero.domain.model.DivisionMesa
 import com.lacasablanca.mesero.domain.model.EstadoMesa
 import com.lacasablanca.mesero.domain.model.Mesa
 import io.mockk.coEvery
@@ -20,6 +28,7 @@ import org.junit.Test
 import retrofit2.HttpException
 import retrofit2.Response
 import java.io.IOException
+import java.math.BigDecimal
 
 /** Mapeo DTO -> dominio y traduccion de errores HTTP del repositorio de mesas. */
 class MesaRepositoryTest {
@@ -123,6 +132,83 @@ class MesaRepositoryTest {
 
         val despues = (repositorio.listarMesas() as Resultado.Exito).datos.first { it.id == libre.id }
         assertEquals(EstadoMesa.ATENDIDA, despues.estado)
+    }
+
+    @Test
+    fun `dividir envia item_ids y mesa destino y mapea la respuesta`() = runTest {
+        coEvery {
+            api.dividirMesa(3L, DividirMesaRequest(listOf(501L, 502L), 8L))
+        } returns DivisionMesaResponseDto(
+            mesaOrigenId = 3L,
+            mesaDestinoId = 8L,
+            pedidoOrigen = PedidoResponseDto(id = 100L),
+            pedidoNuevo = PedidoResponseDto(id = 200L),
+            totalCombinado = BigDecimal("120.50")
+        )
+
+        when (val resultado = repositorio.dividirMesa(3L, listOf(501L, 502L), 8L)) {
+            is Resultado.Exito -> assertEquals(
+                DivisionMesa(3L, 8L, 100L, 200L, BigDecimal("120.50")),
+                resultado.datos
+            )
+
+            is Resultado.Fallo -> fail("Se esperaba exito y llego ${resultado.error}")
+        }
+
+        coVerify(exactly = 1) {
+            api.dividirMesa(3L, DividirMesaRequest(listOf(501L, 502L), 8L))
+        }
+    }
+
+    @Test
+    fun `dividir sin item_ids no llama a la api`() = runTest {
+        val resultado = repositorio.dividirMesa(3L, emptyList(), 8L)
+
+        assertEquals(ErrorApp.VALIDACION, (resultado as Resultado.Fallo).error)
+        coVerify(exactly = 0) { api.dividirMesa(any(), any()) }
+    }
+
+    @Test
+    fun `fusionar usa la mesa destino como ruta y la origen en el cuerpo`() = runTest {
+        coEvery {
+            api.fusionarMesa(8L, FusionarMesasRequest(mesaOrigenId = 3L))
+        } returns CuentaResponse(mesaId = 8L, total = BigDecimal("96.00"))
+
+        when (val resultado = repositorio.fusionarMesas(8L, 3L)) {
+            is Resultado.Exito -> assertEquals(
+                CuentaMesa(mesaId = 8L, total = BigDecimal("96.00")),
+                resultado.datos
+            )
+
+            is Resultado.Fallo -> fail("Se esperaba exito y llego ${resultado.error}")
+        }
+
+        coVerify(exactly = 1) { api.fusionarMesa(8L, FusionarMesasRequest(3L)) }
+    }
+
+    @Test
+    fun `transferir envia la mesa destino y mapea la cuenta`() = runTest {
+        coEvery {
+            api.transferirMesa(3L, TransferirMesaRequest(mesaDestinoId = 8L))
+        } returns CuentaResponse(mesaId = 8L, total = BigDecimal("48.00"))
+
+        when (val resultado = repositorio.transferirMesa(3L, 8L)) {
+            is Resultado.Exito -> assertEquals(
+                CuentaMesa(mesaId = 8L, total = BigDecimal("48.00")),
+                resultado.datos
+            )
+
+            is Resultado.Fallo -> fail("Se esperaba exito y llego ${resultado.error}")
+        }
+    }
+
+    @Test
+    fun `un 409 en transferir se traduce a conflicto`() = runTest {
+        coEvery { api.transferirMesa(any(), any()) } throws errorHttp(409)
+
+        val resultado = repositorio.transferirMesa(3L, 9L)
+
+        assertEquals(ErrorApp.CONFLICTO, (resultado as Resultado.Fallo).error)
     }
 
     private fun errorHttp(codigo: Int): HttpException {

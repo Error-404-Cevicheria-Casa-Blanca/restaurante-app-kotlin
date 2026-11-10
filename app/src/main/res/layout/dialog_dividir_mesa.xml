@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Paso 1 de la division (PRB-93): elegir los platos ya enviados que pasan a
+    la cuenta nueva. El backend exige item_ids, por eso no basta con elegir la
+    mesa destino.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_horizontal"
+    android:orientation="vertical"
+    android:paddingHorizontal="@dimen/espacio_xl"
+    android:paddingTop="@dimen/espacio_xl"
+    android:paddingBottom="@dimen/espacio_l">
+
+    <ImageView
+        android:id="@+id/iconoDividir"
+        android:layout_width="@dimen/icono_xl"
+        android:layout_height="@dimen/icono_xl"
+        android:contentDescription="@string/accion_dialogo_icono_cd"
+        android:src="@drawable/ic_call_split"
+        app:tint="@color/primary" />
+
+    <TextView
+        android:id="@+id/tituloDividir"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/espacio_m"
+        android:autoSizeMaxTextSize="20sp"
+        android:autoSizeMinTextSize="14sp"
+        android:autoSizeStepGranularity="1sp"
+        android:autoSizeTextType="uniform"
+        android:breakStrategy="simple"
+        android:gravity="center"
+        android:hyphenationFrequency="none"
+        android:maxLines="2"
+        android:textColor="@color/primary"
+        android:textSize="@dimen/texto_titulo_tarjeta"
+        android:textStyle="bold"
+        tools:text="Dividir cuenta · Mesa 7" />
+
+    <TextView
+        android:id="@+id/mensajeDividir"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/espacio_s"
+        android:autoSizeMaxTextSize="15sp"
+        android:autoSizeMinTextSize="11sp"
+        android:autoSizeStepGranularity="1sp"
+        android:autoSizeTextType="uniform"
+        android:breakStrategy="simple"
+        android:gravity="center"
+        android:hyphenationFrequency="none"
+        android:lineSpacingExtra="2dp"
+        android:maxLines="3"
+        android:text="@string/division_mensaje"
+        android:textColor="@color/texto_principal"
+        android:textSize="@dimen/texto_cuerpo" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/listaItemsDividir"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/alto_lista_destinos"
+        android:layout_marginTop="@dimen/espacio_m"
+        android:clipToPadding="false"
+        android:overScrollMode="never"
+        android:scrollbars="vertical"
+        tools:listitem="@layout/item_division_linea" />
+
+    <TextView
+        android:id="@+id/errorDividir"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/espacio_s"
+        android:autoSizeMaxTextSize="13sp"
+        android:autoSizeMinTextSize="10sp"
+        android:autoSizeStepGranularity="1sp"
+        android:autoSizeTextType="uniform"
+        android:breakStrategy="simple"
+        android:gravity="center"
+        android:hyphenationFrequency="none"
+        android:maxLines="2"
+        android:text="@string/division_seleccion_requerida"
+        android:textColor="@color/error"
+        android:textSize="@dimen/texto_etiqueta"
+        android:visibility="gone"
+        tools:visibility="visible" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/espacio_l"
+        android:baselineAligned="false"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnCancelarDividir"
+            style="@style/Boton.Outlined"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/toque_minimo"
+            android:layout_weight="1"
+            android:autoSizeMaxTextSize="16sp"
+            android:autoSizeMinTextSize="11sp"
+            android:autoSizeStepGranularity="1sp"
+            android:autoSizeTextType="uniform"
+            android:breakStrategy="simple"
+            android:hyphenationFrequency="none"
+            android:maxLines="1"
+            android:text="@string/destino_cancelar" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnContinuarDividir"
+            style="@style/Boton.DialogoLiberar"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/toque_minimo"
+            android:layout_marginStart="@dimen/espacio_s"
+            android:layout_weight="1"
+            android:autoSizeMaxTextSize="16sp"
+            android:autoSizeMinTextSize="11sp"
+            android:autoSizeStepGranularity="1sp"
+            android:autoSizeTextType="uniform"
+            android:breakStrategy="simple"
+            android:hyphenationFrequency="none"
+            android:maxLines="1"
+            android:text="@string/division_continuar" />
+    </LinearLayout>
+</LinearLayout>

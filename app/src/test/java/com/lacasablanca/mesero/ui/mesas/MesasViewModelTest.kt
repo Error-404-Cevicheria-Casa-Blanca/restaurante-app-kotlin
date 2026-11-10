@@ -1,11 +1,17 @@
 package com.lacasablanca.mesero.ui.mesas
 
 import com.lacasablanca.mesero.data.repository.AuthRepository
+import com.lacasablanca.mesero.data.repository.FakeCatalogoRepository
 import com.lacasablanca.mesero.data.repository.FakeMesaRepository
 import com.lacasablanca.mesero.data.repository.MesaRepository
+import com.lacasablanca.mesero.data.repository.PedidoRepository
 import com.lacasablanca.mesero.domain.ErrorApp
 import com.lacasablanca.mesero.domain.Resultado
+import com.lacasablanca.mesero.domain.model.CuentaMesa
+import com.lacasablanca.mesero.domain.model.DivisionMesa
 import com.lacasablanca.mesero.domain.model.EstadoMesa
+import com.lacasablanca.mesero.domain.model.ItemCarrito
+import com.lacasablanca.mesero.domain.model.PedidoExistente
 import com.lacasablanca.mesero.domain.model.Sesion
 import com.lacasablanca.mesero.domain.model.Usuario
 import io.mockk.coEvery
@@ -13,11 +19,13 @@ import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
@@ -25,9 +33,11 @@ import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
+import java.math.BigDecimal
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class MesasViewModelTest {
@@ -36,6 +46,7 @@ class MesasViewModelTest {
 
     private val mesaRepository = mockk<MesaRepository>()
     private val authRepository = mockk<AuthRepository>(relaxed = true)
+    private val pedidoRepository = mockk<PedidoRepository>()
 
     private val mesas = FakeMesaRepository.MESAS_FAKE
 
@@ -54,12 +65,17 @@ class MesasViewModelTest {
      * ciclo de `startPolling()` (PRB-42). En estos tests, que no arrancan el
      * bucle, se dispara esa primera lectura de forma explicita.
      */
-    private fun crearViewModel(): MesasViewModel {
+    private fun crearViewModel(conPedidos: Boolean = false): MesasViewModel {
         coEvery { authRepository.sesionGuardada() } returns Sesion(
             token = "token-prueba",
             usuario = Usuario(id = 1, nombre = "Mozo Prueba", rol = "MOZO")
         )
-        val viewModel = MesasViewModel(mesaRepository, authRepository, testDispatcher)
+        val viewModel = MesasViewModel(
+            mesaRepository = mesaRepository,
+            authRepository = authRepository,
+            ioDispatcher = testDispatcher,
+            pedidoRepository = pedidoRepository.takeIf { conPedidos }
+        )
         viewModel.cargar()
         return viewModel
     }
@@ -390,4 +406,315 @@ class MesasViewModelTest {
         assertFalse(viewModel.estado.value.cargando)
         coVerify(exactly = 0) { mesaRepository.listarMesas() }
     }
+
+    // ---------------------------------------------------------------------
+    // PRB-93: dividir, fusionar y transferir.
+    // ---------------------------------------------------------------------
+
+    @Test
+    fun `dividir una mesa exitosamente avisa y refresca el mapa`() = runTest(testDispatcher) {
+        val origen = mesas.first { it.estado == EstadoMesa.OCUPADA }
+        val destino = mesas.first { it.estaLibre }
+        val division = DivisionMesa(
+            mesaOrigenId = origen.id,
+            mesaDestinoId = destino.id,
+            pedidoOrigenId = 100L,
+            pedidoNuevoId = 200L,
+            totalCombinado = BigDecimal("96.00")
+        )
+        coEvery { mesaRepository.listarMesas() } returnsMany listOf(
+            Resultado.Exito(mesas),
+            Resultado.Exito(
+                mesas.map { if (it.id == destino.id) it.copy(estado = EstadoMesa.OCUPADA) else it }
+            )
+        )
+        coEvery {
+            mesaRepository.dividirMesa(origen.id, listOf(501L, 502L), destino.id)
+        } returns Resultado.Exito(division)
+
+        val viewModel = crearViewModel()
+        val eventos = escucharEventos(viewModel)
+        advanceUntilIdle()
+
+        viewModel.dividirMesa(origen, listOf(501L, 502L), destino)
+        advanceUntilIdle()
+
+        val completada = eventos.filterIsInstance<MesasEvento.AccionMesaCompletada>().single()
+        assertEquals(AccionMesa.DIVIDIR, completada.accion)
+        assertEquals(origen.id, completada.mesaOrigen.id)
+        assertEquals(destino.id, completada.mesaDestino?.id)
+        assertEquals(2, completada.platos)
+        assertEquals(BigDecimal("96.00"), completada.total)
+        assertEquals(
+            EstadoMesa.OCUPADA,
+            viewModel.estado.value.mesas.first { it.id == destino.id }.estado
+        )
+        assertNull(viewModel.estado.value.accionEnCurso)
+        coVerify(exactly = 2) { mesaRepository.listarMesas() }
+    }
+
+    @Test
+    fun `fusionar mesas exitosamente libera la origen y refresca`() = runTest(testDispatcher) {
+        val origen = mesas.first { it.estado == EstadoMesa.OCUPADA }
+        val destino = mesas.first { it.estado == EstadoMesa.OCUPADA && it.id != origen.id }
+        coEvery { mesaRepository.listarMesas() } returnsMany listOf(
+            Resultado.Exito(mesas),
+            Resultado.Exito(
+                mesas.map { if (it.id == origen.id) it.copy(estado = EstadoMesa.LIBRE) else it }
+            )
+        )
+        coEvery {
+            mesaRepository.fusionarMesas(destino.id, origen.id)
+        } returns Resultado.Exito(CuentaMesa(destino.id, BigDecimal("84.00")))
+
+        val viewModel = crearViewModel()
+        val eventos = escucharEventos(viewModel)
+        advanceUntilIdle()
+
+        viewModel.fusionarMesas(mesaDestino = destino, mesaOrigen = origen)
+        advanceUntilIdle()
+
+        val completada = eventos.filterIsInstance<MesasEvento.AccionMesaCompletada>().single()
+        assertEquals(AccionMesa.FUSIONAR, completada.accion)
+        assertEquals(BigDecimal("84.00"), completada.total)
+        assertEquals(
+            EstadoMesa.LIBRE,
+            viewModel.estado.value.mesas.first { it.id == origen.id }.estado
+        )
+        coVerify(exactly = 2) { mesaRepository.listarMesas() }
+    }
+
+    @Test
+    fun `transferir una mesa exitosamente avisa y refresca`() = runTest(testDispatcher) {
+        val origen = mesas.first { it.estado == EstadoMesa.OCUPADA }
+        val destino = mesas.first { it.estaLibre }
+        coEvery { mesaRepository.listarMesas() } returnsMany listOf(
+            Resultado.Exito(mesas),
+            Resultado.Exito(
+                mesas.map {
+                    when (it.id) {
+                        origen.id -> it.copy(estado = EstadoMesa.LIBRE)
+                        destino.id -> it.copy(estado = EstadoMesa.OCUPADA)
+                        else -> it
+                    }
+                }
+            )
+        )
+        coEvery {
+            mesaRepository.transferirMesa(origen.id, destino.id)
+        } returns Resultado.Exito(CuentaMesa(destino.id, BigDecimal("48.00")))
+
+        val viewModel = crearViewModel()
+        val eventos = escucharEventos(viewModel)
+        advanceUntilIdle()
+
+        viewModel.transferirMesa(mesaOrigen = origen, mesaDestino = destino)
+        advanceUntilIdle()
+
+        val completada = eventos.filterIsInstance<MesasEvento.AccionMesaCompletada>().single()
+        assertEquals(AccionMesa.TRANSFERIR, completada.accion)
+        assertEquals(
+            EstadoMesa.OCUPADA,
+            viewModel.estado.value.mesas.first { it.id == destino.id }.estado
+        )
+        assertEquals(
+            EstadoMesa.LIBRE,
+            viewModel.estado.value.mesas.first { it.id == origen.id }.estado
+        )
+        coVerify(exactly = 2) { mesaRepository.listarMesas() }
+    }
+
+    @Test
+    fun `un 409 al dividir avisa conflicto y refresca el mapa`() = runTest(testDispatcher) {
+        val origen = mesas.first { it.estado == EstadoMesa.OCUPADA }
+        val destino = mesas.first { it.estaLibre }
+        coEvery { mesaRepository.listarMesas() } returns Resultado.Exito(mesas)
+        coEvery {
+            mesaRepository.dividirMesa(any(), any(), any())
+        } returns Resultado.Fallo(ErrorApp.CONFLICTO)
+
+        val viewModel = crearViewModel()
+        val eventos = escucharEventos(viewModel)
+        advanceUntilIdle()
+
+        viewModel.dividirMesa(origen, listOf(501L), destino)
+        advanceUntilIdle()
+
+        assertTrue(
+            eventos.any { it is MesasEvento.Aviso && it.tipo == AvisoMesas.CONFLICTO_ACCION }
+        )
+        assertTrue(eventos.none { it is MesasEvento.AccionMesaCompletada })
+        assertNull(viewModel.estado.value.accionEnCurso)
+        coVerify(exactly = 2) { mesaRepository.listarMesas() }
+    }
+
+    @Test
+    fun `un error de red al transferir avisa sin refrescar`() = runTest(testDispatcher) {
+        val origen = mesas.first { it.estado == EstadoMesa.OCUPADA }
+        val destino = mesas.first { it.estaLibre }
+        coEvery { mesaRepository.listarMesas() } returns Resultado.Exito(mesas)
+        coEvery {
+            mesaRepository.transferirMesa(origen.id, destino.id)
+        } returns Resultado.Fallo(ErrorApp.RED)
+
+        val viewModel = crearViewModel()
+        val eventos = escucharEventos(viewModel)
+        advanceUntilIdle()
+
+        viewModel.transferirMesa(origen, destino)
+        advanceUntilIdle()
+
+        assertTrue(eventos.any { it is MesasEvento.Aviso && it.tipo == AvisoMesas.ERROR_RED })
+        assertNull(viewModel.estado.value.accionEnCurso)
+        coVerify(exactly = 1) { mesaRepository.listarMesas() }
+    }
+
+    @Test
+    fun `una sesion expirada al dividir cierra la sesion`() = runTest(testDispatcher) {
+        val origen = mesas.first { it.estado == EstadoMesa.OCUPADA }
+        val destino = mesas.first { it.estaLibre }
+        coEvery { mesaRepository.listarMesas() } returns Resultado.Exito(mesas)
+        coEvery {
+            mesaRepository.dividirMesa(any(), any(), any())
+        } returns Resultado.Fallo(ErrorApp.SESION_EXPIRADA)
+
+        val viewModel = crearViewModel()
+        val eventos = escucharEventos(viewModel)
+        advanceUntilIdle()
+
+        viewModel.dividirMesa(origen, listOf(501L), destino)
+        advanceUntilIdle()
+
+        assertTrue(eventos.any { it is MesasEvento.SesionExpirada })
+        coVerify(exactly = 1) { authRepository.cerrarSesion() }
+    }
+
+    @Test
+    fun `preparar division entrega solo lineas con item_id y destinos validos`() =
+        runTest(testDispatcher) {
+            val origen = mesas.first { it.estado == EstadoMesa.OCUPADA }
+            val producto = FakeCatalogoRepository.PRODUCTOS_FAKE.first()
+            coEvery { mesaRepository.listarMesas() } returns Resultado.Exito(mesas)
+            coEvery { pedidoRepository.obtenerPedidoDeMesa(origen.id) } returns
+                Resultado.Exito(
+                    PedidoExistente(
+                        lineas = listOf(
+                            ItemCarrito(producto = producto, cantidad = 2, itemId = 501L),
+                            ItemCarrito(producto = producto, cantidad = 1, itemId = null)
+                        )
+                    )
+                )
+
+            val viewModel = crearViewModel(conPedidos = true)
+            val eventos = escucharEventos(viewModel)
+            advanceUntilIdle()
+
+            viewModel.prepararDivision(origen)
+            advanceUntilIdle()
+
+            val evento = eventos.filterIsInstance<MesasEvento.MostrarDivision>().single()
+            assertEquals(1, evento.lineas.size)
+            assertEquals(501L, evento.lineas.single().itemId)
+            assertTrue(evento.destinos.any { it.id == origen.id })
+            assertTrue(
+                evento.destinos
+                    .filter { it.id != origen.id }
+                    .none {
+                        it.estado == EstadoMesa.OCUPADA ||
+                            it.estado == EstadoMesa.CUENTA_SOLICITADA
+                    }
+            )
+        }
+
+    @Test
+    fun `preparar division sin platos avisa y no abre el dialogo`() = runTest(testDispatcher) {
+        val origen = mesas.first { it.estado == EstadoMesa.OCUPADA }
+        coEvery { mesaRepository.listarMesas() } returns Resultado.Exito(mesas)
+        coEvery { pedidoRepository.obtenerPedidoDeMesa(origen.id) } returns
+            Resultado.Exito(PedidoExistente.VACIO)
+
+        val viewModel = crearViewModel(conPedidos = true)
+        val eventos = escucharEventos(viewModel)
+        advanceUntilIdle()
+
+        viewModel.prepararDivision(origen)
+        advanceUntilIdle()
+
+        assertTrue(
+            eventos.any { it is MesasEvento.Aviso && it.tipo == AvisoMesas.SIN_PLATOS_DIVIDIR }
+        )
+        assertTrue(eventos.none { it is MesasEvento.MostrarDivision })
+    }
+
+    @Test
+    fun `preparar fusion solo ofrece mesas ocupadas o atendidas`() = runTest(testDispatcher) {
+        val origen = mesas.first { it.estado == EstadoMesa.OCUPADA }
+        coEvery { mesaRepository.listarMesas() } returns Resultado.Exito(mesas)
+
+        val viewModel = crearViewModel()
+        val eventos = escucharEventos(viewModel)
+        advanceUntilIdle()
+
+        viewModel.prepararFusion(origen)
+        advanceUntilIdle()
+
+        val evento = eventos.filterIsInstance<MesasEvento.MostrarDestino>().single()
+        assertEquals(AccionMesa.FUSIONAR, evento.accion)
+        assertEquals(4, evento.destinos.size)
+        assertTrue(
+            evento.destinos.all {
+                it.id != origen.id &&
+                    (it.estado == EstadoMesa.OCUPADA || it.estado == EstadoMesa.ATENDIDA)
+            }
+        )
+    }
+
+    @Test
+    fun `preparar transferencia solo ofrece mesas libres o atendidas`() =
+        runTest(testDispatcher) {
+            val origen = mesas.first { it.estado == EstadoMesa.OCUPADA }
+            coEvery { mesaRepository.listarMesas() } returns Resultado.Exito(mesas)
+
+            val viewModel = crearViewModel()
+            val eventos = escucharEventos(viewModel)
+            advanceUntilIdle()
+
+            viewModel.prepararTransferencia(origen)
+            advanceUntilIdle()
+
+            val evento = eventos.filterIsInstance<MesasEvento.MostrarDestino>().single()
+            assertEquals(AccionMesa.TRANSFERIR, evento.accion)
+            assertEquals(8, evento.destinos.size)
+            assertTrue(
+                evento.destinos.all {
+                    it.id != origen.id &&
+                        (it.estado == EstadoMesa.LIBRE || it.estado == EstadoMesa.ATENDIDA)
+                }
+            )
+        }
+
+    @Test
+    fun `una segunda accion se ignora mientras la primera esta en curso`() =
+        runTest(testDispatcher) {
+            val origen = mesas.first { it.estado == EstadoMesa.OCUPADA }
+            val destino = mesas.first { it.estaLibre }
+            coEvery { mesaRepository.listarMesas() } returns Resultado.Exito(mesas)
+            coEvery { mesaRepository.transferirMesa(origen.id, destino.id) } coAnswers {
+                delay(1_000L)
+                Resultado.Exito(CuentaMesa(destino.id, BigDecimal.ZERO))
+            }
+
+            val viewModel = crearViewModel()
+            escucharEventos(viewModel)
+            advanceUntilIdle()
+
+            viewModel.transferirMesa(origen, destino)
+            advanceTimeBy(10L)
+            assertEquals(AccionMesa.TRANSFERIR, viewModel.estado.value.accionEnCurso)
+
+            viewModel.transferirMesa(origen, destino)
+            advanceUntilIdle()
+
+            coVerify(exactly = 1) { mesaRepository.transferirMesa(origen.id, destino.id) }
+        }
 }

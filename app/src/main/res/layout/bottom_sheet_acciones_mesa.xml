@@ -1,0 +1,291 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Menu premium de acciones de mesa (PRB-93): dividir, fusionar y transferir.
+    Fondo blanco con esquinas superiores de 24dp, iconos en circulo de marca
+    y filas de 64dp para cumplir el objetivo tactil.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_bottom_sheet"
+    android:orientation="vertical"
+    android:paddingBottom="@dimen/espacio_l">
+
+    <View
+        android:layout_width="@dimen/ancho_drag_handle"
+        android:layout_height="@dimen/alto_drag_handle"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="@dimen/espacio_s"
+        android:background="@drawable/bg_drag_handle"
+        android:importantForAccessibility="no" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="@dimen/espacio_l"
+        android:paddingTop="@dimen/espacio_l">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/espacio_s"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/textoAccionesTitulo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:autoSizeMaxTextSize="22sp"
+                android:autoSizeMinTextSize="16sp"
+                android:autoSizeStepGranularity="1sp"
+                android:autoSizeTextType="uniform"
+                android:breakStrategy="simple"
+                android:hyphenationFrequency="none"
+                android:maxLines="2"
+                android:textColor="@color/stitch_primary"
+                android:textSize="@dimen/texto_titulo_tarjeta"
+                android:textStyle="bold"
+                tools:text="Acciones de Mesa 7" />
+
+            <TextView
+                android:id="@+id/textoAccionesSubtitulo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/espacio_xs"
+                android:autoSizeMaxTextSize="14sp"
+                android:autoSizeMinTextSize="11sp"
+                android:autoSizeStepGranularity="1sp"
+                android:autoSizeTextType="uniform"
+                android:breakStrategy="simple"
+                android:hyphenationFrequency="none"
+                android:maxLines="2"
+                android:text="@string/acciones_mesa_subtitulo"
+                android:textColor="@color/on_surface_variant"
+                android:textSize="@dimen/texto_secundario" />
+        </LinearLayout>
+
+        <ImageButton
+            android:id="@+id/btnCerrarAcciones"
+            android:layout_width="@dimen/toque_minimo"
+            android:layout_height="@dimen/toque_minimo"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/acciones_mesa_cerrar"
+            android:padding="@dimen/espacio_m"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_close"
+            app:tint="@color/on_surface_variant" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/borde_tarjeta"
+        android:layout_marginHorizontal="@dimen/espacio_l"
+        android:layout_marginTop="@dimen/espacio_s"
+        android:background="@color/surface_variant" />
+
+    <LinearLayout
+        android:id="@+id/accionDividir"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true"
+        android:gravity="center_vertical"
+        android:minHeight="@dimen/alto_fila_accion"
+        android:orientation="horizontal"
+        android:paddingHorizontal="@dimen/espacio_l"
+        android:paddingVertical="@dimen/espacio_s">
+
+        <ImageView
+            android:layout_width="@dimen/logo_barra"
+            android:layout_height="@dimen/logo_barra"
+            android:background="@drawable/bg_circulo_marca"
+            android:importantForAccessibility="no"
+            android:padding="@dimen/espacio_s"
+            android:src="@drawable/ic_call_split"
+            app:tint="@color/primary" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/espacio_m"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:autoSizeMaxTextSize="16sp"
+                android:autoSizeMinTextSize="12sp"
+                android:autoSizeStepGranularity="1sp"
+                android:autoSizeTextType="uniform"
+                android:breakStrategy="simple"
+                android:hyphenationFrequency="none"
+                android:maxLines="1"
+                android:text="@string/accion_dividir_titulo"
+                android:textColor="@color/texto_principal"
+                android:textSize="@dimen/texto_cuerpo"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:autoSizeMaxTextSize="13sp"
+                android:autoSizeMinTextSize="10sp"
+                android:autoSizeStepGranularity="1sp"
+                android:autoSizeTextType="uniform"
+                android:breakStrategy="simple"
+                android:hyphenationFrequency="none"
+                android:maxLines="2"
+                android:text="@string/accion_dividir_descripcion"
+                android:textColor="@color/on_surface_variant"
+                android:textSize="@dimen/texto_etiqueta" />
+        </LinearLayout>
+
+        <ImageView
+            android:layout_width="@dimen/icono_grande"
+            android:layout_height="@dimen/icono_grande"
+            android:importantForAccessibility="no"
+            android:src="@drawable/ic_arrow_forward"
+            app:tint="@color/outline" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/accionFusionar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true"
+        android:gravity="center_vertical"
+        android:minHeight="@dimen/alto_fila_accion"
+        android:orientation="horizontal"
+        android:paddingHorizontal="@dimen/espacio_l"
+        android:paddingVertical="@dimen/espacio_s">
+
+        <ImageView
+            android:layout_width="@dimen/logo_barra"
+            android:layout_height="@dimen/logo_barra"
+            android:background="@drawable/bg_circulo_marca"
+            android:importantForAccessibility="no"
+            android:padding="@dimen/espacio_s"
+            android:src="@drawable/ic_call_merge"
+            app:tint="@color/primary" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/espacio_m"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:autoSizeMaxTextSize="16sp"
+                android:autoSizeMinTextSize="12sp"
+                android:autoSizeStepGranularity="1sp"
+                android:autoSizeTextType="uniform"
+                android:breakStrategy="simple"
+                android:hyphenationFrequency="none"
+                android:maxLines="1"
+                android:text="@string/accion_fusionar_titulo"
+                android:textColor="@color/texto_principal"
+                android:textSize="@dimen/texto_cuerpo"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:autoSizeMaxTextSize="13sp"
+                android:autoSizeMinTextSize="10sp"
+                android:autoSizeStepGranularity="1sp"
+                android:autoSizeTextType="uniform"
+                android:breakStrategy="simple"
+                android:hyphenationFrequency="none"
+                android:maxLines="2"
+                android:text="@string/accion_fusionar_descripcion"
+                android:textColor="@color/on_surface_variant"
+                android:textSize="@dimen/texto_etiqueta" />
+        </LinearLayout>
+
+        <ImageView
+            android:layout_width="@dimen/icono_grande"
+            android:layout_height="@dimen/icono_grande"
+            android:importantForAccessibility="no"
+            android:src="@drawable/ic_arrow_forward"
+            app:tint="@color/outline" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/accionTransferir"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true"
+        android:gravity="center_vertical"
+        android:minHeight="@dimen/alto_fila_accion"
+        android:orientation="horizontal"
+        android:paddingHorizontal="@dimen/espacio_l"
+        android:paddingVertical="@dimen/espacio_s">
+
+        <ImageView
+            android:layout_width="@dimen/logo_barra"
+            android:layout_height="@dimen/logo_barra"
+            android:background="@drawable/bg_circulo_marca"
+            android:importantForAccessibility="no"
+            android:padding="@dimen/espacio_s"
+            android:src="@drawable/ic_swap_horiz"
+            app:tint="@color/primary" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/espacio_m"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:autoSizeMaxTextSize="16sp"
+                android:autoSizeMinTextSize="12sp"
+                android:autoSizeStepGranularity="1sp"
+                android:autoSizeTextType="uniform"
+                android:breakStrategy="simple"
+                android:hyphenationFrequency="none"
+                android:maxLines="1"
+                android:text="@string/accion_transferir_titulo"
+                android:textColor="@color/texto_principal"
+                android:textSize="@dimen/texto_cuerpo"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:autoSizeMaxTextSize="13sp"
+                android:autoSizeMinTextSize="10sp"
+                android:autoSizeStepGranularity="1sp"
+                android:autoSizeTextType="uniform"
+                android:breakStrategy="simple"
+                android:hyphenationFrequency="none"
+                android:maxLines="2"
+                android:text="@string/accion_transferir_descripcion"
+                android:textColor="@color/on_surface_variant"
+                android:textSize="@dimen/texto_etiqueta" />
+        </LinearLayout>
+
+        <ImageView
+            android:layout_width="@dimen/icono_grande"
+            android:layout_height="@dimen/icono_grande"
+            android:importantForAccessibility="no"
+            android:src="@drawable/ic_arrow_forward"
+            app:tint="@color/outline" />
+    </LinearLayout>
+</LinearLayout>
