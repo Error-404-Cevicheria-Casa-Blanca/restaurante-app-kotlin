@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- PRB-94: el backend no define longitud; se limita para que el nombre
+         quepa en la cabecera de la comanda sin truncarse. -->
+    <integer name="max_caracteres_nombre_cliente">60</integer>
     <!-- Columnas de la cuadricula de mesas: telefono 2, tablet 4 (values-sw600dp) -->
     <integer name="columnas_mesas">2</integer>
 </resources>

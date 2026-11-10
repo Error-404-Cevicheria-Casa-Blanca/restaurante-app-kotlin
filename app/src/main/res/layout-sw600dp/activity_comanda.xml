@@ -110,6 +110,7 @@
                 app:iconPadding="@dimen/espacio_s" />
 
             <LinearLayout
+                android:id="@+id/grupoImpresion"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/espacio_s"

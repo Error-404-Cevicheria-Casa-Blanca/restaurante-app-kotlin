@@ -39,14 +39,43 @@ class FakePedidoRepository(
     ): Resultado<PedidoEnviado> {
         delay(latenciaMs)
 
-        if (mesaId <= 0L || items.isEmpty() || clientRequestId.isBlank()) {
-            return Resultado.Fallo(ErrorApp.VALIDACION)
-        }
-        if (items.any { it.cantidad < 1 }) {
-            return Resultado.Fallo(ErrorApp.VALIDACION)
-        }
+        if (mesaId <= 0L) return Resultado.Fallo(ErrorApp.VALIDACION)
+        val pedido = registrar(items, clientRequestId, mesaId)
+            ?: return Resultado.Fallo(ErrorApp.VALIDACION)
+        return Resultado.Exito(pedido)
+    }
 
-        respuestasPorClave[clientRequestId]?.let { return Resultado.Exito(it) }
+    /**
+     * DATOS FAKE (no reales). Simula un pedido para llevar (PRB-94): no hay
+     * mesa que registrar, asi que el total no se acumula en el consumo del
+     * salon. La idempotencia funciona igual que en [enviarPedido].
+     */
+    override suspend fun enviarPedidoParaLlevar(
+        items: List<ItemPedido>,
+        clientRequestId: String,
+        clienteNombre: String
+    ): Resultado<PedidoEnviado> {
+        delay(latenciaMs)
+
+        if (clienteNombre.isBlank()) return Resultado.Fallo(ErrorApp.VALIDACION)
+        val pedido = registrar(items, clientRequestId, mesaId = null)
+            ?: return Resultado.Fallo(ErrorApp.VALIDACION)
+        return Resultado.Exito(pedido)
+    }
+
+    /**
+     * Valida, aplica idempotencia y calcula el pedido. Devuelve null cuando
+     * faltan datos que el backend rechazaria.
+     */
+    private fun registrar(
+        items: List<ItemPedido>,
+        clientRequestId: String,
+        mesaId: Long?
+    ): PedidoEnviado? {
+        if (items.isEmpty() || clientRequestId.isBlank()) return null
+        if (items.any { it.cantidad < 1 }) return null
+
+        respuestasPorClave[clientRequestId]?.let { return it }
 
         // Misma regla que PedidoService: el recargo de modificadores se suma
         // al precio unitario antes de multiplicar por la cantidad.
@@ -56,8 +85,9 @@ class FakePedidoRepository(
             acumulado + precioUnitario.multiply(BigDecimal.valueOf(item.cantidad.toLong()))
         }
         val desglose = CalculoIgv.desglosar(totalBruto)
-        consumoStore?.registrar(mesaId, desglose.total)
-
+        // Solo un pedido nuevo de mesa suma al consumo del salon; el para
+        // llevar no tiene mesa y un reintento idempotente no vuelve a sumar.
+        if (mesaId != null) consumoStore?.registrar(mesaId, desglose.total)
         val pedido = PedidoEnviado(
             id = siguienteId++,
             estado = ESTADO_PENDIENTE,
@@ -66,7 +96,7 @@ class FakePedidoRepository(
             total = desglose.total
         )
         respuestasPorClave[clientRequestId] = pedido
-        return Resultado.Exito(pedido)
+        return pedido
     }
 
     /**

@@ -7,6 +7,7 @@ import com.lacasablanca.mesero.data.remote.dto.PagoRequest
 import com.lacasablanca.mesero.domain.ErrorApp
 import com.lacasablanca.mesero.domain.Resultado
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
 import okhttp3.MediaType.Companion.toMediaType
@@ -65,5 +66,20 @@ class CobroRepositoryTest {
         val resultado = repositorio.obtenerCuenta(7L)
 
         assertEquals(ErrorApp.CONFLICTO, (resultado as Resultado.Fallo).error)
+    }
+
+    // ---------------------------------------------------------------------
+    // PRB-94: un pedido para llevar no tiene mesa que liberar
+    // ---------------------------------------------------------------------
+
+    @Test
+    fun `un cobro sin mesa no intenta liberar ninguna mesa`() = runTest {
+        val mesas = mockk<MesaRepository>()
+        val fake = FakeCobroRepository(mesas, latenciaMs = 0)
+
+        val resultado = fake.cobrar(0L, request())
+
+        assertEquals(ErrorApp.VALIDACION, (resultado as Resultado.Fallo).error)
+        coVerify(exactly = 0) { mesas.cambiarEstado(any(), any()) }
     }
 }
