@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.lacasablanca.mesero.data.repository.AuthRepository
 import com.lacasablanca.mesero.data.repository.MesaRepository
+import com.lacasablanca.mesero.data.repository.PedidoRepository
 import com.lacasablanca.mesero.domain.ErrorApp
 import com.lacasablanca.mesero.domain.Resultado
 import com.lacasablanca.mesero.domain.model.EstadoMesa
@@ -24,6 +25,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import java.math.BigDecimal
 
 /**
  * Estado del mapa de mesas: carga, filtros por zona/estado, contadores,
@@ -33,7 +35,13 @@ import kotlinx.coroutines.launch
 class MesasViewModel(
     private val mesaRepository: MesaRepository,
     private val authRepository: AuthRepository,
-    private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
+    private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
+    /**
+     * PRB-93: fuente de las lineas ya enviadas para el dialogo de division.
+     * Es opcional para no romper construcciones antiguas; la app real siempre
+     * lo inyecta desde AppContainer.
+     */
+    private val pedidoRepository: PedidoRepository? = null
 ) : ViewModel() {
 
     private val _estado = MutableStateFlow(MesasUiState())
@@ -205,6 +213,212 @@ class MesasViewModel(
         }
     }
 
+    /** PRB-93: abre el menu premium de acciones de la mesa. */
+    fun abrirAcciones(mesa: Mesa) {
+        _eventos.trySend(MesasEvento.MostrarAcciones(mesa))
+    }
+
+    /**
+     * PRB-93: carga las lineas ya enviadas para el dialogo de division.
+     * Solo se pueden mover lineas con `itemId`: el backend exige los ids del
+     * detalle y no acepta inventarlos.
+     */
+    fun prepararDivision(mesa: Mesa) {
+        val repositorio = pedidoRepository
+        if (repositorio == null) {
+            _eventos.trySend(MesasEvento.Aviso(AvisoMesas.SIN_PLATOS_DIVIDIR, mesa))
+            return
+        }
+        viewModelScope.launch(ioDispatcher) {
+            when (val resultado = repositorio.obtenerPedidoDeMesa(mesa.id)) {
+                is Resultado.Exito -> {
+                    val lineas = resultado.datos.lineas.filter { (it.itemId ?: 0L) > 0L }
+                    if (lineas.isEmpty()) {
+                        _eventos.send(MesasEvento.Aviso(AvisoMesas.SIN_PLATOS_DIVIDIR, mesa))
+                    } else {
+                        _eventos.send(
+                            MesasEvento.MostrarDivision(
+                                mesa = mesa,
+                                lineas = lineas,
+                                destinos = destinosParaDivision(mesa)
+                            )
+                        )
+                    }
+                }
+
+                is Resultado.Fallo -> manejarFalloPreparacion(resultado.error, mesa)
+            }
+        }
+    }
+
+    /** PRB-93: candidatas para unir a [mesa] (que actua como destino). */
+    fun prepararFusion(mesa: Mesa) {
+        val destinos = destinosParaFusion(mesa)
+        if (destinos.isEmpty()) {
+            _eventos.trySend(MesasEvento.Aviso(AvisoMesas.SIN_DESTINOS, mesa))
+        } else {
+            _eventos.trySend(MesasEvento.MostrarDestino(AccionMesa.FUSIONAR, mesa, destinos))
+        }
+    }
+
+    /** PRB-93: candidatas que pueden recibir el pedido de [mesa]. */
+    fun prepararTransferencia(mesa: Mesa) {
+        val destinos = destinosParaTransferencia(mesa)
+        if (destinos.isEmpty()) {
+            _eventos.trySend(MesasEvento.Aviso(AvisoMesas.SIN_DESTINOS, mesa))
+        } else {
+            _eventos.trySend(MesasEvento.MostrarDestino(AccionMesa.TRANSFERIR, mesa, destinos))
+        }
+    }
+
+    /** PRB-93: separa [itemIds] de [mesaOrigen] hacia [mesaDestino]. */
+    fun dividirMesa(mesaOrigen: Mesa, itemIds: List<Long>, mesaDestino: Mesa) {
+        if (itemIds.isEmpty()) return
+        ejecutarAccion(
+            accion = AccionMesa.DIVIDIR,
+            mesa = mesaOrigen,
+            operacion = { mesaRepository.dividirMesa(mesaOrigen.id, itemIds, mesaDestino.id) }
+        ) { division ->
+            notificarExito(
+                accion = AccionMesa.DIVIDIR,
+                origen = mesaOrigen,
+                destino = mesaDestino,
+                total = division.totalCombinado,
+                platos = itemIds.size
+            )
+        }
+    }
+
+    /** PRB-93: une los pedidos de [mesaOrigen] en [mesaDestino]. */
+    fun fusionarMesas(mesaDestino: Mesa, mesaOrigen: Mesa) {
+        ejecutarAccion(
+            accion = AccionMesa.FUSIONAR,
+            mesa = mesaOrigen,
+            operacion = { mesaRepository.fusionarMesas(mesaDestino.id, mesaOrigen.id) }
+        ) { cuenta ->
+            notificarExito(
+                accion = AccionMesa.FUSIONAR,
+                origen = mesaOrigen,
+                destino = mesaDestino,
+                total = cuenta.total,
+                platos = null
+            )
+        }
+    }
+
+    /** PRB-93: mueve los pedidos de [mesaOrigen] a [mesaDestino]. */
+    fun transferirMesa(mesaOrigen: Mesa, mesaDestino: Mesa) {
+        ejecutarAccion(
+            accion = AccionMesa.TRANSFERIR,
+            mesa = mesaOrigen,
+            operacion = { mesaRepository.transferirMesa(mesaOrigen.id, mesaDestino.id) }
+        ) { cuenta ->
+            notificarExito(
+                accion = AccionMesa.TRANSFERIR,
+                origen = mesaOrigen,
+                destino = mesaDestino,
+                total = cuenta.total,
+                platos = null
+            )
+        }
+    }
+
+    /**
+     * Ejecuta una operacion de salon con un unico vuelo a la vez. El estado
+     * [MesasUiState.accionEnCurso] evita que un doble toque cree dos cuentas.
+     */
+    private fun <T> ejecutarAccion(
+        accion: AccionMesa,
+        mesa: Mesa,
+        operacion: suspend () -> Resultado<T>,
+        alExito: suspend (T) -> Unit
+    ) {
+        if (_estado.value.accionEnCurso != null) return
+        _estado.update { it.copy(accionEnCurso = accion) }
+        viewModelScope.launch(ioDispatcher) {
+            when (val resultado = operacion()) {
+                is Resultado.Exito -> alExito(resultado.datos)
+                is Resultado.Fallo -> manejarFalloAccion(resultado.error, mesa)
+            }
+        }
+    }
+
+    /** Exito: avisa el resultado y recarga el mapa (PRB-93, criterio 3). */
+    private suspend fun notificarExito(
+        accion: AccionMesa,
+        origen: Mesa,
+        destino: Mesa,
+        total: BigDecimal?,
+        platos: Int?
+    ) {
+        _estado.update { it.copy(accionEnCurso = null) }
+        _eventos.send(
+            MesasEvento.AccionMesaCompletada(
+                accion = accion,
+                mesaOrigen = origen,
+                mesaDestino = destino,
+                total = total,
+                platos = platos
+            )
+        )
+        // Refresco silencioso: el mapa ya no muestra el dialogo y la grilla no
+        // debe parpadear. El polling sigue funcionando por su cuenta.
+        cargarMesas(mostrarAviso = false, mostrarCargando = false, silencioso = true)
+    }
+
+    private suspend fun manejarFalloAccion(error: ErrorApp, mesa: Mesa) {
+        _estado.update { it.copy(accionEnCurso = null) }
+        when (error) {
+            ErrorApp.SESION_EXPIRADA -> manejarSesionExpirada()
+            ErrorApp.CONFLICTO -> {
+                // Un 409 en estas operaciones significa que alguna mesa cambio
+                // de estado. Se avisa y se refresca para que el mapa refleje la
+                // realidad antes de reintentar.
+                _eventos.send(MesasEvento.Aviso(AvisoMesas.CONFLICTO_ACCION, mesa))
+                cargarMesas(mostrarCargando = false, silencioso = true)
+            }
+
+            ErrorApp.RED -> _eventos.send(MesasEvento.Aviso(AvisoMesas.ERROR_RED, mesa))
+            else -> _eventos.send(MesasEvento.Aviso(AvisoMesas.ERROR_ACCION, mesa))
+        }
+    }
+
+    private suspend fun manejarFalloPreparacion(error: ErrorApp, mesa: Mesa) {
+        when (error) {
+            ErrorApp.SESION_EXPIRADA -> manejarSesionExpirada()
+            ErrorApp.RED -> _eventos.send(MesasEvento.Aviso(AvisoMesas.ERROR_RED, mesa))
+            else -> _eventos.send(MesasEvento.Aviso(AvisoMesas.ERROR_ACCION, mesa))
+        }
+    }
+
+    /** Destinos de division: mesa libre/atendida o la misma mesa (cuenta aparte). */
+    private fun destinosParaDivision(origen: Mesa): List<Mesa> =
+        _estado.value.mesas
+            .filter {
+                it.id == origen.id ||
+                    it.estado == EstadoMesa.LIBRE ||
+                    it.estado == EstadoMesa.ATENDIDA
+            }
+            .sortedBy { it.numero }
+
+    /** Destinos de fusion: otra mesa con pedido activo (no libre ni cuenta). */
+    private fun destinosParaFusion(origen: Mesa): List<Mesa> =
+        _estado.value.mesas
+            .filter {
+                it.id != origen.id &&
+                    (it.estado == EstadoMesa.OCUPADA || it.estado == EstadoMesa.ATENDIDA)
+            }
+            .sortedBy { it.numero }
+
+    /** Destinos de transferencia: mesa libre o atendida que pueda recibir. */
+    private fun destinosParaTransferencia(origen: Mesa): List<Mesa> =
+        _estado.value.mesas
+            .filter {
+                it.id != origen.id &&
+                    (it.estado == EstadoMesa.LIBRE || it.estado == EstadoMesa.ATENDIDA)
+            }
+            .sortedBy { it.numero }
+
     fun cerrarSesion() {
         viewModelScope.launch(ioDispatcher) {
             authRepository.cerrarSesion()
@@ -275,7 +489,7 @@ class MesasViewModel(
 
     private suspend fun manejarSesionExpirada() {
         authRepository.cerrarSesion()
-        _estado.update { it.copy(cargando = false, mesaAbriendo = null) }
+        _estado.update { it.copy(cargando = false, mesaAbriendo = null, accionEnCurso = null) }
         _eventos.send(MesasEvento.SesionExpirada)
     }
 

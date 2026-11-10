@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Plato seleccionable para dividir la cuenta (PRB-93). El check es solo
+    indicador; la fila completa cambia la seleccion para un objetivo tactil
+    comodo en tablet.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="?attr/selectableItemBackground"
+    android:clickable="true"
+    android:focusable="true"
+    android:gravity="center_vertical"
+    android:minHeight="@dimen/alto_fila_accion"
+    android:orientation="horizontal"
+    android:paddingHorizontal="@dimen/espacio_s"
+    android:paddingVertical="@dimen/espacio_xs">
+
+    <com.google.android.material.checkbox.MaterialCheckBox
+        android:id="@+id/checkPlatoDivision"
+        android:layout_width="@dimen/toque_minimo"
+        android:layout_height="@dimen/toque_minimo"
+        android:clickable="false"
+        android:focusable="false"
+        android:importantForAccessibility="no" />
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/espacio_xs"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/textoPlatoDivision"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:autoSizeMaxTextSize="16sp"
+            android:autoSizeMinTextSize="11sp"
+            android:autoSizeStepGranularity="1sp"
+            android:autoSizeTextType="uniform"
+            android:breakStrategy="simple"
+            android:hyphenationFrequency="none"
+            android:maxLines="2"
+            android:textColor="@color/texto_principal"
+            android:textSize="@dimen/texto_cuerpo"
+            android:textStyle="bold"
+            tools:text="Ceviche Clásico" />
+
+        <TextView
+            android:id="@+id/textoCantidadDivision"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:breakStrategy="simple"
+            android:hyphenationFrequency="none"
+            android:maxLines="1"
+            android:textColor="@color/on_surface_variant"
+            android:textSize="@dimen/texto_etiqueta"
+            tools:text="x2" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/textoSubtotalDivision"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/espacio_s"
+        android:autoSizeMaxTextSize="15sp"
+        android:autoSizeMinTextSize="11sp"
+        android:autoSizeStepGranularity="1sp"
+        android:autoSizeTextType="uniform"
+        android:breakStrategy="simple"
+        android:hyphenationFrequency="none"
+        android:maxLines="1"
+        android:textColor="@color/stitch_primary"
+        android:textSize="@dimen/texto_secundario"
+        android:textStyle="bold"
+        tools:text="S/ 96.00" />
+</LinearLayout>

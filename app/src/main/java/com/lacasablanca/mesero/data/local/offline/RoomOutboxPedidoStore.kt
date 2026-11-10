@@ -15,7 +15,11 @@ class RoomOutboxPedidoStore(
             dao.insertar(
                 PedidoPendienteEntity(
                     clientRequestId = request.clientRequestId,
-                    mesaId = request.mesaId,
+                    // PRB-94: un pedido para llevar no tiene mesa. La columna
+                    // historica es NOT NULL, asi que se guarda 0 como "sin
+                    // mesa"; el payload conserva el contrato real (mesa_id
+                    // ausente y tipo_pedido = PARA_LLEVAR).
+                    mesaId = request.mesaId ?: SIN_MESA,
                     payload = gson.toJson(request),
                     creadoEn = reloj()
                 )
@@ -34,5 +38,10 @@ class RoomOutboxPedidoStore(
 
     override suspend fun registrarFallo(id: Long, error: String?) {
         dao.registrarFallo(id, error)
+    }
+
+    private companion object {
+        /** Valor historico para pedidos sin mesa (PRB-94). */
+        const val SIN_MESA = 0L
     }
 }

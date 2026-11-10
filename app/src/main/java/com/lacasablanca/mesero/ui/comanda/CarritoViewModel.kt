@@ -7,8 +7,11 @@ import com.lacasablanca.mesero.data.repository.PedidoRepository
 import com.lacasablanca.mesero.domain.ErrorApp
 import com.lacasablanca.mesero.domain.Resultado
 import com.lacasablanca.mesero.domain.model.Categoria
+import com.lacasablanca.mesero.domain.model.DestinoPedido
 import com.lacasablanca.mesero.domain.model.ItemCarrito
 import com.lacasablanca.mesero.domain.model.ItemPedido
+import com.lacasablanca.mesero.domain.model.Modificador
+import com.lacasablanca.mesero.domain.model.PedidoEnviado
 import com.lacasablanca.mesero.domain.model.Producto
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -22,6 +25,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import java.math.BigDecimal
 import java.util.UUID
 import java.util.concurrent.atomic.AtomicLong
 
@@ -40,10 +44,23 @@ import java.util.concurrent.atomic.AtomicLong
 class CarritoViewModel(
     private val catalogoRepository: CatalogoRepository,
     private val pedidoRepository: PedidoRepository,
-    private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
+    private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
+    /**
+     * PRB-94: destino de la comanda. Por defecto [DestinoPedido.Mesa] con id 0
+     * para conservar la firma historica de los tests; [ComandaFragment] lo
+     * configura con la mesa elegida o con el nombre del cliente para llevar.
+     */
+    destino: DestinoPedido = DestinoPedido.Mesa(0L)
 ) : ViewModel() {
 
-    private val _estado = MutableStateFlow(CarritoUiState())
+    /**
+     * Destino vigente. El ViewModel vive en el scope de MainActivity (PRB-88),
+     * asi que la primera comanda crea la instancia con su destino y las
+     * siguientes llaman a [configurarDestino] para no mezclar mesas/clientes.
+     */
+    private var destinoActual: DestinoPedido = destino
+
+    private val _estado = MutableStateFlow(CarritoUiState(destino = destino))
     val estado: StateFlow<CarritoUiState> = _estado.asStateFlow()
 
     private val _eventos = Channel<CarritoEvento>(Channel.BUFFERED)
@@ -82,6 +99,42 @@ class CarritoViewModel(
 
     init {
         cargar()
+    }
+
+    /**
+     * PRB-88: fija el destino de la comanda que se esta mostrando. Si cambia
+     * (otra mesa u otro cliente para llevar), descarta el carrito anterior para
+     * no mezclar lineas; si es el mismo, conserva el carrito al cambiar de tab.
+     */
+    fun configurarDestino(nuevo: DestinoPedido) {
+        if (nuevo == destinoActual) return
+        destinoActual = nuevo
+        limpiarCarrito()
+        _estado.update { it.copy(destino = nuevo) }
+    }
+
+    /**
+     * PRB-88: deja el carrito limpio al cerrar la comanda (envio, liberacion o
+     * salida). Conserva el catalogo para que la proxima comanda abra rapido.
+     */
+    fun limpiarCarrito() {
+        claveIdempotencia = null
+        versionPedidoExistente.incrementAndGet()
+        detenerBuclePolling()
+        _estado.update {
+            it.copy(
+                items = emptyList(),
+                itemsExistentes = emptyList(),
+                modoLectura = false,
+                pedidoExistenteId = 0L,
+                pedidoExistenteCargado = false,
+                errorPedidoExistente = null,
+                enviando = false,
+                anulandoItemId = null,
+                categoriaSeleccionada = null,
+                filas = calcularFilas(it.productos, it.categorias, null)
+            )
+        }
     }
 
     /** Carga (o recarga) categorias y productos. No duplica peticiones en vuelo. */
@@ -263,18 +316,39 @@ class CarritoViewModel(
         }
     }
 
-    /** Agrega un plato; si ya existe, suma una unidad. Ignora platos no disponibles. */
+    /** Agrega un plato sin modificadores; si ya existe, suma una unidad. */
     fun agregarProducto(producto: Producto) {
+        agregarProducto(producto, emptyList())
+    }
+
+    /**
+     * PRB-92: agrega un plato con los modificadores elegidos en el dialogo.
+     *
+     * La linea se identifica por (producto, modificadores): agregar el mismo
+     * plato con otra combinacion crea una linea nueva para no mezclar
+     * preferencias. Los precios se toman SIEMPRE del catalogo ([Producto]) y
+     * no de lo que entregue la UI; asi un modificador inventado o con un
+     * precio manipulado no llega al pedido. El recargo lo vuelve a calcular el
+     * backend con su propia carta.
+     */
+    fun agregarProducto(producto: Producto, modificadores: List<Modificador>) {
         if (producto.id <= 0L || !producto.disponible || _estado.value.enviando) return
 
+        val elegidos = normalizarModificadores(producto, modificadores)
         claveIdempotencia = null
         _estado.update { actual ->
-            val existente = actual.items.firstOrNull { it.producto.id == producto.id }
+            val existente = actual.items.firstOrNull {
+                it.producto.id == producto.id && it.modificadores.mismaSeleccion(elegidos)
+            }
             val items = if (existente == null) {
-                actual.items + ItemCarrito(producto = producto, cantidad = 1)
+                actual.items + ItemCarrito(
+                    producto = producto,
+                    cantidad = 1,
+                    modificadores = elegidos
+                )
             } else {
                 actual.items.map { item ->
-                    if (item.producto.id == producto.id) {
+                    if (item.esLaMismaLineaQue(existente)) {
                         item.copy(cantidad = item.cantidad + 1)
                     } else {
                         item
@@ -285,40 +359,67 @@ class CarritoViewModel(
         }
     }
 
-    fun aumentarCantidad(productoId: Long) {
+    /**
+     * Aumenta la cantidad de una linea concreta del carrito. Se usa desde el
+     * detalle, donde puede haber dos lineas del mismo plato con modificadores
+     * distintos.
+     */
+    fun aumentarCantidad(item: ItemCarrito) {
         if (_estado.value.enviando) return
-        if (_estado.value.items.none { it.producto.id == productoId }) return
+        val indice = _estado.value.items.indiceDe(item)
+        if (indice < 0) return
 
         claveIdempotencia = null
         _estado.update { actual ->
             actual.copy(
-                items = actual.items.map { item ->
-                    if (item.producto.id == productoId) {
-                        item.copy(cantidad = item.cantidad + 1)
-                    } else {
-                        item
-                    }
+                items = actual.items.mapIndexed { posicion, linea ->
+                    if (posicion == indice) linea.copy(cantidad = linea.cantidad + 1) else linea
                 }
             )
         }
     }
 
-    /** Baja una unidad; al llegar a cero la linea se elimina del carrito. */
-    fun disminuirCantidad(productoId: Long) {
+    fun aumentarCantidad(productoId: Long) {
         if (_estado.value.enviando) return
         val item = _estado.value.items.firstOrNull { it.producto.id == productoId } ?: return
+        aumentarCantidad(item)
+    }
+
+    /** Baja una unidad de una linea concreta; al llegar a cero se elimina. */
+    fun disminuirCantidad(item: ItemCarrito) {
+        if (_estado.value.enviando) return
+        val indice = _estado.value.items.indiceDe(item)
+        if (indice < 0) return
 
         claveIdempotencia = null
         _estado.update { actual ->
-            if (item.cantidad <= 1) {
-                actual.copy(items = actual.items.filterNot { it.producto.id == productoId })
+            val linea = actual.items[indice]
+            val items = if (linea.cantidad <= 1) {
+                actual.items.filterIndexed { posicion, _ -> posicion != indice }
             } else {
-                actual.copy(
-                    items = actual.items.map {
-                        if (it.producto.id == productoId) it.copy(cantidad = it.cantidad - 1) else it
-                    }
-                )
+                actual.items.mapIndexed { posicion, otra ->
+                    if (posicion == indice) otra.copy(cantidad = otra.cantidad - 1) else otra
+                }
             }
+            actual.copy(items = items)
+        }
+    }
+
+    fun disminuirCantidad(productoId: Long) {
+        if (_estado.value.enviando) return
+        val item = _estado.value.items.firstOrNull { it.producto.id == productoId } ?: return
+        disminuirCantidad(item)
+    }
+
+    /** Elimina una linea concreta (incluida su seleccion de modificadores). */
+    fun eliminarProducto(item: ItemCarrito) {
+        if (_estado.value.enviando) return
+        val indice = _estado.value.items.indiceDe(item)
+        if (indice < 0) return
+
+        claveIdempotencia = null
+        _estado.update { actual ->
+            actual.copy(items = actual.items.filterIndexed { posicion, _ -> posicion != indice })
         }
     }
 
@@ -333,26 +434,29 @@ class CarritoViewModel(
     }
 
     /**
-     * Nota libre por plato (RF-06: "sin picante", "sin ají"...). Se envia en
-     * el campo `notas` de ItemPedidoRequest. Se recorta y se limita a 120.
+     * Nota libre de una linea (RF-06: "sin picante", "sin ají"...). Se envia
+     * en el campo `notas` de ItemPedidoRequest. Se recorta y se limita a 120.
      */
-    fun actualizarNotas(productoId: Long, notas: String) {
+    fun actualizarNotas(item: ItemCarrito, notas: String) {
         if (_estado.value.enviando) return
-        if (_estado.value.items.none { it.producto.id == productoId }) return
+        val indice = _estado.value.items.indiceDe(item)
+        if (indice < 0) return
 
         claveIdempotencia = null
         val limpia = notas.trim().take(MAX_NOTAS)
         _estado.update { actual ->
             actual.copy(
-                items = actual.items.map { item ->
-                    if (item.producto.id == productoId) {
-                        item.copy(notas = limpia)
-                    } else {
-                        item
-                    }
+                items = actual.items.mapIndexed { posicion, linea ->
+                    if (posicion == indice) linea.copy(notas = limpia) else linea
                 }
             )
         }
+    }
+
+    fun actualizarNotas(productoId: Long, notas: String) {
+        if (_estado.value.enviando) return
+        val item = _estado.value.items.firstOrNull { it.producto.id == productoId } ?: return
+        actualizarNotas(item, notas)
     }
 
     /**
@@ -364,8 +468,21 @@ class CarritoViewModel(
      * responde 201 se descarta. Cualquier cambio del carrito la invalida.
      */
     fun enviarPedido(mesaId: Long) {
+        enviarPedidoA(DestinoPedido.Mesa(mesaId))
+    }
+
+    /**
+     * PRB-94: envia usando el destino configurado en el constructor. Es el
+     * punto de entrada del bottom sheet, que no conoce si la comanda es de
+     * mesa o para llevar.
+     */
+    fun enviarPedido() {
+        enviarPedidoA(destinoActual)
+    }
+
+    private fun enviarPedidoA(destino: DestinoPedido) {
         val actual = _estado.value
-        if (actual.enviando || actual.carritoVacio || mesaId <= 0L) return
+        if (actual.enviando || actual.carritoVacio || !destino.esValido()) return
 
         // PRB-90: al enviar una nueva comanda se detiene el refresco. Si el
         // envio falla y la pantalla sigue visible, se reanuda mas abajo.
@@ -380,36 +497,67 @@ class CarritoViewModel(
                 productoId = item.producto.id,
                 cantidad = item.cantidad,
                 notas = item.notas,
-                precioUnitario = item.producto.precio
+                precioUnitario = item.producto.precio,
+                modificadores = item.modificadores
             )
         }
+        // Solo una comanda de mesa refresca su pedido existente (PRB-90).
+        val mesaIdPolling = (destino as? DestinoPedido.Mesa)?.mesaId
 
         _estado.update { it.copy(enviando = true) }
         viewModelScope.launch(ioDispatcher) {
-            when (val resultado = pedidoRepository.enviarPedido(mesaId, itemsParaEnviar, clave)) {
-                is Resultado.Exito -> {
-                    claveIdempotencia = null
-                    _estado.update { it.copy(enviando = false, items = emptyList()) }
-                    _eventos.send(CarritoEvento.PedidoEnviadoOk(resultado.datos))
-                }
+            val resultado = enviarSegunDestino(destino, itemsParaEnviar, clave)
+            manejarResultadoEnvio(resultado, reanudarPolling, mesaIdPolling)
+        }
+    }
 
-                is Resultado.Fallo -> {
-                    _estado.update { it.copy(enviando = false) }
-                    if (resultado.error == ErrorApp.SESION_EXPIRADA) {
-                        _eventos.send(CarritoEvento.SesionExpirada)
-                    } else {
-                        if (reanudarPolling &&
-                            pantallaVisible &&
-                            _estado.value.modoLectura
-                        ) {
-                            startPolling(mesaId)
-                        }
-                        _eventos.send(CarritoEvento.ErrorAlEnviar(resultado.error))
+    private fun DestinoPedido.esValido(): Boolean = when (this) {
+        is DestinoPedido.Mesa -> mesaId > 0L
+        is DestinoPedido.ParaLlevar -> clienteNombre.isNotBlank()
+    }
+
+    private suspend fun enviarSegunDestino(
+        destino: DestinoPedido,
+        items: List<ItemPedido>,
+        clave: String
+    ): Resultado<PedidoEnviado> = when (destino) {
+        is DestinoPedido.Mesa -> pedidoRepository.enviarPedido(destino.mesaId, items, clave)
+
+        is DestinoPedido.ParaLlevar -> pedidoRepository.enviarPedidoParaLlevar(
+            items = items,
+            clientRequestId = clave,
+            clienteNombre = destino.clienteNombre.trim()
+        )
+    }
+
+    private suspend fun manejarResultadoEnvio(
+        resultado: Resultado<PedidoEnviado>,
+        reanudarPolling: Boolean,
+        mesaIdPolling: Long?
+    ) {
+        when (resultado) {
+            is Resultado.Exito -> {
+                claveIdempotencia = null
+                _estado.update { it.copy(enviando = false, items = emptyList()) }
+                _eventos.send(CarritoEvento.PedidoEnviadoOk(resultado.datos))
+            }
+
+            is Resultado.Fallo -> {
+                _estado.update { it.copy(enviando = false) }
+                if (resultado.error == ErrorApp.SESION_EXPIRADA) {
+                    _eventos.send(CarritoEvento.SesionExpirada)
+                } else {
+                    if (mesaIdPolling != null && debeReanudarPolling(reanudarPolling)) {
+                        startPolling(mesaIdPolling)
                     }
+                    _eventos.send(CarritoEvento.ErrorAlEnviar(resultado.error))
                 }
             }
         }
     }
+
+    private fun debeReanudarPolling(reanudar: Boolean): Boolean =
+        reanudar && pantallaVisible && _estado.value.modoLectura
 
     /**
      * Anula un plato ya enviado a cocina (PRB-77).
@@ -505,6 +653,51 @@ class CarritoViewModel(
 
         return filas
     }
+
+    /**
+     * Toma los modificadores elegidos y se queda solo con los que ofrece el
+     * plato, usando el nombre y el precio del catalogo. Evita que la UI (o un
+     * dato manipulado) envie un modificador o recargo que la carta no tiene.
+     */
+    private fun normalizarModificadores(
+        producto: Producto,
+        seleccionados: List<Modificador>
+    ): List<Modificador> {
+        if (seleccionados.isEmpty() || producto.modificadores.isEmpty()) return emptyList()
+
+        val disponibles = producto.modificadores.associateBy { it.nombre.trim() }
+        return seleccionados
+            .mapNotNull { elegido -> disponibles[elegido.nombre.trim()] }
+            .map { disponible ->
+                Modificador(
+                    nombre = disponible.nombre,
+                    precioAdicional = disponible.precioAdicional.max(BigDecimal.ZERO)
+                )
+            }
+            .distinctBy { it.nombre }
+    }
+
+    /** Dos selecciones son la misma linea si coinciden nombre y recargo. */
+    private fun List<Modificador>.mismaSeleccion(otra: List<Modificador>): Boolean =
+        claveSeleccion() == otra.claveSeleccion()
+
+    private fun List<Modificador>.claveSeleccion(): String =
+        sortedBy { it.nombre }.joinToString("|") {
+            "${it.nombre}=${it.precioAdicional.toPlainString()}"
+        }
+
+    /**
+     * Identidad de una linea: el id de detalle si ambos lo tienen (platos ya
+     * enviados) o la pareja (producto, modificadores) para las lineas nuevas.
+     */
+    private fun ItemCarrito.esLaMismaLineaQue(otra: ItemCarrito): Boolean {
+        if (itemId != null && otra.itemId != null) return itemId == otra.itemId
+        return producto.id == otra.producto.id &&
+            modificadores.mismaSeleccion(otra.modificadores)
+    }
+
+    private fun List<ItemCarrito>.indiceDe(buscado: ItemCarrito): Int =
+        indexOfFirst { it.esLaMismaLineaQue(buscado) }
 
     /** true si el polling puede consultar sin pisar un envio o anulacion en curso. */
     private fun CarritoUiState.puedeRefrescarPedido(): Boolean =

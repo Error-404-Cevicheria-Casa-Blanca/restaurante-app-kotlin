@@ -25,8 +25,8 @@ import com.lacasablanca.mesero.ui.common.formatearMoneda
  */
 class CatalogoAdapter(
     private val alAgregar: (Producto) -> Unit,
-    private val alAumentar: (Long) -> Unit,
-    private val alDisminuir: (Long) -> Unit
+    private val alAumentar: (Producto) -> Unit,
+    private val alDisminuir: (Producto) -> Unit
 ) : ListAdapter<FilaCatalogo, RecyclerView.ViewHolder>(DIFF) {
 
     private var cantidades: Map<Long, Int> = emptyMap()
@@ -99,8 +99,8 @@ class CatalogoAdapter(
             producto: Producto,
             cantidad: Int,
             alAgregar: (Producto) -> Unit,
-            alAumentar: (Long) -> Unit,
-            alDisminuir: (Long) -> Unit
+            alAumentar: (Producto) -> Unit,
+            alDisminuir: (Producto) -> Unit
         ) {
             val contexto = binding.root.context
             val mostrarStepper = producto.disponible && cantidad > 0
@@ -131,9 +131,9 @@ class CatalogoAdapter(
                 contexto.getString(R.string.cd_disminuir_producto, producto.nombre)
             binding.btnAumentarPlato.setOnClickListener { vista ->
                 vista.performHapticFeedback(HapticFeedbackConstants.CONFIRM)
-                alAumentar(producto.id)
+                alAumentar(producto)
             }
-            binding.btnDisminuirPlato.setOnClickListener { alDisminuir(producto.id) }
+            binding.btnDisminuirPlato.setOnClickListener { alDisminuir(producto) }
 
             aplicarModo(
                 productoId = producto.id,

@@ -4,6 +4,7 @@ import com.lacasablanca.mesero.domain.ErrorApp
 import com.lacasablanca.mesero.domain.model.CalculoIgv
 import com.lacasablanca.mesero.domain.model.Categoria
 import com.lacasablanca.mesero.domain.model.DesglosePedido
+import com.lacasablanca.mesero.domain.model.DestinoPedido
 import com.lacasablanca.mesero.domain.model.ItemCarrito
 import com.lacasablanca.mesero.domain.model.PedidoEnviado
 import com.lacasablanca.mesero.domain.model.Producto
@@ -62,8 +63,17 @@ data class CarritoUiState(
     val anulandoItemId: Long? = null,
     val cargandoPedidoExistente: Boolean = false,
     val pedidoExistenteCargado: Boolean = false,
-    val errorPedidoExistente: ErrorCarrito? = null
+    val errorPedidoExistente: ErrorCarrito? = null,
+    /** PRB-94: mesa o pedido para llevar. Determina el POST y los textos. */
+    val destino: DestinoPedido = DestinoPedido.Mesa(0L)
 ) {
+    /** true cuando la comanda es para llevar (sin mesa). */
+    val esParaLlevar: Boolean get() = destino is DestinoPedido.ParaLlevar
+
+    /** Nombre del cliente para llevar; vacio en una comanda de mesa. */
+    val clienteNombre: String
+        get() = (destino as? DestinoPedido.ParaLlevar)?.clienteNombre.orEmpty()
+
     /** Solo hay lineas nuevas (editables) en el carrito. */
     val carritoVacio: Boolean get() = items.isEmpty()
 

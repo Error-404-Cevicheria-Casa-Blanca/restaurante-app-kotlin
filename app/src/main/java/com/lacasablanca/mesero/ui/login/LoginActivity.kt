@@ -20,7 +20,7 @@ import com.lacasablanca.mesero.MeseroApp
 import com.lacasablanca.mesero.R
 import com.lacasablanca.mesero.core.GenericViewModelFactory
 import com.lacasablanca.mesero.databinding.ActivityLoginBinding
-import com.lacasablanca.mesero.ui.mesas.MesasActivity
+import com.lacasablanca.mesero.ui.main.MainActivity
 import kotlinx.coroutines.launch
 
 /**
@@ -72,7 +72,7 @@ class LoginActivity : AppCompatActivity() {
                 launch { viewModel.estado.collect(::render) }
                 launch {
                     viewModel.eventos.collect { evento ->
-                        if (evento == LoginEvento.IrAMesas) irAMesas()
+                        if (evento == LoginEvento.IrAMesas) irAInicio()
                     }
                 }
             }
@@ -138,10 +138,11 @@ class LoginActivity : AppCompatActivity() {
         )
     }
 
-    private fun irAMesas() {
+    /** PRB-88: el inicio ahora es el contenedor con la navegacion principal. */
+    private fun irAInicio() {
         if (navegando) return
         navegando = true
-        startActivity(Intent(this, MesasActivity::class.java))
+        startActivity(Intent(this, MainActivity::class.java))
         finish()
     }
 

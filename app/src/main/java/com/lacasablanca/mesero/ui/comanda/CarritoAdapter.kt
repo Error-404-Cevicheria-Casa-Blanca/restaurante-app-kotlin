@@ -26,9 +26,9 @@ import com.lacasablanca.mesero.ui.common.formatearMoneda
  * la etiqueta "Ya pedido" y no ofrecen controles de cantidad ni de borrado.
  */
 class CarritoAdapter(
-    private val alAumentar: (Long) -> Unit,
-    private val alDisminuir: (Long) -> Unit,
-    private val alEliminar: (Long) -> Unit,
+    private val alAumentar: (ItemCarrito) -> Unit,
+    private val alDisminuir: (ItemCarrito) -> Unit,
+    private val alEliminar: (ItemCarrito) -> Unit,
     private val alEditarNotas: (ItemCarrito) -> Unit,
     private val alAnular: (ItemCarrito) -> Unit
 ) : ListAdapter<LineaCarrito, CarritoAdapter.CarritoViewHolder>(DIFF) {
@@ -64,59 +64,110 @@ class CarritoAdapter(
 
         fun pintar(
             linea: LineaCarrito,
-            alAumentar: (Long) -> Unit,
-            alDisminuir: (Long) -> Unit,
-            alEliminar: (Long) -> Unit,
+            alAumentar: (ItemCarrito) -> Unit,
+            alDisminuir: (ItemCarrito) -> Unit,
+            alEliminar: (ItemCarrito) -> Unit,
             alEditarNotas: (ItemCarrito) -> Unit,
             alAnular: (ItemCarrito) -> Unit
         ) {
-            val contexto = binding.root.context
             val item = linea.item
+            pintarCabecera(item, linea.editable)
+            pintarModificadores(item)
+            pintarNota(item)
+            pintarControles(
+                item = item,
+                editable = linea.editable,
+                alAumentar = alAumentar,
+                alDisminuir = alDisminuir,
+                alEliminar = alEliminar,
+                alEditarNotas = alEditarNotas,
+                alAnular = alAnular
+            )
+        }
+
+        /** Nombre, precio unitario final, cantidad y pildora de estado. */
+        private fun pintarCabecera(item: ItemCarrito, editable: Boolean) {
+            val contexto = binding.root.context
             val producto = item.producto
-            val editable = linea.editable
 
             binding.textoNombreCarrito.text = producto.nombre.ifBlank {
                 contexto.getString(R.string.comanda_plato_sin_nombre, producto.id)
             }
+            // El precio unitario mostrado ya incluye el recargo de los
+            // modificadores; el backend aplica el recargo por unidad.
             binding.textoPrecioCarrito.text = contexto.getString(
                 R.string.comanda_carrito_precio,
-                formatearMoneda(producto.precio),
+                formatearMoneda(item.precioUnitarioConModificadores),
                 formatearMoneda(item.subtotal)
             )
-
             binding.textoCantidad.text = item.cantidad.toString()
             binding.textoCantidad.contentDescription =
                 contexto.getString(R.string.comanda_cantidad_cd, item.cantidad)
 
             binding.textoYaPedido.isVisible = !editable
-            binding.btnNota.isVisible = editable
-            binding.filaControles.isVisible = editable
             // PRB-77: solo un plato ya enviado y con id de detalle se anula.
             binding.btnAnular.isVisible = !editable && item.itemId != null
             // PRB-76: la pildora de estado solo aplica a platos ya enviados.
             pintarEstadoPlato(if (editable) null else item.estadoPlato)
+        }
 
-            binding.btnAumentar.contentDescription =
-                contexto.getString(R.string.cd_aumentar_producto, producto.nombre)
-            binding.btnDisminuir.contentDescription =
-                contexto.getString(R.string.cd_disminuir_producto, producto.nombre)
-            binding.btnEliminar.contentDescription =
-                contexto.getString(R.string.cd_eliminar_producto, producto.nombre)
-            binding.btnNota.contentDescription =
-                contexto.getString(R.string.cd_nota_producto, producto.nombre)
-            binding.btnAnular.contentDescription =
-                contexto.getString(R.string.cd_anular_producto, producto.nombre)
+        /** PRB-92: "Sin cebolla, Extra queso (+S/ 2.00)" debajo del plato. */
+        private fun pintarModificadores(item: ItemCarrito) {
+            val contexto = binding.root.context
+            val texto = item.modificadores.joinToString(", ") { modificador ->
+                if (modificador.esGratuito) {
+                    modificador.nombre
+                } else {
+                    contexto.getString(
+                        R.string.comanda_modificadores_extra,
+                        modificador.nombre,
+                        formatearMoneda(modificador.precioAdicional)
+                    )
+                }
+            }
+            binding.textoModificadoresCarrito.isVisible = texto.isNotBlank()
+            binding.textoModificadoresCarrito.text = texto
+            binding.textoModificadoresCarrito.contentDescription =
+                contexto.getString(R.string.cd_modificadores_linea, texto)
+        }
 
+        private fun pintarNota(item: ItemCarrito) {
             binding.textoNotaCarrito.isVisible = item.notas.isNotBlank()
-            binding.textoNotaCarrito.text = contexto.getString(
+            binding.textoNotaCarrito.text = binding.root.context.getString(
                 R.string.comanda_nota_etiqueta,
                 item.notas
             )
+        }
+
+        private fun pintarControles(
+            item: ItemCarrito,
+            editable: Boolean,
+            alAumentar: (ItemCarrito) -> Unit,
+            alDisminuir: (ItemCarrito) -> Unit,
+            alEliminar: (ItemCarrito) -> Unit,
+            alEditarNotas: (ItemCarrito) -> Unit,
+            alAnular: (ItemCarrito) -> Unit
+        ) {
+            val contexto = binding.root.context
+            val nombre = item.producto.nombre
+
+            binding.btnNota.isVisible = editable
+            binding.filaControles.isVisible = editable
+            binding.btnAumentar.contentDescription =
+                contexto.getString(R.string.cd_aumentar_producto, nombre)
+            binding.btnDisminuir.contentDescription =
+                contexto.getString(R.string.cd_disminuir_producto, nombre)
+            binding.btnEliminar.contentDescription =
+                contexto.getString(R.string.cd_eliminar_producto, nombre)
+            binding.btnNota.contentDescription =
+                contexto.getString(R.string.cd_nota_producto, nombre)
+            binding.btnAnular.contentDescription =
+                contexto.getString(R.string.cd_anular_producto, nombre)
 
             if (editable) {
-                binding.btnAumentar.setOnClickListener { alAumentar(producto.id) }
-                binding.btnDisminuir.setOnClickListener { alDisminuir(producto.id) }
-                binding.btnEliminar.setOnClickListener { alEliminar(producto.id) }
+                binding.btnAumentar.setOnClickListener { alAumentar(item) }
+                binding.btnDisminuir.setOnClickListener { alDisminuir(item) }
+                binding.btnEliminar.setOnClickListener { alEliminar(item) }
                 binding.btnNota.setOnClickListener { alEditarNotas(item) }
             } else {
                 binding.btnAnular.setOnClickListener { alAnular(item) }

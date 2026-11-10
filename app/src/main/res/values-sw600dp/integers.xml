@@ -2,4 +2,6 @@
 <resources>
     <!-- Columnas de la cuadricula de mesas en tablet (>= 600dp) -->
     <integer name="columnas_mesas">4</integer>
+    <!-- La lista de pedidos usa 2 columnas en tablet -->
+    <integer name="columnas_pedidos">2</integer>
 </resources>

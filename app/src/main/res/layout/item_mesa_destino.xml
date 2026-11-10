@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Fila seleccionable de mesa destino (PRB-93). Toda la fila es tactil
+    (56dp); el radio es solo el indicador visual de seleccion unica.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="?attr/selectableItemBackground"
+    android:clickable="true"
+    android:focusable="true"
+    android:gravity="center_vertical"
+    android:minHeight="@dimen/alto_fila_destino"
+    android:orientation="horizontal"
+    android:paddingHorizontal="@dimen/espacio_s"
+    android:paddingVertical="@dimen/espacio_xs">
+
+    <com.google.android.material.radiobutton.MaterialRadioButton
+        android:id="@+id/radioDestino"
+        android:layout_width="@dimen/toque_minimo"
+        android:layout_height="@dimen/toque_minimo"
+        android:clickable="false"
+        android:focusable="false"
+        android:importantForAccessibility="no" />
+
+    <TextView
+        android:id="@+id/textoDestinoMesa"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:autoSizeMaxTextSize="16sp"
+        android:autoSizeMinTextSize="12sp"
+        android:autoSizeStepGranularity="1sp"
+        android:autoSizeTextType="uniform"
+        android:breakStrategy="simple"
+        android:hyphenationFrequency="none"
+        android:maxLines="2"
+        android:textColor="@color/texto_principal"
+        android:textSize="@dimen/texto_cuerpo"
+        android:textStyle="bold"
+        tools:text="Mesa 8" />
+
+    <TextView
+        android:id="@+id/textoEstadoDestino"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/espacio_s"
+        android:autoSizeMaxTextSize="13sp"
+        android:autoSizeMinTextSize="10sp"
+        android:autoSizeStepGranularity="1sp"
+        android:autoSizeTextType="uniform"
+        android:breakStrategy="simple"
+        android:hyphenationFrequency="none"
+        android:maxLines="1"
+        android:textColor="@color/on_surface_variant"
+        android:textSize="@dimen/texto_etiqueta"
+        tools:text="Libre" />
+</LinearLayout>

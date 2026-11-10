@@ -81,6 +81,55 @@
     <string name="error_red_titulo">Sin conexión</string>
     <string name="sesion_expirada_titulo">Sesión finalizada</string>
 
+    <!-- Acciones de mesa: dividir, fusionar y transferir (PRB-93) -->
+    <string name="cd_acciones_mesa">Abrir acciones de la mesa %1$d</string>
+    <string name="acciones_mesa_titulo">Acciones de Mesa %1$d</string>
+    <string name="acciones_mesa_subtitulo">Elige la operación que deseas realizar.</string>
+    <string name="acciones_mesa_cerrar">Cerrar acciones de mesa</string>
+    <string name="accion_dividir_titulo">Dividir cuenta</string>
+    <string name="accion_dividir_descripcion">Separa platos en una cuenta nueva.</string>
+    <string name="accion_fusionar_titulo">Fusionar mesas</string>
+    <string name="accion_fusionar_descripcion">Une otra mesa ocupada a esta.</string>
+    <string name="accion_transferir_titulo">Transferir mesa</string>
+    <string name="accion_transferir_descripcion">Mueve el pedido a otra mesa disponible.</string>
+
+    <string name="division_titulo">Dividir cuenta · Mesa %1$d</string>
+    <string name="division_mensaje">Selecciona los platos que pasarán a la nueva cuenta.</string>
+    <string name="division_sin_platos">Esta mesa no tiene platos enviados que se puedan dividir.</string>
+    <string name="division_continuar">Continuar</string>
+    <string name="division_seleccion_requerida">Selecciona al menos un plato para continuar.</string>
+    <string name="cd_division_plato">%1$s, cantidad %2$d, %3$s</string>
+    <string name="division_item_cantidad">x%1$d</string>
+    <string name="plato_sin_nombre">Plato</string>
+
+    <string name="destino_titulo_dividir">Mesa destino de la división</string>
+    <string name="destino_mensaje_dividir">Elige dónde quedará la nueva cuenta. Puedes usar la misma mesa.</string>
+    <string name="destino_titulo_fusionar">Unir otra mesa a la Mesa %1$d</string>
+    <string name="destino_mensaje_fusionar">Elige la mesa cuyos pedidos pasarán a la Mesa %1$d. La mesa elegida quedará libre.</string>
+    <string name="destino_titulo_transferir">Transferir Mesa %1$d</string>
+    <string name="destino_mensaje_transferir">Elige la mesa que recibirá el pedido. La Mesa %1$d quedará libre.</string>
+    <string name="destino_sin_opciones">No hay mesas disponibles para esta operación.</string>
+    <string name="destino_confirmar">Confirmar</string>
+    <string name="destino_cancelar">Cancelar</string>
+    <string name="destino_aplicando">Aplicando…</string>
+    <string name="destino_misma_mesa">Misma mesa (cuenta separada)</string>
+    <string name="cd_mesa_destino">Mesa %1$d, %2$s</string>
+
+    <plurals name="accion_exito_dividir">
+        <item quantity="one">División realizada: %1$d plato a la Mesa %2$d.</item>
+        <item quantity="other">División realizada: %1$d platos a la Mesa %2$d.</item>
+    </plurals>
+    <string name="accion_exito_fusionar">Mesa %1$d fusionada con la Mesa %2$d.</string>
+    <string name="accion_exito_transferir">Pedido transferido de la Mesa %1$d a la Mesa %2$d.</string>
+    <string name="accion_error_conflicto">No se pudo completar: la mesa ya está ocupada por otro mozo o cambió de estado. Actualiza el mapa e inténtalo de nuevo.</string>
+    <string name="accion_error_red">Sin conexión. No se pudo completar la operación; inténtalo de nuevo.</string>
+    <string name="accion_error_generica">No se pudo completar la operación de mesa.</string>
+    <string name="accion_sin_destinos">No hay mesas disponibles para esta operación.</string>
+    <string name="accion_dialogo_titulo">No se pudo completar</string>
+    <string name="accion_dialogo_icono_cd">Aviso de la operación de mesa</string>
+    <string name="accion_sin_platos_titulo">Sin platos para dividir</string>
+    <string name="accion_sin_destinos_titulo">Sin mesas disponibles</string>
+
     <!-- Comanda (base, el catálogo llega en la siguiente entrega) -->
     <string name="comanda_barra_titulo">Detalle de Mesa y Pedido</string>
     <string name="comanda_titulo">Mesa %1$d · %2$s</string>
@@ -355,6 +404,8 @@
     <string name="cobro_error_comensales">El número de personas debe estar entre 2 y 50.</string>
     <string name="cobro_error_conflicto">La mesa cambió de estado. Actualiza la cuenta e inténtalo de nuevo.</string>
     <string name="cobro_error_conflicto_pagada">La cuenta ya fue pagada. Actualiza el mapa de mesas para ver su estado.</string>
+    <string name="cobro_error_conflicto_pedido">El pedido cambió de estado. Vuelve a intentarlo.</string>
+    <string name="cobro_error_conflicto_pagada_pedido">El pedido ya fue cobrado. Vuelve a Pedidos para actualizar la lista.</string>
     <string name="cobro_error_bloqueado">El cobro está bloqueado temporalmente. Espera unos minutos e inténtalo de nuevo.</string>
     <string name="cobro_error_servidor">Ocurrió un error en el servidor. Inténtalo de nuevo.</string>
     <string name="cobro_error_desconocido">Ocurrió un error inesperado. Inténtalo de nuevo.</string>
@@ -362,6 +413,11 @@
     <string name="cobro_exito_mensaje">Mesa %1$d · Cobro registrado</string>
     <string name="cobro_exito_total">Total cobrado: %1$s</string>
     <string name="cobro_exito_volver">Volver al mapa</string>
+    <!-- Cobro de pedido sin mesa / delivery (PRB-88, Fase 5) -->
+    <string name="cobro_titulo_pedido">Cobrar Pedido #%1$d</string>
+    <string name="cobro_exito_mensaje_pedido">Pedido #%1$d · Cobro registrado</string>
+    <string name="cobro_exito_mensaje_pedido_cliente">Pedido #%1$d · %2$s · Cobro registrado</string>
+    <string name="cobro_exito_volver_pedidos">Volver a Pedidos</string>
     <string name="cobro_salir_titulo">¿Salir sin cobrar?</string>
     <string name="cobro_salir_mensaje">La mesa seguirá ocupada. ¿Deseas salir sin registrar el cobro?</string>
     <string name="cobro_salir_confirmar">Salir</string>
@@ -387,4 +443,68 @@
     <string name="estado_plato_anulado">Anulado</string>
     <string name="estado_plato_desconocido">Estado desconocido</string>
     <string name="cd_estado_plato">Estado del plato: %1$s</string>
+
+    <!-- Modificadores por plato (PRB-92) -->
+    <string name="modificadores_titulo">Personaliza tu plato</string>
+    <string name="modificadores_subtitulo">Elige los modificadores. Puedes marcar varios; el precio se actualiza al instante.</string>
+    <string name="modificadores_agregar">Agregar al pedido</string>
+    <string name="modificadores_cancelar">Cancelar</string>
+    <string name="modificadores_total">Total del plato</string>
+    <string name="modificadores_precio_extra">+ %1$s</string>
+    <string name="modificadores_icono_cd">Modificadores del plato</string>
+    <string name="cd_modificador_precio">%1$s, precio adicional %2$s</string>
+    <string name="comanda_modificadores_extra">%1$s (+%2$s)</string>
+    <string name="cd_modificadores_linea">Modificadores: %1$s</string>
+    <string name="cd_modificadores_producto">Elegir los modificadores de %1$s</string>
+
+    <!-- Pedidos para llevar / delivery (PRB-94) -->
+    <string name="para_llevar_accion">Para Llevar</string>
+    <string name="cd_para_llevar">Iniciar un pedido para llevar</string>
+    <string name="para_llevar_dialogo_titulo">Pedido para llevar</string>
+    <string name="para_llevar_dialogo_mensaje">Ingresa el nombre del cliente para identificar el pedido en cocina y en caja.</string>
+    <string name="para_llevar_campo_nombre">Nombre del cliente</string>
+    <string name="para_llevar_campo_error">Ingresa el nombre del cliente</string>
+    <string name="para_llevar_continuar">Continuar</string>
+    <string name="para_llevar_icono_cd">Pedido para llevar</string>
+    <string name="comanda_barra_titulo_para_llevar">Detalle del Pedido</string>
+    <string name="comanda_titulo_para_llevar">Para Llevar: %1$s</string>
+    <string name="comanda_badge_para_llevar">Para llevar</string>
+    <string name="carrito_sheet_titulo_para_llevar">Pedido para llevar</string>
+    <string name="comanda_pedido_enviado_mensaje_llevar">Para llevar: %1$s · Pedido #%2$d</string>
+    <string name="para_llevar_pedido_enviado">Pedido para llevar enviado a cocina · #%1$d</string>
+
+    <!-- Navegacion principal (PRB-88) -->
+    <string name="nav_salon">Salón</string>
+    <string name="nav_pedidos">Pedidos</string>
+    <string name="nav_perfil">Perfil</string>
+    <string name="cd_nav_salon">Ir a Salón</string>
+    <string name="cd_nav_pedidos">Ir a Pedidos</string>
+    <string name="cd_nav_perfil">Ir a Perfil</string>
+
+    <!-- Pedidos activos (PRB-88, Fase 6) -->
+    <string name="pedidos_titulo">Pedidos</string>
+    <string name="pedidos_filtro_todos">Todos</string>
+    <string name="pedidos_filtro_mesa">Mesa</string>
+    <string name="pedidos_filtro_para_llevar">Para Llevar</string>
+    <string name="pedidos_numero">Pedido #%1$d</string>
+    <string name="pedidos_origen_mesa">Mesa %1$d</string>
+    <string name="pedidos_origen_mesa_sin_numero">Mesa</string>
+    <string name="pedidos_origen_para_llevar">Para Llevar: %1$s</string>
+    <string name="pedidos_origen_para_llevar_sin_cliente">Para Llevar</string>
+    <string name="pedidos_origen_delivery">Delivery: %1$s</string>
+    <string name="pedidos_origen_delivery_sin_cliente">Delivery</string>
+    <string name="pedidos_estado_pendiente">Pendiente</string>
+    <string name="pedidos_estado_en_preparacion">En preparación</string>
+    <string name="pedidos_estado_listo">Listo</string>
+    <string name="pedidos_estado_servido">Servido</string>
+    <string name="pedidos_estado_desconocido">Estado desconocido</string>
+    <string name="pedidos_total">Total: %1$s</string>
+    <string name="pedidos_cobrar">Cobrar</string>
+    <string name="cd_cobrar_pedido">Cobrar pedido #%1$d</string>
+    <string name="pedidos_vacio">No hay pedidos activos</string>
+    <string name="pedidos_vacio_ayuda">Los pedidos nuevos aparecerán aquí.</string>
+    <string name="pedidos_error">No se pudieron cargar los pedidos</string>
+    <string name="pedidos_actualizados">Pedidos actualizados</string>
+    <string name="cd_actualizar_pedidos">Actualizar la lista de pedidos</string>
+    <string name="pedidos_actualizar">Actualizar</string>
 </resources>

@@ -1,0 +1,351 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Perfil del mesero a pantalla completa (PRB-83). Reemplaza el bottom sheet.
+    Toolbar con Atras, tarjeta de identidad (nombre y rol), tarjeta de sesion
+    (usuario, terminal, turno y fecha) y boton fijo de cerrar sesion.
+    Los IDs deben coincidir con layout-sw600dp/fragment_perfil.xml.
+-->
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ui.perfil.PerfilFragment">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/barraPerfil"
+        android:layout_width="0dp"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/surface_container_lowest"
+        android:elevation="@dimen/elevacion_tarjeta"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:navigationContentDescription="@string/cd_volver"
+        app:navigationIcon="@drawable/ic_arrow_back"
+        app:navigationIconTint="@color/stitch_primary"
+        app:title="@string/perfil_titulo"
+        app:titleTextColor="@color/stitch_primary" />
+
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/scrollPerfil"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:clipToPadding="false"
+        android:fillViewport="true"
+        android:scrollbars="vertical"
+        app:layout_constraintBottom_toTopOf="@id/btnCerrarSesionPerfil"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/barraPerfil">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="@dimen/espacio_l">
+
+            <com.google.android.material.card.MaterialCardView
+                style="@style/Tarjeta.Superficie"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="@dimen/radio_tarjeta">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_horizontal"
+                    android:orientation="vertical"
+                    android:padding="@dimen/espacio_xl">
+
+                    <FrameLayout
+                        android:layout_width="@dimen/circulo_perfil"
+                        android:layout_height="@dimen/circulo_perfil"
+                        android:background="@drawable/bg_circulo_vacio">
+
+                        <ImageView
+                            android:layout_width="@dimen/icono_perfil"
+                            android:layout_height="@dimen/icono_perfil"
+                            android:layout_gravity="center"
+                            android:contentDescription="@string/perfil_avatar_cd"
+                            android:src="@drawable/ic_person"
+                            app:tint="@color/primary" />
+                    </FrameLayout>
+
+                    <TextView
+                        android:id="@+id/textoPerfilNombre"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/espacio_l"
+                        android:autoSizeMaxTextSize="24sp"
+                        android:autoSizeMinTextSize="15sp"
+                        android:autoSizeStepGranularity="1sp"
+                        android:autoSizeTextType="uniform"
+                        android:breakStrategy="simple"
+                        android:ellipsize="end"
+                        android:gravity="center"
+                        android:hyphenationFrequency="none"
+                        android:maxLines="2"
+                        android:textColor="@color/on_surface"
+                        android:textSize="@dimen/texto_titulo_pantalla"
+                        android:textStyle="bold"
+                        tools:text="David Rojas Garcia" />
+
+                    <TextView
+                        android:id="@+id/textoPerfilRol"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/espacio_s"
+                        android:autoSizeMaxTextSize="14sp"
+                        android:autoSizeMinTextSize="10sp"
+                        android:autoSizeStepGranularity="1sp"
+                        android:autoSizeTextType="uniform"
+                        android:background="@drawable/bg_pill_lima"
+                        android:breakStrategy="simple"
+                        android:ellipsize="end"
+                        android:hyphenationFrequency="none"
+                        android:maxLines="1"
+                        android:paddingHorizontal="@dimen/espacio_l"
+                        android:paddingVertical="@dimen/espacio_xs"
+                        android:textColor="@color/on_secondary_fixed"
+                        android:textSize="@dimen/texto_etiqueta"
+                        android:textStyle="bold"
+                        tools:text="MOZO" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                style="@style/Tarjeta.Superficie"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/espacio_l"
+                app:cardCornerRadius="@dimen/radio_tarjeta">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="@dimen/espacio_l">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:autoSizeMaxTextSize="16sp"
+                        android:autoSizeMinTextSize="12sp"
+                        android:autoSizeStepGranularity="1sp"
+                        android:autoSizeTextType="uniform"
+                        android:breakStrategy="simple"
+                        android:hyphenationFrequency="none"
+                        android:maxLines="1"
+                        android:text="@string/perfil_datos_sesion"
+                        android:textColor="@color/primary"
+                        android:textSize="@dimen/texto_etiqueta"
+                        android:textStyle="bold" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/espacio_s"
+                        android:baselineAligned="false"
+                        android:orientation="horizontal"
+                        android:paddingVertical="@dimen/espacio_s">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:autoSizeMaxTextSize="14sp"
+                            android:autoSizeMinTextSize="11sp"
+                            android:autoSizeStepGranularity="1sp"
+                            android:autoSizeTextType="uniform"
+                            android:breakStrategy="simple"
+                            android:hyphenationFrequency="none"
+                            android:maxLines="1"
+                            android:text="@string/perfil_usuario"
+                            android:textColor="@color/texto_secundario"
+                            android:textSize="@dimen/texto_cuerpo" />
+
+                        <TextView
+                            android:id="@+id/textoPerfilUsuario"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:autoSizeMaxTextSize="16sp"
+                            android:autoSizeMinTextSize="11sp"
+                            android:autoSizeStepGranularity="1sp"
+                            android:autoSizeTextType="uniform"
+                            android:breakStrategy="simple"
+                            android:ellipsize="end"
+                            android:gravity="end"
+                            android:hyphenationFrequency="none"
+                            android:maxLines="1"
+                            android:textColor="@color/texto_principal"
+                            android:textSize="@dimen/texto_cuerpo"
+                            android:textStyle="bold"
+                            tools:text="david.rojas" />
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/borde_tarjeta"
+                        android:background="@color/surface_variant" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:baselineAligned="false"
+                        android:orientation="horizontal"
+                        android:paddingVertical="@dimen/espacio_s">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:autoSizeMaxTextSize="14sp"
+                            android:autoSizeMinTextSize="11sp"
+                            android:autoSizeStepGranularity="1sp"
+                            android:autoSizeTextType="uniform"
+                            android:breakStrategy="simple"
+                            android:hyphenationFrequency="none"
+                            android:maxLines="1"
+                            android:text="@string/perfil_terminal"
+                            android:textColor="@color/texto_secundario"
+                            android:textSize="@dimen/texto_cuerpo" />
+
+                        <TextView
+                            android:id="@+id/textoPerfilTerminal"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:autoSizeMaxTextSize="16sp"
+                            android:autoSizeMinTextSize="11sp"
+                            android:autoSizeStepGranularity="1sp"
+                            android:autoSizeTextType="uniform"
+                            android:breakStrategy="simple"
+                            android:ellipsize="end"
+                            android:gravity="end"
+                            android:hyphenationFrequency="none"
+                            android:maxLines="1"
+                            android:text="@string/perfil_no_asignado"
+                            android:textColor="@color/texto_principal"
+                            android:textSize="@dimen/texto_cuerpo"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/borde_tarjeta"
+                        android:background="@color/surface_variant" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:baselineAligned="false"
+                        android:orientation="horizontal"
+                        android:paddingVertical="@dimen/espacio_s">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:autoSizeMaxTextSize="14sp"
+                            android:autoSizeMinTextSize="11sp"
+                            android:autoSizeStepGranularity="1sp"
+                            android:autoSizeTextType="uniform"
+                            android:breakStrategy="simple"
+                            android:hyphenationFrequency="none"
+                            android:maxLines="1"
+                            android:text="@string/perfil_turno"
+                            android:textColor="@color/texto_secundario"
+                            android:textSize="@dimen/texto_cuerpo" />
+
+                        <TextView
+                            android:id="@+id/textoPerfilTurno"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:autoSizeMaxTextSize="16sp"
+                            android:autoSizeMinTextSize="11sp"
+                            android:autoSizeStepGranularity="1sp"
+                            android:autoSizeTextType="uniform"
+                            android:breakStrategy="simple"
+                            android:ellipsize="end"
+                            android:gravity="end"
+                            android:hyphenationFrequency="none"
+                            android:maxLines="1"
+                            android:text="@string/perfil_no_asignado"
+                            android:textColor="@color/texto_principal"
+                            android:textSize="@dimen/texto_cuerpo"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/borde_tarjeta"
+                        android:background="@color/surface_variant" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:baselineAligned="false"
+                        android:orientation="horizontal"
+                        android:paddingVertical="@dimen/espacio_s">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:autoSizeMaxTextSize="14sp"
+                            android:autoSizeMinTextSize="11sp"
+                            android:autoSizeStepGranularity="1sp"
+                            android:autoSizeTextType="uniform"
+                            android:breakStrategy="simple"
+                            android:hyphenationFrequency="none"
+                            android:maxLines="1"
+                            android:text="@string/perfil_fecha"
+                            android:textColor="@color/texto_secundario"
+                            android:textSize="@dimen/texto_cuerpo" />
+
+                        <TextView
+                            android:id="@+id/textoPerfilFecha"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:autoSizeMaxTextSize="16sp"
+                            android:autoSizeMinTextSize="11sp"
+                            android:autoSizeStepGranularity="1sp"
+                            android:autoSizeTextType="uniform"
+                            android:breakStrategy="simple"
+                            android:ellipsize="end"
+                            android:gravity="end"
+                            android:hyphenationFrequency="none"
+                            android:maxLines="1"
+                            android:textColor="@color/texto_principal"
+                            android:textSize="@dimen/texto_cuerpo"
+                            android:textStyle="bold"
+                            tools:text="08/11/2026" />
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnCerrarSesionPerfil"
+        style="@style/Boton.Primario"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/alto_boton_primario"
+        android:layout_marginHorizontal="@dimen/espacio_l"
+        android:layout_marginBottom="@dimen/espacio_l"
+        android:autoSizeMaxTextSize="16sp"
+        android:autoSizeMinTextSize="11sp"
+        android:autoSizeStepGranularity="1sp"
+        android:autoSizeTextType="uniform"
+        android:breakStrategy="simple"
+        android:hyphenationFrequency="none"
+        android:maxLines="1"
+        android:text="@string/accion_cerrar_sesion"
+        app:icon="@drawable/ic_logout"
+        app:iconGravity="textStart"
+        app:iconPadding="@dimen/espacio_s"
+        app:iconTint="@color/on_primary"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+</androidx.constraintlayout.widget.ConstraintLayout>

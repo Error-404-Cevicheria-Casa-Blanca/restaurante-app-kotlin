@@ -2,6 +2,7 @@ package com.lacasablanca.mesero.data.repository
 
 import com.lacasablanca.mesero.domain.Resultado
 import com.lacasablanca.mesero.domain.model.Categoria
+import com.lacasablanca.mesero.domain.model.Modificador
 import com.lacasablanca.mesero.domain.model.Producto
 import kotlinx.coroutines.delay
 import java.math.BigDecimal
@@ -46,7 +47,12 @@ class FakeCatalogoRepository(
                 disponible = true,
                 categoriaId = 2,
                 imagenUrl = null,
-                estacion = "BARRA_FRIA"
+                estacion = "BARRA_FRIA",
+                modificadores = listOf(
+                    Modificador("Sin cebolla", BigDecimal("0.00")),
+                    Modificador("Extra limón", BigDecimal("0.00")),
+                    Modificador("Extra queso", BigDecimal("2.00"))
+                )
             ),
             Producto(
                 id = 11,
@@ -56,7 +62,11 @@ class FakeCatalogoRepository(
                 disponible = true,
                 categoriaId = 1,
                 imagenUrl = null,
-                estacion = "BARRA_FRIA"
+                estacion = "BARRA_FRIA",
+                modificadores = listOf(
+                    Modificador("Sin ají", BigDecimal("0.00")),
+                    Modificador("Extra canchita", BigDecimal("1.50"))
+                )
             ),
             Producto(
                 id = 12,
@@ -66,7 +76,10 @@ class FakeCatalogoRepository(
                 disponible = true,
                 categoriaId = 1,
                 imagenUrl = null,
-                estacion = "COCINA_CALIENTE"
+                estacion = "COCINA_CALIENTE",
+                modificadores = listOf(
+                    Modificador("Sin salsa criolla", BigDecimal("0.00"))
+                )
             ),
             Producto(
                 id = 13,

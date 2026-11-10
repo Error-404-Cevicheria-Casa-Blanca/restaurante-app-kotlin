@@ -1,13 +1,18 @@
 package com.lacasablanca.mesero.data.repository
 
 import com.lacasablanca.mesero.data.remote.PedidosApi
+import com.lacasablanca.mesero.data.remote.dto.CrearPedidoRequest
 import com.lacasablanca.mesero.data.remote.dto.ItemPedidoExistenteDto
 import com.lacasablanca.mesero.data.remote.dto.PedidoExistenteDto
+import com.lacasablanca.mesero.data.remote.dto.PedidoResponseDto
 import com.lacasablanca.mesero.domain.ErrorApp
 import com.lacasablanca.mesero.domain.Resultado
+import com.lacasablanca.mesero.domain.model.ItemPedido
+import com.lacasablanca.mesero.domain.model.Modificador
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
+import io.mockk.slot
 import kotlinx.coroutines.test.runTest
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.ResponseBody.Companion.toResponseBody
@@ -150,6 +155,40 @@ class PedidoRepositoryTest {
         val resultado = repositorio.anularItem(100L, 501L)
 
         assertEquals(ErrorApp.RED, (resultado as Resultado.Fallo).error)
+    }
+
+    @Test
+    fun `el envio mapea los modificadores al request`() = runTest {
+        val requestCapturado = slot<CrearPedidoRequest>()
+        coEvery { api.crearPedido(any(), capture(requestCapturado)) } returns PedidoResponseDto(
+            id = 23L,
+            mesaId = 7L,
+            estado = "PENDIENTE",
+            total = BigDecimal("100.00")
+        )
+
+        val resultado = repositorio.enviarPedido(
+            mesaId = 7L,
+            items = listOf(
+                ItemPedido(
+                    productoId = 10L,
+                    cantidad = 2,
+                    notas = "sin picante",
+                    precioUnitario = BigDecimal("48.00"),
+                    modificadores = listOf(
+                        Modificador("Extra queso", BigDecimal("2.00")),
+                        Modificador("Sin cebolla", BigDecimal("0.00"))
+                    )
+                )
+            ),
+            clientRequestId = "clave-modificadores"
+        )
+
+        assertTrue(resultado is Resultado.Exito)
+        val item = requestCapturado.captured.items.single()
+        assertEquals(2, item.modificadores.size)
+        assertEquals("Extra queso", item.modificadores[0].nombre)
+        assertEquals("2.00", item.modificadores[0].precioAdicional.toPlainString())
     }
 
     private fun errorHttp(codigo: Int): HttpException {

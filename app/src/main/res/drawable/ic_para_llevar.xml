@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Icono de pedido para llevar (PRB-94): bolsa con asa.
+    Vector propio para no depender de recursos externos.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M5,8h14a1,1 0,0 1,1 1.08l-1.1,11A2,2 0,0 1,16.9 22H7.1a2,2 0,0 1,-2 -1.92L4,9.08A1,1 0,0 1,5 8z" />
+
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M8.5,8V6.5a3.5,3.5 0,0 1,7 0V8"
+        android:strokeColor="@android:color/white"
+        android:strokeLineCap="round"
+        android:strokeWidth="2" />
+</vector>
