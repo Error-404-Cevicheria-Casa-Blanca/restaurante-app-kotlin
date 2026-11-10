@@ -9,6 +9,7 @@ import com.lacasablanca.mesero.data.repository.CobroRepository
 import com.lacasablanca.mesero.domain.ErrorApp
 import com.lacasablanca.mesero.domain.Resultado
 import com.lacasablanca.mesero.domain.model.Descuento
+import com.lacasablanca.mesero.domain.model.DestinoCobro
 import com.lacasablanca.mesero.domain.model.MetodoPago
 import com.lacasablanca.mesero.domain.model.TipoDescuento
 import kotlinx.coroutines.CoroutineDispatcher
@@ -23,19 +24,32 @@ import java.math.RoundingMode
 import java.util.UUID
 
 /**
- * Cobro de una mesa (PRB-56). Carga la cuenta, arma los pagos y confirma
- * contra el repositorio; con USE_FAKE_DATA responde FakeCobroRepository.
+ * Cobro de una mesa o de un pedido sin mesa (PRB-56 / PRB-88).
+ * Carga la cuenta, arma los pagos y confirma contra el repositorio.
  *
  * El identificador de idempotencia se guarda en [SavedStateHandle] para que
  * sobreviva a la recreacion de la pantalla y a la muerte del proceso: si el
  * usuario reintenta el cobro, el backend recibe la misma clave y no duplica.
  */
 class CobroViewModel(
-    private val mesaId: Long,
+    private val destino: DestinoCobro,
     private val cobroRepository: CobroRepository,
     private val savedStateHandle: SavedStateHandle,
     private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : ViewModel() {
+
+    /** Compatibilidad con los tests existentes y el cobro de mesa historico. */
+    constructor(
+        mesaId: Long,
+        cobroRepository: CobroRepository,
+        savedStateHandle: SavedStateHandle,
+        ioDispatcher: CoroutineDispatcher = Dispatchers.IO
+    ) : this(
+        destino = DestinoCobro.Mesa(mesaId, 0),
+        cobroRepository = cobroRepository,
+        savedStateHandle = savedStateHandle,
+        ioDispatcher = ioDispatcher
+    )
 
     private val clientRequestId: String =
         savedStateHandle.get<String>(KEY_CLIENT_REQUEST_ID)
@@ -53,7 +67,11 @@ class CobroViewModel(
     fun cargarCuenta() {
         _estado.update { it.copy(loading = true, error = null) }
         viewModelScope.launch(ioDispatcher) {
-            when (val resultado = cobroRepository.obtenerCuenta(mesaId)) {
+            val resultado = when (val d = destino) {
+                is DestinoCobro.Mesa -> cobroRepository.obtenerCuenta(d.mesaId)
+                is DestinoCobro.Pedido -> cobroRepository.obtenerCuentaPedido(d.pedidoId)
+            }
+            when (resultado) {
                 is Resultado.Exito -> _estado.update {
                     it.copy(
                         cuenta = resultado.datos,
@@ -217,6 +235,11 @@ class CobroViewModel(
      * Devuelve `false` y deja un codigo de error si el valor no es valido.
      */
     fun aplicarDescuento(tipo: TipoDescuento, valorTexto: String): Boolean {
+        if (destino is DestinoCobro.Pedido) {
+            // A87: el backend de pedidos aun no recibe descuento.
+            _estado.update { it.copy(error = ERROR_DESCUENTO) }
+            return false
+        }
         val actual = _estado.value
         val base = actual.totalBruto
         val valor = valorTexto.aTextoMonto().aBigDecimal().setScale(2, RoundingMode.HALF_UP)
@@ -270,7 +293,11 @@ class CobroViewModel(
         _estado.update { it.copy(loading = true, error = null) }
 
         viewModelScope.launch(ioDispatcher) {
-            when (val resultado = cobroRepository.cobrar(mesaId, request)) {
+            val resultado = when (val d = destino) {
+                is DestinoCobro.Mesa -> cobroRepository.cobrar(d.mesaId, request)
+                is DestinoCobro.Pedido -> cobroRepository.cobrarPedido(d.pedidoId, request)
+            }
+            when (resultado) {
                 is Resultado.Exito -> {
                     val vuelto = actual.vuelto.max(resultado.datos.vuelto ?: BigDecimal.ZERO)
                     _estado.update {

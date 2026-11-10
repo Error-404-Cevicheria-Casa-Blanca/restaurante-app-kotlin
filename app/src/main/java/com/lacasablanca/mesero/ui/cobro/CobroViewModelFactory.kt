@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewmodel.CreationExtras
 import com.lacasablanca.mesero.data.repository.CobroRepository
+import com.lacasablanca.mesero.domain.model.DestinoCobro
 
 /**
  * Crea [CobroViewModel] con inyeccion manual y un [SavedStateHandle] real.
@@ -13,14 +14,14 @@ import com.lacasablanca.mesero.data.repository.CobroRepository
  * el cobro.
  */
 class CobroViewModelFactory(
-    private val mesaId: Long,
+    private val destino: DestinoCobro,
     private val cobroRepository: CobroRepository
 ) : ViewModelProvider.Factory {
 
     @Suppress("UNCHECKED_CAST")
     override fun <VM : ViewModel> create(modelClass: Class<VM>, extras: CreationExtras): VM =
         CobroViewModel(
-            mesaId = mesaId,
+            destino = destino,
             cobroRepository = cobroRepository,
             savedStateHandle = extras.createSavedStateHandle()
         ) as VM

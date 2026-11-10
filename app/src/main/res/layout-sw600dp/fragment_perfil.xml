@@ -3,15 +3,14 @@
     Perfil del mesero en tablet (PRB-83). Mismo contenido que la variante movil,
     pero el cuerpo se centra con un ancho maximo de 640dp para no estirar las
     tarjetas en pantallas de 8" a 10". Los IDs deben coincidir con
-    layout/activity_perfil.xml.
+    layout/fragment_perfil.xml.
 -->
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
-    tools:context=".ui.perfil.PerfilActivity">
+    tools:context=".ui.perfil.PerfilFragment">
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/barraPerfil"

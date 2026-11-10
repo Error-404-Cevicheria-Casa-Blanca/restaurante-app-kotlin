@@ -30,11 +30,12 @@ import kotlinx.coroutines.launch
 /**
  * Carrito en bottom sheet (rediseno PRB-38).
  *
- * Comparte el MISMO [CarritoViewModel] de [ComandaActivity] (mismo
- * ViewModelStoreOwner), asi que no hay dos carritos ni estado duplicado.
- * La Activity sigue siendo la unica que consume [CarritoViewModel.eventos]:
- * al confirmar, el envio exitoso lo maneja ella (cierra el sheet y muestra
- * el dialogo de exito).
+ * Comparte el MISMO [CarritoViewModel] de [ComandaFragment] (mismo
+ * ViewModelStoreOwner de la Activity), asi que no hay dos carritos ni estado
+ * duplicado.
+ * El ComandaFragment sigue siendo el unico que consume
+ * [CarritoViewModel.eventos]: al confirmar, el envio exitoso lo maneja el
+ * fragmento (cierra el sheet y muestra el dialogo de exito).
  */
 class CarritoBottomSheet : BottomSheetDialogFragment() {
 
@@ -81,10 +82,10 @@ class CarritoBottomSheet : BottomSheetDialogFragment() {
             alDisminuir = { item -> viewModel.disminuirCantidad(item) },
             alEliminar = { item -> viewModel.eliminarProducto(item) },
             alEditarNotas = { item ->
-                (activity as? Listener)?.onEditarNotas(item)
+                (parentFragment as? Listener)?.onEditarNotas(item)
             },
             alAnular = { item ->
-                (activity as? Listener)?.onAnular(item)
+                (parentFragment as? Listener)?.onAnular(item)
             }
         )
 

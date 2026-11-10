@@ -3,15 +3,14 @@
     Perfil del mesero a pantalla completa (PRB-83). Reemplaza el bottom sheet.
     Toolbar con Atras, tarjeta de identidad (nombre y rol), tarjeta de sesion
     (usuario, terminal, turno y fecha) y boton fijo de cerrar sesion.
-    Los IDs deben coincidir con layout-sw600dp/activity_perfil.xml.
+    Los IDs deben coincidir con layout-sw600dp/fragment_perfil.xml.
 -->
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
-    tools:context=".ui.perfil.PerfilActivity">
+    tools:context=".ui.perfil.PerfilFragment">
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/barraPerfil"

@@ -11,7 +11,7 @@
     android:layout_height="match_parent"
     android:background="@color/background"
     android:orientation="vertical"
-    tools:context=".ui.cobro.CobroActivity">
+    tools:context=".ui.cobro.CobroFragment">
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/barraCobro"

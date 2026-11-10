@@ -10,7 +10,7 @@ import com.lacasablanca.mesero.ui.common.formatearMoneda
 
 /**
  * Dialogo de exito del pedido (PRB-38) con la variante para llevar (PRB-94).
- * Se extrajo de [ComandaActivity] para mantener la Activity por debajo del
+ * Se extrajo de [ComandaFragment] para mantener la pantalla por debajo del
  * umbral de tamano de detekt.
  */
 class PedidoEnviadoDialog(

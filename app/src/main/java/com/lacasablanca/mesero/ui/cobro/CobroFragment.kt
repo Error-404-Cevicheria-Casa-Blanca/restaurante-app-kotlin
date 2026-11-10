@@ -4,19 +4,17 @@ import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.addCallback
-import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowCompat
-import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
-import androidx.core.view.updatePadding
 import androidx.core.widget.doAfterTextChanged
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -26,12 +24,13 @@ import com.google.android.material.textfield.TextInputEditText
 import com.lacasablanca.mesero.MeseroApp
 import com.lacasablanca.mesero.R
 import com.lacasablanca.mesero.core.GenericViewModelFactory
-import com.lacasablanca.mesero.databinding.ActivityCobroBinding
 import com.lacasablanca.mesero.databinding.DialogAplicarDescuentoBinding
 import com.lacasablanca.mesero.databinding.DialogCobroExitosoBinding
 import com.lacasablanca.mesero.databinding.DialogDividirCuentaBinding
 import com.lacasablanca.mesero.databinding.DialogErrorPremiumBinding
 import com.lacasablanca.mesero.databinding.DialogSalirCobroBinding
+import com.lacasablanca.mesero.databinding.FragmentCobroBinding
+import com.lacasablanca.mesero.domain.model.DestinoCobro
 import com.lacasablanca.mesero.domain.model.MetodoPago
 import com.lacasablanca.mesero.domain.model.TipoDescuento
 import com.lacasablanca.mesero.ui.bloqueo.BloqueoActivity
@@ -39,27 +38,42 @@ import com.lacasablanca.mesero.ui.common.formatearMoneda
 import com.lacasablanca.mesero.ui.impresion.AvisoImpresion
 import com.lacasablanca.mesero.ui.impresion.ImpresionPrecuentaViewModel
 import com.lacasablanca.mesero.ui.impresion.ImpresionUiState
+import com.lacasablanca.mesero.ui.main.MainActivity
 import kotlinx.coroutines.launch
 import java.math.BigDecimal
 
 /**
- * Cobro en tablet y telefono (PRB-56). La Activity solo dibuja el estado
- * del ViewModel y reenvia las acciones del formulario.
+ * Cobro de una mesa o de un pedido sin mesa (PRB-56 / PRB-88, Fase 5).
+ *
+ * - [CobroViewModel] vive en el scope del Fragment, que se conserva con
+ *   `hide/show` al cambiar de tab; los pagos no se pierden.
+ * - Mesa: carga `GET /mesas/{id}/cuenta` y cobra `POST /mesas/{id}/cobrar`.
+ * - Pedido/delivery: carga `GET /pedidos/{id}` y cobra
+ *   `POST /pedidos/{id}/cobrar`; no libera mesa y oculta el descuento (A87).
+ * - Al terminar publica `CobroFragment.REQUEST_KEY` y pide a MainActivity
+ *   volver al tab de origen (Salón o Pedidos) con popBackStack.
  */
-class CobroActivity : AppCompatActivity() {
+class CobroFragment : Fragment() {
 
-    private lateinit var binding: ActivityCobroBinding
+    private var _binding: FragmentCobroBinding? = null
+    private val binding get() = _binding!!
+
+    private val contenedor get() = (requireActivity().application as MeseroApp).container
+
+    private lateinit var destino: DestinoCobro
+    private var mesaId = -1L
+    private var numeroMesa = 0
+    private var pedidoId = -1L
+    private var clienteNombre: String? = null
+    private var argumentosInvalidos = false
+    private var terminando = false
+
     private lateinit var adaptadorCuenta: CuentaLineaAdapter
     private lateinit var adaptadorPagos: PagoAdapter
     private lateinit var adaptadorCuotas: CuotaAdapter
 
-    private val contenedor get() = (application as MeseroApp).container
-
-    private val mesaId by lazy { intent.getLongExtra(EXTRA_MESA_ID, -1L) }
-    private val numeroMesa by lazy { intent.getIntExtra(EXTRA_MESA_NUMERO, 0) }
-
     private val viewModel: CobroViewModel by viewModels {
-        CobroViewModelFactory(mesaId, contenedor.cobroRepository)
+        CobroViewModelFactory(destino, contenedor.cobroRepository)
     }
 
     private val impresionViewModel: ImpresionPrecuentaViewModel by viewModels {
@@ -77,34 +91,74 @@ class CobroActivity : AppCompatActivity() {
     private var dialogoDivision: AlertDialog? = null
     private var dialogoDescuento: AlertDialog? = null
     private var dialogoExitoMostrado = false
-    private var terminando = false
+    private var callbackAtras: OnBackPressedCallback? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityCobroBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-
-        if (mesaId <= 0L || numeroMesa <= 0) {
-            finish()
-            return
+        val args = requireArguments()
+        val pedido = args.getLong(EXTRA_PEDIDO_ID, -1L)
+        if (pedido > 0L) {
+            pedidoId = pedido
+            clienteNombre = args.getString(EXTRA_CLIENTE_NOMBRE)
+            mesaId = -1L
+            numeroMesa = 0
+            destino = DestinoCobro.Pedido(pedido, clienteNombre)
+        } else {
+            mesaId = args.getLong(EXTRA_MESA_ID, -1L)
+            numeroMesa = args.getInt(EXTRA_MESA_NUMERO, 0)
+            pedidoId = -1L
+            destino = DestinoCobro.Mesa(mesaId, numeroMesa)
         }
-
-        configurarInsets()
-        configurarBarra()
-        prepararListas()
-        prepararAcciones()
-
-        binding.barraCobro.title = getString(R.string.cobro_titulo, numeroMesa)
-
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                launch { viewModel.estado.collect(::render) }
-                launch { impresionViewModel.estado.collect(::renderImpresion) }
-            }
+        argumentosInvalidos = when (destino) {
+            is DestinoCobro.Mesa -> mesaId <= 0L || numeroMesa <= 0
+            is DestinoCobro.Pedido -> pedidoId <= 0L
         }
     }
 
-    override fun onDestroy() {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        _binding = FragmentCobroBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        if (argumentosInvalidos) {
+            view.post { (requireActivity() as? MainActivity)?.cerrarCobro() }
+            return
+        }
+
+        configurarBarra()
+        prepararListas()
+        prepararAcciones()
+        configurarAtras()
+
+        binding.barraCobro.title = when (val d = destino) {
+            is DestinoCobro.Mesa -> getString(R.string.cobro_titulo, d.numeroMesa)
+            is DestinoCobro.Pedido -> getString(R.string.cobro_titulo_pedido, d.pedidoId)
+        }
+
+        if (destino is DestinoCobro.Pedido) {
+            // A87: sin descuento hasta que el backend de pedidos lo reciba.
+            binding.btnAplicarDescuento.isVisible = false
+            binding.filaDescuento.isVisible = false
+            // Sin mesa no hay pre-cuenta por mesa.
+            binding.btnImprimir.isVisible = false
+            binding.btnReimprimir.isVisible = false
+        }
+
+        observarEstado()
+    }
+
+    override fun onHiddenChanged(hidden: Boolean) {
+        super.onHiddenChanged(hidden)
+        callbackAtras?.isEnabled = !hidden
+    }
+
+    override fun onDestroyView() {
         dialogoSalir?.dismiss()
         dialogoSalir = null
         dialogoExito?.dismiss()
@@ -115,20 +169,9 @@ class CobroActivity : AppCompatActivity() {
         dialogoDivision = null
         dialogoDescuento?.dismiss()
         dialogoDescuento = null
-        super.onDestroy()
-    }
-
-    private fun configurarInsets() {
-        WindowCompat.setDecorFitsSystemWindows(window, false)
-        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { vista, insets ->
-            val barras = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            val teclado = insets.getInsets(WindowInsetsCompat.Type.ime())
-            vista.updatePadding(
-                top = barras.top,
-                bottom = maxOf(barras.bottom, teclado.bottom)
-            )
-            insets
-        }
+        callbackAtras = null
+        _binding = null
+        super.onDestroyView()
     }
 
     private fun configurarBarra() {
@@ -143,32 +186,29 @@ class CobroActivity : AppCompatActivity() {
                 else -> false
             }
         }
-        onBackPressedDispatcher.addCallback(this) { intentarSalir() }
     }
 
-    /**
-     * Bloqueo rapido (PRB-81) desde el cobro.
-     *
-     * CobroActivity solo pasa a STOPPED: su ViewModelStore conserva la misma
-     * instancia de [CobroViewModel] con la cuenta, la propina y los pagos ya
-     * agregados. Al desbloquear se reanuda esta Activity y repeatOnLifecycle
-     * vuelve a recolectar el estado sin llamar a `cargarCuenta()` de nuevo.
-     */
+    private fun configurarAtras() {
+        callbackAtras = requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
+            intentarSalir()
+        }
+    }
+
     private fun abrirBloqueo() {
-        startActivity(Intent(this, BloqueoActivity::class.java))
+        startActivity(Intent(requireContext(), BloqueoActivity::class.java))
     }
 
     private fun prepararListas() {
         adaptadorCuenta = CuentaLineaAdapter()
-        binding.recyclerCuenta.layoutManager = LinearLayoutManager(this)
+        binding.recyclerCuenta.layoutManager = LinearLayoutManager(requireContext())
         binding.recyclerCuenta.adapter = adaptadorCuenta
 
         adaptadorPagos = PagoAdapter(viewModel::eliminarPago)
-        binding.recyclerPagos.layoutManager = LinearLayoutManager(this)
+        binding.recyclerPagos.layoutManager = LinearLayoutManager(requireContext())
         binding.recyclerPagos.adapter = adaptadorPagos
 
         adaptadorCuotas = CuotaAdapter()
-        binding.recyclerCuotas.layoutManager = LinearLayoutManager(this)
+        binding.recyclerCuotas.layoutManager = LinearLayoutManager(requireContext())
         binding.recyclerCuotas.adapter = adaptadorCuotas
     }
 
@@ -203,6 +243,15 @@ class CobroActivity : AppCompatActivity() {
         }
     }
 
+    private fun observarEstado() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch { viewModel.estado.collect(::render) }
+                launch { impresionViewModel.estado.collect(::renderImpresion) }
+            }
+        }
+    }
+
     private fun metodoDesdeChip(id: Int): MetodoPago? = when (id) {
         R.id.chipEfectivo -> MetodoPago.EFECTIVO
         R.id.chipYape -> MetodoPago.YAPE
@@ -233,7 +282,6 @@ class CobroActivity : AppCompatActivity() {
         mostrarExito(estado)
     }
 
-    /** Botones de impresion (PRB-73) y Snackbar del resultado. */
     private fun renderImpresion(estado: ImpresionUiState) {
         binding.btnImprimir.isEnabled = !estado.imprimiendo
         binding.btnReimprimir.isEnabled = !estado.imprimiendo
@@ -245,9 +293,10 @@ class CobroActivity : AppCompatActivity() {
             textoAvisoImpresion(aviso),
             Snackbar.LENGTH_SHORT
         )
-        snackbar.setTextColor(ContextCompat.getColor(this, R.color.on_primary))
+        snackbar.setTextColor(ContextCompat.getColor(requireContext(), R.color.on_primary))
         snackbar.show()
-        snackbar.view.background = ContextCompat.getDrawable(this, R.drawable.bg_snackbar)
+        snackbar.view.background =
+            ContextCompat.getDrawable(requireContext(), R.drawable.bg_snackbar)
     }
 
     private fun textoAvisoImpresion(aviso: AvisoImpresion): String = when (aviso) {
@@ -273,6 +322,13 @@ class CobroActivity : AppCompatActivity() {
     }
 
     private fun renderDescuento(estado: CobroUiState) {
+        val permiteDescuento = destino is DestinoCobro.Mesa
+        binding.btnAplicarDescuento.isVisible = permiteDescuento
+        if (!permiteDescuento) {
+            binding.filaDescuento.isVisible = false
+            return
+        }
+
         val descuento = estado.descuento
         binding.filaDescuento.isVisible = descuento != null
         binding.btnAplicarDescuento.text = getString(
@@ -409,10 +465,7 @@ class CobroActivity : AppCompatActivity() {
         dialogoExitoMostrado = true
 
         val contenido = DialogCobroExitosoBinding.inflate(layoutInflater)
-        contenido.textoExitoCobroMensaje.text = getString(
-            R.string.cobro_exito_mensaje,
-            numeroMesa
-        )
+        contenido.textoExitoCobroMensaje.text = mensajeExito()
         contenido.textoExitoCobroTotal.text = getString(
             R.string.cobro_exito_total,
             formatearMoneda(estado.totalConPropina)
@@ -422,18 +475,36 @@ class CobroActivity : AppCompatActivity() {
             R.string.cobro_vuelto,
             formatearMoneda(estado.vuelto)
         )
+        contenido.btnVolverMapaCobro.text = if (destino is DestinoCobro.Pedido) {
+            getString(R.string.cobro_exito_volver_pedidos)
+        } else {
+            getString(R.string.cobro_exito_volver)
+        }
 
         val dialogo = crearDialogo(contenido.root)
         dialogo.setCancelable(false)
 
         contenido.btnVolverMapaCobro.setOnClickListener {
             dialogo.dismiss()
-            devolverResultado()
+            terminarCobro(exitoso = true)
         }
         dialogo.setCanceledOnTouchOutside(false)
         dialogo.setOnDismissListener { if (dialogoExito === dialogo) dialogoExito = null }
         dialogo.show()
         dialogoExito = dialogo
+    }
+
+    private fun mensajeExito(): String = when (val d = destino) {
+        is DestinoCobro.Mesa -> getString(R.string.cobro_exito_mensaje, d.numeroMesa)
+        is DestinoCobro.Pedido -> if (d.clienteNombre.isNullOrBlank()) {
+            getString(R.string.cobro_exito_mensaje_pedido, d.pedidoId)
+        } else {
+            getString(
+                R.string.cobro_exito_mensaje_pedido_cliente,
+                d.pedidoId,
+                d.clienteNombre
+            )
+        }
     }
 
     private fun intentarSalir() {
@@ -450,7 +521,7 @@ class CobroActivity : AppCompatActivity() {
         contenido.btnSeguirCobrando.setOnClickListener { dialogo.dismiss() }
         contenido.btnSalirSinCobrar.setOnClickListener {
             dialogo.dismiss()
-            finish()
+            terminarCobro(exitoso = false)
         }
         dialogo.setCanceledOnTouchOutside(true)
         dialogo.setOnDismissListener { if (dialogoSalir === dialogo) dialogoSalir = null }
@@ -500,6 +571,7 @@ class CobroActivity : AppCompatActivity() {
     }
 
     private fun mostrarDialogoDescuento() {
+        if (destino is DestinoCobro.Pedido) return
         dialogoDescuento?.dismiss()
         val contenido = DialogAplicarDescuentoBinding.inflate(layoutInflater)
         val dialogo = crearDialogo(contenido.root)
@@ -514,7 +586,9 @@ class CobroActivity : AppCompatActivity() {
         actualizarEtiquetaDescuento(contenido, tipo)
         descuentoActual?.let {
             contenido.textoValorDescuento.setText(it.valor.stripTrailingZeros().toPlainString())
-            contenido.textoValorDescuento.setSelection(contenido.textoValorDescuento.text?.length ?: 0)
+            contenido.textoValorDescuento.setSelection(
+                contenido.textoValorDescuento.text?.length ?: 0
+            )
         }
 
         contenido.grupoTipoDescuento.addOnButtonCheckedListener { _, checkedId, isChecked ->
@@ -573,7 +647,7 @@ class CobroActivity : AppCompatActivity() {
     }
 
     private fun crearDialogo(contenido: View): AlertDialog {
-        val dialogo = AlertDialog.Builder(this)
+        val dialogo = AlertDialog.Builder(requireContext())
             .setView(contenido)
             .create()
         dialogo.window?.apply {
@@ -585,26 +659,47 @@ class CobroActivity : AppCompatActivity() {
         return dialogo
     }
 
-    private fun devolverResultado() {
+    /**
+     * Cierra el cobro con `FragmentResult` y pide a MainActivity volver al
+     * tab de origen (Salón o Pedidos) con popBackStack.
+     */
+    private fun terminarCobro(exitoso: Boolean) {
         if (terminando) return
         terminando = true
-        val datos = Intent().apply {
-            putExtra(EXTRA_MESA_ID, mesaId)
-            putExtra(EXTRA_MESA_NUMERO, numeroMesa)
+        val datos = Bundle().apply {
+            putBoolean(EXTRA_COBRO_EXITOSO, exitoso)
+            when (val d = destino) {
+                is DestinoCobro.Mesa -> putLong(EXTRA_MESA_ID, d.mesaId)
+                is DestinoCobro.Pedido -> putLong(EXTRA_PEDIDO_ID, d.pedidoId)
+            }
         }
-        setResult(RESULT_OK, datos)
-        finish()
+        parentFragmentManager.setFragmentResult(REQUEST_KEY, datos)
+        (requireActivity() as? MainActivity)?.cerrarCobro()
     }
 
-    private fun mensajeError(codigo: String): String =
-        getString(MENSAJES_ERROR[codigo] ?: R.string.cobro_error_desconocido)
+    private fun mensajeError(codigo: String): String {
+        if (destino is DestinoCobro.Pedido) {
+            when (codigo) {
+                CobroViewModel.ERROR_CONFLICTO ->
+                    return getString(R.string.cobro_error_conflicto_pedido)
+
+                CobroViewModel.ERROR_CONFLICTO_PAGADA ->
+                    return getString(R.string.cobro_error_conflicto_pagada_pedido)
+            }
+        }
+        return getString(MENSAJES_ERROR[codigo] ?: R.string.cobro_error_desconocido)
+    }
 
     private fun BigDecimal.aTextoEditable(): String =
         if (compareTo(BigDecimal.ZERO) == 0) "" else toPlainString()
 
     companion object {
+        const val REQUEST_KEY = "cobro_result"
+        const val EXTRA_COBRO_EXITOSO = "extra_cobro_exitoso"
         const val EXTRA_MESA_ID = "extra_mesa_id"
         const val EXTRA_MESA_NUMERO = "extra_mesa_numero"
+        const val EXTRA_PEDIDO_ID = "extra_pedido_id"
+        const val EXTRA_CLIENTE_NOMBRE = "extra_cliente_nombre"
 
         /** Codigo de error del ViewModel -> texto visible (siempre en strings.xml). */
         private val MENSAJES_ERROR: Map<String, Int> = mapOf(
@@ -623,5 +718,21 @@ class CobroActivity : AppCompatActivity() {
             CobroViewModel.ERROR_BLOQUEADO to R.string.cobro_error_bloqueado,
             CobroViewModel.ERROR_SERVIDOR to R.string.cobro_error_servidor
         )
+
+        fun nuevaMesa(mesaId: Long, numeroMesa: Int): CobroFragment =
+            CobroFragment().apply {
+                arguments = Bundle().apply {
+                    putLong(EXTRA_MESA_ID, mesaId)
+                    putInt(EXTRA_MESA_NUMERO, numeroMesa)
+                }
+            }
+
+        fun nuevaPedido(pedidoId: Long, clienteNombre: String?): CobroFragment =
+            CobroFragment().apply {
+                arguments = Bundle().apply {
+                    putLong(EXTRA_PEDIDO_ID, pedidoId)
+                    putString(EXTRA_CLIENTE_NOMBRE, clienteNombre)
+                }
+            }
     }
 }

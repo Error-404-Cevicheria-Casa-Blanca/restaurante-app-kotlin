@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
     Barra flotante de checkout (rediseno PRB-38). Se incluye al fondo de
-    activity_comanda.xml (movil y tablet) con margen de 16dp, radio 16dp y
+    fragment_comanda.xml (movil y tablet) con margen de 16dp, radio 16dp y
     elevacion 8dp. Solo se muestra cuando el carrito tiene items.
 -->
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"

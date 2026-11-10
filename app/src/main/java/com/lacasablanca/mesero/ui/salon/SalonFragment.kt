@@ -1,19 +1,20 @@
-package com.lacasablanca.mesero.ui.mesas
+package com.lacasablanca.mesero.ui.salon
 
 import android.content.Intent
 import android.content.res.ColorStateList
 import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.activity.viewModels
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.GridLayoutManager
@@ -24,41 +25,64 @@ import com.google.android.material.tabs.TabLayout
 import com.lacasablanca.mesero.MeseroApp
 import com.lacasablanca.mesero.R
 import com.lacasablanca.mesero.core.GenericViewModelFactory
-import com.lacasablanca.mesero.databinding.ActivityMesasBinding
 import com.lacasablanca.mesero.databinding.DialogAvisoMesaBinding
 import com.lacasablanca.mesero.databinding.DialogLiberarMesaBinding
 import com.lacasablanca.mesero.databinding.DialogMesaAtendidaBinding
 import com.lacasablanca.mesero.databinding.DialogParaLlevarBinding
+import com.lacasablanca.mesero.databinding.FragmentMesasBinding
 import com.lacasablanca.mesero.databinding.ItemLeyendaBinding
 import com.lacasablanca.mesero.domain.model.EstadoMesa
 import com.lacasablanca.mesero.domain.model.Mesa
 import com.lacasablanca.mesero.ui.bloqueo.BloqueoActivity
-import com.lacasablanca.mesero.ui.cobro.CobroActivity
-import com.lacasablanca.mesero.ui.comanda.ComandaActivity
-import com.lacasablanca.mesero.ui.perfil.PerfilActivity
+import com.lacasablanca.mesero.ui.cobro.CobroFragment
+import com.lacasablanca.mesero.ui.comanda.ComandaFragment
 import com.lacasablanca.mesero.ui.common.aparecerConDesplazamiento
 import com.lacasablanca.mesero.ui.common.colorRes
 import com.lacasablanca.mesero.ui.common.etiquetaPluralRes
 import com.lacasablanca.mesero.ui.common.etiquetaRes
 import com.lacasablanca.mesero.ui.common.iconoRes
 import com.lacasablanca.mesero.ui.login.LoginActivity
+import com.lacasablanca.mesero.ui.main.MainActivity
+import com.lacasablanca.mesero.ui.mesas.AvisoMesas
+import com.lacasablanca.mesero.ui.mesas.ErrorMesas
+import com.lacasablanca.mesero.ui.mesas.MesaAdapter
+import com.lacasablanca.mesero.ui.mesas.MesasEvento
+import com.lacasablanca.mesero.ui.mesas.MesasUiState
+import com.lacasablanca.mesero.ui.mesas.MesasViewModel
 import kotlinx.coroutines.launch
 
 /**
- * Mapa de mesas: toolbar, pestanas de zona, chips de estado con contadores,
- * cuadricula (2 columnas en telefono, 4 en tablet) y estados cargando/vacio/error.
+ * Mapa de mesas dentro del tab Salón (PRB-88, Fase 2).
+ *
+ * Es la migración de MesasActivity a Fragment:
+ * - Mantiene el mismo layout (barra, zonas, chips, leyenda, grilla, FAB).
+ * - Comparte [MesasViewModel] con MainActivity (`activityViewModels`), así el
+ *   mapa y sus filtros sobreviven al cambio de tab.
+ * - Detiene el polling cuando el tab queda oculto (`onHiddenChanged`), no solo
+ *   cuando la Activity pasa a segundo plano.
+ * - Comanda y Cobro siguen siendo Activities de detalle.
  */
-class MesasActivity : AppCompatActivity() {
+class SalonFragment : Fragment() {
 
-    private lateinit var binding: ActivityMesasBinding
+    private var _binding: FragmentMesasBinding? = null
+    private val binding get() = _binding!!
+
     private lateinit var adapter: MesaAdapter
 
-    private val contenedor get() = (application as MeseroApp).container
+    private val contenedor get() = (requireActivity().application as MeseroApp).container
 
-    private val viewModel: MesasViewModel by viewModels {
-        GenericViewModelFactory {
-            MesasViewModel(contenedor.mesaRepository, contenedor.authRepository)
-        }
+    /**
+     * Mismo MesasViewModel que el resto de MainActivity: se guarda en el
+     * ViewModelStore de la Activity para sobrevivir al cambio de tab. Se usa
+     * ViewModelProvider directo porque el proyecto no incluye fragment-ktx.
+     */
+    private val viewModel: MesasViewModel by lazy {
+        ViewModelProvider(
+            requireActivity(),
+            GenericViewModelFactory {
+                MesasViewModel(contenedor.mesaRepository, contenedor.authRepository)
+            }
+        )[MesasViewModel::class.java]
     }
 
     private var actualizandoTabs = false
@@ -66,58 +90,47 @@ class MesasActivity : AppCompatActivity() {
     private var firmaChips = ""
     private var primeraReanudacion = true
     private var liberarPendiente = false
+    private var iniciado = false
     private var dialogoAbierto: AlertDialog? = null
     private var dialogoLiberarMesa: AlertDialog? = null
     private var animacionInicialEjecutada = false
 
     /**
-     * La comanda puede devolver la mesa sin liberar (el PATCH fallo y el mozo
-     * eligio salir). En ese caso se reintenta aqui con [MesasViewModel.liberarMesa].
+     * PRB-88: la comanda y el cobro ya no son Activities. Sus resultados
+     * llegan por FragmentResult; el mapa se refresca cuando corresponde.
      */
-    private val lanzadorComanda = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) { resultado ->
-        if (resultado.resultCode != RESULT_OK) return@registerForActivityResult
-        val datos = resultado.data
-        // PRB-94: pedido para llevar enviado. Ninguna mesa cambio de estado;
-        // solo se muestra el aviso de exito y se sincroniza el mapa.
-        val pedidoParaLlevar = datos
-            ?.getLongExtra(ComandaActivity.EXTRA_PEDIDO_PARA_LLEVAR_ID, 0L)
-            ?: 0L
-        if (pedidoParaLlevar > 0L) {
-            mostrarSnackbar(getString(R.string.para_llevar_pedido_enviado, pedidoParaLlevar))
-            viewModel.recargarAlVolver()
-            return@registerForActivityResult
-        }
-        if (datos?.getBooleanExtra(ComandaActivity.EXTRA_LIBERAR_PENDIENTE, false) == true) {
-            val id = datos.getLongExtra(ComandaActivity.EXTRA_MESA_ID, -1L)
-            if (id > 0L) {
-                liberarPendiente = true
-                viewModel.liberarMesa(id)
-            }
-            return@registerForActivityResult
-        }
-        // Pedido enviado: el mapa debe reflejar el nuevo estado de la mesa.
-        viewModel.recargarAlVolver()
-    }
-
-    /** La mesa amarilla abre el cobro; las demas siguen el flujo del mapa. */
-    private val lanzadorCobro = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) { resultado ->
-        if (resultado.resultCode == RESULT_OK) {
-            viewModel.recargarAlVolver()
-        }
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityMesasBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+        parentFragmentManager.setFragmentResultListener(
+            ComandaFragment.REQUEST_KEY,
+            this
+        ) { _, datos -> manejarResultadoComanda(datos) }
+
+        parentFragmentManager.setFragmentResultListener(
+            CobroFragment.REQUEST_KEY,
+            this
+        ) { _, datos ->
+            if (datos.getBoolean(CobroFragment.EXTRA_COBRO_EXITOSO, false)) {
+                viewModel.recargarAlVolver()
+            }
+        }
+    }
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        _binding = FragmentMesasBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
         adapter = MesaAdapter { mesa -> alSeleccionarMesa(mesa) }
         binding.recyclerMesas.layoutManager =
-            GridLayoutManager(this, resources.getInteger(R.integer.columnas_mesas))
+            GridLayoutManager(requireContext(), resources.getInteger(R.integer.columnas_mesas))
         binding.recyclerMesas.adapter = adapter
 
         configurarPestanas()
@@ -130,8 +143,8 @@ class MesasActivity : AppCompatActivity() {
         binding.btnReintentar.setOnClickListener { viewModel.cargar() }
         binding.fabParaLlevar.setOnClickListener { mostrarDialogoParaLlevar() }
 
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch { viewModel.estado.collect(::render) }
                 launch { viewModel.eventos.collect(::manejarEvento) }
                 launch { viewModel.eventosError.collect(::mostrarErrorPolling) }
@@ -145,21 +158,44 @@ class MesasActivity : AppCompatActivity() {
     }
 
     /**
-     * El mapa se mantiene sincronizado mientras la pantalla esta visible:
-     * el bucle se detiene en onStop para no consumir red en segundo plano.
+     * El mapa se mantiene sincronizado mientras el tab esta visible. Al cambiar
+     * de tab, `onHiddenChanged` detiene el bucle; al volver, lo reanuda con una
+     * primera consulta inmediata.
      */
     override fun onStart() {
         super.onStart()
-        viewModel.startPolling()
+        iniciado = true
+        actualizarPolling()
     }
 
     override fun onStop() {
+        iniciado = false
         viewModel.stopPolling()
         super.onStop()
     }
 
+    override fun onHiddenChanged(hidden: Boolean) {
+        super.onHiddenChanged(hidden)
+        if (hidden) {
+            viewModel.stopPolling()
+        } else {
+            actualizarPolling()
+        }
+    }
+
+    private fun actualizarPolling() {
+        // No se consulta lifecycle.currentState: dentro de onStart el Fragment
+        // aun puede figurar en CREATED. El flag iniciado refleja onStart/onStop.
+        if (iniciado && !isHidden && !liberarPendiente) {
+            viewModel.startPolling()
+        } else {
+            viewModel.stopPolling()
+        }
+    }
+
     override fun onResume() {
         super.onResume()
+        if (isHidden) return
         if (primeraReanudacion) {
             primeraReanudacion = false
             return
@@ -171,7 +207,7 @@ class MesasActivity : AppCompatActivity() {
             return
         }
         // Al volver de la comanda (o de segundo plano) el mapa se sincroniza
-        // con el repositorio: la mesa cerrada sin pedido debe verse en verde (LIBRE).
+        // con el repositorio: la mesa cerrada sin pedido debe verse en verde.
         viewModel.recargarAlVolver()
     }
 
@@ -182,12 +218,19 @@ class MesasActivity : AppCompatActivity() {
         liberarPendiente = false
     }
 
-    override fun onDestroy() {
+    override fun onDestroyView() {
         dialogoAbierto?.dismiss()
         dialogoAbierto = null
         dialogoLiberarMesa?.dismiss()
         dialogoLiberarMesa = null
-        super.onDestroy()
+        // La vista puede recrearse (rotacion o back stack) con la misma
+        // instancia del Fragment: se invalidan las firmas para volver a pintar
+        // tabs/chips en el nuevo TabLayout.
+        firmaTabs = ""
+        firmaChips = ""
+        animacionInicialEjecutada = false
+        _binding = null
+        super.onDestroyView()
     }
 
     private fun configurarPestanas() {
@@ -251,8 +294,9 @@ class MesasActivity : AppCompatActivity() {
 
     private fun renderChips(estado: MesasUiState) {
         val contadores = estado.contadores
-        val firma = EstadoMesa.filtrables.joinToString(separator = ",") { "${it.name}=${contadores[it] ?: 0}" } +
-            "#" + (estado.estadoSeleccionado?.name ?: "TODAS")
+        val firma = EstadoMesa.filtrables.joinToString(separator = ",") {
+            "${it.name}=${contadores[it] ?: 0}"
+        } + "#" + (estado.estadoSeleccionado?.name ?: "TODAS")
         if (firma == firmaChips) return
         firmaChips = firma
 
@@ -290,7 +334,7 @@ class MesasActivity : AppCompatActivity() {
         etiquetaEstado: EstadoMesa?,
         icono: Int?
     ): Chip {
-        val chip = Chip(this)
+        val chip = Chip(requireContext())
         chip.text = texto
         chip.isCheckable = true
         chip.isClickable = true
@@ -300,15 +344,15 @@ class MesasActivity : AppCompatActivity() {
         chip.chipBackgroundColor = ColorStateList(
             arrayOf(intArrayOf(android.R.attr.state_checked), intArrayOf()),
             intArrayOf(
-                ContextCompat.getColor(this, R.color.chip_filtro_activo),
-                ContextCompat.getColor(this, R.color.chip_filtro_inactivo)
+                ContextCompat.getColor(requireContext(), R.color.chip_filtro_activo),
+                ContextCompat.getColor(requireContext(), R.color.chip_filtro_inactivo)
             )
         )
         chip.setTextColor(
-            ContextCompat.getColorStateList(this, R.color.selector_texto_chip)
+            ContextCompat.getColorStateList(requireContext(), R.color.selector_texto_chip)
         )
         chip.chipIconTint =
-            ContextCompat.getColorStateList(this, R.color.selector_icono_chip)
+            ContextCompat.getColorStateList(requireContext(), R.color.selector_icono_chip)
         chip.shapeAppearanceModel = chip.shapeAppearanceModel
             .toBuilder()
             .setAllCornerSizes(resources.getDimension(R.dimen.radio_pill))
@@ -322,7 +366,7 @@ class MesasActivity : AppCompatActivity() {
             }
         }
         if (icono != null) {
-            chip.chipIcon = ContextCompat.getDrawable(this, icono)
+            chip.chipIcon = ContextCompat.getDrawable(requireContext(), icono)
             chip.isChipIconVisible = true
         }
         chip.setOnClickListener { viewModel.filtrarEstado(etiquetaEstado) }
@@ -332,16 +376,50 @@ class MesasActivity : AppCompatActivity() {
     private fun pintarLeyenda() {
         binding.leyendaEstados.removeAllViews()
         EstadoMesa.filtrables.forEach { estado ->
-            val item = ItemLeyendaBinding.inflate(layoutInflater, binding.leyendaEstados, false)
-            item.puntoEstado.backgroundTintList =
-                ColorStateList.valueOf(ContextCompat.getColor(this, estado.colorRes()))
+            val item = ItemLeyendaBinding.inflate(
+                layoutInflater,
+                binding.leyendaEstados,
+                false
+            )
+            item.puntoEstado.backgroundTintList = ColorStateList.valueOf(
+                ContextCompat.getColor(requireContext(), estado.colorRes())
+            )
             item.textoLeyenda.text = getString(estado.etiquetaRes())
             val margen = resources.getDimensionPixelSize(R.dimen.espacio_l)
-            item.root.layoutParams = (item.root.layoutParams as android.widget.LinearLayout.LayoutParams).apply {
-                marginEnd = margen
-            }
+            item.root.layoutParams =
+                (item.root.layoutParams as android.widget.LinearLayout.LayoutParams).apply {
+                    marginEnd = margen
+                }
             binding.leyendaEstados.addView(item.root)
         }
+    }
+
+    /**
+     * Resultado de la comanda (FragmentResult):
+     * - pedido para llevar enviado: aviso y refresco;
+     * - liberacion pendiente: reintenta el PATCH con el ViewModel;
+     * - cualquier otro cierre: refresca el mapa.
+     */
+    private fun manejarResultadoComanda(datos: Bundle) {
+        val pedidoParaLlevar = datos.getLong(
+            ComandaFragment.EXTRA_PEDIDO_PARA_LLEVAR_ID,
+            0L
+        )
+        if (pedidoParaLlevar > 0L) {
+            mostrarSnackbar(getString(R.string.para_llevar_pedido_enviado, pedidoParaLlevar))
+            viewModel.recargarAlVolver()
+            return
+        }
+        if (datos.getBoolean(ComandaFragment.EXTRA_LIBERAR_PENDIENTE, false)) {
+            val id = datos.getLong(ComandaFragment.EXTRA_MESA_ID, -1L)
+            if (id > 0L) {
+                liberarPendiente = true
+                viewModel.liberarMesa(id)
+            }
+            return
+        }
+        // Pedido enviado o salida normal: el mapa refleja el nuevo estado.
+        viewModel.recargarAlVolver()
     }
 
     private fun manejarEvento(evento: MesasEvento) {
@@ -350,11 +428,19 @@ class MesasActivity : AppCompatActivity() {
             is MesasEvento.IrAComandaLectura -> abrirComanda(evento.mesa, modoLectura = true)
             is MesasEvento.OpcionesMesaAtendida -> mostrarOpcionesMesaAtendida(evento.mesa)
             is MesasEvento.MesaLiberada -> {
+                liberarPendiente = false
                 cerrarDialogoLiberarMesa()
                 mostrarSnackbar(getString(R.string.mesa_liberada))
+                actualizarPolling()
             }
 
-            is MesasEvento.Aviso -> mostrarAviso(evento)
+            is MesasEvento.Aviso -> {
+                if (evento.tipo == AvisoMesas.ERROR_LIBERAR) {
+                    liberarPendiente = false
+                    actualizarPolling()
+                }
+                mostrarAviso(evento)
+            }
             MesasEvento.SesionExpirada -> {
                 cerrarDialogoLiberarMesa()
                 mostrarDialogoSesionExpirada()
@@ -365,19 +451,19 @@ class MesasActivity : AppCompatActivity() {
     }
 
     /**
-     * Perfil del mesero (PRB-83): pantalla completa que resuelve el nombre y
-     * el rol desde el SessionManager y concentra el cierre de sesion.
+     * La barra del mapa conserva el boton de perfil, pero ahora selecciona el
+     * tab Perfil del contenedor principal en vez de abrir una Activity aparte.
      */
     private fun abrirPerfil() {
-        startActivity(Intent(this, PerfilActivity::class.java))
+        (requireActivity() as? MainActivity)?.seleccionarTab(R.id.navPerfil)
     }
 
     /**
      * Bloqueo rapido (PRB-81): la sesion no se cierra, solo se cubre el mapa
-     * con un PIN. Al desbloquear, MesasActivity vuelve a primer plano.
+     * con un PIN. Al desbloquear, MainActivity vuelve a primer plano.
      */
     private fun abrirBloqueo() {
-        startActivity(Intent(this, BloqueoActivity::class.java))
+        startActivity(Intent(requireContext(), BloqueoActivity::class.java))
     }
 
     /**
@@ -391,7 +477,7 @@ class MesasActivity : AppCompatActivity() {
 
         val contenido = DialogMesaAtendidaBinding.inflate(layoutInflater)
         val dialogo = MaterialAlertDialogBuilder(
-            this,
+            requireContext(),
             R.style.ThemeOverlay_LaCasaBlanca_Dialogo_LiberarMesa
         )
             .setView(contenido.root)
@@ -422,7 +508,7 @@ class MesasActivity : AppCompatActivity() {
         contenido.mensajeDialogo.text = getString(R.string.dialogo_atendida_liberar_mensaje)
 
         val dialogo = MaterialAlertDialogBuilder(
-            this,
+            requireContext(),
             R.style.ThemeOverlay_LaCasaBlanca_Dialogo_LiberarMesa
         )
             .setView(contenido.root)
@@ -440,7 +526,9 @@ class MesasActivity : AppCompatActivity() {
         }
 
         dialogo.setCanceledOnTouchOutside(true)
-        dialogo.setOnDismissListener { if (dialogoLiberarMesa === dialogo) dialogoLiberarMesa = null }
+        dialogo.setOnDismissListener {
+            if (dialogoLiberarMesa === dialogo) dialogoLiberarMesa = null
+        }
         dialogo.show()
         dialogoLiberarMesa = dialogo
     }
@@ -522,7 +610,7 @@ class MesasActivity : AppCompatActivity() {
         contenido.tituloAviso.text = titulo
         contenido.mensajeAviso.text = mensaje
 
-        val dialogo = MaterialAlertDialogBuilder(this)
+        val dialogo = MaterialAlertDialogBuilder(requireContext())
             .setView(contenido.root)
             .setCancelable(cancelable)
             .create()
@@ -558,9 +646,10 @@ class MesasActivity : AppCompatActivity() {
 
     private fun mostrarSnackbar(texto: String) {
         val snackbar = Snackbar.make(binding.root, texto, Snackbar.LENGTH_SHORT)
-        snackbar.setTextColor(ContextCompat.getColor(this, R.color.on_primary))
+        snackbar.setTextColor(ContextCompat.getColor(requireContext(), R.color.on_primary))
         snackbar.show()
-        snackbar.view.background = ContextCompat.getDrawable(this, R.drawable.bg_snackbar)
+        snackbar.view.background =
+            ContextCompat.getDrawable(requireContext(), R.drawable.bg_snackbar)
     }
 
     private fun alSeleccionarMesa(mesa: Mesa) {
@@ -572,26 +661,21 @@ class MesasActivity : AppCompatActivity() {
     }
 
     private fun abrirCobro(mesa: Mesa) {
-        val intent = Intent(this, CobroActivity::class.java).apply {
-            putExtra(CobroActivity.EXTRA_MESA_ID, mesa.id)
-            putExtra(CobroActivity.EXTRA_MESA_NUMERO, mesa.numero)
-        }
-        lanzadorCobro.launch(intent)
+        (requireActivity() as? MainActivity)?.abrirCobroMesa(mesa.id, mesa.numero)
     }
 
     private fun abrirComanda(mesa: Mesa, modoLectura: Boolean = false) {
-        val intent = Intent(this, ComandaActivity::class.java).apply {
-            putExtra(ComandaActivity.EXTRA_MESA_ID, mesa.id)
-            putExtra(ComandaActivity.EXTRA_MESA_NUMERO, mesa.numero)
-            putExtra(ComandaActivity.EXTRA_MESA_UBICACION, mesa.ubicacion)
-            putExtra(ComandaActivity.EXTRA_MODO_LECTURA, modoLectura)
-        }
-        lanzadorComanda.launch(intent)
+        (requireActivity() as? MainActivity)?.abrirComanda(
+            mesaId = mesa.id,
+            numeroMesa = mesa.numero,
+            ubicacion = mesa.ubicacion,
+            modoLectura = modoLectura
+        )
     }
 
     /**
      * PRB-94: dialogo premium para identificar el pedido para llevar. El
-     * nombre viaja a [ComandaActivity], que reutiliza catalogo, carrito,
+     * nombre viaja a [ComandaFragment], que reutiliza catalogo, carrito,
      * modificadores y notas sin asociarse a ninguna mesa.
      */
     private fun mostrarDialogoParaLlevar() {
@@ -600,7 +684,7 @@ class MesasActivity : AppCompatActivity() {
 
         val contenido = DialogParaLlevarBinding.inflate(layoutInflater)
         val dialogo = MaterialAlertDialogBuilder(
-            this,
+            requireContext(),
             R.style.ThemeOverlay_LaCasaBlanca_Dialogo_LiberarMesa
         )
             .setView(contenido.root)
@@ -636,19 +720,15 @@ class MesasActivity : AppCompatActivity() {
     }
 
     private fun abrirComandaParaLlevar(nombre: String) {
-        val intent = Intent(this, ComandaActivity::class.java).apply {
-            putExtra(ComandaActivity.EXTRA_PARA_LLEVAR, true)
-            putExtra(ComandaActivity.EXTRA_CLIENTE_NOMBRE, nombre)
-        }
-        lanzadorComanda.launch(intent)
+        (requireActivity() as? MainActivity)?.abrirComandaParaLlevar(nombre)
     }
 
     private fun irALogin() {
-        val intent = Intent(this, LoginActivity::class.java).apply {
+        val intent = Intent(requireContext(), LoginActivity::class.java).apply {
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
         }
         startActivity(intent)
-        finish()
+        requireActivity().finish()
     }
 
     @StringRes

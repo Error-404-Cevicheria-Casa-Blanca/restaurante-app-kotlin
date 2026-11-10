@@ -47,11 +47,18 @@ class CarritoViewModel(
     private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
     /**
      * PRB-94: destino de la comanda. Por defecto [DestinoPedido.Mesa] con id 0
-     * para conservar la firma historica de los tests; la Activity lo configura
-     * con la mesa elegida o con el nombre del cliente para llevar.
+     * para conservar la firma historica de los tests; [ComandaFragment] lo
+     * configura con la mesa elegida o con el nombre del cliente para llevar.
      */
-    private val destino: DestinoPedido = DestinoPedido.Mesa(0L)
+    destino: DestinoPedido = DestinoPedido.Mesa(0L)
 ) : ViewModel() {
+
+    /**
+     * Destino vigente. El ViewModel vive en el scope de MainActivity (PRB-88),
+     * asi que la primera comanda crea la instancia con su destino y las
+     * siguientes llaman a [configurarDestino] para no mezclar mesas/clientes.
+     */
+    private var destinoActual: DestinoPedido = destino
 
     private val _estado = MutableStateFlow(CarritoUiState(destino = destino))
     val estado: StateFlow<CarritoUiState> = _estado.asStateFlow()
@@ -92,6 +99,42 @@ class CarritoViewModel(
 
     init {
         cargar()
+    }
+
+    /**
+     * PRB-88: fija el destino de la comanda que se esta mostrando. Si cambia
+     * (otra mesa u otro cliente para llevar), descarta el carrito anterior para
+     * no mezclar lineas; si es el mismo, conserva el carrito al cambiar de tab.
+     */
+    fun configurarDestino(nuevo: DestinoPedido) {
+        if (nuevo == destinoActual) return
+        destinoActual = nuevo
+        limpiarCarrito()
+        _estado.update { it.copy(destino = nuevo) }
+    }
+
+    /**
+     * PRB-88: deja el carrito limpio al cerrar la comanda (envio, liberacion o
+     * salida). Conserva el catalogo para que la proxima comanda abra rapido.
+     */
+    fun limpiarCarrito() {
+        claveIdempotencia = null
+        versionPedidoExistente.incrementAndGet()
+        detenerBuclePolling()
+        _estado.update {
+            it.copy(
+                items = emptyList(),
+                itemsExistentes = emptyList(),
+                modoLectura = false,
+                pedidoExistenteId = 0L,
+                pedidoExistenteCargado = false,
+                errorPedidoExistente = null,
+                enviando = false,
+                anulandoItemId = null,
+                categoriaSeleccionada = null,
+                filas = calcularFilas(it.productos, it.categorias, null)
+            )
+        }
     }
 
     /** Carga (o recarga) categorias y productos. No duplica peticiones en vuelo. */
@@ -434,7 +477,7 @@ class CarritoViewModel(
      * mesa o para llevar.
      */
     fun enviarPedido() {
-        enviarPedidoA(destino)
+        enviarPedidoA(destinoActual)
     }
 
     private fun enviarPedidoA(destino: DestinoPedido) {

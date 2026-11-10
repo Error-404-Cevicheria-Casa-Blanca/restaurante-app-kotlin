@@ -35,6 +35,14 @@ interface PedidosApi {
     suspend fun obtenerPedidoDeMesa(@Query("mesa_id") mesaId: Long): PedidoExistenteDto?
 
     /**
+     * PRB-88: listado de pedidos para la pantalla Pedidos. Se piden todos y el
+     * ViewModel filtra los estados activos; el backend solo acepta un estado
+     * por query.
+     */
+    @GET("api/v1/pedidos")
+    suspend fun listarPedidos(): List<PedidoResponseDto>
+
+    /**
      * PRB-77: anula un plato ya enviado a cocina. El backend responde 2xx sin
      * cuerpo; un 409 significa que el plato ya fue servido. Se usa
      * [Response] para leer el codigo sin depender de que el cuerpo venga vacio.

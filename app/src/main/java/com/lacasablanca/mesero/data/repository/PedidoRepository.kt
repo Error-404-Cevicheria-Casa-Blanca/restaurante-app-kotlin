@@ -2,10 +2,11 @@ package com.lacasablanca.mesero.data.repository
 
 import com.lacasablanca.mesero.domain.Resultado
 import com.lacasablanca.mesero.domain.model.ItemPedido
+import com.lacasablanca.mesero.domain.model.PedidoActivo
 import com.lacasablanca.mesero.domain.model.PedidoEnviado
 import com.lacasablanca.mesero.domain.model.PedidoExistente
 
-/** Unica fuente de datos para enviar la comanda (POST /api/v1/pedidos). */
+/** Unica fuente de datos para enviar la comanda y listar pedidos activos. */
 interface PedidoRepository {
     /**
      * [clientRequestId] es la clave de idempotencia: se genera una vez por
@@ -43,4 +44,11 @@ interface PedidoRepository {
      * (`POST /api/v1/pedidos/{pedidoId}/items/{itemId}/anular`).
      */
     suspend fun anularItem(pedidoId: Long, itemId: Long): Resultado<Unit>
+
+    /**
+     * PRB-88: pedidos del dia para la pantalla Pedidos
+     * (`GET /api/v1/pedidos`). El ViewModel descarta COBRADO/ANULADO y los
+     * estados desconocidos.
+     */
+    suspend fun listarPedidosActivos(): Resultado<List<PedidoActivo>>
 }

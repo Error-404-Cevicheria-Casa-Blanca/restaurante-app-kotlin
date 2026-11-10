@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Tarjeta de pedido activo (PRB-88, Fase 6).
+    Muestra numero, origen (Mesa / Para Llevar / Delivery), estado, total y
+    el boton Cobrar solo para pedidos sin mesa.
+-->
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/cardPedido"
+    style="@style/Tarjeta.Superficie"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="@dimen/espacio_s"
+    android:clickable="false"
+    android:focusable="false"
+    app:cardCornerRadius="@dimen/radio_tarjeta">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/espacio_l">
+
+        <TextView
+            android:id="@+id/textoPedidoNumero"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:autoSizeMaxTextSize="20sp"
+            android:autoSizeMinTextSize="14sp"
+            android:autoSizeStepGranularity="1sp"
+            android:autoSizeTextType="uniform"
+            android:breakStrategy="simple"
+            android:hyphenationFrequency="none"
+            android:maxLines="1"
+            android:textColor="@color/texto_principal"
+            android:textSize="@dimen/texto_titulo_tarjeta"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Pedido #101" />
+
+        <TextView
+            android:id="@+id/textoTipoPedido"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/espacio_s"
+            android:autoSizeMaxTextSize="15sp"
+            android:autoSizeMinTextSize="11sp"
+            android:autoSizeStepGranularity="1sp"
+            android:autoSizeTextType="uniform"
+            android:background="@drawable/bg_pill_superficie"
+            android:breakStrategy="simple"
+            android:ellipsize="end"
+            android:hyphenationFrequency="none"
+            android:maxLines="2"
+            android:paddingHorizontal="@dimen/espacio_m"
+            android:paddingVertical="@dimen/espacio_xs"
+            android:textColor="@color/texto_secundario"
+            android:textSize="@dimen/texto_secundario"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/textoPedidoNumero"
+            tools:text="Para Llevar: Carlos Mendoza" />
+
+        <LinearLayout
+            android:id="@+id/filaEstadoTotal"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/espacio_m"
+            android:baselineAligned="false"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/textoTipoPedido">
+
+            <TextView
+                android:id="@+id/textoEstadoPedido"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:autoSizeMaxTextSize="14sp"
+                android:autoSizeMinTextSize="10sp"
+                android:autoSizeStepGranularity="1sp"
+                android:autoSizeTextType="uniform"
+                android:background="@drawable/bg_pill_superficie"
+                android:breakStrategy="simple"
+                android:hyphenationFrequency="none"
+                android:maxLines="1"
+                android:paddingHorizontal="@dimen/espacio_m"
+                android:paddingVertical="@dimen/espacio_xs"
+                android:textColor="@color/texto_secundario"
+                android:textSize="@dimen/texto_etiqueta"
+                android:textStyle="bold"
+                tools:text="En preparación" />
+
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1" />
+
+            <TextView
+                android:id="@+id/textoTotalPedido"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:autoSizeMaxTextSize="16sp"
+                android:autoSizeMinTextSize="11sp"
+                android:autoSizeStepGranularity="1sp"
+                android:autoSizeTextType="uniform"
+                android:breakStrategy="simple"
+                android:hyphenationFrequency="none"
+                android:maxLines="1"
+                android:textColor="@color/texto_principal"
+                android:textSize="@dimen/texto_cuerpo"
+                android:textStyle="bold"
+                tools:text="Total: S/ 75.00" />
+        </LinearLayout>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnCobrarPedido"
+            style="@style/Boton.Primario"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/alto_boton_primario"
+            android:layout_marginTop="@dimen/espacio_m"
+            android:contentDescription="@string/pedidos_cobrar"
+            android:text="@string/pedidos_cobrar"
+            app:icon="@drawable/ic_receipt"
+            app:iconGravity="textStart"
+            app:iconPadding="@dimen/espacio_s"
+            app:iconTint="@color/on_primary"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/filaEstadoTotal" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</com.google.android.material.card.MaterialCardView>

@@ -89,19 +89,26 @@ class AppContainer(private val contexto: Context) {
             CatalogoOfflineRepository(RealCatalogoRepository(catalogoApi), database.catalogoDao())
         }
 
+    /**
+     * Instancia unica del fake de pedidos: la comparten la lista de Pedidos y
+     * el cobro fake, para que un pedido cobrado desaparezca al refrescar.
+     */
+    private val fakePedidoRepository: FakePedidoRepository? =
+        if (BuildConfig.USE_FAKE_DATA) FakePedidoRepository(fakeConsumoStore) else null
+
     val pedidoRepository: PedidoRepository =
-        if (BuildConfig.USE_FAKE_DATA) {
-            FakePedidoRepository(fakeConsumoStore)
-        } else {
-            RealPedidoRepository(pedidosApi, outbox)
-        }
+        fakePedidoRepository ?: RealPedidoRepository(pedidosApi, outbox)
 
     /** Logica del SyncWorker (PRB-63); WorkManager la ejecuta en segundo plano. */
     val pedidoSync: PedidoSync by lazy { PedidoSync(outbox, pedidosApi) }
 
     val cobroRepository: CobroRepository =
         if (BuildConfig.USE_FAKE_DATA) {
-            FakeCobroRepository(mesaRepository, fakeConsumoStore)
+            FakeCobroRepository(
+                mesaRepository = mesaRepository,
+                consumoStore = fakeConsumoStore,
+                pedidoRepository = fakePedidoRepository
+            )
         } else {
             RealCobroRepository(cobroApi)
         }
