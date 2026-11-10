@@ -14,13 +14,16 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import java.util.UUID
+import java.util.concurrent.atomic.AtomicLong
 
 /**
  * Catalogo + carrito de la comanda (PRB-38).
@@ -47,6 +50,29 @@ class CarritoViewModel(
     val eventos = _eventos.receiveAsFlow()
 
     private var trabajoCarga: Job? = null
+
+    /** Job del refresco automatico del pedido existente (PRB-90). */
+    private var pollingJob: Job? = null
+
+    /**
+     * true mientras la pantalla pidio el refresco automatico (onStart) y aun
+     * no lo detuvo (onStop o envio de una comanda). Evita reanudar el bucle
+     * desde un envio que termina tarde, cuando la pantalla ya no esta visible.
+     */
+    private var pollingHabilitado = false
+
+    /**
+     * true entre onStart y onStop. Se mantiene aparte de [pollingHabilitado]
+     * para no reanudar el bucle desde un envio que falla despues de que la
+     * pantalla dejo de estar visible.
+     */
+    private var pantallaVisible = false
+
+    /**
+     * Cambia al anular una linea ya enviada. El polling descarta una respuesta
+     * que salio antes de esa mutacion para no reinsertar el plato anulado.
+     */
+    private val versionPedidoExistente = AtomicLong(0L)
 
     /**
      * Clave de idempotencia del pedido en curso. null = el proximo envio
@@ -137,6 +163,87 @@ class CarritoViewModel(
                             )
                         }
                     }
+                }
+            }
+        }
+    }
+
+    /**
+     * PRB-90: refresca cada [INTERVALO_POLLING_MS] el estado de los platos ya
+     * enviados mientras la comanda esta en modo lectura y visible.
+     *
+     * Solo reemplaza [CarritoUiState.itemsExistentes]; el carrito de platos
+     * nuevos ([CarritoUiState.items]) nunca se toca. Es idempotente: si el
+     * bucle ya esta activo no crea otro. El primer ciclo espera el intervalo
+     * porque la carga inicial la hace [activarModoLecura].
+     */
+    fun startPolling(mesaId: Long) {
+        if (mesaId <= 0L || !_estado.value.modoLectura) return
+
+        pantallaVisible = true
+        pollingHabilitado = true
+        if (pollingJob?.isActive == true) return
+
+        pollingJob = viewModelScope.launch(ioDispatcher) {
+            while (isActive) {
+                delay(INTERVALO_POLLING_MS)
+                refrescarPedidoExistente(mesaId)
+            }
+        }
+    }
+
+    /** Detiene el refresco automatico. Se puede llamar varias veces sin efectos. */
+    fun stopPolling() {
+        pantallaVisible = false
+        detenerBuclePolling()
+    }
+
+    /**
+     * Corta el bucle sin marcar la pantalla como oculta. Lo usa el envio: si
+     * la red falla con la comanda aun visible, el refresco puede reanudarse.
+     */
+    private fun detenerBuclePolling() {
+        pollingHabilitado = false
+        pollingJob?.cancel()
+        pollingJob = null
+    }
+
+    /**
+     * Un ciclo silencioso del polling: no muestra spinner ni dialogos de error.
+     * Si la consulta falla se conserva lo ya pintado; solo una sesion expirada
+     * corta el bucle. Se descarta si hay un envio/anulacion en vuelo o si la
+     * respuesta salio antes de una anulacion local.
+     */
+    private suspend fun refrescarPedidoExistente(mesaId: Long) {
+        if (!_estado.value.puedeRefrescarPedido()) return
+
+        val version = versionPedidoExistente.get()
+        when (val resultado = pedidoRepository.obtenerPedidoDeMesa(mesaId)) {
+            is Resultado.Exito -> {
+                if (version != versionPedidoExistente.get()) return
+                _estado.update { estado ->
+                    if (!estado.modoLectura ||
+                        estado.enviando ||
+                        estado.anulandoItemId != null
+                    ) {
+                        estado
+                    } else {
+                        estado.copy(
+                            pedidoExistenteId = resultado.datos.pedidoId
+                                .takeIf { it > 0L }
+                                ?: estado.pedidoExistenteId,
+                            // Solo los platos ya enviados: `items` (los nuevos)
+                            // queda intacto por este copy.
+                            itemsExistentes = resultado.datos.lineas
+                        )
+                    }
+                }
+            }
+
+            is Resultado.Fallo -> {
+                if (resultado.error == ErrorApp.SESION_EXPIRADA) {
+                    _eventos.send(CarritoEvento.SesionExpirada)
+                    stopPolling()
                 }
             }
         }
@@ -260,6 +367,11 @@ class CarritoViewModel(
         val actual = _estado.value
         if (actual.enviando || actual.carritoVacio || mesaId <= 0L) return
 
+        // PRB-90: al enviar una nueva comanda se detiene el refresco. Si el
+        // envio falla y la pantalla sigue visible, se reanuda mas abajo.
+        val reanudarPolling = pollingHabilitado
+        detenerBuclePolling()
+
         val clave = claveIdempotencia ?: UUID.randomUUID().toString().also {
             claveIdempotencia = it
         }
@@ -286,6 +398,12 @@ class CarritoViewModel(
                     if (resultado.error == ErrorApp.SESION_EXPIRADA) {
                         _eventos.send(CarritoEvento.SesionExpirada)
                     } else {
+                        if (reanudarPolling &&
+                            pantallaVisible &&
+                            _estado.value.modoLectura
+                        ) {
+                            startPolling(mesaId)
+                        }
                         _eventos.send(CarritoEvento.ErrorAlEnviar(resultado.error))
                     }
                 }
@@ -314,6 +432,9 @@ class CarritoViewModel(
         viewModelScope.launch(ioDispatcher) {
             when (val resultado = pedidoRepository.anularItem(pedidoId, itemId)) {
                 is Resultado.Exito -> {
+                    // Invalida una respuesta del polling que haya salido antes
+                    // de que el backend confirmara la anulacion.
+                    versionPedidoExistente.incrementAndGet()
                     _estado.update { estado ->
                         estado.copy(
                             anulandoItemId = null,
@@ -385,13 +506,25 @@ class CarritoViewModel(
         return filas
     }
 
+    /** true si el polling puede consultar sin pisar un envio o anulacion en curso. */
+    private fun CarritoUiState.puedeRefrescarPedido(): Boolean =
+        modoLectura && !enviando && anulandoItemId == null && !cargandoPedidoExistente
+
     private fun ErrorApp.aErrorCarrito(): ErrorCarrito = when (this) {
         ErrorApp.RED -> ErrorCarrito.RED
         ErrorApp.SERVIDOR -> ErrorCarrito.SERVIDOR
         else -> ErrorCarrito.DESCONOCIDO
     }
 
-    private companion object {
-        const val MAX_NOTAS = 120
+    override fun onCleared() {
+        stopPolling()
+        super.onCleared()
+    }
+
+    companion object {
+        /** Intervalo entre refrescos del pedido existente (PRB-90: 5 segundos). */
+        const val INTERVALO_POLLING_MS = 5_000L
+
+        private const val MAX_NOTAS = 120
     }
 }

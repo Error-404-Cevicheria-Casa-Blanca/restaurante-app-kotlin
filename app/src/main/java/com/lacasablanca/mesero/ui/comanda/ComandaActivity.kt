@@ -34,7 +34,6 @@ import com.lacasablanca.mesero.domain.model.PedidoEnviado
 import com.lacasablanca.mesero.ui.bloqueo.BloqueoActivity
 import com.lacasablanca.mesero.ui.common.aparecerConDesplazamiento
 import com.lacasablanca.mesero.ui.common.formatearMoneda
-import com.lacasablanca.mesero.ui.impresion.AvisoImpresion
 import com.lacasablanca.mesero.ui.impresion.ImpresionPrecuentaViewModel
 import com.lacasablanca.mesero.ui.impresion.ImpresionUiState
 import com.lacasablanca.mesero.ui.login.LoginActivity
@@ -140,6 +139,22 @@ class ComandaActivity : AppCompatActivity(), CarritoBottomSheet.Listener {
                 launch { impresionViewModel.estado.collect(::renderImpresion) }
             }
         }
+    }
+
+    /**
+     * PRB-90: en una comanda en modo lectura, refrescar el estado de los
+     * platos mientras la pantalla esta visible. Se detiene en onStop para no
+     * consultar en segundo plano (mismo criterio que el mapa de mesas).
+     * Tras enviar una nueva comanda no se reanuda.
+     */
+    override fun onStart() {
+        super.onStart()
+        if (modoLectura && !pedidoEnviado) carritoViewModel.startPolling(mesaId)
+    }
+
+    override fun onStop() {
+        carritoViewModel.stopPolling()
+        super.onStop()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -386,6 +401,8 @@ class ComandaActivity : AppCompatActivity(), CarritoBottomSheet.Listener {
             is CarritoEvento.PedidoEnviadoOk -> {
                 // A partir de aqui la mesa NO debe liberarse al salir.
                 pedidoEnviado = true
+                // PRB-90: el pedido ya viajo; no seguir refrescando esta vista.
+                carritoViewModel.stopPolling()
                 cerrarCarrito()
                 mostrarDialogoPedidoEnviado(evento.pedido)
             }
@@ -475,17 +492,10 @@ class ComandaActivity : AppCompatActivity(), CarritoBottomSheet.Listener {
 
         mostrarDialogo(
             titulo = getString(R.string.anular_plato_error_titulo),
-            mensaje = mensajeErrorAnular(error),
+            mensaje = ComandaMensajes.errorAnular(this, error),
             cancelable = true,
             textoPositivo = R.string.accion_entendido
         )
-    }
-
-    private fun mensajeErrorAnular(error: ErrorApp): String = when (error) {
-        // 409 del endpoint de anulacion: el plato ya salio de cocina.
-        ErrorApp.PLATO_YA_SERVIDO -> getString(R.string.anular_plato_error_servido)
-        ErrorApp.RED -> getString(R.string.anular_plato_error_red)
-        else -> getString(R.string.anular_plato_error_generico)
     }
 
     /**
@@ -513,14 +523,7 @@ class ComandaActivity : AppCompatActivity(), CarritoBottomSheet.Listener {
 
         val aviso = estado.aviso ?: return
         impresionViewModel.consumirAviso()
-        mostrarSnackbar(textoAvisoImpresion(aviso))
-    }
-
-    private fun textoAvisoImpresion(aviso: AvisoImpresion): String = when (aviso) {
-        AvisoImpresion.ENVIADA -> getString(R.string.impresion_enviada)
-        AvisoImpresion.ERROR_CONEXION -> getString(R.string.impresion_error_conexion)
-        AvisoImpresion.SESION_EXPIRADA -> getString(R.string.impresion_sesion_expirada)
-        AvisoImpresion.ERROR -> getString(R.string.impresion_error)
+        mostrarSnackbar(ComandaMensajes.avisoImpresion(this, aviso))
     }
 
     private fun cerrarDialogoAnular() {
@@ -536,24 +539,12 @@ class ComandaActivity : AppCompatActivity(), CarritoBottomSheet.Listener {
 
         mostrarDialogo(
             titulo = getString(R.string.comanda_error_envio_titulo),
-            mensaje = mensajeErrorEnvio(error),
+            mensaje = ComandaMensajes.errorEnvio(this, error),
             cancelable = true,
             textoPositivo = R.string.accion_reintentar,
             alAceptar = { carritoViewModel.enviarPedido(mesaId) },
             textoNegativo = R.string.accion_cancelar
         )
-    }
-
-    private fun mensajeErrorEnvio(error: ErrorApp): String = when (error) {
-        ErrorApp.RED -> getString(R.string.comanda_error_envio_red)
-        // 409 del POST /pedidos: otro mesero tomo la mesa. El 409 del cobro
-        // ("cuenta ya pagada") se traduce en CobroViewModel, no aqui.
-        ErrorApp.CONFLICTO, ErrorApp.CONFLICTO_MESA ->
-            getString(R.string.comanda_error_envio_conflicto)
-
-        ErrorApp.BLOQUEADO -> getString(R.string.comanda_error_envio_bloqueado)
-        ErrorApp.VALIDACION -> getString(R.string.comanda_error_envio_validacion)
-        else -> getString(R.string.comanda_error_envio_generico)
     }
 
     // ---------------------------------------------------------------------
@@ -687,21 +678,12 @@ class ComandaActivity : AppCompatActivity(), CarritoBottomSheet.Listener {
 
         mostrarDialogo(
             titulo = getString(R.string.comanda_cuenta_error_titulo),
-            mensaje = mensajeErrorCuenta(error),
+            mensaje = ComandaMensajes.errorCuenta(this, error),
             cancelable = true,
             textoPositivo = R.string.accion_reintentar,
             alAceptar = { comandaViewModel.pedirCuenta(mesaId) },
             textoNegativo = R.string.accion_cancelar
         )
-    }
-
-    private fun mensajeErrorCuenta(error: ErrorApp): String = when (error) {
-        ErrorApp.RED -> getString(R.string.error_red)
-        ErrorApp.CONFLICTO, ErrorApp.CONFLICTO_MESA ->
-            getString(R.string.comanda_cuenta_error_conflicto)
-
-        ErrorApp.BLOQUEADO -> getString(R.string.comanda_cuenta_error_bloqueado)
-        else -> getString(R.string.comanda_cuenta_error_generico)
     }
 
     /** Fallo del GET del pedido existente: se puede reintentar o seguir en el catalogo. */
