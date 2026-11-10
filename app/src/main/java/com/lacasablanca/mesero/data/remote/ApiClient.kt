@@ -23,6 +23,19 @@ object ApiClient {
         val cliente = OkHttpClient.Builder()
             .connectTimeout(10, TimeUnit.SECONDS)
             .readTimeout(10, TimeUnit.SECONDS)
+            .apply {
+                // PRB-95: el tunel de pruebas (loca.lt) exige este header.
+                // Solo se inyecta si la URL es del tunel y el flag esta activo.
+                if (BuildConfig.BYPASS_TUNNEL && baseUrl.contains("loca.lt", ignoreCase = true)) {
+                    addInterceptor { cadena ->
+                        cadena.proceed(
+                            cadena.request().newBuilder()
+                                .header("Bypass-Tunnel-Reminder", "true")
+                                .build()
+                        )
+                    }
+                }
+            }
             .addInterceptor { cadena ->
                 val token = proveedorToken()
                 val peticion = if (token.isNullOrBlank()) {
