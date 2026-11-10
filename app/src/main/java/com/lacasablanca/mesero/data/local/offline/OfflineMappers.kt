@@ -1,10 +1,20 @@
 package com.lacasablanca.mesero.data.local.offline
 
+import com.google.gson.Gson
 import com.lacasablanca.mesero.domain.model.Categoria
 import com.lacasablanca.mesero.domain.model.EstadoMesa
 import com.lacasablanca.mesero.domain.model.Mesa
+import com.lacasablanca.mesero.domain.model.Modificador
 import com.lacasablanca.mesero.domain.model.Producto
 import java.math.BigDecimal
+
+private val gsonCache = Gson()
+
+/** Representacion estable del modificador dentro de la cache local. */
+private data class ModificadorCache(
+    val nombre: String? = null,
+    val precioAdicional: BigDecimal? = null
+)
 
 fun Producto.aEntidad(): ProductoEntity = ProductoEntity(
     id = id,
@@ -14,7 +24,8 @@ fun Producto.aEntidad(): ProductoEntity = ProductoEntity(
     disponible = disponible,
     categoriaId = categoriaId,
     imagenUrl = imagenUrl,
-    estacion = estacion
+    estacion = estacion,
+    modificadores = modificadores.aJson()
 )
 
 fun ProductoEntity.aDominio(): Producto = Producto(
@@ -25,8 +36,23 @@ fun ProductoEntity.aDominio(): Producto = Producto(
     disponible = disponible,
     categoriaId = categoriaId,
     imagenUrl = imagenUrl,
-    estacion = estacion
+    estacion = estacion,
+    modificadores = modificadores.aDominio()
 )
+
+private fun List<Modificador>.aJson(): String =
+    gsonCache.toJson(map { ModificadorCache(it.nombre, it.precioAdicional) })
+
+private fun String.aDominio(): List<Modificador> = runCatching {
+    gsonCache.fromJson(this, Array<ModificadorCache>::class.java)
+        ?.mapNotNull { cache ->
+            cache.nombre
+                ?.trim()
+                ?.takeIf { it.isNotEmpty() }
+                ?.let { nombre -> Modificador(nombre, cache.precioAdicional ?: BigDecimal.ZERO) }
+        }
+        .orEmpty()
+}.getOrDefault(emptyList())
 
 fun Categoria.aEntidad(): CategoriaEntity = CategoriaEntity(id = id, nombre = nombre)
 

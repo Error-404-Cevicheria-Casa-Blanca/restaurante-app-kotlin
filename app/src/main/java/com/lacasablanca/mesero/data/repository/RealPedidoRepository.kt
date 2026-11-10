@@ -4,6 +4,7 @@ import com.lacasablanca.mesero.data.local.offline.OutboxPedidoStore
 import com.lacasablanca.mesero.data.remote.PedidosApi
 import com.lacasablanca.mesero.data.remote.dto.CrearPedidoRequest
 import com.lacasablanca.mesero.data.remote.dto.ItemPedidoRequest
+import com.lacasablanca.mesero.data.remote.dto.ModificadorRequest
 import com.lacasablanca.mesero.data.remote.dto.aDominio
 import com.lacasablanca.mesero.domain.ErrorApp
 import com.lacasablanca.mesero.domain.Resultado
@@ -42,7 +43,13 @@ class RealPedidoRepository(
                 ItemPedidoRequest(
                     productoId = item.productoId,
                     cantidad = item.cantidad,
-                    notas = item.notas.takeIf { it.isNotBlank() }
+                    notas = item.notas.takeIf { it.isNotBlank() },
+                    modificadores = item.modificadores.map { modificador ->
+                        ModificadorRequest(
+                            nombre = modificador.nombre,
+                            precioAdicional = modificador.precioAdicional
+                        )
+                    }
                 )
             },
             clientRequestId = clientRequestId

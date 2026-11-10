@@ -79,9 +79,9 @@ class CarritoBottomSheet : BottomSheetDialogFragment() {
         super.onViewCreated(view, savedInstanceState)
 
         carritoAdapter = CarritoAdapter(
-            alAumentar = viewModel::aumentarCantidad,
-            alDisminuir = viewModel::disminuirCantidad,
-            alEliminar = viewModel::eliminarProducto,
+            alAumentar = { item -> viewModel.aumentarCantidad(item) },
+            alDisminuir = { item -> viewModel.disminuirCantidad(item) },
+            alEliminar = { item -> viewModel.eliminarProducto(item) },
             alEditarNotas = { item ->
                 (activity as? Listener)?.onEditarNotas(item)
             },

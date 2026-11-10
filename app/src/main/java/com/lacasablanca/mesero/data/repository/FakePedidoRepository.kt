@@ -6,6 +6,7 @@ import com.lacasablanca.mesero.domain.model.CalculoIgv
 import com.lacasablanca.mesero.domain.model.EstadoPlato
 import com.lacasablanca.mesero.domain.model.ItemCarrito
 import com.lacasablanca.mesero.domain.model.ItemPedido
+import com.lacasablanca.mesero.domain.model.Modificador
 import com.lacasablanca.mesero.domain.model.PedidoEnviado
 import com.lacasablanca.mesero.domain.model.PedidoExistente
 import kotlinx.coroutines.delay
@@ -47,8 +48,12 @@ class FakePedidoRepository(
 
         respuestasPorClave[clientRequestId]?.let { return Resultado.Exito(it) }
 
+        // Misma regla que PedidoService: el recargo de modificadores se suma
+        // al precio unitario antes de multiplicar por la cantidad.
         val totalBruto = items.fold(BigDecimal.ZERO) { acumulado, item ->
-            acumulado + item.precioUnitario.multiply(BigDecimal.valueOf(item.cantidad.toLong()))
+            val precioUnitario = item.precioUnitario
+                .add(Modificador.recargoTotal(item.modificadores))
+            acumulado + precioUnitario.multiply(BigDecimal.valueOf(item.cantidad.toLong()))
         }
         val desglose = CalculoIgv.desglosar(totalBruto)
         consumoStore?.registrar(mesaId, desglose.total)
@@ -115,13 +120,20 @@ class FakePedidoRepository(
                     cantidad = 2,
                     notas = "sin picante",
                     itemId = ITEM_CEVICHE_FAKE,
-                    estadoPlato = EstadoPlato.LISTO
+                    estadoPlato = EstadoPlato.LISTO,
+                    // Datos fake: modificadores gratuitos para mostrar la
+                    // lista en modo lectura sin alterar el total de 111.00.
+                    modificadores = listOf(
+                        Modificador("Sin cebolla", BigDecimal("0.00")),
+                        Modificador("Extra limón", BigDecimal("0.00"))
+                    )
                 ),
                 ItemCarrito(
                     producto = FakeCatalogoRepository.PRODUCTOS_FAKE.first { it.id == 13L },
                     cantidad = 1,
                     itemId = ITEM_YA_SERVIDO_FAKE,
-                    estadoPlato = EstadoPlato.SERVIDO
+                    estadoPlato = EstadoPlato.SERVIDO,
+                    modificadores = listOf(Modificador("Sin hielo", BigDecimal("0.00")))
                 )
             )
         )

@@ -6,12 +6,26 @@ import java.math.BigDecimal
 
 /**
  * POST /api/v1/pedidos. Nombres EXACTOS del backend Java (ItemPedidoRequest.java):
- * `producto_id`, `cantidad`, `notas`.
+ * `producto_id`, `cantidad`, `notas`, `modificadores`.
+ *
+ * PRB-92: cada modificador viaja como `{nombre, precio_adicional}`. El backend
+ * valida que el nombre no este en blanco y que el precio no sea negativo, y
+ * recalcula el total con su propia carta.
  */
 data class ItemPedidoRequest(
     @SerializedName("producto_id") val productoId: Long,
     val cantidad: Int,
-    val notas: String? = null
+    val notas: String? = null,
+    val modificadores: List<ModificadorRequest> = emptyList()
+)
+
+/**
+ * Modificador de una linea del pedido (PRB-92). Mismos nombres que
+ * `ModificadorItemDto.java`: `nombre` y `precio_adicional`.
+ */
+data class ModificadorRequest(
+    val nombre: String,
+    @SerializedName("precio_adicional") val precioAdicional: BigDecimal = BigDecimal.ZERO
 )
 
 /**
