@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+        Splash Screen API nativa (API 31+). En API 26-30 el sistema usa su
+        splash por defecto, por eso estos atributos no viven en values/themes.xml.
+        PRB-95 / D35.
+    -->
+    <style name="Base.Theme.LaCasaBlancaMesero" parent="Theme.LaCasaBlancaMesero.Base">
+        <item name="android:windowSplashScreenBackground">@color/primary</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/logo_casa_blanca_icon</item>
+        <item name="android:windowSplashScreenIconBackgroundColor">@color/primary</item>
+    </style>
+</resources>

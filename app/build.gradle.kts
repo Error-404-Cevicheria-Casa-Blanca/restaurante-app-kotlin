@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.detekt)
@@ -16,7 +18,7 @@ val baseUrlDebug: String = providers.gradleProperty("baseUrl")
     .orElse("http://10.0.2.2:8080/")
     .get()
 val baseUrlRelease: String = providers.gradleProperty("baseUrl")
-    .orElse("https://CAMBIAR-ANTES-DE-RELEASE/")
+    .orElse("https://api.lacasablanca.local/")
     .get()
 val useFakeDataDebug: String = providers.gradleProperty("useFakeData")
     .orElse("true")
@@ -24,6 +26,28 @@ val useFakeDataDebug: String = providers.gradleProperty("useFakeData")
 val useFakeDataRelease: String = providers.gradleProperty("useFakeData")
     .orElse("false")
     .get()
+
+/**
+ * PRB-95: habilita el header Bypass-Tunnel-Reminder solo hacia el tunel de
+ * pruebas (loca.lt). Se activa con -PbypassTunnel=true.
+ */
+val bypassTunnel: String = providers.gradleProperty("bypassTunnel")
+    .orElse("false")
+    .get()
+
+/**
+ * Firma local (PRB-95). Las credenciales viven en keystore.properties, que
+ * NO se versiona (ver .gitignore). Sin ese archivo, release compila sin firmar.
+ */
+val keystoreProperties = Properties().apply {
+    val archivo = rootProject.file("keystore.properties")
+    if (archivo.exists()) {
+        archivo.inputStream().use { load(it) }
+    }
+}
+val keystorePath: String = keystoreProperties.getProperty("storeFile").orEmpty()
+val keystoreDisponible: Boolean =
+    keystorePath.isNotBlank() && rootProject.file(keystorePath).exists()
 
 /** Escapa el texto para que BuildConfig reciba un String Java valido. */
 fun buildConfigString(valor: String): String =
@@ -51,7 +75,8 @@ android {
 
     defaultConfig {
         applicationId = "com.lacasablanca.mesero"
-        minSdk = 35
+        // PRB-95: 26 (Android 8.0) para tablets de produccion y jurado. Ver D35.
+        minSdk = 26
         targetSdk = 37
         versionCode = 1
         versionName = "1.0"
@@ -59,17 +84,36 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    signingConfigs {
+        if (keystoreDisponible) {
+            create("prb95") {
+                storeFile = rootProject.file(keystorePath)
+                storePassword = keystoreProperties.getProperty("storePassword")
+                keyAlias = keystoreProperties.getProperty("keyAlias")
+                keyPassword = keystoreProperties.getProperty("keyPassword")
+            }
+        }
+    }
+
     buildTypes {
         debug {
+            if (keystoreDisponible) {
+                signingConfig = signingConfigs.getByName("prb95")
+            }
             buildConfigField("String", "BASE_URL", buildConfigString(baseUrlDebug))
             buildConfigField("boolean", "USE_FAKE_DATA", buildConfigBoolean(useFakeDataDebug))
+            buildConfigField("boolean", "BYPASS_TUNNEL", buildConfigBoolean(bypassTunnel))
         }
         release {
             optimization {
                 enable = false
             }
+            if (keystoreDisponible) {
+                signingConfig = signingConfigs.getByName("prb95")
+            }
             buildConfigField("String", "BASE_URL", buildConfigString(baseUrlRelease))
             buildConfigField("boolean", "USE_FAKE_DATA", buildConfigBoolean(useFakeDataRelease))
+            buildConfigField("boolean", "BYPASS_TUNNEL", buildConfigBoolean(bypassTunnel))
         }
     }
     buildFeatures {

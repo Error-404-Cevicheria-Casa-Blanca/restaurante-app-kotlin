@@ -2,7 +2,8 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
 
     <!-- La app del mesero usa SOLO tema claro (docs/diseno/DISENO-UI.md). -->
-    <style name="Base.Theme.LaCasaBlancaMesero" parent="Theme.Material3.Light.NoActionBar">
+    <!-- Base comun sin atributos exclusivos de API 31+ (PRB-95, D35). -->
+    <style name="Theme.LaCasaBlancaMesero.Base" parent="Theme.Material3.Light.NoActionBar">
         <item name="colorPrimary">@color/primary</item>
         <item name="colorOnPrimary">@color/on_primary</item>
         <item name="colorPrimaryContainer">@color/primary_container</item>
@@ -18,15 +19,6 @@
         <item name="colorErrorContainer">@color/error_container</item>
         <item name="colorOnErrorContainer">@color/on_error_container</item>
         <item name="materialAlertDialogTheme">@style/ThemeOverlay.LaCasaBlanca.Dialogo</item>
-        <!--
-            Splash Screen API nativa (minSdk 35): logo circular sobre teal.
-            Se usa la variante con inset (61.1 % central) para que el recorte
-            circular del sistema no corte "CEVICHERIA" ni "RESTAURANTE".
-            El fondo del icono es el mismo teal para integrar el logo.
-        -->
-        <item name="android:windowSplashScreenBackground">@color/primary</item>
-        <item name="android:windowSplashScreenAnimatedIcon">@drawable/logo_casa_blanca_icon</item>
-        <item name="android:windowSplashScreenIconBackgroundColor">@color/primary</item>
         <item name="android:statusBarColor">@color/primary</item>
         <item name="android:navigationBarColor">@color/background</item>
         <item name="android:windowLightStatusBar">false</item>
@@ -35,6 +27,9 @@
         <!-- Blindaje tipografico global (evita cortes tipo "ME-SA") -->
         <item name="android:textViewStyle">@style/Texto.Base</item>
     </style>
+
+    <!-- La variante values-v31 agrega el Splash Screen nativo (API 31+). -->
+    <style name="Base.Theme.LaCasaBlancaMesero" parent="Theme.LaCasaBlancaMesero.Base" />
 
     <style name="Theme.LaCasaBlancaMesero" parent="Base.Theme.LaCasaBlancaMesero" />
 
