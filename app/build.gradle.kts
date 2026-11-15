@@ -36,7 +36,7 @@ val bypassTunnel: String = providers.gradleProperty("bypassTunnel")
     .get()
 
 /**
- * Firma local (PRB-95). Las credenciales viven en keystore.properties, que
+ * Firma local de produccion (PRB-72). Las credenciales viven en keystore.properties, que
  * NO se versiona (ver .gitignore). Sin ese archivo, release compila sin firmar.
  */
 val keystoreProperties = Properties().apply {
@@ -86,7 +86,7 @@ android {
 
     signingConfigs {
         if (keystoreDisponible) {
-            create("prb95") {
+            create("release") {
                 storeFile = rootProject.file(keystorePath)
                 storePassword = keystoreProperties.getProperty("storePassword")
                 keyAlias = keystoreProperties.getProperty("keyAlias")
@@ -97,9 +97,6 @@ android {
 
     buildTypes {
         debug {
-            if (keystoreDisponible) {
-                signingConfig = signingConfigs.getByName("prb95")
-            }
             buildConfigField("String", "BASE_URL", buildConfigString(baseUrlDebug))
             buildConfigField("boolean", "USE_FAKE_DATA", buildConfigBoolean(useFakeDataDebug))
             buildConfigField("boolean", "BYPASS_TUNNEL", buildConfigBoolean(bypassTunnel))
@@ -109,7 +106,7 @@ android {
                 enable = false
             }
             if (keystoreDisponible) {
-                signingConfig = signingConfigs.getByName("prb95")
+                signingConfig = signingConfigs.getByName("release")
             }
             buildConfigField("String", "BASE_URL", buildConfigString(baseUrlRelease))
             buildConfigField("boolean", "USE_FAKE_DATA", buildConfigBoolean(useFakeDataRelease))
