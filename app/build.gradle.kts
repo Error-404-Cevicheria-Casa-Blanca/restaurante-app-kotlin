@@ -18,7 +18,7 @@ val baseUrlDebug: String = providers.gradleProperty("baseUrl")
     .orElse("http://10.0.2.2:8080/")
     .get()
 val baseUrlRelease: String = providers.gradleProperty("baseUrl")
-    .orElse("https://api.lacasablanca.local/")
+    .orElse("http://192.168.1.10:8080/")
     .get()
 val useFakeDataDebug: String = providers.gradleProperty("useFakeData")
     .orElse("true")
@@ -36,7 +36,7 @@ val bypassTunnel: String = providers.gradleProperty("bypassTunnel")
     .get()
 
 /**
- * Firma local (PRB-95). Las credenciales viven en keystore.properties, que
+ * Firma local de produccion (PRB-72). Las credenciales viven en keystore.properties, que
  * NO se versiona (ver .gitignore). Sin ese archivo, release compila sin firmar.
  */
 val keystoreProperties = Properties().apply {
@@ -78,15 +78,15 @@ android {
         // PRB-95: 26 (Android 8.0) para tablets de produccion y jurado. Ver D35.
         minSdk = 26
         targetSdk = 37
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 2
+        versionName = "2.0.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     signingConfigs {
         if (keystoreDisponible) {
-            create("prb95") {
+            create("release") {
                 storeFile = rootProject.file(keystorePath)
                 storePassword = keystoreProperties.getProperty("storePassword")
                 keyAlias = keystoreProperties.getProperty("keyAlias")
@@ -97,9 +97,6 @@ android {
 
     buildTypes {
         debug {
-            if (keystoreDisponible) {
-                signingConfig = signingConfigs.getByName("prb95")
-            }
             buildConfigField("String", "BASE_URL", buildConfigString(baseUrlDebug))
             buildConfigField("boolean", "USE_FAKE_DATA", buildConfigBoolean(useFakeDataDebug))
             buildConfigField("boolean", "BYPASS_TUNNEL", buildConfigBoolean(bypassTunnel))
@@ -109,7 +106,7 @@ android {
                 enable = false
             }
             if (keystoreDisponible) {
-                signingConfig = signingConfigs.getByName("prb95")
+                signingConfig = signingConfigs.getByName("release")
             }
             buildConfigField("String", "BASE_URL", buildConfigString(baseUrlRelease))
             buildConfigField("boolean", "USE_FAKE_DATA", buildConfigBoolean(useFakeDataRelease))
