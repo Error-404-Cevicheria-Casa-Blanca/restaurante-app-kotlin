@@ -1,7 +1,6 @@
 package com.lacasablanca.mesero.ui.salon
 
 import android.content.Intent
-import android.content.res.ColorStateList
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -9,7 +8,6 @@ import android.view.ViewGroup
 import android.view.WindowManager
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
-import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
@@ -17,7 +15,6 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.GridLayoutManager
-import com.google.android.material.chip.Chip
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.tabs.TabLayout
 import com.lacasablanca.mesero.MeseroApp
@@ -27,17 +24,13 @@ import com.lacasablanca.mesero.databinding.DialogLiberarMesaBinding
 import com.lacasablanca.mesero.databinding.DialogMesaAtendidaBinding
 import com.lacasablanca.mesero.databinding.DialogParaLlevarBinding
 import com.lacasablanca.mesero.databinding.FragmentMesasBinding
-import com.lacasablanca.mesero.databinding.ItemLeyendaBinding
 import com.lacasablanca.mesero.domain.model.EstadoMesa
 import com.lacasablanca.mesero.domain.model.Mesa
 import com.lacasablanca.mesero.ui.bloqueo.BloqueoActivity
 import com.lacasablanca.mesero.ui.cobro.CobroFragment
 import com.lacasablanca.mesero.ui.comanda.ComandaFragment
 import com.lacasablanca.mesero.ui.common.aparecerConDesplazamiento
-import com.lacasablanca.mesero.ui.common.colorRes
-import com.lacasablanca.mesero.ui.common.etiquetaPluralRes
-import com.lacasablanca.mesero.ui.common.etiquetaRes
-import com.lacasablanca.mesero.ui.common.iconoRes
+import com.lacasablanca.mesero.ui.common.aplicarMarcoMarea
 import com.lacasablanca.mesero.ui.login.LoginActivity
 import com.lacasablanca.mesero.ui.main.MainActivity
 import com.lacasablanca.mesero.ui.mesas.AccionMesa
@@ -174,7 +167,7 @@ class SalonFragment : Fragment() {
         )
 
         adapter = MesaAdapter(
-            alTocar = { mesa -> alSeleccionarMesa(mesa) },
+            alTocar = { mesa -> ejecutarSiNoHayDetalleOculto { alSeleccionarMesa(mesa) } },
             alAccionar = { mesa -> viewModel.abrirAcciones(mesa) }
         )
         binding.recyclerMesas.layoutManager =
@@ -189,7 +182,9 @@ class SalonFragment : Fragment() {
         binding.barra.btnBloquear.setOnClickListener { abrirBloqueo() }
         binding.barra.btnCerrarSesion.setOnClickListener { viewModel.cerrarSesion() }
         binding.btnReintentar.setOnClickListener { viewModel.cargar() }
-        binding.fabParaLlevar.setOnClickListener { mostrarDialogoParaLlevar() }
+        binding.fabParaLlevar.setOnClickListener {
+            ejecutarSiNoHayDetalleOculto { mostrarDialogoParaLlevar() }
+        }
 
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -311,7 +306,7 @@ class SalonFragment : Fragment() {
 
         estado.error?.let { binding.textoErrorMesas.text = getString(it.mensajeRes()) }
 
-        renderTabs(estado.zonas, estado.zonaSeleccionada)
+        renderTabs(estado)
         renderChips(estado)
         adapter.submitList(estado.mesasVisibles)
 
@@ -324,124 +319,37 @@ class SalonFragment : Fragment() {
         }
     }
 
-    private fun renderTabs(zonas: List<String>, seleccionada: String?) {
-        val firma = zonas.joinToString(separator = "|") + "#" + (seleccionada ?: "")
+    private fun renderTabs(estado: MesasUiState) {
+        val conteoPorZona = estado.mesas.groupingBy { it.ubicacion }.eachCount()
+        val firma = estado.zonas.joinToString(separator = "|") {
+            "$it=${conteoPorZona[it] ?: 0}"
+        } + "#" + (estado.zonaSeleccionada ?: "")
         if (firma == firmaTabs) return
         firmaTabs = firma
 
         actualizandoTabs = true
-        binding.tabsZonas.removeAllTabs()
-        binding.tabsZonas.addTab(
-            binding.tabsZonas.newTab().setText(R.string.zona_todas).setTag(null)
-        )
-        zonas.forEach { zona ->
-            binding.tabsZonas.addTab(binding.tabsZonas.newTab().setText(zona).setTag(zona))
-        }
-        val indice = zonas.indexOf(seleccionada).let { if (it < 0) 0 else it + 1 }
-        binding.tabsZonas.getTabAt(indice)?.select()
+        SalonFiltrosMarea.renderTabsZonas(binding.tabsZonas, estado)
         actualizandoTabs = false
     }
 
     private fun renderChips(estado: MesasUiState) {
         val contadores = estado.contadores
-        val firma = EstadoMesa.filtrables.joinToString(separator = ",") {
+        val firma = "${estado.totalMesas}:" + EstadoMesa.filtrables.joinToString(separator = ",") {
             "${it.name}=${contadores[it] ?: 0}"
         } + "#" + (estado.estadoSeleccionado?.name ?: "TODAS")
         if (firma == firmaChips) return
         firmaChips = firma
 
-        binding.chipsEstados.removeAllViews()
-        val chipTodas = crearChip(
-            texto = getString(R.string.zona_todas),
-            etiquetaEstado = null,
-            icono = null
+        SalonFiltrosMarea.renderChipsEstados(
+            contenedor = binding.chipsEstados,
+            inflater = layoutInflater,
+            estado = estado,
+            alSeleccionar = viewModel::filtrarEstado,
         )
-        binding.chipsEstados.addView(chipTodas)
-
-        val chipsPorEstado = mutableMapOf<EstadoMesa, Chip>()
-        EstadoMesa.filtrables.forEach { estadoMesa ->
-            val cantidad = contadores[estadoMesa] ?: 0
-            val chip = crearChip(
-                texto = getString(
-                    R.string.chip_estado_con_contador,
-                    getString(estadoMesa.etiquetaPluralRes()),
-                    cantidad
-                ),
-                etiquetaEstado = estadoMesa,
-                icono = estadoMesa.iconoRes()
-            )
-            chipsPorEstado[estadoMesa] = chip
-            binding.chipsEstados.addView(chip)
-        }
-
-        // Se marca despues de agregarlos: el grupo aplica singleSelection al anadir.
-        val chipSeleccionado = estado.estadoSeleccionado?.let { chipsPorEstado[it] } ?: chipTodas
-        chipSeleccionado.isChecked = true
-    }
-
-    private fun crearChip(
-        texto: String,
-        etiquetaEstado: EstadoMesa?,
-        icono: Int?
-    ): Chip {
-        val chip = Chip(requireContext())
-        chip.text = texto
-        chip.isCheckable = true
-        chip.isClickable = true
-        chip.isCheckedIconVisible = false
-        chip.isChecked = false
-        // Colores exactos de Stitch: activo teal #003D48 / inactivo blanco (pill).
-        chip.chipBackgroundColor = ColorStateList(
-            arrayOf(intArrayOf(android.R.attr.state_checked), intArrayOf()),
-            intArrayOf(
-                ContextCompat.getColor(requireContext(), R.color.chip_filtro_activo),
-                ContextCompat.getColor(requireContext(), R.color.chip_filtro_inactivo)
-            )
-        )
-        chip.setTextColor(
-            ContextCompat.getColorStateList(requireContext(), R.color.selector_texto_chip)
-        )
-        chip.chipIconTint =
-            ContextCompat.getColorStateList(requireContext(), R.color.selector_icono_chip)
-        chip.shapeAppearanceModel = chip.shapeAppearanceModel
-            .toBuilder()
-            .setAllCornerSizes(resources.getDimension(R.dimen.radio_pill))
-            .build()
-        chip.chipMinHeight = resources.getDimension(R.dimen.alto_chip_filtro)
-        chip.contentDescription = buildString {
-            append(texto)
-            if (etiquetaEstado != null) {
-                append(", ")
-                append(getString(etiquetaEstado.etiquetaRes()))
-            }
-        }
-        if (icono != null) {
-            chip.chipIcon = ContextCompat.getDrawable(requireContext(), icono)
-            chip.isChipIconVisible = true
-        }
-        chip.setOnClickListener { viewModel.filtrarEstado(etiquetaEstado) }
-        return chip
     }
 
     private fun pintarLeyenda() {
-        binding.leyendaEstados.removeAllViews()
-        EstadoMesa.filtrables.forEach { estado ->
-            val item = ItemLeyendaBinding.inflate(
-                layoutInflater,
-                binding.leyendaEstados,
-                false
-            )
-            item.puntoEstado.backgroundTintList = ColorStateList.valueOf(
-                ContextCompat.getColor(requireContext(), estado.colorRes())
-            )
-            item.textoLeyenda.text = getString(estado.etiquetaRes())
-            val margen = resources.getDimensionPixelSize(R.dimen.espacio_l)
-            item.root.layoutParams =
-                (item.root.layoutParams as android.widget.LinearLayout.LayoutParams).apply {
-                    marginEnd = margen
-                }
-            binding.leyendaEstados.addView(item.root)
-        }
+        SalonFiltrosMarea.pintarLeyenda(binding.leyendaEstados, layoutInflater)
     }
 
     /**
@@ -589,6 +497,7 @@ class SalonFragment : Fragment() {
         dialogo.setCanceledOnTouchOutside(true)
         dialogo.setOnDismissListener { if (dialogoAbierto === dialogo) dialogoAbierto = null }
         dialogo.show()
+        dialogo.aplicarMarcoMarea(requireContext())
         dialogoAbierto = dialogo
     }
 
@@ -624,6 +533,7 @@ class SalonFragment : Fragment() {
             if (dialogoLiberarMesa === dialogo) dialogoLiberarMesa = null
         }
         dialogo.show()
+        dialogo.aplicarMarcoMarea(requireContext())
         dialogoLiberarMesa = dialogo
     }
 
@@ -648,6 +558,15 @@ class SalonFragment : Fragment() {
         dialogoAbierto?.dismiss()
         dialogoAbierto = null
         avisosUi.mostrarSesionExpirada()
+    }
+
+    private fun ejecutarSiNoHayDetalleOculto(accion: () -> Unit) {
+        val main = activity as? MainActivity
+        if (main != null) {
+            main.ejecutarAlAbrirOperacion(accion)
+        } else {
+            accion()
+        }
     }
 
     private fun alSeleccionarMesa(mesa: Mesa) {
@@ -705,14 +624,7 @@ class SalonFragment : Fragment() {
         dialogo.setCanceledOnTouchOutside(true)
         dialogo.setOnDismissListener { if (dialogoAbierto === dialogo) dialogoAbierto = null }
         dialogo.show()
-
-        // Ancho premium tambien en tablet y teclado listo para escribir.
-        val anchoPantalla = (resources.displayMetrics.widthPixels * 0.92f).toInt()
-        val anchoMaximo = (480 * resources.displayMetrics.density).toInt()
-        dialogo.window?.setLayout(
-            minOf(anchoPantalla, anchoMaximo),
-            ViewGroup.LayoutParams.WRAP_CONTENT
-        )
+        dialogo.aplicarMarcoMarea(requireContext())
         dialogo.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE)
         contenido.textoNombreCliente.requestFocus()
         dialogoAbierto = dialogo

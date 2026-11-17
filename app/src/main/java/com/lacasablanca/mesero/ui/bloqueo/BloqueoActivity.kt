@@ -1,14 +1,12 @@
 package com.lacasablanca.mesero.ui.bloqueo
 
 import android.content.Intent
-import android.content.res.ColorStateList
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -118,7 +116,7 @@ class BloqueoActivity : AppCompatActivity() {
     }
 
     private fun render(estado: BloqueoUiState) {
-        actualizarPuntos(estado.digitosIngresados)
+        actualizarPuntos(estado.digitosIngresados, hayError = estado.error != null)
 
         binding.textoUsuario.isVisible = estado.usuario.isNotBlank()
         if (estado.usuario.isNotBlank()) {
@@ -126,25 +124,34 @@ class BloqueoActivity : AppCompatActivity() {
         }
 
         binding.textoError.isVisible = estado.error != null
-        estado.error?.let { binding.textoError.text = getString(it.mensajeRes()) }
+        estado.error?.let {
+            binding.textoError.text = getString(it.mensajeRes())
+            val iconoError = if (it == ErrorBloqueo.BLOQUEADO) {
+                R.drawable.ic_lock
+            } else {
+                R.drawable.ic_alert_triangle
+            }
+            binding.textoError.setCompoundDrawablesRelativeWithIntrinsicBounds(iconoError, 0, 0, 0)
+        }
 
         binding.progresoVerificando.isVisible = estado.cargando
         binding.textoVerificando.isVisible = estado.cargando
+        val bloqueado = estado.error == ErrorBloqueo.BLOQUEADO
+        binding.tecladoBloqueo.alpha = if (bloqueado) OPACIDAD_BLOQUEADO else 1f
         botonesTeclado.forEach { it.isEnabled = !estado.cargando }
         binding.btnBorrar.isEnabled = !estado.cargando
     }
 
-    private fun actualizarPuntos(cantidad: Int) {
+    private fun actualizarPuntos(cantidad: Int, hayError: Boolean) {
         val puntos = listOf(binding.punto1, binding.punto2, binding.punto3, binding.punto4)
         puntos.forEachIndexed { indice, punto ->
-            val color = if (indice < cantidad) {
-                R.color.primary
-            } else {
-                R.color.surface_container_highest
+            val fondo = when {
+                hayError -> R.drawable.bg_punto_pin_error
+                indice < cantidad -> R.drawable.bg_punto_pin_lleno
+                else -> R.drawable.bg_punto_pin
             }
-            punto.backgroundTintList = ColorStateList.valueOf(
-                ContextCompat.getColor(this, color)
-            )
+            punto.backgroundTintList = null
+            punto.setBackgroundResource(fondo)
         }
         binding.puntosPin.contentDescription = getString(
             R.string.bloqueo_puntos_cd,
@@ -184,5 +191,9 @@ class BloqueoActivity : AppCompatActivity() {
         ErrorBloqueo.BLOQUEADO -> R.string.bloqueo_error_bloqueado
         ErrorBloqueo.SESION -> R.string.bloqueo_error_sesion
         ErrorBloqueo.DESCONOCIDO -> R.string.bloqueo_error_generico
+    }
+
+    private companion object {
+        const val OPACIDAD_BLOQUEADO = 0.4f
     }
 }

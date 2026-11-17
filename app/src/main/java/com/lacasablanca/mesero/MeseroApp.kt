@@ -12,6 +12,7 @@ class MeseroApp : Application() {
     override fun onCreate() {
         super.onCreate()
         container = AppContainer(this)
+        container.temaPreferencias.aplicarTemaGuardado()
         SyncScheduler.programar(this)
     }
 }

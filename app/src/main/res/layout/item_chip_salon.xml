@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/chipRaiz"
+    android:layout_width="wrap_content"
+    android:layout_height="44dp"
+    android:background="@drawable/bg_chip_salon"
+    android:clickable="true"
+    android:focusable="true"
+    android:gravity="center"
+    android:orientation="horizontal"
+    android:paddingHorizontal="12dp">
+
+    <ImageView
+        android:id="@+id/iconoChip"
+        android:layout_width="16dp"
+        android:layout_height="16dp"
+        android:layout_marginEnd="6dp"
+        android:duplicateParentState="true"
+        android:importantForAccessibility="no"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/textoChip"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="5dp"
+        android:duplicateParentState="true"
+        android:ellipsize="end"
+        android:fontFamily="@font/inter"
+        android:includeFontPadding="false"
+        android:maxLines="1"
+        android:textColor="@color/selector_texto_chip"
+        android:textFontWeight="600"
+        android:textSize="13sp"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/contadorChip"
+        android:layout_width="wrap_content"
+        android:layout_height="24dp"
+        android:background="@drawable/bg_chip_contador"
+        android:duplicateParentState="true"
+        android:fontFamily="@font/plus_jakarta_sans"
+        android:gravity="center"
+        android:includeFontPadding="false"
+        android:maxLines="1"
+        android:minWidth="22dp"
+        android:paddingHorizontal="6dp"
+        android:textColor="@color/selector_texto_chip"
+        android:textFontWeight="700"
+        android:textSize="12sp" />
+</LinearLayout>

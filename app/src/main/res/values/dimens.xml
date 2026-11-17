@@ -11,47 +11,57 @@
     <!-- Objetivos tactiles y botones -->
     <dimen name="toque_minimo">48dp</dimen>
     <dimen name="alto_boton_primario">56dp</dimen>
+    <dimen name="alto_boton_mediano">48dp</dimen>
     <dimen name="alto_barra_superior">72dp</dimen>
-    <dimen name="alto_pin_tecla">52dp</dimen>
+    <dimen name="alto_pin_tecla">60dp</dimen>
     <!-- Bloqueo rapido con PIN (PRB-81) -->
-    <dimen name="alto_tecla_bloqueo">56dp</dimen>
-    <dimen name="ancho_tecla_bloqueo">88dp</dimen>
+    <dimen name="alto_tecla_bloqueo">60dp</dimen>
+    <dimen name="ancho_tecla_bloqueo">96dp</dimen>
     <dimen name="ancho_maximo_bloqueo">400dp</dimen>
-    <dimen name="logo_bloqueo">96dp</dimen>
+    <dimen name="logo_bloqueo">72dp</dimen>
     <dimen name="espacio_superior_bloqueo">24dp</dimen>
     <dimen name="alto_chip_filtro">44dp</dimen>
-    <dimen name="alto_campo_login">56dp</dimen>
+    <dimen name="alto_campo_login">60dp</dimen>
+    <dimen name="alto_campo_marea">60dp</dimen>
 
-    <!-- Radios -->
+    <!-- Radios Marea -->
+    <dimen name="radio_banner">14dp</dimen>
     <dimen name="radio_boton">16dp</dimen>
-    <dimen name="radio_tarjeta">16dp</dimen>
+    <dimen name="radio_boton_grande">18dp</dimen>
+    <dimen name="radio_opcion">16dp</dimen>
+    <dimen name="radio_tarjeta">20dp</dimen>
     <dimen name="radio_tarjeta_grande">20dp</dimen>
-    <dimen name="radio_tarjeta_login">24dp</dimen>
-    <dimen name="radio_chip">24dp</dimen>
+    <dimen name="radio_tarjeta_mesa">20dp</dimen>
+    <dimen name="radio_panel">24dp</dimen>
+    <dimen name="radio_tarjeta_login">28dp</dimen>
+    <dimen name="radio_dialogo">28dp</dimen>
+    <dimen name="radio_sheet_login">30dp</dimen>
+    <dimen name="radio_chip">999dp</dimen>
     <dimen name="radio_pill">999dp</dimen>
-    <dimen name="radio_hero_movil">40dp</dimen>
+    <dimen name="radio_hero_movil">0dp</dimen>
 
     <!-- Tarjetas -->
     <dimen name="elevacion_tarjeta">2dp</dimen>
-    <dimen name="elevacion_tarjeta_login">8dp</dimen>
+    <dimen name="elevacion_tarjeta_login">12dp</dimen>
     <dimen name="borde_estado">4dp</dimen>
     <dimen name="borde_tarjeta">1dp</dimen>
-    <dimen name="margen_rejilla">8dp</dimen>
+    <dimen name="margen_rejilla">6dp</dimen>
     <dimen name="franja_estado">4dp</dimen>
 
     <!-- Tipografia -->
-    <dimen name="texto_titulo_pantalla">24sp</dimen>
+    <dimen name="texto_titulo_pantalla">28sp</dimen>
     <dimen name="texto_titulo_tarjeta">20sp</dimen>
-    <dimen name="texto_cuerpo">16sp</dimen>
+    <dimen name="texto_cuerpo">15sp</dimen>
     <dimen name="texto_secundario">14sp</dimen>
     <dimen name="texto_etiqueta">12sp</dimen>
-    <dimen name="texto_toolbar">16sp</dimen>
+    <dimen name="texto_toolbar">18sp</dimen>
+    <dimen name="texto_numero_mesa">34sp</dimen>
 
     <!-- Marca -->
-    <dimen name="logo_movil">96dp</dimen>
-    <dimen name="logo_tablet">168dp</dimen>
-    <dimen name="logo_barra">40dp</dimen>
-    <dimen name="logo_barra_tablet">44dp</dimen>
+    <dimen name="logo_movil">124dp</dimen>
+    <dimen name="logo_tablet">200dp</dimen>
+    <dimen name="logo_barra">36dp</dimen>
+    <dimen name="logo_barra_tablet">56dp</dimen>
 
     <!-- Iconos -->
     <dimen name="icono_pequeno">16dp</dimen>
@@ -62,38 +72,39 @@
     <!-- Comanda -->
     <dimen name="alto_imagen_plato">80dp</dimen>
     <dimen name="ancho_imagen_plato">80dp</dimen>
-    <dimen name="ancho_panel_login">360dp</dimen>
+    <dimen name="ancho_panel_login">460dp</dimen>
 
     <!-- Catalogo y carrito (PRB-38) -->
     <dimen name="ancho_imagen_catalogo">80dp</dimen>
     <dimen name="alto_imagen_catalogo">80dp</dimen>
     <dimen name="ancho_cantidad_carrito">40dp</dimen>
-    <dimen name="icono_exito_dialogo">52dp</dimen>
-    <dimen name="circulo_exito_dialogo">96dp</dimen>
+    <dimen name="icono_exito_dialogo">44dp</dimen>
+    <dimen name="circulo_exito_dialogo">136dp</dimen>
 
-    <!-- Perfil del mesero (PRB-83) -->
-    <dimen name="circulo_perfil">96dp</dimen>
-    <dimen name="icono_perfil">48dp</dimen>
+    <!-- Perfil del mesero -->
+    <dimen name="circulo_perfil">64dp</dimen>
+    <dimen name="icono_perfil">32dp</dimen>
 
-    <!-- Rediseno UI/UX (PRB-38): checkout flotante y bottom sheet -->
+    <!-- Checkout flotante y bottom sheet -->
     <dimen name="espacio_checkout">112dp</dimen>
-    <dimen name="radio_checkout">16dp</dimen>
+    <dimen name="radio_checkout">20dp</dimen>
     <dimen name="elevacion_checkout">8dp</dimen>
     <dimen name="alto_boton_checkout">48dp</dimen>
-    <dimen name="radio_bottom_sheet">24dp</dimen>
+    <dimen name="radio_bottom_sheet">28dp</dimen>
     <dimen name="alto_lista_carrito_sheet">280dp</dimen>
-    <dimen name="ancho_drag_handle">40dp</dimen>
-    <dimen name="alto_drag_handle">4dp</dimen>
-    <dimen name="ancho_cantidad_stepper">32dp</dimen>
-    <dimen name="circulo_vacio_carrito">88dp</dimen>
+    <dimen name="ancho_drag_handle">44dp</dimen>
+    <dimen name="alto_drag_handle">5dp</dimen>
+    <dimen name="ancho_cantidad_stepper">40dp</dimen>
+    <dimen name="circulo_vacio_carrito">84dp</dimen>
 
-    <!-- Mapa de mesas: espacio para que el FAB "Para Llevar" no tape tarjetas -->
+    <!-- Mapa de mesas: espacio inferior para CTA Para Llevar -->
     <dimen name="espacio_fab_mesas">88dp</dimen>
 
-    <!-- Acciones de mesa (PRB-93): listas y anchos maximos de dialogos -->
+    <!-- Acciones de mesa -->
     <dimen name="alto_lista_destinos">240dp</dimen>
     <dimen name="ancho_maximo_dialogo_acciones">480dp</dimen>
     <dimen name="ancho_maximo_sheet_acciones">560dp</dimen>
-    <dimen name="alto_fila_accion">64dp</dimen>
-    <dimen name="alto_fila_destino">56dp</dimen>
+    <dimen name="alto_fila_accion">68dp</dimen>
+    <dimen name="alto_fila_destino">60dp</dimen>
+    <dimen name="catalogo_encabezado_pad_h">0dp</dimen>
 </resources>

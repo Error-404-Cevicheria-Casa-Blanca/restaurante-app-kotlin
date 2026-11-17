@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="?attr/colorControlHighlight">
+    <item>
+        <selector>
+            <item android:state_selected="true">
+                <shape android:shape="rectangle">
+                    <solid android:color="@color/chip_filtro_activo" />
+                    <stroke
+                        android:width="1dp"
+                        android:color="@color/marea_blh" />
+                    <corners android:radius="999dp" />
+                </shape>
+            </item>
+            <item android:state_checked="true">
+                <shape android:shape="rectangle">
+                    <solid android:color="@color/chip_filtro_activo" />
+                    <stroke
+                        android:width="1dp"
+                        android:color="@color/marea_blh" />
+                    <corners android:radius="999dp" />
+                </shape>
+            </item>
+            <item>
+                <shape android:shape="rectangle">
+                    <solid android:color="@color/chip_filtro_inactivo" />
+                    <stroke
+                        android:width="1dp"
+                        android:color="@color/marea_line" />
+                    <corners android:radius="999dp" />
+                </shape>
+            </item>
+        </selector>
+    </item>
+</ripple>

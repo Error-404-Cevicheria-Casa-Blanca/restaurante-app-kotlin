@@ -2,6 +2,7 @@ package com.lacasablanca.mesero.ui.main
 
 import android.os.Bundle
 import androidx.activity.addCallback
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
@@ -35,6 +36,7 @@ class MainActivity : AppCompatActivity() {
 
     private var tabActual = R.id.navSalon
     private var detalleTab = R.id.navSalon
+    private var dialogoDetallePendiente: AlertDialog? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -65,6 +67,12 @@ class MainActivity : AppCompatActivity() {
         outState.putInt(KEY_TAB, tabActual)
         outState.putInt(KEY_DETALLE_TAB, detalleTab)
         super.onSaveInstanceState(outState)
+    }
+
+    override fun onDestroy() {
+        dialogoDetallePendiente?.dismiss()
+        dialogoDetallePendiente = null
+        super.onDestroy()
     }
 
     private fun configurarNavegacion() {
@@ -141,6 +149,42 @@ class MainActivity : AppCompatActivity() {
             ComandaFragment.nuevaParaLlevar(clienteNombre),
             R.id.navSalon
         )
+    }
+
+    /**
+     * Si existe una comanda o cobro oculto en otra pestana, pregunta si el mesero
+     * desea volver a esa operacion o descartarla antes de ejecutar [accion].
+     */
+    fun ejecutarAlAbrirOperacion(accion: () -> Unit) {
+        val detalle = supportFragmentManager.findFragmentByTag(TAG_DETALLE)
+        if (detalle == null || tabActual == detalleTab) {
+            accion()
+            return
+        }
+        if (dialogoDetallePendiente?.isShowing == true) return
+        val nombreTab = getString(
+            if (detalleTab == R.id.navPedidos) R.string.nav_pedidos else R.string.nav_salon
+        )
+        dialogoDetallePendiente = mostrarAvisoDetallePendiente(
+            activity = this,
+            esCobro = detalle is CobroFragment,
+            nombreTabPendiente = nombreTab,
+            alVolver = { seleccionarTab(detalleTab) },
+            alDescartar = {
+                descartarDetalleOculto(detalle)
+                accion()
+            },
+            alCerrar = { dialogoDetallePendiente = null }
+        )
+    }
+
+    private fun descartarDetalleOculto(detalle: Fragment) {
+        (detalle as? ComandaFragment)?.descartarPorCambioDePestana()
+        supportFragmentManager.popBackStackImmediate(
+            TAG_DETALLE,
+            FragmentManager.POP_BACK_STACK_INCLUSIVE
+        )
+        detalleTab = tabActual
     }
 
     /** Cobro de una mesa desde el tab Salón. */

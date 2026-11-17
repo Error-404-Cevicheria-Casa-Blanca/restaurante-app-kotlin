@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+        Marea Nocturna (Tema oscuro principal).
+        Superficies profundas (#030712 / #0F172A / #16223B), acento cian (#06B6D4 -> #22D3EE)
+        y azul marca (#1E40AF).
+    -->
+
+    <!-- Tokens Marea Nocturna -->
+    <color name="marea_bg">#030712</color>
+    <color name="marea_s1">#0F172A</color>
+    <color name="marea_s2">#16223B</color>
+    <color name="marea_s3">#1F2E4D</color>
+    <color name="marea_line">#2994A3B8</color>
+    <color name="marea_line2">#5294A3B8</color>
+    <color name="marea_tx">#F1F5F9</color>
+    <color name="marea_tx2">#A9B6CA</color>
+    <color name="marea_tx3">#8B9BB4</color>
+    <color name="marea_cy">#06B6D4</color>
+    <color name="marea_cyh">#22D3EE</color>
+    <color name="marea_cy_sub">#67E8F9</color>
+    <color name="marea_bl">#1E40AF</color>
+    <color name="marea_blh">#3B66F0</color>
+    <color name="marea_oncy">#021B22</color>
+
+    <!-- Brillos ambientales y acentos sutiles -->
+    <color name="marea_glow_cy">#2B06B6D4</color>
+    <color name="marea_glow_bl">#4D1E40AF</color>
+    <color name="marea_nav_bg">#F5060B18</color>
+    <color name="marea_rail_bg">#E0060B18</color>
+    <color name="marea_nav_active_bg">#2406B6D4</color>
+    <color name="marea_nav_active_border">#6122D3EE</color>
+    <color name="marea_card_top">#BD1E2943</color>
+    <color name="marea_card_bottom">#F00F172A</color>
+    <color name="marea_dlg_top">#1A2845</color>
+    <color name="marea_dlg_bottom">#0F172A</color>
+    <color name="marea_avatar_ring">#2922D3EE</color>
+
+    <!-- Botones y controles -->
+    <color name="marea_btn_p_start">#22D3EE</color>
+    <color name="marea_btn_p_end">#06B6D4</color>
+    <color name="marea_btn_off_bg">#16223B</color>
+    <color name="marea_btn_off_tx">#8B9BB4</color>
+    <color name="marea_btn_dg_bg">#1FF26363</color>
+    <color name="marea_btn_dg_fg">#FF9090</color>
+    <color name="marea_btn_dg_border">#66F26363</color>
+    <color name="marea_btn_dgs_start">#FF8585</color>
+    <color name="marea_btn_dgs_end">#F26363</color>
+    <color name="marea_btn_dgs_fg">#2B0B10</color>
+    <color name="marea_field_bg">#BF030712</color>
+    <color name="marea_chip_badge_bg">#1FFFFFFF</color>
+    <color name="marea_chip_badge_on_bg">#29FFFFFF</color>
+    <color name="marea_scrim">#B802060F</color>
+    <color name="marea_skeleton_edge">#16223B</color>
+    <color name="marea_skeleton_mid">#22335A</color>
+    <color name="marea_fade_top">#00030712</color>
+    <color name="marea_fade_bottom">#030712</color>
+
+    <!-- Banners semanticos -->
+    <color name="marea_banner_demo_bg">#1F06B6D4</color>
+    <color name="marea_banner_demo_fg">#67E8F9</color>
+    <color name="marea_banner_demo_border">#6606B6D4</color>
+    <color name="marea_banner_warn_bg">#1FF5B82E</color>
+    <color name="marea_banner_warn_fg">#F8CB62</color>
+    <color name="marea_banner_warn_border">#6BF5B82E</color>
+    <color name="marea_banner_err_bg">#1FF26363</color>
+    <color name="marea_banner_err_fg">#FF9A9A</color>
+    <color name="marea_banner_err_border">#6BF26363</color>
+    <color name="marea_banner_err_stroke">#6BF26363</color>
+    <color name="marea_pill_neutral_bg">#1F94A3B8</color>
+    <color name="marea_pill_neutral_stroke">#5994A3B8</color>
+    <color name="marea_opt_on_bg">#1A06B6D4</color>
+    <color name="marea_thm_on_bg">#140E7490</color>
+    <color name="seg_bg">#0F172A</color>
+    <color name="seg_tab_on_bg">#1F2E4D</color>
+    <color name="seg_tab_on_fg">#FFFFFF</color>
+    <color name="card_prod_ph_start">#17406B</color>
+    <color name="card_prod_ph_end">#0B2340</color>
+    <color name="card_prod_ph_ico">#66FFFFFF</color>
+    <color name="marea_avatar_end">#1E40AF</color>
+    <color name="marea_coral_logout">#FF9090</color>
+
+    <!-- Semantica mesas (Marea Nocturna) -->
+    <color name="estado_libre">#34C77B</color>
+    <color name="estado_ocupada">#F26363</color>
+    <color name="estado_cuenta">#F5B82E</color>
+    <color name="estado_atencion">#4DA3FF</color>
+    <color name="estado_atencion_oscuro">#1E40AF</color>
+    <color name="estado_desconocido">#8B9BB4</color>
+
+    <color name="mesa_libre_ct">#2134C77B</color>
+    <color name="mesa_libre_cb">#7534C77B</color>
+    <color name="mesa_libre_cf">#0E2A27</color>
+    <color name="mesa_libre_cbs">#1F6B50</color>
+    <color name="mesa_card_libre_top">#182F35</color>
+    <color name="mesa_card_libre_bottom">#EB0F172A</color>
+
+    <color name="mesa_aten_ct">#244DA3FF</color>
+    <color name="mesa_aten_cb">#804DA3FF</color>
+    <color name="mesa_aten_cf">#102447</color>
+    <color name="mesa_aten_cbs">#2F65AE</color>
+    <color name="mesa_card_aten_top">#192D4E</color>
+    <color name="mesa_card_aten_bottom">#EB0F172A</color>
+
+    <color name="mesa_ocu_ct">#24F26363</color>
+    <color name="mesa_ocu_cb">#80F26363</color>
+    <color name="mesa_ocu_cf">#321728</color>
+    <color name="mesa_ocu_cbs">#93404E</color>
+    <color name="mesa_card_ocu_top">#2F2032</color>
+    <color name="mesa_card_ocu_bottom">#EB0F172A</color>
+
+    <color name="mesa_cta_ct">#24F5B82E</color>
+    <color name="mesa_cta_cb">#80F5B82E</color>
+    <color name="mesa_cta_cf">#31271A</color>
+    <color name="mesa_cta_cbs">#8E6F25</color>
+    <color name="mesa_card_cta_top">#2F2C27</color>
+    <color name="mesa_card_cta_bottom">#EB0F172A</color>
+
+    <color name="mesa_desc_ct">#1F94A3B8</color>
+    <color name="mesa_desc_cb">#5294A3B8</color>
+    <color name="mesa_desc_cf">#16223B</color>
+    <color name="mesa_desc_cbs">#475569</color>
+    <color name="mesa_card_desc_top">#1B2740</color>
+    <color name="mesa_card_desc_bottom">#EB0F172A</color>
+
+    <!-- Iconos y badges semanticos (.ib / .sem-*) -->
+    <color name="sem_warn_c">#F5B82E</color>
+    <color name="sem_warn_ct">#24F5B82E</color>
+    <color name="sem_warn_cb">#80F5B82E</color>
+    <color name="sem_err_c">#F26363</color>
+    <color name="sem_err_ct">#24F26363</color>
+    <color name="sem_err_cb">#80F26363</color>
+    <color name="sem_info_c">#22D3EE</color>
+    <color name="sem_info_ct">#2406B6D4</color>
+    <color name="sem_info_cb">#7322D3EE</color>
+    <color name="sem_ok_c">#34C77B</color>
+    <color name="sem_ok_ct">#2434C77B</color>
+    <color name="sem_ok_cb">#8034C77B</color>
+    <color name="sem_aten_c">#4DA3FF</color>
+    <color name="sem_aten_ct">#244DA3FF</color>
+    <color name="sem_aten_cb">#804DA3FF</color>
+
+    <!-- Compatibilidad Material 3 / tokens existentes -->
+    <color name="primary">#22D3EE</color>
+    <color name="primary_dark">#06B6D4</color>
+    <color name="stitch_primary">#F1F5F9</color>
+    <color name="on_primary">#021B22</color>
+    <color name="primary_container">#0D2B3D</color>
+    <color name="on_primary_container">#67E8F9</color>
+    <color name="primary_fixed">#1E40AF</color>
+    <color name="primary_fixed_dim">#3B66F0</color>
+    <color name="on_primary_fixed">#FFFFFF</color>
+    <color name="secondary">#22D3EE</color>
+    <color name="secondary_container">#102A3D</color>
+    <color name="on_secondary_container">#67E8F9</color>
+    <color name="secondary_fixed">#102A3D</color>
+    <color name="secondary_fixed_dim">#1F2E4D</color>
+    <color name="on_secondary_fixed">#67E8F9</color>
+    <color name="on_secondary_fixed_variant">#22D3EE</color>
+    <color name="accent_lima">#22D3EE</color>
+
+    <color name="tertiary">#4DA3FF</color>
+    <color name="on_tertiary">#021B22</color>
+    <color name="tertiary_container">#102447</color>
+    <color name="on_tertiary_container">#93C5FD</color>
+    <color name="tertiary_fixed">#102447</color>
+    <color name="tertiary_fixed_dim">#2F65AE</color>
+    <color name="on_tertiary_fixed">#F1F5F9</color>
+
+    <color name="background">#030712</color>
+    <color name="surface">#0F172A</color>
+    <color name="surface_container_lowest">#0F172A</color>
+    <color name="surface_container_low">#121C33</color>
+    <color name="surface_container">#16223B</color>
+    <color name="surface_container_high">#1B2844</color>
+    <color name="surface_container_highest">#1F2E4D</color>
+    <color name="surface_variant">#1F2E4D</color>
+    <color name="surface_dim">#060B18</color>
+    <color name="inverse_surface">#E8EEF6</color>
+    <color name="inverse_on_surface">#0B1A33</color>
+    <color name="borde_suave">#2994A3B8</color>
+    <color name="outline">#8B9BB4</color>
+    <color name="outline_variant">#5294A3B8</color>
+
+    <color name="texto_principal">#F1F5F9</color>
+    <color name="on_surface">#F1F5F9</color>
+    <color name="on_surface_variant">#A9B6CA</color>
+    <color name="texto_secundario">#A9B6CA</color>
+    <color name="texto_sobre_primario">#FFFFFF</color>
+    <color name="texto_sobre_primario_suave">#CFEFFF</color>
+
+    <!-- Estados de preparacion del plato -->
+    <color name="estado_plato_pendiente_fondo">#112E42</color>
+    <color name="estado_plato_pendiente_texto">#67E8F9</color>
+    <color name="estado_plato_preparacion_fondo">#31271A</color>
+    <color name="estado_plato_preparacion_texto">#F8CB62</color>
+    <color name="estado_plato_listo_fondo">#0E2A27</color>
+    <color name="estado_plato_listo_texto">#34C77B</color>
+    <color name="estado_plato_servido_fondo">#102447</color>
+    <color name="estado_plato_servido_texto">#4DA3FF</color>
+    <color name="estado_plato_anulado_fondo">#1F2E4D</color>
+    <color name="estado_plato_anulado_texto">#8B9BB4</color>
+    <color name="estado_plato_desconocido_fondo">#16223B</color>
+    <color name="estado_plato_desconocido_texto">#A9B6CA</color>
+
+    <!-- Controles heredados re-mapeados -->
+    <color name="chip_filtro_activo">#1E40AF</color>
+    <color name="chip_filtro_inactivo">#16223B</color>
+    <color name="chip_pin_tecla">#16223B</color>
+    <color name="chip_pin_accion">#16223B</color>
+    <color name="barra_accion_fondo">#16223B</color>
+    <color name="barra_salir_fondo">#16223B</color>
+
+    <!-- Hero oceano de Login -->
+    <color name="login_hero_inicio">#0B3C5D</color>
+    <color name="login_hero_medio">#0A1F44</color>
+    <color name="login_hero_fin">#050B1E</color>
+    <color name="login_fondo_panel">#030712</color>
+    <color name="login_campo_relleno">#BF030712</color>
+    <color name="login_logo_anillo">#2EFFFFFF</color>
+    <color name="login_sede_bg">#1FFFFFFF</color>
+    <color name="login_sede_border">#59FFFFFF</color>
+
+    <!-- Comanda & Carrito Marea -->
+    <color name="marea_checkout_start">#F70E3052</color>
+    <color name="marea_checkout_end">#FC0F172A</color>
+    <color name="marea_checkout_border">#7322D3EE</color>
+    <color name="marea_checkout_icon_bg">#2422D3EE</color>
+    <color name="marea_qty_bg">#B3030712</color>
+    <color name="marea_qty_minus_bg">#0F2542</color>
+    <color name="marea_line_danger_bg">#1FF26363</color>
+    <color name="marea_line_danger_border">#66F26363</color>
+
+    <!-- Retroalimentacion -->
+    <color name="error">#F26363</color>
+    <color name="error_container">#291322</color>
+    <color name="on_error_container">#FF9A9A</color>
+    <color name="exito">#34C77B</color>
+    <color name="exito_fg">#04241A</color>
+    <color name="exito_ring_inner">#2434C77B</color>
+    <color name="exito_ring_outer">#1234C77B</color>
+
+    <!-- Utilitarios -->
+    <color name="white">#FFFFFFFF</color>
+    <color name="transparent">#00000000</color>
+</resources>

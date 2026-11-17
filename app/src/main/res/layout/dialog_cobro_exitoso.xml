@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Confirmacion del cobro: total, vuelto opcional y regreso al mapa. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -8,27 +7,31 @@
     android:background="@drawable/bg_dialogo_premium"
     android:gravity="center_horizontal"
     android:orientation="vertical"
-    android:padding="@dimen/espacio_xl">
+    android:paddingHorizontal="22dp"
+    android:paddingTop="28dp"
+    android:paddingBottom="22dp">
 
     <FrameLayout
-        android:layout_width="@dimen/circulo_exito_dialogo"
-        android:layout_height="@dimen/circulo_exito_dialogo"
-        android:background="@drawable/bg_circulo_exito">
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:background="@drawable/bg_ib_ok">
 
         <ImageView
-            android:layout_width="@dimen/icono_exito_dialogo"
-            android:layout_height="@dimen/icono_exito_dialogo"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
             android:layout_gravity="center"
             android:importantForAccessibility="no"
-            android:src="@drawable/ic_check_blanco" />
+            android:src="@drawable/ic_marea_libre"
+            app:tint="@color/sem_ok_c" />
     </FrameLayout>
 
     <TextView
+        style="@style/Texto.TituloPantalla"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/espacio_l"
+        android:layout_marginTop="16dp"
         android:autoSizeMaxTextSize="24sp"
-        android:autoSizeMinTextSize="15sp"
+        android:autoSizeMinTextSize="16sp"
         android:autoSizeStepGranularity="1sp"
         android:autoSizeTextType="uniform"
         android:breakStrategy="simple"
@@ -37,88 +40,91 @@
         android:hyphenationFrequency="none"
         android:maxLines="2"
         android:text="@string/cobro_exito_titulo"
-        android:textColor="@color/stitch_primary"
-        android:textSize="22sp"
-        android:textStyle="bold" />
+        android:textColor="@color/marea_tx"
+        android:textSize="24sp" />
 
     <TextView
         android:id="@+id/textoExitoCobroMensaje"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/espacio_l"
-        android:autoSizeMaxTextSize="18sp"
-        android:autoSizeMinTextSize="13sp"
-        android:autoSizeStepGranularity="1sp"
-        android:autoSizeTextType="uniform"
-        android:background="@drawable/bg_pill_superficie"
-        android:breakStrategy="simple"
-        android:ellipsize="none"
-        android:gravity="center"
-        android:hyphenationFrequency="none"
-        android:maxLines="2"
-        android:paddingHorizontal="@dimen/espacio_l"
-        android:paddingVertical="@dimen/espacio_s"
-        android:textColor="@color/stitch_primary"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        tools:text="Mesa 7 · Cobro registrado" />
-
-    <TextView
-        android:id="@+id/textoExitoCobroTotal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/espacio_l"
-        android:autoSizeMaxTextSize="22sp"
-        android:autoSizeMinTextSize="14sp"
-        android:autoSizeStepGranularity="1sp"
-        android:autoSizeTextType="uniform"
-        android:breakStrategy="simple"
-        android:ellipsize="none"
-        android:gravity="center"
-        android:hyphenationFrequency="none"
-        android:maxLines="1"
-        android:textColor="@color/stitch_primary"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        tools:text="Total cobrado: S/ 96.00" />
-
-    <TextView
-        android:id="@+id/textoExitoCobroVuelto"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/espacio_s"
-        android:autoSizeMaxTextSize="18sp"
+        android:layout_marginTop="8dp"
+        android:autoSizeMaxTextSize="16sp"
         android:autoSizeMinTextSize="12sp"
         android:autoSizeStepGranularity="1sp"
         android:autoSizeTextType="uniform"
         android:breakStrategy="simple"
         android:ellipsize="none"
+        android:fontFamily="@font/inter"
         android:gravity="center"
         android:hyphenationFrequency="none"
-        android:maxLines="1"
-        android:textColor="@color/estado_libre"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        android:visibility="gone"
-        tools:text="Vuelto: S/ 14.40"
-        tools:visibility="visible" />
+        android:lineSpacingMultiplier="1.35"
+        android:maxLines="2"
+        android:textColor="@color/marea_tx2"
+        android:textSize="15sp"
+        tools:text="Mesa 4 · Cobro registrado" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/bg_banner_ok"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:paddingHorizontal="18dp"
+        android:paddingVertical="14dp">
+
+        <TextView
+            android:id="@+id/textoExitoCobroTotal"
+            style="@style/Texto.NumeroTabular"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:autoSizeMaxTextSize="24sp"
+            android:autoSizeMinTextSize="16sp"
+            android:autoSizeStepGranularity="1sp"
+            android:autoSizeTextType="uniform"
+            android:breakStrategy="simple"
+            android:ellipsize="none"
+            android:gravity="center"
+            android:hyphenationFrequency="none"
+            android:maxLines="1"
+            android:textColor="@color/sem_ok_c"
+            android:textSize="24sp"
+            tools:text="Total cobrado: S/ 175.00" />
+
+        <TextView
+            android:id="@+id/textoExitoCobroVuelto"
+            style="@style/Texto.NumeroTabular"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:autoSizeMaxTextSize="16sp"
+            android:autoSizeMinTextSize="12sp"
+            android:autoSizeStepGranularity="1sp"
+            android:autoSizeTextType="uniform"
+            android:breakStrategy="simple"
+            android:ellipsize="none"
+            android:gravity="center"
+            android:hyphenationFrequency="none"
+            android:maxLines="1"
+            android:textColor="@color/marea_tx2"
+            android:textSize="14sp"
+            android:visibility="gone"
+            tools:text="Vuelto: S/ 25.00"
+            tools:visibility="visible" />
+    </LinearLayout>
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnVolverMapaCobro"
         style="@style/Boton.Primario"
         android:layout_width="match_parent"
         android:layout_height="@dimen/alto_boton_primario"
-        android:layout_marginTop="@dimen/espacio_xl"
+        android:layout_marginTop="20dp"
         android:autoSizeMaxTextSize="16sp"
-        android:autoSizeMinTextSize="11sp"
+        android:autoSizeMinTextSize="12sp"
         android:autoSizeStepGranularity="1sp"
         android:autoSizeTextType="uniform"
         android:breakStrategy="simple"
         android:hyphenationFrequency="none"
         android:maxLines="1"
-        android:text="@string/cobro_exito_volver"
-        app:icon="@drawable/ic_check_blanco"
-        app:iconGravity="textStart"
-        app:iconPadding="@dimen/espacio_s"
-        app:iconTint="@color/on_primary" />
+        android:text="@string/cobro_exito_volver" />
 </LinearLayout>

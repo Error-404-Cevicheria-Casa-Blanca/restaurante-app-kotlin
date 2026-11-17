@@ -22,11 +22,20 @@ fun EstadoMesa.colorRes(): Int = when (this) {
 
 @DrawableRes
 fun EstadoMesa.iconoRes(): Int = when (this) {
-    EstadoMesa.LIBRE -> R.drawable.ic_check
-    EstadoMesa.OCUPADA -> R.drawable.ic_restaurant
-    EstadoMesa.CUENTA_SOLICITADA -> R.drawable.ic_receipt
-    EstadoMesa.ATENDIDA -> R.drawable.ic_edit
-    EstadoMesa.DESCONOCIDO -> R.drawable.ic_error_outline
+    EstadoMesa.LIBRE -> R.drawable.ic_marea_libre
+    EstadoMesa.OCUPADA -> R.drawable.ic_marea_ocupada
+    EstadoMesa.CUENTA_SOLICITADA -> R.drawable.ic_marea_cta
+    EstadoMesa.ATENDIDA -> R.drawable.ic_marea_aten
+    EstadoMesa.DESCONOCIDO -> R.drawable.ic_alert_triangle
+}
+
+@StringRes
+fun EstadoMesa.etiquetaChipTabletRes(): Int = when (this) {
+    EstadoMesa.LIBRE -> R.string.estado_libre_plural
+    EstadoMesa.OCUPADA -> R.string.estado_ocupada_plural
+    EstadoMesa.CUENTA_SOLICITADA -> R.string.estado_cuenta_corto
+    EstadoMesa.ATENDIDA -> R.string.estado_atendida
+    EstadoMesa.DESCONOCIDO -> R.string.estado_desconocido
 }
 
 @StringRes

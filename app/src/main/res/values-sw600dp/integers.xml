@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Columnas de la cuadricula de mesas en tablet (>= 600dp) -->
-    <integer name="columnas_mesas">4</integer>
+    <!-- Columnas en tablet retrato (600dp-840dp): 3 columnas de mesas, 1 de catalogo -->
+    <integer name="columnas_mesas">3</integer>
     <!-- La lista de pedidos usa 2 columnas en tablet -->
     <integer name="columnas_pedidos">2</integer>
+    <!-- En retrato (<=840dp) 1 columna evita recorte del stepper junto al precio -->
+    <integer name="columnas_catalogo">1</integer>
 </resources>

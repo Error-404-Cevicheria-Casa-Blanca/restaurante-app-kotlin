@@ -1,152 +1,87 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-    Mapa de mesas dentro del tab Salón (PRB-88, Fase 2).
-    Es la misma estructura de activity_mesas.xml, pero como fragmento:
-    los insets del sistema los aplica MainActivity, no este layout.
--->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background"
     android:orientation="vertical"
     tools:context=".ui.salon.SalonFragment">
-
-    <!-- Barra superior (variante con texto en tablet: layout-sw600dp/barra_mesas.xml) -->
-    <include
-        android:id="@+id/barra"
-        layout="@layout/barra_mesas"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-
-    <!-- PRB-62: indicador persistente de modo offline -->
-    <TextView
-        android:id="@+id/bannerOffline"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:autoSizeMaxTextSize="14sp"
-        android:autoSizeMinTextSize="11sp"
-        android:autoSizeStepGranularity="1sp"
-        android:autoSizeTextType="uniform"
-        android:background="@color/estado_ocupada"
-        android:breakStrategy="simple"
-        android:gravity="center"
-        android:hyphenationFrequency="none"
-        android:maxLines="2"
-        android:padding="@dimen/espacio_s"
-        android:text="@string/offline_banner"
-        android:textColor="@color/on_primary"
-        android:textSize="@dimen/texto_secundario"
-        android:textStyle="bold"
-        android:visibility="gone"
-        tools:visibility="visible" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:paddingHorizontal="@dimen/espacio_l"
-        android:paddingTop="@dimen/espacio_m">
+        android:paddingHorizontal="16dp"
+        android:paddingTop="16dp">
 
-        <!-- Zonas dinamicas desde 'ubicacion', en contenedor pill -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/bg_contenedor_zonas"
-            android:padding="@dimen/espacio_xs">
-
-            <com.google.android.material.tabs.TabLayout
-                android:id="@+id/tabsZonas"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@color/transparent"
-                android:minHeight="@dimen/toque_minimo"
-                app:tabBackground="@drawable/selector_tab_zona"
-                app:tabIndicatorHeight="0dp"
-                app:tabMode="scrollable"
-                app:tabPaddingEnd="@dimen/espacio_l"
-                app:tabPaddingStart="@dimen/espacio_l"
-                app:tabRippleColor="@null"
-                app:tabTextAppearance="@style/Texto.PestanaZona"
-                app:tabTextColor="@color/selector_texto_tab_zona" />
-        </LinearLayout>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/espacio_l"
-            android:letterSpacing="0.1"
-            android:text="@string/mesas_filtro_titulo"
-            android:textAllCaps="true"
-            android:textColor="@color/on_surface_variant"
-            android:textSize="@dimen/texto_etiqueta"
-            android:textStyle="bold" />
-
-        <!-- Filtros por estado con contadores -->
-        <HorizontalScrollView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/espacio_xs"
-            android:paddingVertical="@dimen/espacio_xs"
-            android:scrollbars="none">
-
-            <com.google.android.material.chip.ChipGroup
-                android:id="@+id/chipsEstados"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:chipSpacingHorizontal="@dimen/espacio_s"
-                app:chipSpacingVertical="@dimen/espacio_xs"
-                app:selectionRequired="true"
-                app:singleLine="true"
-                app:singleSelection="true" />
-        </HorizontalScrollView>
-    </LinearLayout>
-
-    <!-- Leyenda de 4 colores -->
-    <com.google.android.material.card.MaterialCardView
-        style="@style/Tarjeta.Superficie"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="@dimen/espacio_l"
-        android:layout_marginTop="@dimen/espacio_m"
-        app:cardCornerRadius="@dimen/espacio_m">
+        <include
+            android:id="@+id/barra"
+            layout="@layout/barra_mesas" />
 
         <LinearLayout
+            android:id="@+id/bannerOffline"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="@dimen/espacio_m">
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_banner_warn"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="14dp"
+            android:paddingVertical="10dp"
+            android:visibility="gone"
+            tools:visibility="visible">
+
+            <ImageView
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:importantForAccessibility="no"
+                android:src="@drawable/ic_wifi_off"
+                app:tint="@color/marea_banner_warn_fg" />
 
             <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:letterSpacing="0.08"
-                android:text="@string/leyenda_titulo"
-                android:textAllCaps="true"
-                android:textColor="@color/on_surface_variant"
-                android:textSize="11sp"
-                android:textStyle="bold" />
-
-            <HorizontalScrollView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/espacio_xs"
-                android:scrollbars="none">
-
-                <LinearLayout
-                    android:id="@+id/leyendaEstados"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:contentDescription="@string/leyenda_titulo"
-                    android:orientation="horizontal" />
-            </HorizontalScrollView>
+                android:layout_marginStart="10dp"
+                android:layout_weight="1"
+                android:fontFamily="@font/inter"
+                android:text="@string/offline_banner"
+                android:textColor="@color/marea_banner_warn_fg"
+                android:textFontWeight="600"
+                android:textSize="13.5sp" />
         </LinearLayout>
-    </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.tabs.TabLayout
+            android:id="@+id/tabsZonas"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_contenedor_zonas"
+            android:padding="4dp"
+            app:tabBackground="@drawable/selector_tab_zona"
+            app:tabGravity="fill"
+            app:tabIndicatorHeight="0dp"
+            app:tabMaxWidth="0dp"
+            app:tabMinWidth="0dp"
+            app:tabMode="fixed"
+            app:tabPaddingEnd="4dp"
+            app:tabPaddingStart="4dp"
+            app:tabRippleColor="@null"
+            app:tabTextAppearance="@style/Texto.PestanaZona"
+            app:tabTextColor="@color/selector_texto_tab_zona" />
+
+        <LinearLayout
+            android:id="@+id/chipsEstados"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal" />
+    </LinearLayout>
 
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:layout_marginTop="6dp"
         android:layout_weight="1">
 
         <androidx.recyclerview.widget.RecyclerView
@@ -154,116 +89,165 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:clipToPadding="false"
-            android:padding="@dimen/espacio_s"
-            android:paddingBottom="@dimen/espacio_fab_mesas"
-            tools:itemCount="4"
+            android:paddingHorizontal="10dp"
+            android:paddingTop="4dp"
+            android:paddingBottom="84dp"
             tools:listitem="@layout/item_mesa" />
 
-        <ProgressBar
+        <FrameLayout
             android:id="@+id/progresoCarga"
-            android:layout_width="@dimen/toque_minimo"
-            android:layout_height="@dimen/toque_minimo"
-            android:layout_gravity="center"
-            android:indeterminate="true"
-            android:indeterminateTint="@color/primary" />
-
-        <LinearLayout
-            android:id="@+id/grupoVacio"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:gravity="center"
-            android:orientation="vertical"
-            android:padding="@dimen/espacio_xl"
-            android:visibility="gone"
-            tools:visibility="visible">
+            android:layout_height="match_parent"
+            android:visibility="gone">
 
-            <ImageView
-                android:layout_width="@dimen/icono_xl"
-                android:layout_height="@dimen/icono_xl"
-                android:contentDescription="@string/mesas_vacio"
-                android:src="@drawable/ic_inbox"
-                app:tint="@color/on_surface_variant" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/espacio_m"
-                android:gravity="center"
-                android:text="@string/mesas_vacio"
-                android:textColor="@color/on_surface"
-                android:textSize="@dimen/texto_cuerpo"
-                android:textStyle="bold" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/espacio_xs"
-                android:gravity="center"
-                android:text="@string/mesas_vacio_ayuda"
-                android:textColor="@color/on_surface_variant"
-                android:textSize="@dimen/texto_secundario" />
-        </LinearLayout>
+            <include layout="@layout/view_mesa_skeleton_grid" />
+        </FrameLayout>
 
         <LinearLayout
             android:id="@+id/grupoError"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
+            android:layout_height="match_parent"
             android:gravity="center"
             android:orientation="vertical"
-            android:padding="@dimen/espacio_xl"
-            android:visibility="gone"
-            tools:visibility="visible">
+            android:paddingHorizontal="24dp"
+            android:paddingBottom="76dp"
+            android:visibility="gone">
 
-            <ImageView
-                android:layout_width="@dimen/icono_xl"
-                android:layout_height="@dimen/icono_xl"
-                android:contentDescription="@string/mesas_error"
-                android:src="@drawable/ic_error_outline"
-                app:tint="@color/error" />
+            <FrameLayout
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:background="@drawable/bg_ib_err">
+
+                <ImageView
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:layout_gravity="center"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/ic_alert_triangle"
+                    app:tint="@color/sem_err_c" />
+            </FrameLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:fontFamily="@font/plus_jakarta_sans"
+                android:gravity="center"
+                android:text="@string/mesas_error"
+                android:textColor="@color/marea_tx"
+                android:textFontWeight="800"
+                android:textSize="22sp" />
 
             <TextView
                 android:id="@+id/textoErrorMesas"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/espacio_m"
+                android:layout_marginTop="8dp"
+                android:fontFamily="@font/inter"
                 android:gravity="center"
-                android:text="@string/mesas_error"
-                android:textColor="@color/on_surface"
-                android:textSize="@dimen/texto_cuerpo" />
+                android:lineSpacingMultiplier="1.3"
+                android:maxWidth="360dp"
+                android:text="@string/mesas_error_ayuda"
+                android:textColor="@color/marea_tx2"
+                android:textSize="15sp" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnReintentar"
                 style="@style/Boton.Primario"
                 android:layout_width="wrap_content"
-                android:layout_marginTop="@dimen/espacio_l"
-                android:paddingHorizontal="@dimen/espacio_xl"
-                android:text="@string/accion_reintentar" />
+                android:layout_height="52dp"
+                android:layout_marginTop="16dp"
+                android:paddingHorizontal="32dp"
+                android:text="@string/accion_reintentar"
+                app:icon="@drawable/ic_refresh"
+                app:iconPadding="8dp" />
         </LinearLayout>
 
-        <!-- PRB-94: entrada directa al flujo de pedido para llevar -->
+        <LinearLayout
+            android:id="@+id/grupoVacio"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:paddingHorizontal="24dp"
+            android:paddingBottom="76dp"
+            android:visibility="gone">
+
+            <FrameLayout
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:background="@drawable/bg_ib_info">
+
+                <ImageView
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:layout_gravity="center"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/ic_nav_salon"
+                    app:tint="@color/sem_info_c" />
+            </FrameLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:fontFamily="@font/plus_jakarta_sans"
+                android:gravity="center"
+                android:text="@string/mesas_vacio"
+                android:textColor="@color/marea_tx"
+                android:textFontWeight="800"
+                android:textSize="22sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:fontFamily="@font/inter"
+                android:gravity="center"
+                android:lineSpacingMultiplier="1.3"
+                android:maxWidth="360dp"
+                android:text="@string/mesas_vacio_ayuda"
+                android:textColor="@color/marea_tx2"
+                android:textSize="15sp" />
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="96dp"
+            android:layout_gravity="bottom"
+            android:background="@drawable/bg_fade_salon_bottom"
+            android:clickable="false"
+            android:focusable="false"
+            android:importantForAccessibility="no" />
+
         <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
             android:id="@+id/fabParaLlevar"
-            android:layout_width="wrap_content"
-            android:layout_height="@dimen/alto_boton_primario"
-            android:layout_gravity="bottom|end"
-            android:layout_margin="@dimen/espacio_l"
-            android:autoSizeMaxTextSize="16sp"
-            android:autoSizeMinTextSize="11sp"
-            android:autoSizeStepGranularity="1sp"
-            android:autoSizeTextType="uniform"
-            android:breakStrategy="simple"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:layout_gravity="bottom"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginBottom="12dp"
             android:contentDescription="@string/cd_para_llevar"
-            android:hyphenationFrequency="none"
-            android:maxLines="1"
+            android:fontFamily="@font/plus_jakarta_sans"
             android:text="@string/para_llevar_accion"
-            android:textColor="@color/on_primary"
-            android:textSize="@dimen/texto_cuerpo"
-            android:textStyle="bold"
-            app:backgroundTint="@color/primary"
-            app:icon="@drawable/ic_para_llevar"
-            app:iconPadding="@dimen/espacio_s"
-            app:iconTint="@color/on_primary" />
+            android:textAllCaps="false"
+            android:textColor="@color/marea_oncy"
+            android:textFontWeight="800"
+            android:textSize="16sp"
+            app:backgroundTint="@color/marea_cy"
+            app:elevation="6dp"
+            app:icon="@drawable/ic_marea_para_llevar"
+            app:iconGravity="textStart"
+            app:iconPadding="10dp"
+            app:iconTint="@color/marea_oncy"
+            app:shapeAppearanceOverlay="@style/ShapeAppearance.Marea.Fab" />
     </FrameLayout>
+
+    <!-- Leyenda oculta en movil; visible en el footer de tablet (sw600dp) -->
+    <LinearLayout
+        android:id="@+id/leyendaEstados"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:visibility="gone" />
 </LinearLayout>

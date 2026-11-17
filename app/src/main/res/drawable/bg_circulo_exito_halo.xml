@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="oval">
+            <solid android:color="@color/exito_ring_outer" />
+        </shape>
+    </item>
+    <item
+        android:bottom="10dp"
+        android:left="10dp"
+        android:right="10dp"
+        android:top="10dp">
+        <shape android:shape="oval">
+            <solid android:color="@color/exito_ring_inner" />
+        </shape>
+    </item>
+    <item
+        android:bottom="20dp"
+        android:left="20dp"
+        android:right="20dp"
+        android:top="20dp">
+        <shape android:shape="oval">
+            <gradient
+                android:centerX="0.3"
+                android:centerY="0.25"
+                android:endColor="#0E9F6E"
+                android:startColor="#34D3A0"
+                android:type="radial"
+                android:gradientRadius="52dp" />
+        </shape>
+    </item>
+</layer-list>

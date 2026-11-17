@@ -1,17 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-    Comanda movil (rediseno PRB-38): catalogo a pantalla completa y barra
-    flotante de checkout anclada al fondo. El carrito ya no ocupa espacio
-    estatico: se abre en el bottom sheet "CarritoBottomSheet".
-    Los IDs deben coincidir con layout-sw600dp/fragment_comanda.xml.
--->
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background"
-    tools:context=".ui.comanda.ComandaFragment">
+    android:background="@drawable/bg_marea_app">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -21,302 +14,233 @@
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/barraComanda"
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="@color/surface_container_lowest"
-            android:elevation="@dimen/elevacion_tarjeta"
+            android:layout_height="wrap_content"
+            android:minHeight="56dp"
+            android:paddingStart="6dp"
+            android:paddingTop="6dp"
+            android:paddingEnd="6dp"
+            app:contentInsetStartWithNavigation="0dp"
             app:menu="@menu/menu_comanda"
             app:navigationContentDescription="@string/cd_volver"
             app:navigationIcon="@drawable/ic_arrow_back"
-            app:navigationIconTint="@color/stitch_primary"
-            app:title="@string/comanda_barra_titulo"
-            app:titleTextAppearance="@style/Texto.Toolbar"
-            app:titleTextColor="@color/stitch_primary" />
-
-        <androidx.core.widget.NestedScrollView
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:clipToPadding="false"
-            android:fillViewport="true"
-            android:scrollbars="vertical">
+            app:navigationIconTint="@color/marea_tx"
+            app:titleTextColor="@color/transparent">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="@dimen/espacio_l"
-                android:paddingBottom="@dimen/espacio_checkout">
+                android:paddingTop="4dp"
+                android:paddingEnd="6dp"
+                android:paddingBottom="4dp">
 
-                <!-- Contexto de la mesa -->
-                <com.google.android.material.card.MaterialCardView
-                    style="@style/Tarjeta.Superficie"
+                <TextView
+                    android:id="@+id/textoTitulo"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    app:cardCornerRadius="@dimen/radio_tarjeta">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal"
-                        android:padding="@dimen/espacio_l">
-
-                        <TextView
-                            android:id="@+id/textoTitulo"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_marginEnd="@dimen/espacio_s"
-                            android:layout_weight="1"
-                            android:autoSizeMaxTextSize="22sp"
-                            android:autoSizeMinTextSize="14sp"
-                            android:autoSizeStepGranularity="1sp"
-                            android:autoSizeTextType="uniform"
-                            android:breakStrategy="simple"
-                            android:ellipsize="none"
-                            android:hyphenationFrequency="none"
-                            android:maxLines="2"
-                            android:textColor="@color/stitch_primary"
-                            android:textSize="@dimen/texto_titulo_tarjeta"
-                            android:textStyle="bold"
-                            tools:text="Mesa 7 · Primer piso" />
-
-                        <TextView
-                            android:id="@+id/badgeEstado"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:autoSizeMaxTextSize="12sp"
-                            android:autoSizeMinTextSize="10sp"
-                            android:autoSizeStepGranularity="1sp"
-                            android:autoSizeTextType="uniform"
-                            android:background="@drawable/bg_badge_atencion"
-                            android:breakStrategy="simple"
-                            android:drawableStart="@drawable/ic_edit"
-                            android:drawablePadding="@dimen/espacio_xs"
-                            android:drawableTint="@color/tertiary"
-                            android:hyphenationFrequency="none"
-                            android:paddingHorizontal="@dimen/espacio_m"
-                            android:paddingVertical="@dimen/espacio_s"
-                            android:text="@string/comanda_badge"
-                            android:textColor="@color/tertiary"
-                            android:textSize="@dimen/texto_etiqueta"
-                            android:textStyle="bold" />
-                    </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
-
-                <!-- PRB-83: avisar a caja que la mesa pidio la cuenta -->
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnPedirCuenta"
-                    style="@style/Boton.Outlined"
-                    android:layout_width="match_parent"
-                    android:layout_height="@dimen/alto_boton_primario"
-                    android:layout_marginTop="@dimen/espacio_l"
-                    android:autoSizeMaxTextSize="16sp"
-                    android:autoSizeMinTextSize="11sp"
-                    android:autoSizeStepGranularity="1sp"
-                    android:autoSizeTextType="uniform"
-                    android:breakStrategy="simple"
-                    android:hyphenationFrequency="none"
+                    android:ellipsize="end"
+                    android:fontFamily="@font/plus_jakarta_sans_extrabold"
+                    android:includeFontPadding="false"
                     android:maxLines="1"
-                    android:text="@string/comanda_pedir_cuenta"
-                    app:icon="@drawable/ic_receipt"
-                    app:iconGravity="textStart"
-                    app:iconPadding="@dimen/espacio_s" />
+                    android:textColor="@color/marea_tx"
+                    android:textSize="20sp"
+                    tools:text="Mesa 7 · Primer piso" />
 
-                <LinearLayout
-                    android:id="@+id/grupoImpresion"
-                    android:layout_width="match_parent"
+                <TextView
+                    android:id="@+id/badgeEstado"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/espacio_s"
-                    android:orientation="horizontal">
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnImprimir"
-                        style="@style/Boton.Outlined"
-                        android:layout_width="0dp"
-                        android:layout_height="@dimen/toque_minimo"
-                        android:layout_marginEnd="@dimen/espacio_s"
-                        android:layout_weight="1"
-                        android:autoSizeMaxTextSize="16sp"
-                        android:autoSizeMinTextSize="11sp"
-                        android:autoSizeStepGranularity="1sp"
-                        android:autoSizeTextType="uniform"
-                        android:breakStrategy="simple"
-                        android:hyphenationFrequency="none"
-                        android:maxLines="1"
-                        android:text="@string/impresion_imprimir"
-                        app:icon="@drawable/ic_receipt"
-                        app:iconGravity="textStart"
-                        app:iconPadding="@dimen/espacio_s" />
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnReimprimir"
-                        style="@style/Boton.Outlined"
-                        android:layout_width="0dp"
-                        android:layout_height="@dimen/toque_minimo"
-                        android:layout_weight="1"
-                        android:autoSizeMaxTextSize="16sp"
-                        android:autoSizeMinTextSize="11sp"
-                        android:autoSizeStepGranularity="1sp"
-                        android:autoSizeTextType="uniform"
-                        android:breakStrategy="simple"
-                        android:hyphenationFrequency="none"
-                        android:maxLines="1"
-                        android:text="@string/impresion_reimprimir"
-                        app:icon="@drawable/ic_refresh"
-                        app:iconGravity="textStart"
-                        app:iconPadding="@dimen/espacio_s" />
-                </LinearLayout>
-
-                <!-- Filtros de categoria (dinamicos desde GET /categorias) -->
-                <HorizontalScrollView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/espacio_l"
-                    android:clipToPadding="false"
-                    android:scrollbars="none">
-
-                    <com.google.android.material.chip.ChipGroup
-                        android:id="@+id/grupoCategorias"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        app:chipSpacingHorizontal="@dimen/espacio_s"
-                        app:selectionRequired="true"
-                        app:singleLine="true"
-                        app:singleSelection="true" />
-                </HorizontalScrollView>
-
-                <!-- Catalogo agrupado por categorias -->
-                <com.google.android.material.card.MaterialCardView
-                    style="@style/Tarjeta.Superficie"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/espacio_l"
-                    app:cardCornerRadius="@dimen/radio_tarjeta">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:padding="@dimen/espacio_l">
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:gravity="center_vertical"
-                            android:orientation="horizontal">
-
-                            <TextView
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_marginEnd="@dimen/espacio_s"
-                                android:layout_weight="1"
-                                android:autoSizeMaxTextSize="20sp"
-                                android:autoSizeMinTextSize="16sp"
-                                android:autoSizeStepGranularity="1sp"
-                                android:autoSizeTextType="uniform"
-                                android:breakStrategy="simple"
-                                android:hyphenationFrequency="none"
-                                android:maxLines="1"
-                                android:text="@string/comanda_catalogo_titulo"
-                                android:textColor="@color/stitch_primary"
-                                android:textSize="@dimen/texto_titulo_tarjeta"
-                                android:textStyle="bold" />
-
-                            <TextView
-                                android:id="@+id/textoModoDemo"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:autoSizeMaxTextSize="12sp"
-                                android:autoSizeMinTextSize="10sp"
-                                android:autoSizeStepGranularity="1sp"
-                                android:autoSizeTextType="uniform"
-                                android:background="@drawable/bg_pill_lima"
-                                android:breakStrategy="simple"
-                                android:hyphenationFrequency="none"
-                                android:maxLines="2"
-                                android:paddingHorizontal="@dimen/espacio_s"
-                                android:paddingVertical="@dimen/espacio_xs"
-                                android:text="@string/comanda_catalogo_demo"
-                                android:textColor="@color/on_secondary_fixed"
-                                android:textSize="@dimen/texto_etiqueta"
-                                android:textStyle="bold"
-                                android:visibility="gone"
-                                tools:visibility="visible" />
-                        </LinearLayout>
-
-                        <ProgressBar
-                            android:id="@+id/progresoCatalogo"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center_horizontal"
-                            android:layout_marginVertical="@dimen/espacio_xl"
-                            android:indeterminateTint="@color/primary"
-                            android:visibility="gone"
-                            tools:visibility="visible" />
-
-                        <LinearLayout
-                            android:id="@+id/contenedorErrorCatalogo"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:gravity="center_horizontal"
-                            android:orientation="vertical"
-                            android:paddingVertical="@dimen/espacio_xl"
-                            android:visibility="gone">
-
-                            <TextView
-                                android:id="@+id/textoErrorCatalogo"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:autoSizeMaxTextSize="14sp"
-                                android:autoSizeMinTextSize="11sp"
-                                android:autoSizeStepGranularity="1sp"
-                                android:autoSizeTextType="uniform"
-                                android:breakStrategy="simple"
-                                android:gravity="center"
-                                android:hyphenationFrequency="none"
-                                android:text="@string/comanda_catalogo_error"
-                                android:textColor="@color/on_surface_variant"
-                                android:textSize="@dimen/texto_secundario" />
-
-                            <com.google.android.material.button.MaterialButton
-                                android:id="@+id/btnReintentarCatalogo"
-                                style="@style/Boton.Secundario"
-                                android:layout_width="wrap_content"
-                                android:layout_marginTop="@dimen/espacio_s"
-                                android:text="@string/accion_reintentar" />
-                        </LinearLayout>
-
-                        <TextView
-                            android:id="@+id/textoCatalogoVacio"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:autoSizeMaxTextSize="14sp"
-                            android:autoSizeMinTextSize="11sp"
-                            android:autoSizeStepGranularity="1sp"
-                            android:autoSizeTextType="uniform"
-                            android:breakStrategy="simple"
-                            android:gravity="center"
-                            android:hyphenationFrequency="none"
-                            android:paddingVertical="@dimen/espacio_xl"
-                            android:text="@string/comanda_catalogo_vacio"
-                            android:textColor="@color/on_surface_variant"
-                            android:textSize="@dimen/texto_secundario"
-                            android:visibility="gone" />
-
-                        <androidx.recyclerview.widget.RecyclerView
-                            android:id="@+id/listaCatalogo"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="@dimen/espacio_s"
-                            android:clipToPadding="false"
-                            android:nestedScrollingEnabled="false"
-                            android:overScrollMode="never"
-                            android:visibility="gone"
-                            tools:listitem="@layout/item_catalogo_producto" />
-                    </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
+                    android:layout_marginTop="4dp"
+                    android:background="@drawable/bg_badge_atencion"
+                    android:drawablePadding="5dp"
+                    android:fontFamily="@font/inter_bold"
+                    android:gravity="center_vertical"
+                    android:includeFontPadding="false"
+                    android:minHeight="26dp"
+                    android:paddingStart="10dp"
+                    android:paddingTop="4dp"
+                    android:paddingEnd="10dp"
+                    android:paddingBottom="4dp"
+                    android:textColor="@color/estado_atencion"
+                    android:textSize="12sp"
+                    app:drawableStartCompat="@drawable/ic_edit"
+                    app:drawableTint="@color/estado_atencion"
+                    tools:text="En atención" />
             </LinearLayout>
-        </androidx.core.widget.NestedScrollView>
+        </com.google.android.material.appbar.MaterialToolbar>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingStart="16dp"
+            android:paddingTop="6dp"
+            android:paddingEnd="16dp">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnPedirCuenta"
+                style="@style/Boton.Outlined"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_marginEnd="8dp"
+                android:layout_weight="1"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
+                android:text="@string/comanda_pedir_cuenta"
+                android:textSize="14.5sp"
+                app:icon="@drawable/ic_receipt_marea"
+                app:iconPadding="6dp"
+                app:iconSize="17dp"
+                app:iconTint="@color/estado_cuenta" />
+
+            <LinearLayout
+                android:id="@+id/grupoImpresion"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnImprimir"
+                    style="@style/Boton.Outlined"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:layout_weight="1"
+                    android:paddingStart="10dp"
+                    android:paddingEnd="10dp"
+                    android:text="@string/impresion_imprimir"
+                    android:textSize="14.5sp"
+                    app:icon="@drawable/ic_print"
+                    app:iconPadding="6dp"
+                    app:iconSize="17dp"
+                    app:iconTint="@color/marea_tx" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnReimprimir"
+                    style="@style/Boton.Outlined"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:layout_marginStart="6dp"
+                    android:layout_weight="1"
+                    android:paddingStart="8dp"
+                    android:paddingEnd="8dp"
+                    android:text="@string/impresion_reimprimir"
+                    android:textSize="14sp"
+                    android:visibility="gone"
+                    app:icon="@drawable/ic_print"
+                    app:iconPadding="4dp"
+                    app:iconSize="16dp"
+                    app:iconTint="@color/marea_tx" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:clipToPadding="false"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:scrollbars="none">
+
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/grupoCategorias"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:chipSpacingHorizontal="8dp"
+                app:selectionRequired="true"
+                app:singleLine="true"
+                app:singleSelection="true" />
+        </HorizontalScrollView>
+
+        <TextView
+            android:id="@+id/textoModoDemo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="16dp"
+            android:background="@drawable/bg_pill_lima"
+            android:fontFamily="@font/inter_bold"
+            android:includeFontPadding="false"
+            android:paddingStart="12dp"
+            android:paddingTop="5dp"
+            android:paddingEnd="12dp"
+            android:paddingBottom="5dp"
+            android:text="@string/comanda_catalogo_demo"
+            android:textColor="@color/marea_cyh"
+            android:textSize="12sp"
+            android:visibility="gone"
+            tools:visibility="visible" />
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/listaCatalogo"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:clipToPadding="false"
+                android:paddingStart="16dp"
+                android:paddingTop="4dp"
+                android:paddingEnd="16dp"
+                android:paddingBottom="@dimen/espacio_checkout"
+                tools:listitem="@layout/item_catalogo_producto" />
+
+            <ProgressBar
+                android:id="@+id/progresoCatalogo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:indeterminateTint="@color/marea_cyh"
+                android:visibility="gone" />
+
+            <LinearLayout
+                android:id="@+id/contenedorErrorCatalogo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_margin="24dp"
+                android:background="@drawable/bg_card_marea"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="24dp"
+                android:visibility="gone">
+
+                <TextView
+                    android:id="@+id/textoErrorCatalogo"
+                    style="@style/Texto.Cuerpo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="@string/comanda_catalogo_error" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnReintentarCatalogo"
+                    style="@style/Boton.PrimarioMediano"
+                    android:layout_width="wrap_content"
+                    android:layout_height="48dp"
+                    android:layout_marginTop="16dp"
+                    android:paddingStart="20dp"
+                    android:paddingEnd="20dp"
+                    android:text="@string/accion_reintentar" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/textoCatalogoVacio"
+                style="@style/Texto.Secundario"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:padding="24dp"
+                android:text="@string/comanda_catalogo_vacio"
+                android:visibility="gone" />
+        </FrameLayout>
     </LinearLayout>
 
     <include
@@ -325,6 +249,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        android:layout_margin="@dimen/espacio_l"
-        android:visibility="gone" />
+        android:layout_marginStart="12dp"
+        android:layout_marginEnd="12dp"
+        android:layout_marginBottom="10dp"
+        android:visibility="gone"
+        tools:visibility="visible" />
 </FrameLayout>

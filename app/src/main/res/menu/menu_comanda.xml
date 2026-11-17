@@ -6,7 +6,7 @@
     <item
         android:id="@+id/accionBloquear"
         android:icon="@drawable/ic_lock"
-        android:iconTint="@color/stitch_primary"
+        android:iconTint="@color/marea_tx"
         android:title="@string/accion_bloquear"
         app:showAsAction="always" />
 </menu>

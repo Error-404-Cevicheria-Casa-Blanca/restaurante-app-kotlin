@@ -1,6 +1,7 @@
 package com.lacasablanca.mesero.ui.cobro
 
 import android.view.View
+import androidx.recyclerview.widget.RecyclerView
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
@@ -10,6 +11,7 @@ import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.doesNotExist
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.Visibility
+import androidx.test.espresso.matcher.ViewMatchers.hasDescendant
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibility
 import androidx.test.espresso.matcher.ViewMatchers.withId
@@ -20,6 +22,7 @@ import com.lacasablanca.mesero.R
 import com.lacasablanca.mesero.ui.main.MainActivity
 import kotlinx.coroutines.runBlocking
 import org.hamcrest.Matcher
+import org.hamcrest.Matchers.allOf
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -102,6 +105,62 @@ class CobroPedidoNavegacionTest {
         }
     }
 
+    @Test
+    fun alTocarMesaConCobroOcultoMuestraConfirmacionYPermiteAbrirMesa() {
+        val scenario = ActivityScenario.launch(MainActivity::class.java)
+        try {
+            onView(withId(R.id.navPedidos)).perform(click())
+            esperarVista(withId(R.id.textoTituloPedidos))
+
+            scenario.onActivity { activity ->
+                activity.abrirCobroPedido(7L, "Carlos Mendoza")
+            }
+            esperarVista(withId(R.id.barraCobro))
+
+            // Cambia a Salon sin cerrar el cobro del pedido y toca Mesa 5 (Cuenta solicitada).
+            onView(withId(R.id.navSalon)).perform(click())
+            esperarVista(withId(R.id.recyclerMesas))
+            val mesa1 = allOf(
+                withId(R.id.cardMesa),
+                hasDescendant(withText("Mesa 1"))
+            )
+            esperarVista(mesa1)
+            scenario.onActivity { activity ->
+                activity.findViewById<RecyclerView>(R.id.recyclerMesas).scrollToPosition(4)
+            }
+            val mesa5 = allOf(
+                withId(R.id.cardMesa),
+                hasDescendant(withText("Mesa 5"))
+            )
+            esperarVista(mesa5)
+            onView(mesa5).perform(click())
+
+            // Primero verifica volver al cobro pendiente.
+            esperarVista(withId(R.id.btnEntendido))
+            onView(withId(R.id.btnEntendido)).perform(click())
+            esperarVista(withText("Cobrar Pedido #7"))
+
+            // Vuelve a Salon, toca Mesa 5 y elige descartar el pendiente para abrir Cobrar Mesa 5.
+            onView(withId(R.id.navSalon)).perform(click())
+            esperarVista(withId(R.id.recyclerMesas))
+            scenario.onActivity { activity ->
+                activity.findViewById<RecyclerView>(R.id.recyclerMesas).scrollToPosition(4)
+            }
+            esperarVista(mesa5)
+            onView(mesa5).perform(click())
+            esperarVista(withId(R.id.btnSecundarioAviso))
+            onView(withId(R.id.btnSecundarioAviso)).perform(click())
+
+            esperarVista(withText("Cobrar Mesa 5"))
+            onView(withId(R.id.badgeEstadoCobro)).check(matches(isDisplayed()))
+            onView(withId(R.id.btnImprimir)).check(matches(isDisplayed()))
+            esperarVista(withId(R.id.btnReimprimir))
+            esperarVista(withId(R.id.btnAplicarDescuento))
+        } finally {
+            scenario.close()
+        }
+    }
+
     /** Reintenta hasta que el matcher este visible; al final lanza el error real. */
     private fun esperarVista(matcher: Matcher<View>) {
         val limite = System.currentTimeMillis() + ESPERA_MAXIMA_MS
@@ -109,7 +168,9 @@ class CobroPedidoNavegacionTest {
             try {
                 onView(matcher).check(matches(isDisplayed()))
                 return
-            } catch (e: NoMatchingViewException) {
+            } catch (_: NoMatchingViewException) {
+                Thread.sleep(ESPERA_REINTENTO_MS)
+            } catch (_: AssertionError) {
                 Thread.sleep(ESPERA_REINTENTO_MS)
             }
         }

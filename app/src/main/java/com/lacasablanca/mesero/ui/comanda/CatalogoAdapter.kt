@@ -4,6 +4,7 @@ import android.view.HapticFeedbackConstants
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.ImageView
+import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -46,6 +47,9 @@ class CatalogoAdapter(
             }
         }
     }
+
+    fun esEncabezado(position: Int): Boolean =
+        position in 0 until itemCount && getItemViewType(position) == TIPO_ENCABEZADO
 
     override fun getItemViewType(position: Int): Int = when (getItem(position)) {
         is FilaCatalogo.Encabezado -> TIPO_ENCABEZADO
@@ -109,6 +113,12 @@ class CatalogoAdapter(
             binding.textoDescripcionProducto.text = producto.descripcion
             binding.textoPrecioProducto.text = formatearMoneda(producto.precio)
             binding.textoNoDisponible.isVisible = !producto.disponible
+            val bordeColor = if (mostrarStepper) {
+                R.color.marea_banner_demo_border
+            } else {
+                R.color.marea_line
+            }
+            binding.cardProducto.strokeColor = ContextCompat.getColor(contexto, bordeColor)
 
             binding.botonAgregar.isEnabled = producto.disponible
             binding.botonAgregar.alpha = if (producto.disponible) 1f else ALPHA_NO_DISPONIBLE

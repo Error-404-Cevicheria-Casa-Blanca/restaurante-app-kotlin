@@ -1,140 +1,117 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-    Dialogo premium "Pedido para llevar" (PRB-94).
-    Mismo lenguaje visual que los dialogos de la app: fondo blanco de 24dp,
-    icono en circulo de marca, textos con autosize y botones de 48dp.
--->
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="@dimen/espacio_xl">
+    android:background="@drawable/bg_dialogo_premium"
+    android:paddingStart="22dp"
+    android:paddingTop="26dp"
+    android:paddingEnd="22dp"
+    android:paddingBottom="22dp">
 
-    <LinearLayout
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:gravity="center_horizontal"
-        android:orientation="vertical"
-        app:layout_constraintBottom_toBottomOf="parent"
+    <FrameLayout
+        android:id="@+id/badgeParaLlevar"
+        android:layout_width="52dp"
+        android:layout_height="52dp"
+        android:background="@drawable/bg_ib_info"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <FrameLayout
-            android:layout_width="64dp"
-            android:layout_height="64dp"
-            android:background="@drawable/bg_circulo_marca">
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_gravity="center"
+            android:contentDescription="@null"
+            android:src="@drawable/ic_marea_para_llevar"
+            app:tint="@color/sem_info_c" />
+    </FrameLayout>
 
-            <ImageView
-                android:layout_width="@dimen/icono_grande"
-                android:layout_height="@dimen/icono_grande"
-                android:layout_gravity="center"
-                android:contentDescription="@string/para_llevar_icono_cd"
-                android:src="@drawable/ic_para_llevar"
-                app:tint="@color/primary" />
-        </FrameLayout>
+    <TextView
+        android:id="@+id/tituloParaLlevar"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="14dp"
+        android:gravity="center"
+        android:text="@string/para_llevar_dialogo_titulo"
+        android:textAppearance="@style/Texto.TituloPantalla"
+        android:textColor="@color/marea_tx"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/badgeParaLlevar" />
 
-        <TextView
-            android:id="@+id/tituloParaLlevar"
+    <TextView
+        android:id="@+id/mensajeParaLlevar"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:gravity="center"
+        android:lineSpacingExtra="2dp"
+        android:text="@string/para_llevar_dialogo_mensaje"
+        android:textColor="@color/marea_tx2"
+        android:textSize="13sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tituloParaLlevar" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/campoNombreCliente"
+        style="@style/Campo.Marea"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:hint="@string/para_llevar_campo_nombre"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/mensajeParaLlevar">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/textoNombreCliente"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/espacio_m"
-            android:autoSizeMaxTextSize="22sp"
-            android:autoSizeMinTextSize="15sp"
-            android:autoSizeStepGranularity="1sp"
-            android:autoSizeTextType="uniform"
-            android:breakStrategy="simple"
+            android:imeOptions="actionDone"
+            android:inputType="textPersonName|textCapWords"
+            android:maxLines="1"
+            android:textColor="@color/marea_tx"
+            android:textSize="14sp" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <LinearLayout
+        android:id="@+id/grupoBotonesParaLlevar"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="18dp"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/campoNombreCliente">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnCancelarParaLlevar"
+            style="@style/Boton.Outlined"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="6dp"
+            android:layout_weight="1"
             android:ellipsize="end"
-            android:gravity="center"
-            android:hyphenationFrequency="none"
-            android:maxLines="2"
-            android:text="@string/para_llevar_dialogo_titulo"
-            android:textColor="@color/primary"
-            android:textSize="@dimen/texto_titulo_tarjeta"
-            android:textStyle="bold" />
+            android:maxLines="1"
+            android:text="@string/accion_cancelar" />
 
-        <TextView
-            android:id="@+id/mensajeParaLlevar"
-            android:layout_width="match_parent"
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnContinuarParaLlevar"
+            style="@style/Boton.Primario"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/espacio_s"
-            android:autoSizeMaxTextSize="16sp"
-            android:autoSizeMinTextSize="11sp"
-            android:autoSizeStepGranularity="1sp"
-            android:autoSizeTextType="uniform"
-            android:breakStrategy="simple"
+            android:layout_marginStart="6dp"
+            android:layout_weight="1"
             android:ellipsize="end"
-            android:gravity="center"
-            android:hyphenationFrequency="none"
-            android:lineSpacingExtra="2dp"
-            android:maxLines="4"
-            android:text="@string/para_llevar_dialogo_mensaje"
-            android:textColor="@color/texto_principal"
-            android:textSize="@dimen/texto_cuerpo" />
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/campoNombreCliente"
-            style="@style/Campo.Cobro"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/espacio_l"
-            android:hint="@string/para_llevar_campo_nombre">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/textoNombreCliente"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:autofillHints="name"
-                android:imeOptions="actionDone"
-                android:inputType="textPersonName|textCapWords"
-                android:maxLength="@integer/max_caracteres_nombre_cliente"
-                android:maxLines="1"
-                android:singleLine="true"
-                android:textColor="@color/texto_principal"
-                android:textColorHint="@color/on_surface_variant"
-                android:textSize="@dimen/texto_cuerpo" />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/espacio_xl"
-            android:orientation="horizontal">
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnCancelarParaLlevar"
-                style="@style/Boton.DialogoCancelar"
-                android:layout_width="0dp"
-                android:layout_height="@dimen/toque_minimo"
-                android:layout_marginEnd="@dimen/espacio_s"
-                android:layout_weight="1"
-                android:autoSizeMaxTextSize="16sp"
-                android:autoSizeMinTextSize="11sp"
-                android:autoSizeStepGranularity="1sp"
-                android:autoSizeTextType="uniform"
-                android:breakStrategy="simple"
-                android:hyphenationFrequency="none"
-                android:maxLines="1"
-                android:text="@string/accion_cancelar" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnContinuarParaLlevar"
-                style="@style/Boton.Primario"
-                android:layout_width="0dp"
-                android:layout_height="@dimen/toque_minimo"
-                android:layout_weight="1"
-                android:autoSizeMaxTextSize="16sp"
-                android:autoSizeMinTextSize="11sp"
-                android:autoSizeStepGranularity="1sp"
-                android:autoSizeTextType="uniform"
-                android:breakStrategy="simple"
-                android:hyphenationFrequency="none"
-                android:maxLines="1"
-                android:text="@string/para_llevar_continuar"
-                app:icon="@drawable/ic_arrow_forward"
-                app:iconGravity="textEnd"
-                app:iconPadding="@dimen/espacio_xs" />
-        </LinearLayout>
+            android:maxLines="1"
+            android:text="@string/para_llevar_continuar"
+            app:icon="@drawable/ic_arrow_forward"
+            app:iconGravity="textEnd" />
     </LinearLayout>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

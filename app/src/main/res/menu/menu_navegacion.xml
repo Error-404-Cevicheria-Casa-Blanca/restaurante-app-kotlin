@@ -8,12 +8,12 @@
 
     <item
         android:id="@+id/navSalon"
-        android:icon="@drawable/ic_restaurant"
+        android:icon="@drawable/ic_nav_salon"
         android:title="@string/nav_salon" />
 
     <item
         android:id="@+id/navPedidos"
-        android:icon="@drawable/ic_receipt"
+        android:icon="@drawable/ic_nav_pedidos"
         android:title="@string/nav_pedidos" />
 
     <item

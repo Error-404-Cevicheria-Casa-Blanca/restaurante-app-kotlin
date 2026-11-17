@@ -5,6 +5,7 @@ import com.lacasablanca.mesero.BuildConfig
 import com.lacasablanca.mesero.data.local.CryptoManager
 import com.lacasablanca.mesero.data.local.EncryptedTokenStore
 import com.lacasablanca.mesero.data.local.SessionManager
+import com.lacasablanca.mesero.data.local.TemaPreferencias
 import com.lacasablanca.mesero.data.local.TokenStore
 import com.lacasablanca.mesero.data.local.offline.AppDatabase
 import com.lacasablanca.mesero.data.local.offline.OutboxPedidoStore
@@ -45,6 +46,8 @@ class AppContainer(private val contexto: Context) {
     private val tokenStore: TokenStore = EncryptedTokenStore(contexto, CryptoManager())
 
     val sessionManager = SessionManager(tokenStore)
+
+    val temaPreferencias = TemaPreferencias(contexto)
 
     /** Room: cache del catalogo/mesas + outbox de pedidos (PRB-62/63). */
     private val database: AppDatabase by lazy { AppDatabase.crear(contexto) }

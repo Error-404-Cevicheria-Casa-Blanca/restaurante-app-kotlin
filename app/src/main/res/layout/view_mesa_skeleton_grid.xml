@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:paddingHorizontal="16dp"
+    android:paddingTop="4dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <include
+            layout="@layout/view_mesa_skeleton"
+            android:layout_width="0dp"
+            android:layout_height="182dp"
+            android:layout_marginEnd="6dp"
+            android:layout_weight="1" />
+
+        <include
+            layout="@layout/view_mesa_skeleton"
+            android:layout_width="0dp"
+            android:layout_height="182dp"
+            android:layout_marginStart="6dp"
+            android:layout_weight="1" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:orientation="horizontal">
+
+        <include
+            layout="@layout/view_mesa_skeleton"
+            android:layout_width="0dp"
+            android:layout_height="182dp"
+            android:layout_marginEnd="6dp"
+            android:layout_weight="1" />
+
+        <include
+            layout="@layout/view_mesa_skeleton"
+            android:layout_width="0dp"
+            android:layout_height="182dp"
+            android:layout_marginStart="6dp"
+            android:layout_weight="1" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:orientation="horizontal">
+
+        <include
+            layout="@layout/view_mesa_skeleton"
+            android:layout_width="0dp"
+            android:layout_height="182dp"
+            android:layout_marginEnd="6dp"
+            android:layout_weight="1" />
+
+        <include
+            layout="@layout/view_mesa_skeleton"
+            android:layout_width="0dp"
+            android:layout_height="182dp"
+            android:layout_marginStart="6dp"
+            android:layout_weight="1" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:orientation="horizontal">
+
+        <include
+            layout="@layout/view_mesa_skeleton"
+            android:layout_width="0dp"
+            android:layout_height="182dp"
+            android:layout_marginEnd="6dp"
+            android:layout_weight="1" />
+
+        <include
+            layout="@layout/view_mesa_skeleton"
+            android:layout_width="0dp"
+            android:layout_height="182dp"
+            android:layout_marginStart="6dp"
+            android:layout_weight="1" />
+    </LinearLayout>
+</LinearLayout>
