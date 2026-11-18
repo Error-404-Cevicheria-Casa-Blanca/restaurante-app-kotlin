@@ -1,10 +1,7 @@
 package com.lacasablanca.mesero.ui.comanda
 
 import android.app.Activity
-import android.graphics.Color
-import android.graphics.drawable.ColorDrawable
 import android.view.LayoutInflater
-import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
 import androidx.core.view.isVisible
 import com.lacasablanca.mesero.R
@@ -12,6 +9,7 @@ import com.lacasablanca.mesero.databinding.DialogModificadoresBinding
 import com.lacasablanca.mesero.databinding.ItemModificadorBinding
 import com.lacasablanca.mesero.domain.model.Modificador
 import com.lacasablanca.mesero.domain.model.Producto
+import com.lacasablanca.mesero.ui.common.aplicarMarcoMarea
 import com.lacasablanca.mesero.ui.common.formatearMoneda
 import java.math.BigDecimal
 
@@ -67,21 +65,12 @@ class ModificadoresDialog(
             .setCancelable(true)
             .create()
 
-        nuevo.window?.apply {
-            setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-            val anchoMaximo = (ANCHO_MAXIMO_DP * activity.resources.displayMetrics.density).toInt()
-            val anchoPantalla =
-                (activity.resources.displayMetrics.widthPixels * FRACCION_ANCHO).toInt()
-            setLayout(
-                minOf(anchoPantalla, anchoMaximo),
-                ViewGroup.LayoutParams.WRAP_CONTENT
-            )
-        }
         nuevo.setCanceledOnTouchOutside(true)
         nuevo.setOnDismissListener {
             if (dialogo === nuevo) dialogo = null
         }
         nuevo.show()
+        nuevo.aplicarMarcoMarea(activity, maxAnchoDp = ANCHO_MAXIMO_DP)
         dialogo = nuevo
     }
 
@@ -117,6 +106,7 @@ class ModificadoresDialog(
         )
 
         fila.checkModificador.setOnCheckedChangeListener { _, marcado ->
+            fila.root.isSelected = marcado
             if (marcado) seleccionados += modificador else seleccionados -= modificador
             actualizarTotal()
         }
@@ -153,8 +143,7 @@ class ModificadoresDialog(
     }
 
     private companion object {
-        const val ANCHO_MAXIMO_DP = 480
-        const val FRACCION_ANCHO = 0.92f
+        const val ANCHO_MAXIMO_DP = 460
         const val FRACCION_ALTO_LISTA = 0.42f
     }
 }

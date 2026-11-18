@@ -2,8 +2,8 @@
 <resources>
     <!-- Variante noche + API 31+ del Splash Screen nativo (PRB-95 / D35). -->
     <style name="Base.Theme.LaCasaBlancaMesero" parent="Theme.LaCasaBlancaMesero.Base">
-        <item name="android:windowSplashScreenBackground">@color/primary</item>
+        <item name="android:windowSplashScreenBackground">@color/marea_bg</item>
         <item name="android:windowSplashScreenAnimatedIcon">@drawable/logo_casa_blanca_icon</item>
-        <item name="android:windowSplashScreenIconBackgroundColor">@color/primary</item>
+        <item name="android:windowSplashScreenIconBackgroundColor">@color/login_hero_inicio</item>
     </style>
 </resources>

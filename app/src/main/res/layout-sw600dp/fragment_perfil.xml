@@ -1,31 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-    Perfil del mesero en tablet (PRB-83). Mismo contenido que la variante movil,
-    pero el cuerpo se centra con un ancho maximo de 640dp para no estirar las
-    tarjetas en pantallas de 8" a 10". Los IDs deben coincidir con
-    layout/fragment_perfil.xml.
--->
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/bg_marea_app"
     tools:context=".ui.perfil.PerfilFragment">
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/barraPerfil"
         android:layout_width="0dp"
-        android:layout_height="?attr/actionBarSize"
-        android:background="@color/surface_container_lowest"
-        android:elevation="@dimen/elevacion_tarjeta"
+        android:layout_height="wrap_content"
+        android:background="@color/transparent"
+        android:elevation="0dp"
+        android:minHeight="60dp"
+        android:paddingStart="16dp"
+        android:paddingTop="10dp"
+        android:paddingEnd="16dp"
+        app:contentInsetStartWithNavigation="0dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:navigationContentDescription="@string/cd_volver"
         app:navigationIcon="@drawable/ic_arrow_back"
-        app:navigationIconTint="@color/stitch_primary"
+        app:navigationIconTint="@color/marea_tx"
         app:title="@string/perfil_titulo"
-        app:titleTextColor="@color/stitch_primary" />
+        app:titleTextAppearance="@style/Texto.Toolbar"
+        app:titleTextColor="@color/marea_tx" />
 
     <androidx.core.widget.NestedScrollView
         android:id="@+id/scrollPerfil"
@@ -34,320 +35,567 @@
         android:clipToPadding="false"
         android:fillViewport="true"
         android:scrollbars="vertical"
-        app:layout_constraintBottom_toTopOf="@id/btnCerrarSesionPerfil"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/barraPerfil"
-        app:layout_constraintWidth_max="640dp">
+        app:layout_constraintWidth_max="1040dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="@dimen/espacio_xl">
+            android:baselineAligned="false"
+            android:orientation="horizontal"
+            android:paddingStart="28dp"
+            android:paddingTop="12dp"
+            android:paddingEnd="28dp"
+            android:paddingBottom="28dp">
 
-            <com.google.android.material.card.MaterialCardView
-                style="@style/Tarjeta.Superficie"
-                android:layout_width="match_parent"
+            <LinearLayout
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                app:cardCornerRadius="@dimen/radio_tarjeta">
+                android:layout_marginEnd="18dp"
+                android:layout_weight="42"
+                android:orientation="vertical">
 
-                <LinearLayout
+                <com.google.android.material.card.MaterialCardView
+                    style="@style/Tarjeta.Superficie"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:gravity="center_horizontal"
-                    android:orientation="vertical"
-                    android:padding="@dimen/espacio_xl">
+                    app:cardBackgroundColor="@color/marea_s1"
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="0dp"
+                    app:strokeColor="@color/marea_line"
+                    app:strokeWidth="1dp">
 
-                    <FrameLayout
-                        android:layout_width="@dimen/circulo_perfil"
-                        android:layout_height="@dimen/circulo_perfil"
-                        android:background="@drawable/bg_circulo_vacio">
-
-                        <ImageView
-                            android:layout_width="@dimen/icono_perfil"
-                            android:layout_height="@dimen/icono_perfil"
-                            android:layout_gravity="center"
-                            android:contentDescription="@string/perfil_avatar_cd"
-                            android:src="@drawable/ic_person"
-                            app:tint="@color/primary" />
-                    </FrameLayout>
-
-                    <TextView
-                        android:id="@+id/textoPerfilNombre"
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/espacio_l"
-                        android:autoSizeMaxTextSize="26sp"
-                        android:autoSizeMinTextSize="16sp"
-                        android:autoSizeStepGranularity="1sp"
-                        android:autoSizeTextType="uniform"
-                        android:breakStrategy="simple"
-                        android:ellipsize="end"
-                        android:gravity="center"
-                        android:hyphenationFrequency="none"
-                        android:maxLines="2"
-                        android:textColor="@color/on_surface"
-                        android:textSize="@dimen/texto_titulo_pantalla"
-                        android:textStyle="bold"
-                        tools:text="David Rojas Garcia" />
+                        android:gravity="center_horizontal"
+                        android:orientation="vertical"
+                        android:padding="26dp">
 
-                    <TextView
-                        android:id="@+id/textoPerfilRol"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/espacio_s"
-                        android:autoSizeMaxTextSize="14sp"
-                        android:autoSizeMinTextSize="10sp"
-                        android:autoSizeStepGranularity="1sp"
-                        android:autoSizeTextType="uniform"
-                        android:background="@drawable/bg_pill_lima"
-                        android:breakStrategy="simple"
-                        android:ellipsize="end"
-                        android:hyphenationFrequency="none"
-                        android:maxLines="1"
-                        android:paddingHorizontal="@dimen/espacio_l"
-                        android:paddingVertical="@dimen/espacio_xs"
-                        android:textColor="@color/on_secondary_fixed"
-                        android:textSize="@dimen/texto_etiqueta"
-                        android:textStyle="bold"
-                        tools:text="MOZO" />
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
+                        <FrameLayout
+                            android:layout_width="86dp"
+                            android:layout_height="86dp"
+                            android:background="@drawable/bg_avatar_marea">
 
-            <com.google.android.material.card.MaterialCardView
-                style="@style/Tarjeta.Superficie"
-                android:layout_width="match_parent"
+                            <TextView
+                                android:id="@+id/textoPerfilIniciales"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:contentDescription="@string/perfil_avatar_cd"
+                                android:fontFamily="@font/plus_jakarta_sans_extrabold"
+                                android:gravity="center"
+                                android:includeFontPadding="false"
+                                android:textColor="#FFFFFFFF"
+                                android:textSize="28sp"
+                                tools:text="DR" />
+                        </FrameLayout>
+
+                        <TextView
+                            android:id="@+id/textoPerfilNombre"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="16dp"
+                            android:breakStrategy="simple"
+                            android:ellipsize="end"
+                            android:fontFamily="@font/plus_jakarta_sans_extrabold"
+                            android:gravity="center"
+                            android:hyphenationFrequency="none"
+                            android:includeFontPadding="false"
+                            android:maxLines="2"
+                            android:textColor="@color/marea_tx"
+                            android:textSize="23sp"
+                            tools:text="David Rojas Garcia" />
+
+                        <TextView
+                            android:id="@+id/textoPerfilRol"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="10dp"
+                            android:background="@drawable/bg_pill_lima"
+                            android:drawablePadding="6dp"
+                            android:fontFamily="@font/inter_bold"
+                            android:gravity="center_vertical"
+                            android:includeFontPadding="false"
+                            android:maxLines="1"
+                            android:paddingStart="14dp"
+                            android:paddingTop="6dp"
+                            android:paddingEnd="14dp"
+                            android:paddingBottom="6dp"
+                            android:textAllCaps="true"
+                            android:textColor="@color/marea_cyh"
+                            android:textSize="12sp"
+                            app:drawableStartCompat="@drawable/ic_badge"
+                            app:drawableTint="@color/marea_cyh"
+                            tools:text="MOZO" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnCerrarSesionPerfil"
+                    style="@style/Boton.PeligroSutil"
+                    android:layout_width="match_parent"
+                    android:layout_height="54dp"
+                    android:layout_marginTop="16dp"
+                    android:maxLines="1"
+                    android:text="@string/accion_cerrar_sesion"
+                    app:icon="@drawable/ic_marea_logout"
+                    app:iconGravity="textStart"
+                    app:iconPadding="8dp"
+                    app:iconSize="18dp"
+                    app:iconTint="@color/marea_btn_dg_fg" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/espacio_l"
-                app:cardCornerRadius="@dimen/radio_tarjeta">
+                android:layout_weight="58"
+                android:orientation="vertical">
 
-                <LinearLayout
+                <com.google.android.material.card.MaterialCardView
+                    style="@style/Tarjeta.Superficie"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="@dimen/espacio_l">
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:autoSizeMaxTextSize="16sp"
-                        android:autoSizeMinTextSize="12sp"
-                        android:autoSizeStepGranularity="1sp"
-                        android:autoSizeTextType="uniform"
-                        android:breakStrategy="simple"
-                        android:hyphenationFrequency="none"
-                        android:maxLines="1"
-                        android:text="@string/perfil_datos_sesion"
-                        android:textColor="@color/primary"
-                        android:textSize="@dimen/texto_etiqueta"
-                        android:textStyle="bold" />
+                    app:cardBackgroundColor="@color/marea_s1"
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="0dp"
+                    app:strokeColor="@color/marea_line"
+                    app:strokeWidth="1dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/espacio_s"
-                        android:baselineAligned="false"
-                        android:orientation="horizontal"
-                        android:paddingVertical="@dimen/espacio_s">
+                        android:orientation="vertical"
+                        android:padding="20dp">
 
                         <TextView
-                            android:layout_width="wrap_content"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:autoSizeMaxTextSize="14sp"
-                            android:autoSizeMinTextSize="11sp"
-                            android:autoSizeStepGranularity="1sp"
-                            android:autoSizeTextType="uniform"
-                            android:breakStrategy="simple"
-                            android:hyphenationFrequency="none"
+                            android:fontFamily="@font/plus_jakarta_sans_extrabold"
+                            android:includeFontPadding="false"
+                            android:letterSpacing="0.06"
                             android:maxLines="1"
-                            android:text="@string/perfil_usuario"
-                            android:textColor="@color/texto_secundario"
-                            android:textSize="@dimen/texto_cuerpo" />
+                            android:text="@string/perfil_datos_sesion"
+                            android:textAllCaps="true"
+                            android:textColor="@color/marea_tx2"
+                            android:textSize="12.5sp" />
 
-                        <TextView
-                            android:id="@+id/textoPerfilUsuario"
-                            android:layout_width="0dp"
+                        <LinearLayout
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:autoSizeMaxTextSize="16sp"
-                            android:autoSizeMinTextSize="11sp"
-                            android:autoSizeStepGranularity="1sp"
-                            android:autoSizeTextType="uniform"
-                            android:breakStrategy="simple"
-                            android:ellipsize="end"
-                            android:gravity="end"
-                            android:hyphenationFrequency="none"
-                            android:maxLines="1"
-                            android:textColor="@color/texto_principal"
-                            android:textSize="@dimen/texto_cuerpo"
-                            android:textStyle="bold"
-                            tools:text="david.rojas" />
+                            android:layout_marginTop="12dp"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal"
+                            android:paddingVertical="10dp">
+
+                            <ImageView
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:importantForAccessibility="no"
+                                android:src="@drawable/ic_person"
+                                app:tint="@color/marea_cyh" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="12dp"
+                                android:fontFamily="@font/inter_medium"
+                                android:maxLines="1"
+                                android:text="@string/perfil_usuario"
+                                android:textColor="@color/marea_tx2"
+                                android:textSize="15sp" />
+
+                            <TextView
+                                android:id="@+id/textoPerfilUsuario"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="12dp"
+                                android:layout_weight="1"
+                                android:ellipsize="end"
+                                android:fontFamily="@font/inter_bold"
+                                android:gravity="end"
+                                android:maxLines="1"
+                                android:textColor="@color/marea_tx"
+                                android:textSize="15sp"
+                                tools:text="david.rojas" />
+                        </LinearLayout>
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:background="@color/marea_line" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal"
+                            android:paddingVertical="10dp">
+
+                            <ImageView
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:importantForAccessibility="no"
+                                android:src="@drawable/ic_tablet"
+                                app:tint="@color/marea_cyh" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="12dp"
+                                android:fontFamily="@font/inter_medium"
+                                android:maxLines="1"
+                                android:text="@string/perfil_terminal"
+                                android:textColor="@color/marea_tx2"
+                                android:textSize="15sp" />
+
+                            <TextView
+                                android:id="@+id/textoPerfilTerminal"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="12dp"
+                                android:layout_weight="1"
+                                android:ellipsize="end"
+                                android:fontFamily="@font/inter_bold"
+                                android:gravity="end"
+                                android:maxLines="1"
+                                android:text="@string/perfil_no_asignado"
+                                android:textColor="@color/marea_tx"
+                                android:textSize="15sp" />
+                        </LinearLayout>
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:background="@color/marea_line" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal"
+                            android:paddingVertical="10dp">
+
+                            <ImageView
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:importantForAccessibility="no"
+                                android:src="@drawable/ic_work"
+                                app:tint="@color/marea_cyh" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="12dp"
+                                android:fontFamily="@font/inter_medium"
+                                android:maxLines="1"
+                                android:text="@string/perfil_turno"
+                                android:textColor="@color/marea_tx2"
+                                android:textSize="15sp" />
+
+                            <TextView
+                                android:id="@+id/textoPerfilTurno"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="12dp"
+                                android:layout_weight="1"
+                                android:ellipsize="end"
+                                android:fontFamily="@font/inter_bold"
+                                android:gravity="end"
+                                android:maxLines="1"
+                                android:text="@string/perfil_no_asignado"
+                                android:textColor="@color/marea_tx"
+                                android:textSize="15sp" />
+                        </LinearLayout>
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:background="@color/marea_line" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal"
+                            android:paddingTop="10dp"
+                            android:paddingBottom="2dp">
+
+                            <ImageView
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:importantForAccessibility="no"
+                                android:src="@drawable/ic_calendar"
+                                app:tint="@color/marea_cyh" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="12dp"
+                                android:fontFamily="@font/inter_medium"
+                                android:maxLines="1"
+                                android:text="@string/perfil_fecha"
+                                android:textColor="@color/marea_tx2"
+                                android:textSize="15sp" />
+
+                            <TextView
+                                android:id="@+id/textoPerfilFecha"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="12dp"
+                                android:layout_weight="1"
+                                android:ellipsize="end"
+                                android:fontFamily="@font/inter_bold"
+                                android:fontFeatureSettings="tnum"
+                                android:gravity="end"
+                                android:maxLines="1"
+                                android:textColor="@color/marea_tx"
+                                android:textSize="15sp"
+                                tools:text="08/11/2026" />
+                        </LinearLayout>
                     </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
 
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="@dimen/borde_tarjeta"
-                        android:background="@color/surface_variant" />
+                <com.google.android.material.card.MaterialCardView
+                    style="@style/Tarjeta.Superficie"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    app:cardBackgroundColor="@color/marea_s1"
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="0dp"
+                    app:strokeColor="@color/marea_line"
+                    app:strokeWidth="1dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:baselineAligned="false"
-                        android:orientation="horizontal"
-                        android:paddingVertical="@dimen/espacio_s">
+                        android:orientation="vertical"
+                        android:padding="20dp">
 
-                        <TextView
-                            android:layout_width="wrap_content"
+                        <LinearLayout
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:autoSizeMaxTextSize="14sp"
-                            android:autoSizeMinTextSize="11sp"
-                            android:autoSizeStepGranularity="1sp"
-                            android:autoSizeTextType="uniform"
-                            android:breakStrategy="simple"
-                            android:hyphenationFrequency="none"
-                            android:maxLines="1"
-                            android:text="@string/perfil_terminal"
-                            android:textColor="@color/texto_secundario"
-                            android:textSize="@dimen/texto_cuerpo" />
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
 
-                        <TextView
-                            android:id="@+id/textoPerfilTerminal"
-                            android:layout_width="0dp"
+                            <FrameLayout
+                                android:layout_width="40dp"
+                                android:layout_height="40dp"
+                                android:background="@drawable/bg_icon_box_cy">
+
+                                <ImageView
+                                    android:layout_width="20dp"
+                                    android:layout_height="20dp"
+                                    android:layout_gravity="center"
+                                    android:importantForAccessibility="no"
+                                    android:src="@drawable/ic_palette"
+                                    app:tint="@color/marea_cyh" />
+                            </FrameLayout>
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="12dp"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:fontFamily="@font/plus_jakarta_sans_extrabold"
+                                    android:includeFontPadding="false"
+                                    android:maxLines="1"
+                                    android:text="@string/perfil_apariencia"
+                                    android:textColor="@color/marea_tx"
+                                    android:textSize="17sp" />
+
+                                <TextView
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="2dp"
+                                    android:fontFamily="@font/inter"
+                                    android:maxLines="1"
+                                    android:text="@string/perfil_apariencia_subtitulo"
+                                    android:textColor="@color/marea_tx2"
+                                    android:textSize="13sp" />
+                            </LinearLayout>
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:autoSizeMaxTextSize="16sp"
-                            android:autoSizeMinTextSize="11sp"
-                            android:autoSizeStepGranularity="1sp"
-                            android:autoSizeTextType="uniform"
-                            android:breakStrategy="simple"
-                            android:ellipsize="end"
-                            android:gravity="end"
-                            android:hyphenationFrequency="none"
-                            android:maxLines="1"
-                            android:text="@string/perfil_no_asignado"
-                            android:textColor="@color/texto_principal"
-                            android:textSize="@dimen/texto_cuerpo"
-                            android:textStyle="bold" />
+                            android:layout_marginTop="16dp"
+                            android:baselineAligned="false"
+                            android:orientation="horizontal">
+
+                            <LinearLayout
+                                android:id="@+id/opcionTemaClaro"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginEnd="4dp"
+                                android:layout_weight="1"
+                                android:background="@drawable/bg_tema_tile_inactivo"
+                                android:clickable="true"
+                                android:focusable="true"
+                                android:gravity="center"
+                                android:minHeight="90dp"
+                                android:orientation="vertical"
+                                android:paddingHorizontal="6dp"
+                                android:paddingVertical="12dp">
+
+                                <ImageView
+                                    android:id="@+id/iconoTemaClaro"
+                                    android:layout_width="24dp"
+                                    android:layout_height="24dp"
+                                    android:importantForAccessibility="no"
+                                    android:src="@drawable/ic_marea_sol"
+                                    app:tint="@color/marea_tx2" />
+
+                                <TextView
+                                    android:id="@+id/textoTemaClaro"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="8dp"
+                                    android:fontFamily="@font/plus_jakarta_sans_bold"
+                                    android:includeFontPadding="false"
+                                    android:maxLines="1"
+                                    android:text="@string/perfil_tema_claro"
+                                    android:textColor="@color/marea_tx2"
+                                    android:textSize="14sp" />
+
+                                <TextView
+                                    android:id="@+id/subTemaClaro"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="3dp"
+                                    android:autoSizeMaxTextSize="11.5sp"
+                                    android:autoSizeMinTextSize="9sp"
+                                    android:autoSizeStepGranularity="0.5sp"
+                                    android:autoSizeTextType="uniform"
+                                    android:ellipsize="end"
+                                    android:fontFamily="@font/inter"
+                                    android:gravity="center"
+                                    android:includeFontPadding="false"
+                                    android:maxLines="1"
+                                    android:text="@string/perfil_tema_claro_desc"
+                                    android:textColor="@color/marea_tx3"
+                                    android:textSize="11sp" />
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:id="@+id/opcionTemaOscuro"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginHorizontal="3dp"
+                                android:layout_weight="1"
+                                android:background="@drawable/bg_tema_tile_activo"
+                                android:clickable="true"
+                                android:focusable="true"
+                                android:gravity="center"
+                                android:minHeight="90dp"
+                                android:orientation="vertical"
+                                android:paddingHorizontal="6dp"
+                                android:paddingVertical="12dp">
+
+                                <ImageView
+                                    android:id="@+id/iconoTemaOscuro"
+                                    android:layout_width="24dp"
+                                    android:layout_height="24dp"
+                                    android:importantForAccessibility="no"
+                                    android:src="@drawable/ic_marea_luna"
+                                    app:tint="@color/marea_cyh" />
+
+                                <TextView
+                                    android:id="@+id/textoTemaOscuro"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="8dp"
+                                    android:fontFamily="@font/plus_jakarta_sans_bold"
+                                    android:includeFontPadding="false"
+                                    android:maxLines="1"
+                                    android:text="@string/perfil_tema_oscuro"
+                                    android:textColor="@color/marea_cyh"
+                                    android:textSize="14sp" />
+
+                                <TextView
+                                    android:id="@+id/subTemaOscuro"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="3dp"
+                                    android:autoSizeMaxTextSize="11.5sp"
+                                    android:autoSizeMinTextSize="9sp"
+                                    android:autoSizeStepGranularity="0.5sp"
+                                    android:autoSizeTextType="uniform"
+                                    android:ellipsize="end"
+                                    android:fontFamily="@font/inter"
+                                    android:gravity="center"
+                                    android:includeFontPadding="false"
+                                    android:maxLines="1"
+                                    android:text="@string/perfil_tema_oscuro_desc"
+                                    android:textColor="@color/marea_tx3"
+                                    android:textSize="11sp" />
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:id="@+id/opcionTemaAuto"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="4dp"
+                                android:layout_weight="1"
+                                android:background="@drawable/bg_tema_tile_inactivo"
+                                android:clickable="true"
+                                android:focusable="true"
+                                android:gravity="center"
+                                android:minHeight="90dp"
+                                android:orientation="vertical"
+                                android:paddingHorizontal="6dp"
+                                android:paddingVertical="12dp">
+
+                                <ImageView
+                                    android:id="@+id/iconoTemaAuto"
+                                    android:layout_width="24dp"
+                                    android:layout_height="24dp"
+                                    android:importantForAccessibility="no"
+                                    android:src="@drawable/ic_marea_auto"
+                                    app:tint="@color/marea_tx2" />
+
+                                <TextView
+                                    android:id="@+id/textoTemaAuto"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="8dp"
+                                    android:fontFamily="@font/plus_jakarta_sans_bold"
+                                    android:includeFontPadding="false"
+                                    android:maxLines="1"
+                                    android:text="@string/perfil_tema_auto"
+                                    android:textColor="@color/marea_tx2"
+                                    android:textSize="14sp" />
+
+                                <TextView
+                                    android:id="@+id/subTemaAuto"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="3dp"
+                                    android:autoSizeMaxTextSize="11.5sp"
+                                    android:autoSizeMinTextSize="9sp"
+                                    android:autoSizeStepGranularity="0.5sp"
+                                    android:autoSizeTextType="uniform"
+                                    android:ellipsize="end"
+                                    android:fontFamily="@font/inter"
+                                    android:gravity="center"
+                                    android:includeFontPadding="false"
+                                    android:maxLines="1"
+                                    android:text="@string/perfil_tema_auto_desc"
+                                    android:textColor="@color/marea_tx3"
+                                    android:textSize="11sp" />
+                            </LinearLayout>
+                        </LinearLayout>
                     </LinearLayout>
-
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="@dimen/borde_tarjeta"
-                        android:background="@color/surface_variant" />
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:baselineAligned="false"
-                        android:orientation="horizontal"
-                        android:paddingVertical="@dimen/espacio_s">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:autoSizeMaxTextSize="14sp"
-                            android:autoSizeMinTextSize="11sp"
-                            android:autoSizeStepGranularity="1sp"
-                            android:autoSizeTextType="uniform"
-                            android:breakStrategy="simple"
-                            android:hyphenationFrequency="none"
-                            android:maxLines="1"
-                            android:text="@string/perfil_turno"
-                            android:textColor="@color/texto_secundario"
-                            android:textSize="@dimen/texto_cuerpo" />
-
-                        <TextView
-                            android:id="@+id/textoPerfilTurno"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:autoSizeMaxTextSize="16sp"
-                            android:autoSizeMinTextSize="11sp"
-                            android:autoSizeStepGranularity="1sp"
-                            android:autoSizeTextType="uniform"
-                            android:breakStrategy="simple"
-                            android:ellipsize="end"
-                            android:gravity="end"
-                            android:hyphenationFrequency="none"
-                            android:maxLines="1"
-                            android:text="@string/perfil_no_asignado"
-                            android:textColor="@color/texto_principal"
-                            android:textSize="@dimen/texto_cuerpo"
-                            android:textStyle="bold" />
-                    </LinearLayout>
-
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="@dimen/borde_tarjeta"
-                        android:background="@color/surface_variant" />
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:baselineAligned="false"
-                        android:orientation="horizontal"
-                        android:paddingVertical="@dimen/espacio_s">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:autoSizeMaxTextSize="14sp"
-                            android:autoSizeMinTextSize="11sp"
-                            android:autoSizeStepGranularity="1sp"
-                            android:autoSizeTextType="uniform"
-                            android:breakStrategy="simple"
-                            android:hyphenationFrequency="none"
-                            android:maxLines="1"
-                            android:text="@string/perfil_fecha"
-                            android:textColor="@color/texto_secundario"
-                            android:textSize="@dimen/texto_cuerpo" />
-
-                        <TextView
-                            android:id="@+id/textoPerfilFecha"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:autoSizeMaxTextSize="16sp"
-                            android:autoSizeMinTextSize="11sp"
-                            android:autoSizeStepGranularity="1sp"
-                            android:autoSizeTextType="uniform"
-                            android:breakStrategy="simple"
-                            android:ellipsize="end"
-                            android:gravity="end"
-                            android:hyphenationFrequency="none"
-                            android:maxLines="1"
-                            android:textColor="@color/texto_principal"
-                            android:textSize="@dimen/texto_cuerpo"
-                            android:textStyle="bold"
-                            tools:text="08/11/2026" />
-                    </LinearLayout>
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
+                </com.google.android.material.card.MaterialCardView>
+            </LinearLayout>
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
-
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnCerrarSesionPerfil"
-        style="@style/Boton.Primario"
-        android:layout_width="0dp"
-        android:layout_height="@dimen/alto_boton_primario"
-        android:layout_marginHorizontal="@dimen/espacio_xl"
-        android:layout_marginBottom="@dimen/espacio_xl"
-        android:autoSizeMaxTextSize="16sp"
-        android:autoSizeMinTextSize="11sp"
-        android:autoSizeStepGranularity="1sp"
-        android:autoSizeTextType="uniform"
-        android:breakStrategy="simple"
-        android:hyphenationFrequency="none"
-        android:maxLines="1"
-        android:text="@string/accion_cerrar_sesion"
-        app:icon="@drawable/ic_logout"
-        app:iconGravity="textStart"
-        app:iconPadding="@dimen/espacio_s"
-        app:iconTint="@color/on_primary"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintWidth_max="640dp" />
 </androidx.constraintlayout.widget.ConstraintLayout>

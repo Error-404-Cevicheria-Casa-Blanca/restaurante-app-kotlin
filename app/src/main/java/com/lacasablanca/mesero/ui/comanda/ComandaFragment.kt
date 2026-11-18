@@ -19,6 +19,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.snackbar.Snackbar
 import com.lacasablanca.mesero.BuildConfig
@@ -281,7 +282,9 @@ class ComandaFragment : Fragment(), CarritoBottomSheet.Listener {
             )
             TextViewCompat.setCompoundDrawableTintList(
                 binding.badgeEstado,
-                ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.tertiary))
+                ColorStateList.valueOf(
+                    ContextCompat.getColor(requireContext(), R.color.estado_atencion)
+                )
             )
             // Sin mesa no hay "Pedir Cuenta" ni pre-cuenta por mesa.
             binding.btnPedirCuenta.isVisible = false
@@ -315,11 +318,29 @@ class ComandaFragment : Fragment(), CarritoBottomSheet.Listener {
             alDisminuir = { producto -> carritoViewModel.disminuirCantidad(producto.id) }
         )
 
-        binding.listaCatalogo.layoutManager = LinearLayoutManager(requireContext())
+        prepararLayoutManagerCatalogo()
         binding.listaCatalogo.adapter = catalogoAdapter
 
         catalogoChips = CatalogoChips(activityHost, binding.grupoCategorias) { categoriaId ->
             carritoViewModel.filtrarCategoria(categoriaId)
+        }
+    }
+
+    private fun prepararLayoutManagerCatalogo() {
+        val columnas = resources.getInteger(R.integer.columnas_catalogo)
+        binding.listaCatalogo.layoutManager = if (columnas > 1) {
+            GridLayoutManager(requireContext(), columnas).apply {
+                spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
+                    override fun getSpanSize(position: Int): Int =
+                        if (catalogoAdapter.esEncabezado(position)) {
+                            columnas
+                        } else {
+                            1
+                        }
+                }
+            }
+        } else {
+            LinearLayoutManager(requireContext())
         }
     }
 
@@ -764,6 +785,25 @@ class ComandaFragment : Fragment(), CarritoBottomSheet.Listener {
         dialogoNota = null
         dialogoCuentaSolicitada?.cerrar()
         dialogoCuentaSolicitada = null
+    }
+
+    /**
+     * Cierra de forma limpia la comanda oculta cuando el usuario elige iniciar otra
+     * operacion desde una pestana distinta, liberando la mesa si estaba recien abierta.
+     */
+    internal fun descartarPorCambioDePestana() {
+        if (!isAdded || saliendo) return
+        saliendo = true
+        cerrarDialogoAbierto()
+        cerrarDialogoLiberar()
+        carritoViewModel.limpiarCarrito()
+        if (!noDebeLiberarMesa() && mesaId > 0L) {
+            val datos = Bundle().apply {
+                putLong(EXTRA_MESA_ID, mesaId)
+                putBoolean(EXTRA_LIBERAR_PENDIENTE, true)
+            }
+            parentFragmentManager.setFragmentResult(REQUEST_KEY, datos)
+        }
     }
 
     /**

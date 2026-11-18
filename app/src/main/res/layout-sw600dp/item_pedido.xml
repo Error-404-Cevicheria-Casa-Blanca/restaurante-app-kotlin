@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/cardPedido"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="8dp"
+    app:cardBackgroundColor="@color/marea_s1"
+    app:cardCornerRadius="20dp"
+    app:cardElevation="0dp"
+    app:strokeColor="@color/marea_line"
+    app:strokeWidth="1dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="top"
+            android:orientation="horizontal">
+
+            <FrameLayout
+                android:id="@+id/cajaIconoOrigen"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:background="@drawable/bg_icon_box_cy">
+
+                <ImageView
+                    android:id="@+id/iconoOrigenPedido"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_gravity="center"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/ic_restaurant_placeholder"
+                    app:tint="@color/marea_cyh" />
+            </FrameLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="14dp"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/textoPedidoNumero"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="8dp"
+                        android:layout_weight="1"
+                        android:ellipsize="end"
+                        android:fontFamily="@font/inter_semibold"
+                        android:includeFontPadding="false"
+                        android:maxLines="1"
+                        android:textColor="@color/marea_tx2"
+                        android:textSize="13sp"
+                        tools:text="Pedido #126" />
+
+                    <TextView
+                        android:id="@+id/textoEstadoPedido"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_etiqueta_estado"
+                        android:fontFamily="@font/inter_bold"
+                        android:gravity="center"
+                        android:includeFontPadding="false"
+                        android:maxLines="1"
+                        android:paddingStart="11dp"
+                        android:paddingTop="5dp"
+                        android:paddingEnd="11dp"
+                        android:paddingBottom="5dp"
+                        android:textColor="@color/marea_tx"
+                        android:textSize="12sp"
+                        tools:text="Listo" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/textoTipoPedido"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp"
+                    android:breakStrategy="simple"
+                    android:ellipsize="end"
+                    android:fontFamily="@font/plus_jakarta_sans_extrabold"
+                    android:hyphenationFrequency="none"
+                    android:includeFontPadding="false"
+                    android:lineSpacingMultiplier="1.15"
+                    android:maxLines="2"
+                    android:textColor="@color/marea_tx"
+                    android:textSize="19.5sp"
+                    tools:text="Para Llevar: Carlos Mendoza" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/filaEstadoTotal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/textoTotalPedido"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="12dp"
+                android:layout_weight="1"
+                android:autoSizeMaxTextSize="26sp"
+                android:autoSizeMinTextSize="16sp"
+                android:autoSizeStepGranularity="1sp"
+                android:autoSizeTextType="uniform"
+                android:breakStrategy="simple"
+                android:fontFamily="@font/plus_jakarta_sans_extrabold"
+                android:fontFeatureSettings="tnum"
+                android:hyphenationFrequency="none"
+                android:includeFontPadding="false"
+                android:maxLines="1"
+                android:textColor="@color/marea_tx"
+                android:textSize="26sp"
+                tools:text="S/ 83.00" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnCobrarPedido"
+                style="@style/Boton.PrimarioMediano"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/alto_boton_mediano"
+                android:contentDescription="@string/cd_cobrar_pedido"
+                android:minWidth="0dp"
+                android:paddingStart="20dp"
+                android:paddingEnd="20dp"
+                android:text="@string/pedidos_cobrar"
+                app:icon="@drawable/ic_cobrar_marea"
+                app:iconGravity="textStart"
+                app:iconPadding="8dp"
+                app:iconSize="18dp" />
+        </LinearLayout>
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

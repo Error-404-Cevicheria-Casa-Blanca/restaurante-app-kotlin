@@ -1,116 +1,101 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-    Cabecera movil del mapa de mesas (PRB-81).
-    Dos filas para que el titulo no se corte al sumar el boton de bloqueo:
-    marca + titulo arriba y las cuatro acciones abajo, alineadas a la derecha.
--->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/barraSuperiorSalon"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/surface_container_lowest"
-    android:elevation="@dimen/elevacion_tarjeta"
-    android:minHeight="@dimen/alto_barra_superior"
-    android:orientation="vertical"
-    android:paddingHorizontal="@dimen/espacio_l"
-    android:paddingVertical="@dimen/espacio_s">
+    android:gravity="center_vertical"
+    android:orientation="horizontal">
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:background="@color/white"
+        android:contentDescription="@string/marca_descripcion_logo"
+        android:scaleType="centerCrop"
+        android:src="@drawable/logo_casa_blanca"
+        app:shapeAppearanceOverlay="@style/ShapeAppearance.Marea.Circulo" />
 
     <LinearLayout
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:gravity="center_vertical"
-        android:orientation="horizontal">
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_weight="1"
+        android:orientation="vertical">
 
-        <ImageView
-            android:id="@+id/logoBarra"
-            android:layout_width="@dimen/logo_barra"
-            android:layout_height="@dimen/logo_barra"
-            android:contentDescription="@string/marca_descripcion_logo"
-            android:scaleType="fitCenter"
-            android:src="@drawable/logo_casa_blanca" />
-
-        <LinearLayout
-            android:layout_width="0dp"
+        <TextView
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/espacio_m"
-            android:layout_weight="1"
-            android:orientation="vertical">
+            android:ellipsize="end"
+            android:fontFamily="@font/plus_jakarta_sans"
+            android:includeFontPadding="false"
+            android:maxLines="1"
+            android:text="@string/mesas_titulo"
+            android:textColor="@color/marea_tx"
+            android:textFontWeight="800"
+            android:textSize="17sp" />
 
-            <TextView
-                android:id="@+id/textoTitulo"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:autoSizeMaxTextSize="20sp"
-                android:autoSizeMinTextSize="14sp"
-                android:autoSizeStepGranularity="1sp"
-                android:autoSizeTextType="uniform"
-                android:breakStrategy="simple"
-                android:hyphenationFrequency="none"
-                android:maxLines="1"
-                android:text="@string/mesas_titulo"
-                android:textColor="@color/stitch_primary"
-                android:textSize="20sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/textoSaludo"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:breakStrategy="simple"
-                android:hyphenationFrequency="none"
-                android:textColor="@color/on_surface_variant"
-                android:textSize="@dimen/texto_secundario"
-                android:visibility="visible"
-                tools:text="Hola, Mozo Demo" />
-        </LinearLayout>
+        <TextView
+            android:id="@+id/textoSaludo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:ellipsize="end"
+            android:fontFamily="@font/inter"
+            android:includeFontPadding="false"
+            android:maxLines="1"
+            android:textColor="@color/marea_tx2"
+            android:textSize="12.5sp"
+            tools:text="Hola, Mozo Demo" />
     </LinearLayout>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/espacio_xs"
-        android:gravity="end"
-        android:orientation="horizontal">
+    <ImageButton
+        android:id="@+id/btnActualizar"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:background="@drawable/bg_btn_icon"
+        android:contentDescription="@string/cd_actualizar"
+        android:padding="9dp"
+        android:scaleType="centerInside"
+        android:src="@drawable/ic_refresh"
+        app:tint="@color/marea_cyh" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnPerfil"
-            style="@style/Boton.BarraAccion"
-            android:layout_width="wrap_content"
-            android:layout_height="@dimen/toque_minimo"
-            android:contentDescription="@string/cd_abrir_perfil"
-            app:icon="@drawable/ic_person"
-            app:tooltipText="@string/perfil_titulo" />
+    <ImageButton
+        android:id="@+id/btnPerfil"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginStart="8dp"
+        android:background="@drawable/bg_btn_icon"
+        android:contentDescription="@string/cd_abrir_perfil"
+        android:padding="9dp"
+        android:scaleType="centerInside"
+        android:src="@drawable/ic_person"
+        android:visibility="gone"
+        app:tint="@color/marea_tx" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnBloquear"
-            style="@style/Boton.BarraAccion"
-            android:layout_width="wrap_content"
-            android:layout_height="@dimen/toque_minimo"
-            android:layout_marginStart="@dimen/espacio_xs"
-            android:contentDescription="@string/cd_bloquear"
-            app:icon="@drawable/ic_lock"
-            app:tooltipText="@string/accion_bloquear" />
+    <ImageButton
+        android:id="@+id/btnBloquear"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginStart="8dp"
+        android:background="@drawable/bg_btn_icon"
+        android:contentDescription="@string/cd_bloquear"
+        android:padding="9dp"
+        android:scaleType="centerInside"
+        android:src="@drawable/ic_lock"
+        app:tint="@color/marea_tx" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnActualizar"
-            style="@style/Boton.BarraAccion"
-            android:layout_width="wrap_content"
-            android:layout_height="@dimen/toque_minimo"
-            android:layout_marginStart="@dimen/espacio_xs"
-            android:contentDescription="@string/cd_actualizar"
-            app:icon="@drawable/ic_refresh"
-            app:tooltipText="@string/accion_actualizar" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnCerrarSesion"
-            style="@style/Boton.BarraSalir"
-            android:layout_width="wrap_content"
-            android:layout_height="@dimen/toque_minimo"
-            android:layout_marginStart="@dimen/espacio_xs"
-            android:contentDescription="@string/cd_cerrar_sesion"
-            app:icon="@drawable/ic_logout"
-            app:tooltipText="@string/accion_cerrar_sesion" />
-    </LinearLayout>
+    <ImageButton
+        android:id="@+id/btnCerrarSesion"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginStart="8dp"
+        android:background="@drawable/bg_btn_icon"
+        android:contentDescription="@string/cd_cerrar_sesion"
+        android:padding="9dp"
+        android:scaleType="centerInside"
+        android:src="@drawable/ic_logout"
+        app:tint="@color/error" />
 </LinearLayout>

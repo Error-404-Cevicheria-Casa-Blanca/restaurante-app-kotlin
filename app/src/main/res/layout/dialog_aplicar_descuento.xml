@@ -1,15 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-    Dialogo premium para aplicar un descuento (PRB-80).
-    Dos modos simetricos: porcentaje o monto fijo, y acciones de igual peso.
--->
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@drawable/bg_dialogo_premium"
-    android:padding="@dimen/espacio_xl">
+    android:paddingHorizontal="22dp"
+    android:paddingTop="28dp"
+    android:paddingBottom="22dp">
 
     <LinearLayout
         android:layout_width="0dp"
@@ -24,24 +22,25 @@
         <FrameLayout
             android:layout_width="64dp"
             android:layout_height="64dp"
-            android:background="@drawable/bg_circulo_vacio">
+            android:background="@drawable/bg_ib_info">
 
             <ImageView
-                android:layout_width="@dimen/icono_grande"
-                android:layout_height="@dimen/icono_grande"
+                android:layout_width="28dp"
+                android:layout_height="28dp"
                 android:layout_gravity="center"
                 android:contentDescription="@string/cd_descuento_icono"
                 android:src="@drawable/ic_descuento"
-                app:tint="@color/primary" />
+                app:tint="@color/sem_info_c" />
         </FrameLayout>
 
         <TextView
             android:id="@+id/tituloDescuento"
+            style="@style/Texto.TituloPantalla"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/espacio_m"
-            android:autoSizeMaxTextSize="22sp"
-            android:autoSizeMinTextSize="15sp"
+            android:layout_marginTop="16dp"
+            android:autoSizeMaxTextSize="24sp"
+            android:autoSizeMinTextSize="16sp"
             android:autoSizeStepGranularity="1sp"
             android:autoSizeTextType="uniform"
             android:breakStrategy="simple"
@@ -49,93 +48,115 @@
             android:hyphenationFrequency="none"
             android:maxLines="2"
             android:text="@string/cobro_descuento_titulo"
-            android:textColor="@color/primary"
-            android:textSize="@dimen/texto_titulo_tarjeta"
-            android:textStyle="bold" />
+            android:textColor="@color/marea_tx"
+            android:textSize="23sp" />
 
         <TextView
             android:id="@+id/textoMensajeDescuento"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/espacio_s"
-            android:autoSizeMaxTextSize="16sp"
-            android:autoSizeMinTextSize="11sp"
+            android:layout_marginTop="8dp"
+            android:autoSizeMaxTextSize="15sp"
+            android:autoSizeMinTextSize="12sp"
             android:autoSizeStepGranularity="1sp"
             android:autoSizeTextType="uniform"
             android:breakStrategy="simple"
+            android:fontFamily="@font/inter"
             android:gravity="center"
             android:hyphenationFrequency="none"
-            android:lineSpacingExtra="2dp"
+            android:lineSpacingMultiplier="1.35"
             android:maxLines="4"
             android:text="@string/cobro_descuento_mensaje"
-            android:textColor="@color/texto_principal"
-            android:textSize="@dimen/texto_cuerpo" />
+            android:textColor="@color/marea_tx2"
+            android:textSize="15sp" />
 
         <com.google.android.material.button.MaterialButtonToggleGroup
             android:id="@+id/grupoTipoDescuento"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/espacio_l"
+            android:layout_marginTop="16dp"
             app:selectionRequired="true"
             app:singleSelection="true">
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnTipoPorcentaje"
-                style="@style/Boton.Secundario"
+                style="@style/Widget.Material3.Button.OutlinedButton"
                 android:layout_width="0dp"
                 android:layout_height="@dimen/toque_minimo"
                 android:layout_weight="1"
                 android:checked="true"
+                android:fontFamily="@font/plus_jakarta_sans_bold"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:maxLines="1"
                 android:text="@string/cobro_descuento_porcentaje_opcion"
+                android:textAllCaps="false"
+                android:textColor="@color/selector_texto_toggle_descuento"
+                android:textSize="14.5sp"
                 app:backgroundTint="@color/selector_fondo_toggle_descuento"
+                app:cornerRadius="14dp"
                 app:iconTint="@color/selector_texto_toggle_descuento"
-                android:textColor="@color/selector_texto_toggle_descuento" />
+                app:strokeColor="@color/marea_line2"
+                app:strokeWidth="1dp" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnTipoMonto"
-                style="@style/Boton.Secundario"
+                style="@style/Widget.Material3.Button.OutlinedButton"
                 android:layout_width="0dp"
                 android:layout_height="@dimen/toque_minimo"
                 android:layout_weight="1"
+                android:fontFamily="@font/plus_jakarta_sans_bold"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:maxLines="1"
                 android:text="@string/cobro_descuento_monto_opcion"
+                android:textAllCaps="false"
+                android:textColor="@color/selector_texto_toggle_descuento"
+                android:textSize="14.5sp"
                 app:backgroundTint="@color/selector_fondo_toggle_descuento"
+                app:cornerRadius="14dp"
                 app:iconTint="@color/selector_texto_toggle_descuento"
-                android:textColor="@color/selector_texto_toggle_descuento" />
+                app:strokeColor="@color/marea_line2"
+                app:strokeWidth="1dp" />
         </com.google.android.material.button.MaterialButtonToggleGroup>
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/campoValorDescuento"
-            style="@style/Campo.Cobro"
+            style="@style/Campo.Marea"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/espacio_l"
+            android:layout_marginTop="14dp"
             android:hint="@string/cobro_descuento_valor_porcentaje"
-            app:suffixText="%">
+            app:suffixText="%"
+            app:suffixTextColor="@color/marea_tx2">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/textoValorDescuento"
+                style="@style/Texto.NumeroTabular"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:imeOptions="actionDone"
                 android:inputType="numberDecimal"
                 android:maxLines="1"
+                android:textColor="@color/marea_tx"
+                android:textSize="18sp"
                 tools:text="10" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnQuitarDescuento"
-            style="@style/Boton.Secundario"
+            style="@style/Boton.PeligroSutil"
             android:layout_width="match_parent"
             android:layout_height="@dimen/toque_minimo"
-            android:layout_marginTop="@dimen/espacio_m"
-            android:visibility="gone"
+            android:layout_marginTop="12dp"
             android:text="@string/cobro_descuento_quitar"
+            android:visibility="gone"
             tools:visibility="visible" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/espacio_l"
+            android:layout_marginTop="18dp"
             android:baselineAligned="false"
             android:orientation="horizontal">
 
@@ -143,17 +164,19 @@
                 android:id="@+id/btnCancelarDescuento"
                 style="@style/Boton.Outlined"
                 android:layout_width="0dp"
-                android:layout_height="@dimen/toque_minimo"
+                android:layout_height="@dimen/alto_boton_primario"
                 android:layout_weight="1"
+                android:maxLines="1"
                 android:text="@string/cobro_salir_cancelar" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnConfirmarDescuento"
                 style="@style/Boton.Primario"
                 android:layout_width="0dp"
-                android:layout_height="@dimen/toque_minimo"
-                android:layout_marginStart="@dimen/espacio_s"
+                android:layout_height="@dimen/alto_boton_primario"
+                android:layout_marginStart="10dp"
                 android:layout_weight="1"
+                android:maxLines="1"
                 android:text="@string/cobro_descuento_aplicar" />
         </LinearLayout>
     </LinearLayout>

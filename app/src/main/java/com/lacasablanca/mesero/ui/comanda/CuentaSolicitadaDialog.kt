@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.lacasablanca.mesero.R
 import com.lacasablanca.mesero.databinding.DialogCuentaSolicitadaBinding
+import com.lacasablanca.mesero.ui.common.aplicarMarcoMarea
 
 /** Exito de "Pedir Cuenta" (PRB-83); al volver se cierra la comanda. */
 class CuentaSolicitadaDialog(
@@ -36,6 +37,7 @@ class CuentaSolicitadaDialog(
         nuevo.setCanceledOnTouchOutside(false)
         nuevo.setOnDismissListener { if (dialogo === nuevo) dialogo = null }
         nuevo.show()
+        nuevo.aplicarMarcoMarea(activity)
         dialogo = nuevo
     }
 

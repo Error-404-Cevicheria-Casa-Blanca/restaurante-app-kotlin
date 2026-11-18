@@ -1,13 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Barra inferior para telefono (PRB-88). La infla NavegacionPrincipalView. -->
 <com.google.android.material.bottomnavigation.BottomNavigationView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/navegacionInterna"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/surface_container_lowest"
-    android:elevation="@dimen/elevacion_tarjeta"
+    android:background="@drawable/bg_nav_bottom_marea"
+    android:elevation="0dp"
+    android:minHeight="76dp"
+    app:itemActiveIndicatorStyle="@style/Navegacion.IndicadorActivo"
+    app:itemIconSize="22dp"
     app:itemIconTint="@color/selector_nav_item"
+    app:itemPaddingBottom="10dp"
+    app:itemPaddingTop="10dp"
     app:itemTextColor="@color/selector_nav_item"
     app:labelVisibilityMode="labeled"
     app:menu="@menu/menu_navegacion" />

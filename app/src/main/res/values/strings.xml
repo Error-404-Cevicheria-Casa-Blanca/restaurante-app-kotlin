@@ -23,6 +23,7 @@
     <string name="login_error_rol">Este usuario no tiene acceso a la app de meseros</string>
     <string name="login_error_generico">Ocurrió un error. Inténtalo de nuevo.</string>
     <string name="login_version">Versión %1$s</string>
+    <string name="marca_footer_version">Versión %1$s · Cevichería Restaurante</string>
     <string name="login_modo_demo">Modo demostración: datos de prueba, sin conexión al servidor.</string>
     <string name="login_cargando">Ingresando…</string>
 
@@ -44,8 +45,13 @@
     <string name="estado_ocupada_plural">Ocupadas</string>
     <string name="estado_atendida_plural">Atendidas</string>
     <string name="estado_cuenta_plural">Cuenta solicitada</string>
+    <string name="estado_cuenta_corto">Cuenta</string>
+    <string name="leyenda_estados_mesa">Estados de mesa</string>
+    <string name="mesas_error_ayuda">No se pudo conectar con el servidor. Revisa la red local.</string>
     <string name="leyenda_titulo">Estados de mesa</string>
     <string name="mesa_titulo">Mesa %1$d</string>
+    <string name="mesa_solo_etiqueta">Mesa</string>
+    <string name="zona_con_contador">%1$s · %2$d</string>
     <plurals name="mesa_capacidad">
         <item quantity="one">%1$d persona</item>
         <item quantity="other">%1$d personas</item>
@@ -329,6 +335,11 @@
     <string name="perfil_turno">Turno</string>
     <string name="perfil_fecha">Fecha</string>
     <string name="perfil_no_asignado">No asignado</string>
+    <string name="perfil_tema_automatico">Automático</string>
+    <string name="perfil_desc_claro">Fondo claro de alto contraste para salón muy iluminado.</string>
+    <string name="perfil_desc_oscuro">Fondo oscuro de bajo deslumbramiento, ideal para salón nocturno.</string>
+    <string name="perfil_desc_automatico">Sigue el modo del dispositivo.</string>
+    <string name="perfil_cd_tema">Tema %1$s</string>
 
     <!-- Cobro en tablet (PRB-56) -->
     <string name="cobro_titulo">Cobrar Mesa %1$d</string>
@@ -358,11 +369,14 @@
     <string name="cobro_pagado">Pagado: %1$s</string>
     <string name="cobro_saldo_pendiente">Saldo pendiente: %1$s</string>
     <string name="cobro_total_a_pagar">Total a pagar: %1$s</string>
+    <string name="cobro_barra_pagado_saldo">Pagado %1$s · Saldo %2$s</string>
     <string name="cobro_confirmar">Confirmar cobro</string>
     <string name="cobro_linea_cantidad">x%1$d</string>
     <string name="cobro_linea_precio">%1$s c/u</string>
     <!-- Descuentos (PRB-80) -->
     <string name="cobro_aplicar_descuento">Aplicar descuento</string>
+    <string name="cobro_descuento_corto">Descuento</string>
+    <string name="cobro_editar_descuento">Editar desc.</string>
     <string name="cobro_cambiar_descuento">Cambiar descuento</string>
     <string name="cobro_descuento_titulo">Aplicar descuento</string>
     <string name="cobro_descuento_mensaje">Elige el tipo de descuento e ingresa el valor para esta mesa.</string>
@@ -480,6 +494,11 @@
     <string name="cd_nav_salon">Ir a Salón</string>
     <string name="cd_nav_pedidos">Ir a Pedidos</string>
     <string name="cd_nav_perfil">Ir a Perfil</string>
+    <string name="nav_detalle_pendiente_cobro_titulo">Tienes un cobro abierto</string>
+    <string name="nav_detalle_pendiente_comanda_titulo">Tienes una comanda abierta</string>
+    <string name="nav_detalle_pendiente_mensaje">Dejaste una operación sin cerrar en %1$s. ¿Quieres volver a ella o descartarla para continuar?</string>
+    <string name="nav_detalle_ir_pendiente">Ir a la actual</string>
+    <string name="nav_detalle_descartar">Descartar y abrir</string>
 
     <!-- Pedidos activos (PRB-88, Fase 6) -->
     <string name="pedidos_titulo">Pedidos</string>
@@ -507,4 +526,12 @@
     <string name="pedidos_actualizados">Pedidos actualizados</string>
     <string name="cd_actualizar_pedidos">Actualizar la lista de pedidos</string>
     <string name="pedidos_actualizar">Actualizar</string>
+    <string name="perfil_apariencia">Apariencia</string>
+    <string name="perfil_apariencia_subtitulo">Tema visual de la aplicación</string>
+    <string name="perfil_tema_claro">Claro</string>
+    <string name="perfil_tema_claro_desc">Marea Diurna</string>
+    <string name="perfil_tema_oscuro">Oscuro</string>
+    <string name="perfil_tema_oscuro_desc">Marea Nocturna</string>
+    <string name="perfil_tema_auto">Automático</string>
+    <string name="perfil_tema_auto_desc">Según sistema</string>
 </resources>

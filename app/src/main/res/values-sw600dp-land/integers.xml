@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Columnas en tablet horizontal (sw600dp-land): 4 mesas y 2 catalogo como los mockups -->
+    <integer name="columnas_mesas">4</integer>
+    <integer name="columnas_pedidos">2</integer>
+    <integer name="columnas_catalogo">2</integer>
+</resources>

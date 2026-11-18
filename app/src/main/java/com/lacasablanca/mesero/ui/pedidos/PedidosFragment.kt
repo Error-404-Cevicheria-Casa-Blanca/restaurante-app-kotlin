@@ -60,7 +60,10 @@ class PedidosFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        adapter = PedidosAdapter { pedido -> viewModel.cobrar(pedido) }
+        adapter = PedidosAdapter { pedido ->
+            (activity as? MainActivity)?.ejecutarAlAbrirOperacion { viewModel.cobrar(pedido) }
+                ?: viewModel.cobrar(pedido)
+        }
         binding.recyclerPedidos.layoutManager = GridLayoutManager(
             requireContext(),
             resources.getInteger(R.integer.columnas_pedidos)

@@ -6,6 +6,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.lacasablanca.mesero.R
 import com.lacasablanca.mesero.databinding.DialogPedidoEnviadoBinding
 import com.lacasablanca.mesero.domain.model.PedidoEnviado
+import com.lacasablanca.mesero.ui.common.aplicarMarcoMarea
 import com.lacasablanca.mesero.ui.common.formatearMoneda
 
 /**
@@ -45,6 +46,7 @@ class PedidoEnviadoDialog(
         nuevo.setCanceledOnTouchOutside(false)
         nuevo.setOnDismissListener { if (dialogo === nuevo) dialogo = null }
         nuevo.show()
+        nuevo.aplicarMarcoMarea(activity)
         dialogo = nuevo
     }
 

@@ -5,6 +5,7 @@ import android.text.Layout
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.core.content.res.ResourcesCompat
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import com.lacasablanca.mesero.R
@@ -62,11 +63,15 @@ class CatalogoChips(
         chip.isClickable = true
         chip.setEnsureMinTouchTargetSize(true)
         chip.minHeight = activity.resources.getDimensionPixelSize(R.dimen.toque_minimo)
-        chip.chipStrokeWidth = 0f
+        chip.chipStrokeWidth = activity.resources.getDimension(R.dimen.borde_tarjeta)
+        chip.setChipStrokeColorResource(R.color.selector_borde_chip_categoria)
+        chip.chipCornerRadius = activity.resources.getDimension(R.dimen.radio_pill)
         chip.setChipBackgroundColorResource(R.color.selector_fondo_chip_categoria)
         chip.setTextColor(
             ContextCompat.getColorStateList(activity, R.color.selector_texto_chip_categoria)
         )
+        chip.textSize = 13.5f
+        ResourcesCompat.getFont(activity, R.font.plus_jakarta_sans)?.let { chip.typeface = it }
         chip.setBreakStrategy(LineBreaker.BREAK_STRATEGY_SIMPLE)
         chip.hyphenationFrequency = Layout.HYPHENATION_FREQUENCY_NONE
         chip.contentDescription = activity.getString(R.string.cd_categoria, texto)

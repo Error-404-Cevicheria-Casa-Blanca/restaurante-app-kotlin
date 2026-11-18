@@ -1,35 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-    Dialogo premium de anulacion de un plato ya enviado a cocina (PRB-77).
-    Sigue la paleta de la skill diseno-cevicheria: icono y titulo en rojo de
-    error (#D64545), texto slate, esquinas de 16dp y botones de 8dp.
--->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:background="@drawable/bg_dialogo_premium"
     android:gravity="center_horizontal"
     android:orientation="vertical"
-    android:paddingHorizontal="@dimen/espacio_xl"
-    android:paddingTop="@dimen/espacio_xl"
-    android:paddingBottom="@dimen/espacio_l">
+    android:paddingHorizontal="22dp"
+    android:paddingTop="28dp"
+    android:paddingBottom="22dp">
 
-    <ImageView
-        android:id="@+id/iconoAnular"
-        android:layout_width="@dimen/icono_xl"
-        android:layout_height="@dimen/icono_xl"
-        android:contentDescription="@string/anular_plato_icono_cd"
-        android:src="@drawable/ic_delete"
-        app:tint="@color/estado_ocupada" />
+    <FrameLayout
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:background="@drawable/bg_ib_warn">
+
+        <ImageView
+            android:id="@+id/iconoAnular"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:layout_gravity="center"
+            android:contentDescription="@string/anular_plato_icono_cd"
+            android:src="@drawable/ic_marea_trash"
+            app:tint="@color/sem_warn_c" />
+    </FrameLayout>
 
     <TextView
         android:id="@+id/tituloAnular"
+        style="@style/Texto.TituloPantalla"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/espacio_m"
-        android:autoSizeMaxTextSize="20sp"
-        android:autoSizeMinTextSize="14sp"
+        android:layout_marginTop="16dp"
+        android:autoSizeMaxTextSize="24sp"
+        android:autoSizeMinTextSize="16sp"
         android:autoSizeStepGranularity="1sp"
         android:autoSizeTextType="uniform"
         android:breakStrategy="simple"
@@ -37,73 +41,85 @@
         android:hyphenationFrequency="none"
         android:maxLines="2"
         android:text="@string/anular_plato_titulo"
-        android:textColor="@color/estado_ocupada"
-        android:textSize="@dimen/texto_titulo_tarjeta"
-        android:textStyle="bold" />
-
-    <TextView
-        android:id="@+id/textoPlatoAnular"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/espacio_m"
-        android:autoSizeMaxTextSize="18sp"
-        android:autoSizeMinTextSize="12sp"
-        android:autoSizeStepGranularity="1sp"
-        android:autoSizeTextType="uniform"
-        android:breakStrategy="simple"
-        android:ellipsize="end"
-        android:gravity="center"
-        android:hyphenationFrequency="none"
-        android:maxLines="2"
-        android:textColor="@color/texto_principal"
-        android:textSize="@dimen/texto_cuerpo"
-        android:textStyle="bold"
-        tools:text="Ceviche Clásico" />
-
-    <TextView
-        android:id="@+id/textoDetalleAnular"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/espacio_xs"
-        android:autoSizeMaxTextSize="14sp"
-        android:autoSizeMinTextSize="10sp"
-        android:autoSizeStepGranularity="1sp"
-        android:autoSizeTextType="uniform"
-        android:breakStrategy="simple"
-        android:gravity="center"
-        android:hyphenationFrequency="none"
-        android:maxLines="2"
-        android:textColor="@color/texto_secundario"
-        android:textSize="@dimen/texto_secundario"
-        tools:text="2 × S/ 48.00 = S/ 96.00" />
+        android:textColor="@color/marea_tx"
+        android:textSize="23sp" />
 
     <TextView
         android:id="@+id/textoMensajeAnular"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/espacio_m"
-        android:autoSizeMaxTextSize="16sp"
-        android:autoSizeMinTextSize="11sp"
+        android:layout_marginTop="8dp"
+        android:autoSizeMaxTextSize="15sp"
+        android:autoSizeMinTextSize="12sp"
         android:autoSizeStepGranularity="1sp"
         android:autoSizeTextType="uniform"
         android:breakStrategy="simple"
+        android:fontFamily="@font/inter"
         android:gravity="center"
         android:hyphenationFrequency="none"
-        android:lineSpacingExtra="2dp"
+        android:lineSpacingMultiplier="1.35"
         android:maxLines="4"
         android:text="@string/anular_plato_mensaje"
-        android:textColor="@color/texto_principal"
-        android:textSize="@dimen/texto_cuerpo" />
+        android:textColor="@color/marea_tx2"
+        android:textSize="15sp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="14dp"
+        android:background="@drawable/bg_item_carrito"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="12dp">
+
+        <TextView
+            android:id="@+id/textoPlatoAnular"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:autoSizeMaxTextSize="16sp"
+            android:autoSizeMinTextSize="12sp"
+            android:autoSizeStepGranularity="1sp"
+            android:autoSizeTextType="uniform"
+            android:breakStrategy="simple"
+            android:ellipsize="end"
+            android:fontFamily="@font/inter"
+            android:gravity="center"
+            android:hyphenationFrequency="none"
+            android:maxLines="2"
+            android:textColor="@color/marea_tx"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            tools:text="Tiradito al Ají Amarillo" />
+
+        <TextView
+            android:id="@+id/textoDetalleAnular"
+            style="@style/Texto.NumeroTabular"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:autoSizeMaxTextSize="14sp"
+            android:autoSizeMinTextSize="11sp"
+            android:autoSizeStepGranularity="1sp"
+            android:autoSizeTextType="uniform"
+            android:breakStrategy="simple"
+            android:gravity="center"
+            android:hyphenationFrequency="none"
+            android:maxLines="2"
+            android:textColor="@color/marea_tx2"
+            android:textSize="14sp"
+            tools:text="2 × S/ 46.00 = S/ 92.00" />
+    </LinearLayout>
 
     <ProgressBar
         android:id="@+id/progresoAnular"
         style="?android:attr/progressBarStyle"
-        android:layout_width="@dimen/espacio_xxl"
-        android:layout_height="@dimen/espacio_xxl"
-        android:layout_marginTop="@dimen/espacio_l"
+        android:layout_width="28dp"
+        android:layout_height="28dp"
+        android:layout_marginTop="16dp"
         android:contentDescription="@string/anular_plato_progreso"
         android:indeterminate="true"
-        android:indeterminateTint="@color/estado_ocupada"
+        android:indeterminateTint="@color/marea_cyh"
         android:visibility="gone"
         tools:visibility="visible" />
 
@@ -111,12 +127,14 @@
         android:id="@+id/textoProgresoAnular"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/espacio_s"
+        android:layout_marginTop="8dp"
         android:breakStrategy="simple"
+        android:fontFamily="@font/inter"
         android:hyphenationFrequency="none"
         android:text="@string/anular_plato_progreso"
-        android:textColor="@color/texto_secundario"
-        android:textSize="@dimen/texto_etiqueta"
+        android:textColor="@color/marea_tx2"
+        android:textSize="14sp"
+        android:textStyle="bold"
         android:visibility="gone"
         tools:visibility="visible" />
 
@@ -124,32 +142,16 @@
         android:id="@+id/grupoBotonesAnular"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/espacio_l"
+        android:layout_marginTop="18dp"
         android:baselineAligned="false"
         android:gravity="center_vertical"
         android:orientation="horizontal">
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnCancelarAnular"
-            style="@style/Boton.Outlined"
-            android:layout_width="0dp"
-            android:layout_height="@dimen/toque_minimo"
-            android:layout_weight="1"
-            android:autoSizeMaxTextSize="16sp"
-            android:autoSizeMinTextSize="11sp"
-            android:autoSizeStepGranularity="1sp"
-            android:autoSizeTextType="uniform"
-            android:breakStrategy="simple"
-            android:hyphenationFrequency="none"
-            android:maxLines="1"
-            android:text="@string/anular_plato_cancelar" />
-
-        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnConfirmarAnular"
             style="@style/Boton.DialogoAnular"
             android:layout_width="0dp"
-            android:layout_height="@dimen/toque_minimo"
-            android:layout_marginStart="@dimen/espacio_s"
+            android:layout_height="@dimen/alto_boton_primario"
             android:layout_weight="1"
             android:autoSizeMaxTextSize="16sp"
             android:autoSizeMinTextSize="11sp"
@@ -159,5 +161,21 @@
             android:hyphenationFrequency="none"
             android:maxLines="1"
             android:text="@string/anular_plato_confirmar" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnCancelarAnular"
+            style="@style/Boton.Outlined"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/alto_boton_primario"
+            android:layout_marginStart="10dp"
+            android:layout_weight="1"
+            android:autoSizeMaxTextSize="16sp"
+            android:autoSizeMinTextSize="11sp"
+            android:autoSizeStepGranularity="1sp"
+            android:autoSizeTextType="uniform"
+            android:breakStrategy="simple"
+            android:hyphenationFrequency="none"
+            android:maxLines="1"
+            android:text="@string/anular_plato_cancelar" />
     </LinearLayout>
 </LinearLayout>

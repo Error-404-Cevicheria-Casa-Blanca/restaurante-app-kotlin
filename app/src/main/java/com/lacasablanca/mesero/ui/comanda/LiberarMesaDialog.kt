@@ -6,6 +6,7 @@ import androidx.core.view.isVisible
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.lacasablanca.mesero.R
 import com.lacasablanca.mesero.databinding.DialogLiberarMesaBinding
+import com.lacasablanca.mesero.ui.common.aplicarMarcoMarea
 
 /**
  * Confirmacion de liberacion de mesa (PRB-39) extraida de [ComandaFragment].
@@ -41,6 +42,7 @@ class LiberarMesaDialog(
         nuevo.setCanceledOnTouchOutside(true)
         nuevo.setOnDismissListener { if (dialogo === nuevo) dialogo = null }
         nuevo.show()
+        nuevo.aplicarMarcoMarea(activity)
         dialogo = nuevo
     }
 

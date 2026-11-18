@@ -1,9 +1,11 @@
 package com.lacasablanca.mesero.ui.salon
 
+import android.content.res.ColorStateList
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
+import androidx.core.widget.ImageViewCompat
 import androidx.fragment.app.Fragment
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
@@ -11,6 +13,7 @@ import com.lacasablanca.mesero.R
 import com.lacasablanca.mesero.databinding.DialogAvisoMesaBinding
 import com.lacasablanca.mesero.domain.model.EstadoMesa
 import com.lacasablanca.mesero.domain.model.Mesa
+import com.lacasablanca.mesero.ui.common.aplicarMarcoMarea
 import com.lacasablanca.mesero.ui.common.iconoRes
 import com.lacasablanca.mesero.ui.mesas.AccionMesa
 import com.lacasablanca.mesero.ui.mesas.AvisoMesas
@@ -156,8 +159,7 @@ internal class AvisosMesasUi(
     ) {
         cerrar()
         val contenido = DialogAvisoMesaBinding.inflate(fragment.layoutInflater)
-        contenido.iconoAviso.setImageResource(iconoRes)
-        contenido.iconoAviso.contentDescription = titulo
+        aplicarIconoAviso(contenido, iconoRes, titulo)
         contenido.tituloAviso.text = titulo
         contenido.mensajeAviso.text = mensaje
 
@@ -173,7 +175,30 @@ internal class AvisosMesasUi(
         alerta.setCanceledOnTouchOutside(cancelable)
         alerta.setOnDismissListener { if (dialogo === alerta) dialogo = null }
         alerta.show()
+        alerta.aplicarMarcoMarea(fragment.requireContext())
         dialogo = alerta
+    }
+
+    private fun aplicarIconoAviso(
+        contenido: DialogAvisoMesaBinding,
+        @DrawableRes iconoRes: Int,
+        titulo: CharSequence
+    ) {
+        val (fondoRes, colorTintRes) = when (iconoRes) {
+            R.drawable.ic_marea_libre -> R.drawable.bg_ib_ok to R.color.sem_ok_c
+            R.drawable.ic_marea_ocupada -> R.drawable.bg_ib_info to R.color.sem_info_c
+            R.drawable.ic_marea_aten -> R.drawable.bg_ib_aten to R.color.sem_aten_c
+            R.drawable.ic_marea_cta, R.drawable.ic_lock, R.drawable.ic_alert_triangle ->
+                R.drawable.bg_ib_warn to R.color.sem_warn_c
+            else -> R.drawable.bg_ib_err to R.color.sem_err_c
+        }
+        contenido.badgeIconoAviso.setBackgroundResource(fondoRes)
+        contenido.iconoAviso.setImageResource(iconoRes)
+        contenido.iconoAviso.contentDescription = titulo
+        ImageViewCompat.setImageTintList(
+            contenido.iconoAviso,
+            ColorStateList.valueOf(ContextCompat.getColor(fragment.requireContext(), colorTintRes))
+        )
     }
 
     private fun textoExitoAccion(evento: MesasEvento.AccionMesaCompletada): String {

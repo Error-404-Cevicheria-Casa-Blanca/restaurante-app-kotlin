@@ -1,36 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-    Exito de "Pedir Cuenta" (PRB-83): check verde, mensaje "Cuenta solicitada
-    a caja", detalle de la mesa y boton para volver al mapa.
--->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:background="@drawable/bg_dialogo_premium"
     android:gravity="center_horizontal"
     android:orientation="vertical"
-    android:padding="@dimen/espacio_xl">
+    android:paddingHorizontal="22dp"
+    android:paddingTop="28dp"
+    android:paddingBottom="22dp">
 
     <FrameLayout
-        android:layout_width="@dimen/circulo_exito_dialogo"
-        android:layout_height="@dimen/circulo_exito_dialogo"
-        android:background="@drawable/bg_circulo_exito">
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:background="@drawable/bg_ib_ok">
 
         <ImageView
-            android:layout_width="@dimen/icono_exito_dialogo"
-            android:layout_height="@dimen/icono_exito_dialogo"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
             android:layout_gravity="center"
             android:contentDescription="@string/comanda_cuenta_icono_cd"
-            android:src="@drawable/ic_receipt_blanco" />
+            android:src="@drawable/ic_marea_cta"
+            app:tint="@color/sem_ok_c" />
     </FrameLayout>
 
     <TextView
+        style="@style/Texto.TituloPantalla"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/espacio_l"
+        android:layout_marginTop="16dp"
         android:autoSizeMaxTextSize="24sp"
-        android:autoSizeMinTextSize="15sp"
+        android:autoSizeMinTextSize="16sp"
         android:autoSizeStepGranularity="1sp"
         android:autoSizeTextType="uniform"
         android:breakStrategy="simple"
@@ -39,48 +40,49 @@
         android:hyphenationFrequency="none"
         android:maxLines="2"
         android:text="@string/comanda_cuenta_titulo"
-        android:textColor="@color/stitch_primary"
-        android:textSize="22sp"
-        android:textStyle="bold" />
+        android:textColor="@color/marea_tx"
+        android:textSize="24sp" />
 
     <TextView
         android:id="@+id/textoCuentaMensaje"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/espacio_s"
-        android:autoSizeMaxTextSize="16sp"
-        android:autoSizeMinTextSize="11sp"
+        android:layout_marginTop="8dp"
+        android:autoSizeMaxTextSize="15sp"
+        android:autoSizeMinTextSize="12sp"
         android:autoSizeStepGranularity="1sp"
         android:autoSizeTextType="uniform"
         android:breakStrategy="simple"
         android:ellipsize="none"
+        android:fontFamily="@font/inter"
         android:gravity="center"
         android:hyphenationFrequency="none"
         android:maxLines="2"
         android:text="@string/comanda_cuenta_mensaje"
-        android:textColor="@color/on_surface_variant"
-        android:textSize="@dimen/texto_cuerpo"
+        android:textColor="@color/marea_tx2"
+        android:textSize="15sp"
         tools:text="Cuenta solicitada a caja" />
 
     <TextView
         android:id="@+id/textoCuentaDetalle"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/espacio_l"
-        android:autoSizeMaxTextSize="16sp"
-        android:autoSizeMinTextSize="11sp"
+        android:layout_marginTop="14dp"
+        android:autoSizeMaxTextSize="15sp"
+        android:autoSizeMinTextSize="12sp"
         android:autoSizeStepGranularity="1sp"
         android:autoSizeTextType="uniform"
-        android:background="@drawable/bg_pill_superficie"
+        android:background="@drawable/bg_item_carrito"
         android:breakStrategy="simple"
         android:ellipsize="none"
+        android:fontFamily="@font/inter"
         android:gravity="center"
         android:hyphenationFrequency="none"
         android:maxLines="2"
-        android:paddingHorizontal="@dimen/espacio_l"
-        android:paddingVertical="@dimen/espacio_s"
-        android:textColor="@color/stitch_primary"
-        android:textSize="16sp"
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="12dp"
+        android:textColor="@color/marea_tx"
+        android:textSize="14.5sp"
         android:textStyle="bold"
         tools:text="Mesa 7 · La caja fue notificada" />
 
@@ -89,17 +91,13 @@
         style="@style/Boton.Primario"
         android:layout_width="match_parent"
         android:layout_height="@dimen/alto_boton_primario"
-        android:layout_marginTop="@dimen/espacio_xl"
+        android:layout_marginTop="20dp"
         android:autoSizeMaxTextSize="16sp"
-        android:autoSizeMinTextSize="11sp"
+        android:autoSizeMinTextSize="12sp"
         android:autoSizeStepGranularity="1sp"
         android:autoSizeTextType="uniform"
         android:breakStrategy="simple"
         android:hyphenationFrequency="none"
         android:maxLines="1"
-        android:text="@string/comanda_cuenta_volver"
-        app:icon="@drawable/ic_check_blanco"
-        app:iconGravity="textStart"
-        app:iconPadding="@dimen/espacio_s"
-        app:iconTint="@color/on_primary" />
+        android:text="@string/comanda_cuenta_volver" />
 </LinearLayout>

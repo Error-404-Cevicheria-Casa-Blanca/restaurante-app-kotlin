@@ -1,29 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- Tema claro fijo: no se define variante oscura (DISENO-UI.md, solo tema claro). -->
+    <!-- Marea Nocturna (Tema oscuro). Hereda estilos de values/themes.xml y ajusta status/nav bars. -->
     <!-- Base comun sin atributos exclusivos de API 31+ (PRB-95, D35). -->
-    <style name="Theme.LaCasaBlancaMesero.Base" parent="Theme.Material3.Light.NoActionBar">
-        <item name="colorPrimary">@color/primary</item>
-        <item name="colorOnPrimary">@color/on_primary</item>
+    <style name="Theme.LaCasaBlancaMesero.Base" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/marea_cyh</item>
+        <item name="colorOnPrimary">@color/marea_oncy</item>
         <item name="colorPrimaryContainer">@color/primary_container</item>
-        <item name="colorOnPrimaryContainer">@color/on_primary</item>
-        <item name="colorSecondary">@color/accent_lima</item>
+        <item name="colorOnPrimaryContainer">@color/on_primary_container</item>
+        <item name="colorSecondary">@color/marea_bl</item>
         <item name="colorSecondaryContainer">@color/secondary_container</item>
-        <item name="colorOnSecondaryContainer">@color/primary_dark</item>
-        <item name="android:colorBackground">@color/background</item>
-        <item name="colorSurface">@color/surface</item>
-        <item name="colorOnSurface">@color/texto_principal</item>
-        <item name="colorOnSurfaceVariant">@color/texto_secundario</item>
+        <item name="colorOnSecondaryContainer">@color/on_secondary_container</item>
+        <item name="android:colorBackground">@color/marea_bg</item>
+        <item name="colorSurface">@color/marea_s1</item>
+        <item name="colorOnSurface">@color/marea_tx</item>
+        <item name="colorOnSurfaceVariant">@color/marea_tx2</item>
+        <item name="colorOutline">@color/marea_line2</item>
+        <item name="colorOutlineVariant">@color/marea_line</item>
         <item name="colorError">@color/error</item>
         <item name="colorErrorContainer">@color/error_container</item>
         <item name="colorOnErrorContainer">@color/on_error_container</item>
-        <item name="android:statusBarColor">@color/primary</item>
-        <item name="android:navigationBarColor">@color/background</item>
+        <item name="fontFamily">@font/inter</item>
+        <item name="android:fontFamily">@font/inter</item>
+        <item name="materialAlertDialogTheme">@style/ThemeOverlay.LaCasaBlanca.Dialogo</item>
+        <item name="android:statusBarColor">@color/marea_bg</item>
+        <item name="android:navigationBarColor">@color/marea_nav_bg</item>
         <item name="android:windowLightStatusBar">false</item>
-        <item name="android:windowLightNavigationBar">true</item>
-        <item name="android:forceDarkAllowed" tools:targetApi="q">false</item>
-        <!-- Blindaje tipografico global (evita cortes tipo "ME-SA") -->
+        <item name="android:windowLightNavigationBar" tools:targetApi="o_mr1">false</item>
         <item name="android:textViewStyle">@style/Texto.Base</item>
     </style>
 

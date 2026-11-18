@@ -1,30 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- La app del mesero usa SOLO tema claro (docs/diseno/DISENO-UI.md). -->
+    <!-- Tema base DayNight: Marea Diurna en values/ y Marea Nocturna en values-night/. -->
     <!-- Base comun sin atributos exclusivos de API 31+ (PRB-95, D35). -->
-    <style name="Theme.LaCasaBlancaMesero.Base" parent="Theme.Material3.Light.NoActionBar">
-        <item name="colorPrimary">@color/primary</item>
-        <item name="colorOnPrimary">@color/on_primary</item>
+    <style name="Theme.LaCasaBlancaMesero.Base" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/marea_cy</item>
+        <item name="colorOnPrimary">@color/marea_oncy</item>
         <item name="colorPrimaryContainer">@color/primary_container</item>
-        <item name="colorOnPrimaryContainer">@color/on_primary</item>
-        <item name="colorSecondary">@color/accent_lima</item>
+        <item name="colorOnPrimaryContainer">@color/on_primary_container</item>
+        <item name="colorSecondary">@color/marea_bl</item>
         <item name="colorSecondaryContainer">@color/secondary_container</item>
-        <item name="colorOnSecondaryContainer">@color/primary_dark</item>
-        <item name="android:colorBackground">@color/background</item>
-        <item name="colorSurface">@color/surface</item>
-        <item name="colorOnSurface">@color/texto_principal</item>
-        <item name="colorOnSurfaceVariant">@color/texto_secundario</item>
+        <item name="colorOnSecondaryContainer">@color/on_secondary_container</item>
+        <item name="android:colorBackground">@color/marea_bg</item>
+        <item name="colorSurface">@color/marea_s1</item>
+        <item name="colorOnSurface">@color/marea_tx</item>
+        <item name="colorOnSurfaceVariant">@color/marea_tx2</item>
+        <item name="colorOutline">@color/marea_line2</item>
+        <item name="colorOutlineVariant">@color/marea_line</item>
         <item name="colorError">@color/error</item>
         <item name="colorErrorContainer">@color/error_container</item>
         <item name="colorOnErrorContainer">@color/on_error_container</item>
+        <item name="fontFamily">@font/inter</item>
+        <item name="android:fontFamily">@font/inter</item>
         <item name="materialAlertDialogTheme">@style/ThemeOverlay.LaCasaBlanca.Dialogo</item>
-        <item name="android:statusBarColor">@color/primary</item>
-        <item name="android:navigationBarColor">@color/background</item>
-        <item name="android:windowLightStatusBar">false</item>
-        <item name="android:windowLightNavigationBar">true</item>
-        <item name="android:forceDarkAllowed" tools:targetApi="q">false</item>
-        <!-- Blindaje tipografico global (evita cortes tipo "ME-SA") -->
+        <item name="android:statusBarColor">@color/marea_bg</item>
+        <item name="android:navigationBarColor">@color/marea_nav_bg</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowLightNavigationBar" tools:targetApi="o_mr1">true</item>
         <item name="android:textViewStyle">@style/Texto.Base</item>
     </style>
 
@@ -33,82 +35,104 @@
 
     <style name="Theme.LaCasaBlancaMesero" parent="Base.Theme.LaCasaBlancaMesero" />
 
-    <!--
-        Estilo base de texto aplicado a TODOS los TextView de la app via
-        android:textViewStyle. hyphenationFrequency y breakStrategy son
-        atributos de TextView, no de TextAppearance, por eso se declara como
-        estilo de widget y no como TextAppearance.
-    -->
+    <!-- Blindaje tipografico + fuente Inter base -->
     <style name="Texto.Base" parent="Widget.AppCompat.TextView">
+        <item name="android:fontFamily">@font/inter</item>
         <item name="android:ellipsize">end</item>
         <item name="android:hyphenationFrequency">none</item>
         <item name="android:breakStrategy">simple</item>
     </style>
 
-    <!-- Tipografia -->
+    <!-- Tipografia Marea -->
     <style name="Texto.TituloPantalla" parent="TextAppearance.Material3.HeadlineSmall">
-        <item name="android:textColor">@color/texto_principal</item>
+        <item name="android:fontFamily">@font/plus_jakarta_sans_extrabold</item>
+        <item name="android:textColor">@color/marea_tx</item>
         <item name="android:textStyle">bold</item>
     </style>
 
     <style name="Texto.TituloTarjeta" parent="TextAppearance.Material3.TitleLarge">
-        <item name="android:textColor">@color/texto_principal</item>
+        <item name="android:fontFamily">@font/plus_jakarta_sans_bold</item>
+        <item name="android:textColor">@color/marea_tx</item>
         <item name="android:textStyle">bold</item>
     </style>
 
     <style name="Texto.Cuerpo" parent="TextAppearance.Material3.BodyMedium">
-        <item name="android:textColor">@color/texto_principal</item>
+        <item name="android:fontFamily">@font/inter</item>
+        <item name="android:textColor">@color/marea_tx</item>
     </style>
 
     <style name="Texto.Secundario" parent="TextAppearance.Material3.BodyMedium">
-        <item name="android:textColor">@color/texto_secundario</item>
+        <item name="android:fontFamily">@font/inter</item>
+        <item name="android:textColor">@color/marea_tx2</item>
     </style>
 
     <style name="Texto.Etiqueta" parent="TextAppearance.Material3.LabelMedium">
-        <item name="android:textColor">@color/texto_secundario</item>
+        <item name="android:fontFamily">@font/inter_semibold</item>
+        <item name="android:textColor">@color/marea_tx2</item>
+    </style>
+
+    <style name="Texto.NumeroMesa" parent="TextAppearance.Material3.DisplaySmall">
+        <item name="android:fontFamily">@font/lora_bold</item>
+        <item name="android:textColor">@color/marea_tx</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:letterSpacing">-0.01</item>
+    </style>
+
+    <style name="Texto.NumeroTabular" parent="TextAppearance.Material3.HeadlineSmall">
+        <item name="android:fontFamily">@font/plus_jakarta_sans_extrabold</item>
+        <item name="android:textColor">@color/marea_tx</item>
+        <item name="android:fontFeatureSettings">tnum</item>
+        <item name="android:letterSpacing">-0.01</item>
     </style>
 
     <style name="Texto.Marca" parent="TextAppearance.Material3.HeadlineMedium">
+        <item name="android:fontFamily">@font/plus_jakarta_sans_extrabold</item>
         <item name="android:textColor">@color/texto_sobre_primario</item>
         <item name="android:textStyle">bold</item>
-        <item name="android:textSize">26sp</item>
+        <item name="android:textSize">30sp</item>
+        <item name="android:letterSpacing">-0.01</item>
     </style>
 
     <style name="Texto.MarcaTablet" parent="TextAppearance.Material3.HeadlineMedium">
+        <item name="android:fontFamily">@font/plus_jakarta_sans_extrabold</item>
         <item name="android:textColor">@color/texto_sobre_primario</item>
         <item name="android:textStyle">bold</item>
-        <item name="android:textSize">32sp</item>
+        <item name="android:textSize">44sp</item>
+        <item name="android:letterSpacing">-0.02</item>
     </style>
 
     <style name="Texto.LemaMarca" parent="TextAppearance.Material3.BodyMedium">
+        <item name="android:fontFamily">@font/inter_medium</item>
         <item name="android:textColor">@color/texto_sobre_primario_suave</item>
-        <item name="android:textStyle">italic</item>
     </style>
 
     <style name="Texto.Badge" parent="TextAppearance.Material3.LabelMedium">
+        <item name="android:fontFamily">@font/inter_bold</item>
         <item name="android:textStyle">bold</item>
     </style>
 
     <style name="Texto.PestanaLogin" parent="TextAppearance.Material3.LabelLarge">
+        <item name="android:fontFamily">@font/plus_jakarta_sans_bold</item>
         <item name="android:textAllCaps">false</item>
         <item name="android:textSize">14sp</item>
         <item name="android:textStyle">bold</item>
     </style>
 
     <style name="Texto.PestanaZona" parent="TextAppearance.Material3.LabelLarge">
+        <item name="android:fontFamily">@font/plus_jakarta_sans_bold</item>
         <item name="android:textAllCaps">false</item>
-        <item name="android:textSize">14sp</item>
+        <item name="android:textSize">13sp</item>
         <item name="android:textStyle">bold</item>
     </style>
 
-    <!-- Titulo de la toolbar de comanda: cabe junto al boton de bloqueo (PRB-81). -->
     <style name="Texto.Toolbar" parent="TextAppearance.Material3.TitleMedium">
-        <item name="android:textColor">@color/stitch_primary</item>
+        <item name="android:fontFamily">@font/plus_jakarta_sans_extrabold</item>
+        <item name="android:textColor">@color/marea_tx</item>
         <item name="android:textSize">@dimen/texto_toolbar</item>
         <item name="android:textStyle">bold</item>
     </style>
 
-    <!-- Dialogos Material 3: esquinas redondeadas y boton de aceptar en color de marca -->
+    <!-- Dialogos Material 3 (esquinas 28dp) -->
     <style name="ThemeOverlay.LaCasaBlanca.Dialogo" parent="ThemeOverlay.Material3.MaterialAlertDialog">
         <item name="alertDialogStyle">@style/MaterialAlertDialog.LaCasaBlanca</item>
     </style>
@@ -116,14 +140,14 @@
     <style name="MaterialAlertDialog.LaCasaBlanca" parent="MaterialAlertDialog.Material3">
         <item name="shapeAppearance">@style/ShapeAppearance.LaCasaBlanca.Dialogo</item>
         <item name="shapeAppearanceOverlay">@null</item>
+        <item name="backgroundTint">@color/marea_s1</item>
     </style>
 
     <style name="ShapeAppearance.LaCasaBlanca.Dialogo" parent="ShapeAppearance.Material3.MediumComponent">
         <item name="cornerFamily">rounded</item>
-        <item name="cornerSize">24dp</item>
+        <item name="cornerSize">28dp</item>
     </style>
 
-    <!-- Dialogo de liberacion de mesa (PRB-39): 16dp, fondo blanco y sombra propia -->
     <style name="ThemeOverlay.LaCasaBlanca.Dialogo.LiberarMesa" parent="ThemeOverlay.Material3.MaterialAlertDialog">
         <item name="alertDialogStyle">@style/MaterialAlertDialog.LaCasaBlanca.LiberarMesa</item>
     </style>
@@ -131,15 +155,14 @@
     <style name="MaterialAlertDialog.LaCasaBlanca.LiberarMesa" parent="MaterialAlertDialog.Material3">
         <item name="shapeAppearance">@style/ShapeAppearance.LaCasaBlanca.Dialogo.LiberarMesa</item>
         <item name="shapeAppearanceOverlay">@null</item>
-        <item name="backgroundTint">@color/surface_container_lowest</item>
+        <item name="backgroundTint">@color/marea_s1</item>
     </style>
 
     <style name="ShapeAppearance.LaCasaBlanca.Dialogo.LiberarMesa" parent="ShapeAppearance.Material3.MediumComponent">
         <item name="cornerFamily">rounded</item>
-        <item name="cornerSize">16dp</item>
+        <item name="cornerSize">28dp</item>
     </style>
 
-    <!-- Dialogo de anulacion de plato (PRB-77): 16dp, blanco y accion en rojo -->
     <style name="ThemeOverlay.LaCasaBlanca.Dialogo.AnularPlato" parent="ThemeOverlay.Material3.MaterialAlertDialog">
         <item name="alertDialogStyle">@style/MaterialAlertDialog.LaCasaBlanca.AnularPlato</item>
     </style>
@@ -147,40 +170,58 @@
     <style name="MaterialAlertDialog.LaCasaBlanca.AnularPlato" parent="MaterialAlertDialog.Material3">
         <item name="shapeAppearance">@style/ShapeAppearance.LaCasaBlanca.Dialogo.AnularPlato</item>
         <item name="shapeAppearanceOverlay">@null</item>
-        <item name="backgroundTint">@color/surface_container_lowest</item>
+        <item name="backgroundTint">@color/marea_s1</item>
     </style>
 
     <style name="ShapeAppearance.LaCasaBlanca.Dialogo.AnularPlato" parent="ShapeAppearance.Material3.MediumComponent">
         <item name="cornerFamily">rounded</item>
-        <item name="cornerSize">16dp</item>
+        <item name="cornerSize">28dp</item>
     </style>
 
-    <!-- Botones -->
+    <!-- Botones Marea -->
     <style name="Boton.Primario" parent="Widget.Material3.Button">
         <item name="android:layout_height">@dimen/alto_boton_primario</item>
-        <item name="cornerRadius">8dp</item>
-        <item name="backgroundTint">@color/selector_fondo_boton_primario</item>
+        <item name="android:minHeight">@dimen/alto_boton_primario</item>
+        <item name="android:background">@drawable/bg_btn_primario</item>
+        <item name="backgroundTint">@null</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+        <item name="android:fontFamily">@font/plus_jakarta_sans_bold</item>
         <item name="android:textColor">@color/selector_texto_boton_primario</item>
         <item name="iconTint">@color/selector_texto_boton_primario</item>
         <item name="android:textAllCaps">false</item>
         <item name="android:textStyle">bold</item>
-        <item name="android:textSize">@dimen/texto_cuerpo</item>
+        <item name="android:textSize">17sp</item>
         <item name="android:autoSizeTextType">uniform</item>
         <item name="android:autoSizeMinTextSize">11sp</item>
-        <item name="android:autoSizeMaxTextSize">16sp</item>
+        <item name="android:autoSizeMaxTextSize">17sp</item>
         <item name="android:autoSizeStepGranularity">1sp</item>
         <item name="android:hyphenationFrequency">none</item>
         <item name="android:breakStrategy">simple</item>
         <item name="android:maxLines">1</item>
         <item name="android:ellipsize">end</item>
+        <item name="android:elevation">0dp</item>
+        <item name="android:stateListAnimator">@null</item>
+    </style>
+
+    <style name="Boton.PrimarioMediano" parent="Boton.Primario">
+        <item name="android:layout_height">@dimen/alto_boton_mediano</item>
+        <item name="android:minHeight">@dimen/alto_boton_mediano</item>
+        <item name="android:background">@drawable/bg_btn_primario_md</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:autoSizeMaxTextSize">16sp</item>
     </style>
 
     <style name="Boton.Secundario" parent="Widget.Material3.Button.TextButton">
         <item name="android:layout_height">@dimen/toque_minimo</item>
-        <item name="cornerRadius">8dp</item>
-        <item name="backgroundTint">@color/surface_container_low</item>
-        <item name="android:textColor">@color/primary</item>
-        <item name="iconTint">@color/primary</item>
+        <item name="android:minHeight">@dimen/toque_minimo</item>
+        <item name="android:background">@drawable/bg_btn_neutro</item>
+        <item name="backgroundTint">@null</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+        <item name="android:fontFamily">@font/plus_jakarta_sans_bold</item>
+        <item name="android:textColor">@color/marea_tx</item>
+        <item name="iconTint">@color/marea_cyh</item>
         <item name="android:textAllCaps">false</item>
         <item name="android:textStyle">bold</item>
         <item name="android:autoSizeTextType">uniform</item>
@@ -197,47 +238,37 @@
         <item name="android:layout_height">@dimen/toque_minimo</item>
         <item name="android:minWidth">@dimen/toque_minimo</item>
         <item name="android:minHeight">@dimen/toque_minimo</item>
+        <item name="android:paddingHorizontal">@dimen/espacio_s</item>
+        <item name="android:background">@drawable/bg_btn_icon</item>
+        <item name="backgroundTint">@null</item>
         <item name="android:insetTop">0dp</item>
         <item name="android:insetBottom">0dp</item>
-        <item name="android:textColor">@color/stitch_primary</item>
+        <item name="android:fontFamily">@font/plus_jakarta_sans_bold</item>
+        <item name="android:textColor">@color/marea_tx</item>
         <item name="android:textSize">@dimen/texto_secundario</item>
-        <item name="iconTint">@color/stitch_primary</item>
-        <item name="backgroundTint">@color/barra_accion_fondo</item>
-        <item name="cornerRadius">8dp</item>
+        <item name="iconTint">@color/marea_tx</item>
         <item name="android:textAllCaps">false</item>
         <item name="android:textStyle">bold</item>
     </style>
 
-    <style name="Boton.BarraSalir" parent="Widget.Material3.Button.TextButton">
-        <item name="android:layout_height">@dimen/toque_minimo</item>
-        <item name="android:minWidth">@dimen/toque_minimo</item>
-        <item name="android:minHeight">@dimen/toque_minimo</item>
-        <item name="android:insetTop">0dp</item>
-        <item name="android:insetBottom">0dp</item>
-        <item name="android:textColor">@color/on_error_container</item>
-        <item name="android:textSize">@dimen/texto_secundario</item>
-        <item name="iconTint">@color/on_error_container</item>
-        <item name="backgroundTint">@color/barra_salir_fondo</item>
-        <item name="cornerRadius">8dp</item>
-        <item name="android:textAllCaps">false</item>
-        <item name="android:textStyle">bold</item>
+    <style name="Boton.BarraSalir" parent="Boton.BarraAccion">
+        <item name="android:textColor">@color/marea_coral_logout</item>
+        <item name="iconTint">@color/marea_coral_logout</item>
     </style>
 
-    <!-- Boton de exito de la comanda (PRB-38): verde de la paleta #2E9E5B -->
-    <!-- Boton con borde visible para acciones secundarias (PRB-56) -->
     <style name="Boton.Outlined" parent="Widget.Material3.Button.OutlinedButton">
         <item name="android:layout_height">@dimen/toque_minimo</item>
         <item name="android:minHeight">@dimen/toque_minimo</item>
+        <item name="android:background">@drawable/bg_btn_ghost</item>
+        <item name="backgroundTint">@null</item>
         <item name="android:insetTop">0dp</item>
         <item name="android:insetBottom">0dp</item>
-        <item name="cornerRadius">8dp</item>
-        <item name="strokeColor">@color/primary</item>
-        <item name="strokeWidth">1dp</item>
-        <item name="android:textColor">@color/primary</item>
-        <item name="iconTint">@color/primary</item>
+        <item name="android:fontFamily">@font/plus_jakarta_sans_bold</item>
+        <item name="android:textColor">@color/marea_tx</item>
+        <item name="iconTint">@color/marea_tx</item>
         <item name="android:textAllCaps">false</item>
         <item name="android:textStyle">bold</item>
-        <item name="android:textSize">@dimen/texto_cuerpo</item>
+        <item name="android:textSize">15sp</item>
         <item name="android:autoSizeTextType">uniform</item>
         <item name="android:autoSizeMinTextSize">11sp</item>
         <item name="android:autoSizeMaxTextSize">16sp</item>
@@ -248,18 +279,22 @@
         <item name="android:ellipsize">end</item>
     </style>
 
-    <style name="Boton.Exito" parent="Widget.Material3.Button">
+    <style name="Boton.PeligroSutil" parent="Widget.Material3.Button.TextButton">
         <item name="android:layout_height">@dimen/alto_boton_primario</item>
-        <item name="cornerRadius">8dp</item>
-        <item name="backgroundTint">@color/selector_fondo_boton_exito</item>
-        <item name="android:textColor">@color/selector_texto_boton_exito</item>
-        <item name="iconTint">@color/selector_texto_boton_exito</item>
+        <item name="android:minHeight">@dimen/alto_boton_primario</item>
+        <item name="android:background">@drawable/bg_btn_peligro_sutil</item>
+        <item name="backgroundTint">@null</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+        <item name="android:fontFamily">@font/plus_jakarta_sans_bold</item>
+        <item name="android:textColor">@color/marea_btn_dg_fg</item>
+        <item name="iconTint">@color/marea_btn_dg_fg</item>
         <item name="android:textAllCaps">false</item>
         <item name="android:textStyle">bold</item>
-        <item name="android:textSize">@dimen/texto_cuerpo</item>
+        <item name="android:textSize">16sp</item>
         <item name="android:autoSizeTextType">uniform</item>
         <item name="android:autoSizeMinTextSize">11sp</item>
-        <item name="android:autoSizeMaxTextSize">16sp</item>
+        <item name="android:autoSizeMaxTextSize">17sp</item>
         <item name="android:autoSizeStepGranularity">1sp</item>
         <item name="android:hyphenationFrequency">none</item>
         <item name="android:breakStrategy">simple</item>
@@ -267,65 +302,31 @@
         <item name="android:ellipsize">end</item>
     </style>
 
-    <!-- Boton compacto de la barra flotante y del bottom sheet (rediseno PRB-38) -->
-    <style name="Boton.Checkout" parent="Widget.Material3.Button">
+    <style name="Boton.Exito" parent="Boton.Primario" />
+
+    <style name="Boton.Checkout" parent="Boton.PrimarioMediano">
         <item name="android:layout_height">@dimen/alto_boton_checkout</item>
         <item name="android:minHeight">@dimen/alto_boton_checkout</item>
         <item name="android:minWidth">@dimen/toque_minimo</item>
-        <item name="android:insetTop">0dp</item>
-        <item name="android:insetBottom">0dp</item>
-        <item name="cornerRadius">8dp</item>
-        <item name="backgroundTint">@color/primary</item>
-        <item name="android:textColor">@color/on_primary</item>
-        <item name="iconTint">@color/on_primary</item>
-        <item name="android:textAllCaps">false</item>
-        <item name="android:textStyle">bold</item>
         <item name="android:textSize">@dimen/texto_secundario</item>
-        <item name="android:autoSizeTextType">uniform</item>
-        <item name="android:autoSizeMinTextSize">11sp</item>
-        <item name="android:autoSizeMaxTextSize">14sp</item>
-        <item name="android:autoSizeStepGranularity">1sp</item>
-        <item name="android:hyphenationFrequency">none</item>
-        <item name="android:breakStrategy">simple</item>
-        <item name="android:maxLines">1</item>
-        <item name="android:ellipsize">end</item>
+        <item name="android:autoSizeMaxTextSize">15sp</item>
     </style>
 
-    <!-- Botones del dialogo de liberacion (PRB-39) -->
-    <style name="Boton.DialogoLiberar" parent="Widget.Material3.Button">
-        <item name="android:layout_height">@dimen/toque_minimo</item>
-        <item name="android:minHeight">@dimen/toque_minimo</item>
-        <item name="android:insetTop">0dp</item>
-        <item name="android:insetBottom">0dp</item>
-        <item name="cornerRadius">8dp</item>
-        <item name="backgroundTint">@color/primary</item>
-        <item name="android:textColor">@color/on_primary</item>
-        <item name="android:textAllCaps">false</item>
-        <item name="android:textStyle">bold</item>
-        <item name="android:textSize">@dimen/texto_cuerpo</item>
-        <item name="android:autoSizeTextType">uniform</item>
-        <item name="android:autoSizeMinTextSize">11sp</item>
-        <item name="android:autoSizeMaxTextSize">16sp</item>
-        <item name="android:autoSizeStepGranularity">1sp</item>
-        <item name="android:hyphenationFrequency">none</item>
-        <item name="android:breakStrategy">simple</item>
-        <item name="android:maxLines">1</item>
-        <item name="android:ellipsize">end</item>
-    </style>
+    <style name="Boton.DialogoLiberar" parent="Boton.PrimarioMediano" />
 
-    <!-- Boton destructivo del dialogo de anulacion (PRB-77) -->
     <style name="Boton.DialogoAnular" parent="Widget.Material3.Button">
         <item name="android:layout_height">@dimen/toque_minimo</item>
         <item name="android:minHeight">@dimen/toque_minimo</item>
+        <item name="android:background">@drawable/bg_btn_peligro_solido</item>
+        <item name="backgroundTint">@null</item>
         <item name="android:insetTop">0dp</item>
         <item name="android:insetBottom">0dp</item>
-        <item name="cornerRadius">8dp</item>
-        <item name="backgroundTint">@color/estado_ocupada</item>
-        <item name="android:textColor">@color/on_primary</item>
-        <item name="iconTint">@color/on_primary</item>
+        <item name="android:fontFamily">@font/plus_jakarta_sans_bold</item>
+        <item name="android:textColor">@color/marea_btn_dgs_fg</item>
+        <item name="iconTint">@color/marea_btn_dgs_fg</item>
         <item name="android:textAllCaps">false</item>
         <item name="android:textStyle">bold</item>
-        <item name="android:textSize">@dimen/texto_cuerpo</item>
+        <item name="android:textSize">15sp</item>
         <item name="android:autoSizeTextType">uniform</item>
         <item name="android:autoSizeMinTextSize">11sp</item>
         <item name="android:autoSizeMaxTextSize">16sp</item>
@@ -334,118 +335,109 @@
         <item name="android:breakStrategy">simple</item>
         <item name="android:maxLines">1</item>
         <item name="android:ellipsize">end</item>
+        <item name="android:stateListAnimator">@null</item>
     </style>
 
-    <style name="Boton.DialogoCancelar" parent="Widget.Material3.Button.TextButton">
-        <item name="android:layout_height">@dimen/toque_minimo</item>
-        <item name="android:minHeight">@dimen/toque_minimo</item>
-        <item name="android:insetTop">0dp</item>
-        <item name="android:insetBottom">0dp</item>
-        <item name="cornerRadius">8dp</item>
-        <item name="backgroundTint">@android:color/transparent</item>
-        <item name="android:textColor">@color/estado_ocupada</item>
-        <item name="iconTint">@color/estado_ocupada</item>
-        <item name="android:textAllCaps">false</item>
-        <item name="android:textStyle">bold</item>
-        <item name="android:textSize">@dimen/texto_cuerpo</item>
-        <item name="android:autoSizeTextType">uniform</item>
-        <item name="android:autoSizeMinTextSize">11sp</item>
-        <item name="android:autoSizeMaxTextSize">16sp</item>
-        <item name="android:autoSizeStepGranularity">1sp</item>
-        <item name="android:hyphenationFrequency">none</item>
-        <item name="android:breakStrategy">simple</item>
-        <item name="android:maxLines">1</item>
-        <item name="android:ellipsize">end</item>
-    </style>
+    <style name="Boton.DialogoCancelar" parent="Boton.Outlined" />
 
     <style name="Boton.PinTecla" parent="Widget.Material3.Button">
         <item name="android:layout_height">@dimen/alto_pin_tecla</item>
         <item name="android:minWidth">0dp</item>
         <item name="android:minHeight">@dimen/alto_pin_tecla</item>
+        <item name="android:background">@drawable/bg_pin_key</item>
+        <item name="backgroundTint">@null</item>
         <item name="android:insetTop">0dp</item>
         <item name="android:insetBottom">0dp</item>
-        <item name="cornerRadius">8dp</item>
-        <item name="backgroundTint">@color/chip_pin_tecla</item>
-        <item name="android:textColor">@color/on_surface</item>
-        <item name="android:textSize">22sp</item>
+        <item name="android:fontFamily">@font/plus_jakarta_sans_bold</item>
+        <item name="android:textColor">@color/marea_tx</item>
+        <item name="android:textSize">26sp</item>
         <item name="android:textAllCaps">false</item>
+        <item name="android:elevation">0dp</item>
+        <item name="android:stateListAnimator">@null</item>
     </style>
 
-    <style name="Boton.PinAccion" parent="Widget.Material3.Button">
-        <item name="android:layout_height">@dimen/alto_pin_tecla</item>
-        <item name="android:minWidth">0dp</item>
-        <item name="android:minHeight">@dimen/alto_pin_tecla</item>
-        <item name="android:insetTop">0dp</item>
-        <item name="android:insetBottom">0dp</item>
-        <item name="cornerRadius">8dp</item>
-        <item name="backgroundTint">@color/chip_pin_accion</item>
-        <item name="android:textColor">@color/on_surface_variant</item>
-        <item name="android:textAllCaps">false</item>
+    <style name="Boton.PinAccion" parent="Boton.PinTecla">
+        <item name="iconTint">@color/marea_tx2</item>
+        <item name="android:textColor">@color/marea_tx2</item>
     </style>
 
     <!-- Tarjetas -->
-    <style name="Tarjeta.Superficie" parent="Widget.Material3.CardView.Elevated">
+    <style name="Tarjeta.Superficie" parent="Widget.Material3.CardView.Outlined">
         <item name="cardCornerRadius">@dimen/radio_tarjeta</item>
         <item name="cardElevation">@dimen/elevacion_tarjeta</item>
-        <item name="cardBackgroundColor">@color/surface</item>
-        <item name="strokeColor">@color/borde_suave</item>
-        <item name="strokeWidth">@dimen/borde_tarjeta</item>
+        <item name="cardBackgroundColor">@color/marea_s1</item>
+        <item name="strokeColor">@color/marea_line</item>
+        <item name="strokeWidth">1dp</item>
     </style>
 
-    <style name="Tarjeta.Login" parent="Widget.Material3.CardView.Elevated">
+    <style name="Tarjeta.Login" parent="Widget.Material3.CardView.Outlined">
         <item name="cardCornerRadius">@dimen/radio_tarjeta_login</item>
         <item name="cardElevation">@dimen/elevacion_tarjeta_login</item>
-        <item name="cardBackgroundColor">@color/surface</item>
-        <item name="strokeColor">@color/outline_variant</item>
-        <item name="strokeWidth">@dimen/borde_tarjeta</item>
+        <item name="cardBackgroundColor">@color/marea_s1</item>
+        <item name="strokeColor">@color/marea_line</item>
+        <item name="strokeWidth">1dp</item>
     </style>
 
-    <!-- Chips de medios de pago (PRB-56) -->
+    <!-- Chips -->
     <style name="Chip.MedioPago" parent="Widget.Material3.Chip.Filter">
         <item name="android:checkable">true</item>
         <item name="android:clickable">true</item>
+        <item name="android:fontFamily">@font/inter_semibold</item>
         <item name="android:textColor">@color/selector_texto_chip_categoria</item>
         <item name="chipBackgroundColor">@color/selector_fondo_chip_categoria</item>
+        <item name="chipStrokeColor">@color/marea_line</item>
+        <item name="chipStrokeWidth">1dp</item>
         <item name="checkedIconVisible">false</item>
         <item name="chipMinHeight">@dimen/toque_minimo</item>
+        <item name="chipCornerRadius">@dimen/radio_pill</item>
         <item name="ensureMinTouchTargetSize">true</item>
-        <item name="android:autoSizeTextType">uniform</item>
-        <item name="android:autoSizeMinTextSize">11sp</item>
-        <item name="android:autoSizeMaxTextSize">14sp</item>
-        <item name="android:autoSizeStepGranularity">1sp</item>
+        <item name="android:textSize">13.5sp</item>
         <item name="android:hyphenationFrequency">none</item>
         <item name="android:breakStrategy">simple</item>
         <item name="android:maxLines">1</item>
         <item name="android:ellipsize">end</item>
     </style>
 
-    <!-- Chips de filtro de la pantalla Pedidos (PRB-88, Fase 6) -->
-    <style name="Chip.FiltroPedido" parent="Widget.Material3.Chip.Filter">
-        <item name="android:checkable">true</item>
-        <item name="android:clickable">true</item>
-        <item name="android:textColor">@color/selector_texto_chip_categoria</item>
-        <item name="chipBackgroundColor">@color/selector_fondo_chip_categoria</item>
-        <item name="checkedIconVisible">false</item>
-        <item name="chipMinHeight">@dimen/toque_minimo</item>
-        <item name="ensureMinTouchTargetSize">true</item>
-        <item name="android:autoSizeTextType">uniform</item>
-        <item name="android:autoSizeMinTextSize">11sp</item>
-        <item name="android:autoSizeMaxTextSize">14sp</item>
-        <item name="android:autoSizeStepGranularity">1sp</item>
-        <item name="android:hyphenationFrequency">none</item>
-        <item name="android:breakStrategy">simple</item>
-        <item name="android:maxLines">1</item>
-        <item name="android:ellipsize">end</item>
-    </style>
+    <style name="Chip.FiltroPedido" parent="Chip.MedioPago" />
 
-    <!-- Campos del formulario de cobro (PRB-56) -->
-    <style name="Campo.Cobro" parent="Widget.Material3.TextInputLayout.OutlinedBox">
+    <!-- Campos Marea -->
+    <style name="Campo.Marea" parent="Widget.Material3.TextInputLayout.OutlinedBox">
+        <item name="boxBackgroundMode">outline</item>
+        <item name="boxBackgroundColor">@color/marea_field_bg</item>
         <item name="boxCornerRadiusTopStart">@dimen/radio_boton</item>
         <item name="boxCornerRadiusTopEnd">@dimen/radio_boton</item>
         <item name="boxCornerRadiusBottomStart">@dimen/radio_boton</item>
         <item name="boxCornerRadiusBottomEnd">@dimen/radio_boton</item>
-        <item name="boxStrokeColor">@color/primary</item>
-        <item name="hintTextColor">@color/on_surface_variant</item>
+        <item name="boxStrokeColor">@color/selector_borde_campo_marea</item>
+        <item name="boxStrokeWidth">1dp</item>
+        <item name="boxStrokeWidthFocused">2dp</item>
+        <item name="hintTextColor">@color/marea_cyh</item>
+        <item name="android:textColorHint">@color/marea_tx3</item>
+    </style>
+
+    <style name="Campo.Cobro" parent="Campo.Marea" />
+
+    <!-- Indicador de navegacion Marea -->
+    <style name="Navegacion.IndicadorActivo" parent="Widget.Material3.BottomNavigationView.ActiveIndicator">
+        <item name="android:color">@color/marea_nav_active_bg</item>
+        <item name="android:height">44dp</item>
+        <item name="android:width">72dp</item>
+        <item name="shapeAppearance">@style/ShapeAppearance.Marea.NavIndicador</item>
+    </style>
+
+    <style name="ShapeAppearance.Marea.NavIndicador" parent="ShapeAppearance.Material3.SmallComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">18dp</item>
+    </style>
+
+    <style name="ShapeAppearance.Marea.Circulo" parent="ShapeAppearance.Material3.MediumComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">50%</item>
+    </style>
+
+    <style name="ShapeAppearance.Marea.Fab" parent="ShapeAppearance.Material3.MediumComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">18dp</item>
     </style>
 
 </resources>

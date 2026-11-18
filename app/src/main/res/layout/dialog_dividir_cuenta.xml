@@ -4,7 +4,9 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@drawable/bg_dialogo_premium"
-    android:padding="@dimen/espacio_xl">
+    android:paddingHorizontal="22dp"
+    android:paddingTop="28dp"
+    android:paddingBottom="22dp">
 
     <LinearLayout
         android:layout_width="0dp"
@@ -19,24 +21,25 @@
         <FrameLayout
             android:layout_width="64dp"
             android:layout_height="64dp"
-            android:background="@drawable/bg_circulo_vacio">
+            android:background="@drawable/bg_ib_info">
 
             <ImageView
-                android:layout_width="@dimen/icono_grande"
-                android:layout_height="@dimen/icono_grande"
+                android:layout_width="28dp"
+                android:layout_height="28dp"
                 android:layout_gravity="center"
                 android:contentDescription="@string/cd_dividir_cuenta_icono"
-                android:src="@drawable/ic_people"
-                app:tint="@color/primary" />
+                android:src="@drawable/ic_marea_split"
+                app:tint="@color/sem_info_c" />
         </FrameLayout>
 
         <TextView
             android:id="@+id/tituloDivision"
+            style="@style/Texto.TituloPantalla"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/espacio_m"
-            android:autoSizeMaxTextSize="22sp"
-            android:autoSizeMinTextSize="15sp"
+            android:layout_marginTop="16dp"
+            android:autoSizeMaxTextSize="24sp"
+            android:autoSizeMinTextSize="16sp"
             android:autoSizeStepGranularity="1sp"
             android:autoSizeTextType="uniform"
             android:breakStrategy="simple"
@@ -44,50 +47,53 @@
             android:hyphenationFrequency="none"
             android:maxLines="2"
             android:text="@string/cobro_dividir_titulo"
-            android:textColor="@color/primary"
-            android:textSize="@dimen/texto_titulo_tarjeta"
-            android:textStyle="bold" />
+            android:textColor="@color/marea_tx"
+            android:textSize="24sp" />
 
         <TextView
             android:id="@+id/textoMensajeDivision"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/espacio_s"
-            android:autoSizeMaxTextSize="16sp"
-            android:autoSizeMinTextSize="11sp"
+            android:layout_marginTop="8dp"
+            android:autoSizeMaxTextSize="15sp"
+            android:autoSizeMinTextSize="12sp"
             android:autoSizeStepGranularity="1sp"
             android:autoSizeTextType="uniform"
             android:breakStrategy="simple"
+            android:fontFamily="@font/inter"
             android:gravity="center"
             android:hyphenationFrequency="none"
-            android:lineSpacingExtra="2dp"
+            android:lineSpacingMultiplier="1.35"
             android:maxLines="4"
             android:text="@string/cobro_dividir_dialogo_mensaje"
-            android:textColor="@color/texto_principal"
-            android:textSize="@dimen/texto_cuerpo" />
+            android:textColor="@color/marea_tx2"
+            android:textSize="15sp" />
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/campoComensales"
-            style="@style/Campo.Cobro"
+            style="@style/Campo.Marea"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/espacio_xl"
+            android:layout_marginTop="18dp"
             android:hint="@string/cobro_dividir_comensales">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/textoComensales"
+                style="@style/Texto.NumeroTabular"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:imeOptions="actionDone"
                 android:inputType="number"
                 android:maxLength="2"
-                android:maxLines="1" />
+                android:maxLines="1"
+                android:textColor="@color/marea_tx"
+                android:textSize="18sp" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/espacio_xl"
+            android:layout_marginTop="20dp"
             android:baselineAligned="false"
             android:orientation="horizontal">
 
@@ -95,17 +101,19 @@
                 android:id="@+id/btnCancelarDivision"
                 style="@style/Boton.Outlined"
                 android:layout_width="0dp"
-                android:layout_height="@dimen/toque_minimo"
+                android:layout_height="@dimen/alto_boton_primario"
                 android:layout_weight="1"
+                android:maxLines="1"
                 android:text="@string/cobro_salir_cancelar" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnConfirmarDivision"
                 style="@style/Boton.Primario"
                 android:layout_width="0dp"
-                android:layout_height="@dimen/toque_minimo"
-                android:layout_marginStart="@dimen/espacio_s"
+                android:layout_height="@dimen/alto_boton_primario"
+                android:layout_marginStart="10dp"
                 android:layout_weight="1"
+                android:maxLines="1"
                 android:text="@string/cobro_dividir_confirmar" />
         </LinearLayout>
     </LinearLayout>

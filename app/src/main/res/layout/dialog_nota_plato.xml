@@ -1,32 +1,94 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:background="@drawable/bg_dialogo_premium"
     android:orientation="vertical"
-    android:padding="@dimen/espacio_xl">
+    android:paddingStart="22dp"
+    android:paddingTop="28dp"
+    android:paddingEnd="22dp"
+    android:paddingBottom="22dp">
+
+    <FrameLayout
+        android:layout_width="52dp"
+        android:layout_height="52dp"
+        android:layout_gravity="center_horizontal"
+        android:background="@drawable/bg_ib_info">
+
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_gravity="center"
+            android:contentDescription="@null"
+            android:src="@drawable/ic_marea_aten"
+            app:tint="@color/sem_info_c" />
+    </FrameLayout>
+
+    <TextView
+        android:id="@+id/tituloNotaPlato"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="14dp"
+        android:gravity="center"
+        android:textAppearance="@style/Texto.TituloPantalla"
+        android:textColor="@color/marea_tx"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        tools:text="Nota · Ceviche Clásico" />
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/campoNota"
-        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+        style="@style/Campo.Marea"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:hint="@string/comanda_nota_hint"
         app:counterEnabled="true"
         app:counterMaxLength="120"
-        app:hintEnabled="true">
+        app:counterTextColor="@color/marea_tx3">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/textoNota"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:breakStrategy="simple"
-            android:hint="@string/comanda_nota_hint"
-            android:hyphenationFrequency="none"
-            android:inputType="textCapSentences|textMultiLine"
+            android:gravity="top|start"
+            android:inputType="textMultiLine|textCapSentences"
             android:maxLength="120"
             android:maxLines="4"
-            android:minLines="2"
-            android:textColor="@color/on_surface"
-            android:textSize="@dimen/texto_cuerpo" />
+            android:minLines="3"
+            android:textColor="@color/marea_tx"
+            android:textSize="14sp" />
     </com.google.android.material.textfield.TextInputLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="18dp"
+        android:orientation="horizontal">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnGuardarNota"
+            style="@style/Boton.Primario"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="6dp"
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="@string/comanda_nota_guardar" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnCancelarNota"
+            style="@style/Boton.Outlined"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="@string/accion_cancelar" />
+    </LinearLayout>
+
 </LinearLayout>

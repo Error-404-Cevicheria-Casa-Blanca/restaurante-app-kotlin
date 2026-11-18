@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_marea_app">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/barraComanda"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="64dp"
+            android:paddingStart="20dp"
+            android:paddingTop="14dp"
+            android:paddingEnd="20dp"
+            app:contentInsetStartWithNavigation="0dp"
+            app:menu="@menu/menu_comanda"
+            app:navigationContentDescription="@string/cd_volver"
+            app:navigationIcon="@drawable/ic_arrow_back"
+            app:navigationIconTint="@color/marea_tx"
+            app:titleTextColor="@color/transparent">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingEnd="8dp">
+
+                <TextView
+                    android:id="@+id/textoTitulo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:fontFamily="@font/plus_jakarta_sans_extrabold"
+                    android:includeFontPadding="false"
+                    android:maxLines="1"
+                    android:textColor="@color/marea_tx"
+                    android:textSize="28sp"
+                    tools:text="Mesa 7 · Primer piso" />
+
+                <TextView
+                    android:id="@+id/badgeEstado"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="14dp"
+                    android:background="@drawable/bg_badge_atencion"
+                    android:drawablePadding="6dp"
+                    android:fontFamily="@font/inter_bold"
+                    android:gravity="center_vertical"
+                    android:includeFontPadding="false"
+                    android:minHeight="30dp"
+                    android:paddingStart="12dp"
+                    android:paddingTop="5dp"
+                    android:paddingEnd="12dp"
+                    android:paddingBottom="5dp"
+                    android:textColor="@color/estado_atencion"
+                    android:textSize="13sp"
+                    app:drawableStartCompat="@drawable/ic_edit"
+                    app:drawableTint="@color/estado_atencion"
+                    tools:text="En atención" />
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_weight="1" />
+
+                <TextView
+                    android:id="@+id/textoModoDemo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="10dp"
+                    android:background="@drawable/bg_pill_lima"
+                    android:fontFamily="@font/inter_bold"
+                    android:includeFontPadding="false"
+                    android:paddingStart="12dp"
+                    android:paddingTop="6dp"
+                    android:paddingEnd="12dp"
+                    android:paddingBottom="6dp"
+                    android:text="@string/comanda_catalogo_demo"
+                    android:textColor="@color/marea_cyh"
+                    android:textSize="13sp"
+                    android:visibility="gone"
+                    tools:visibility="visible" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnPedirCuenta"
+                    style="@style/Boton.Outlined"
+                    android:layout_width="wrap_content"
+                    android:layout_height="48dp"
+                    android:layout_marginEnd="10dp"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp"
+                    android:text="@string/comanda_pedir_cuenta"
+                    android:textSize="15sp"
+                    app:icon="@drawable/ic_receipt_marea"
+                    app:iconPadding="8dp"
+                    app:iconSize="18dp"
+                    app:iconTint="@color/estado_cuenta" />
+
+                <LinearLayout
+                    android:id="@+id/grupoImpresion"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnImprimir"
+                        style="@style/Boton.Outlined"
+                        android:layout_width="wrap_content"
+                        android:layout_height="48dp"
+                        android:paddingStart="16dp"
+                        android:paddingEnd="16dp"
+                        android:text="@string/impresion_imprimir"
+                        android:textSize="15sp"
+                        app:icon="@drawable/ic_print"
+                        app:iconPadding="8dp"
+                        app:iconSize="18dp"
+                        app:iconTint="@color/marea_tx" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnReimprimir"
+                        style="@style/Boton.Outlined"
+                        android:layout_width="wrap_content"
+                        android:layout_height="48dp"
+                        android:layout_marginStart="8dp"
+                        android:paddingStart="16dp"
+                        android:paddingEnd="16dp"
+                        android:text="@string/impresion_reimprimir"
+                        android:textSize="15sp"
+                        android:visibility="gone"
+                        app:icon="@drawable/ic_print"
+                        app:iconPadding="8dp"
+                        app:iconSize="18dp"
+                        app:iconTint="@color/marea_tx" />
+                </LinearLayout>
+            </LinearLayout>
+        </com.google.android.material.appbar.MaterialToolbar>
+
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:clipToPadding="false"
+            android:paddingStart="32dp"
+            android:paddingEnd="32dp"
+            android:scrollbars="none">
+
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/grupoCategorias"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:chipSpacingHorizontal="10dp"
+                app:selectionRequired="true"
+                app:singleLine="true"
+                app:singleSelection="true" />
+        </HorizontalScrollView>
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/listaCatalogo"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:clipToPadding="false"
+                android:paddingStart="23dp"
+                android:paddingTop="8dp"
+                android:paddingEnd="23dp"
+                android:paddingBottom="@dimen/espacio_checkout"
+                tools:listitem="@layout/item_catalogo_producto" />
+
+            <ProgressBar
+                android:id="@+id/progresoCatalogo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:indeterminateTint="@color/marea_cyh"
+                android:visibility="gone" />
+
+            <LinearLayout
+                android:id="@+id/contenedorErrorCatalogo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_margin="24dp"
+                android:background="@drawable/bg_card_marea"
+                android:gravity="center"
+                android:minWidth="380dp"
+                android:orientation="vertical"
+                android:padding="28dp"
+                android:visibility="gone">
+
+                <TextView
+                    android:id="@+id/textoErrorCatalogo"
+                    style="@style/Texto.Cuerpo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="@string/comanda_catalogo_error" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnReintentarCatalogo"
+                    style="@style/Boton.PrimarioMediano"
+                    android:layout_width="wrap_content"
+                    android:layout_height="48dp"
+                    android:layout_marginTop="16dp"
+                    android:paddingStart="24dp"
+                    android:paddingEnd="24dp"
+                    android:text="@string/accion_reintentar" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/textoCatalogoVacio"
+                style="@style/Texto.Secundario"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:padding="24dp"
+                android:text="@string/comanda_catalogo_vacio"
+                android:visibility="gone" />
+        </FrameLayout>
+    </LinearLayout>
+
+    <include
+        android:id="@+id/barraCheckout"
+        layout="@layout/barra_checkout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:layout_marginStart="32dp"
+        android:layout_marginEnd="32dp"
+        android:layout_marginBottom="16dp"
+        android:visibility="gone"
+        tools:visibility="visible" />
+</FrameLayout>

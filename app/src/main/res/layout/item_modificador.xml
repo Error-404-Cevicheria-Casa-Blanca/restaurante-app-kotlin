@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-    Fila de un modificador (PRB-92). Todo el renglon es tactil (48dp) y el
-    precio extra se muestra a la derecha cuando el modificador lo tiene.
--->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:layout_marginBottom="8dp"
+    android:background="@drawable/bg_opt_marea"
     android:gravity="center_vertical"
-    android:minHeight="@dimen/toque_minimo"
+    android:minHeight="56dp"
     android:orientation="horizontal"
-    android:paddingVertical="@dimen/espacio_xs">
+    android:paddingHorizontal="12dp"
+    android:paddingVertical="6dp">
 
     <com.google.android.material.checkbox.MaterialCheckBox
         android:id="@+id/checkModificador"
@@ -18,20 +18,25 @@
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:autoSizeMaxTextSize="16sp"
-        android:autoSizeMinTextSize="11sp"
+        android:autoSizeMinTextSize="12sp"
         android:autoSizeStepGranularity="1sp"
         android:autoSizeTextType="uniform"
         android:breakStrategy="simple"
         android:ellipsize="none"
+        android:fontFamily="@font/inter"
         android:hyphenationFrequency="none"
-        android:minHeight="@dimen/toque_minimo"
         android:maxLines="2"
-        android:textColor="@color/on_surface"
-        android:textSize="@dimen/texto_cuerpo"
+        android:minHeight="@dimen/toque_minimo"
+        android:paddingStart="6dp"
+        android:textColor="@color/marea_tx"
+        android:textSize="15sp"
+        android:textStyle="bold"
+        app:buttonTint="@color/selector_chk_marea"
         tools:text="Extra queso" />
 
     <TextView
         android:id="@+id/textoPrecioModificador"
+        style="@style/Texto.NumeroTabular"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/espacio_s"
@@ -42,8 +47,8 @@
         android:breakStrategy="simple"
         android:hyphenationFrequency="none"
         android:maxLines="1"
-        android:textColor="@color/stitch_primary"
-        android:textSize="@dimen/texto_secundario"
+        android:textColor="@color/marea_cyh"
+        android:textSize="15sp"
         android:textStyle="bold"
         android:visibility="gone"
         tools:text="+ S/ 2.00"

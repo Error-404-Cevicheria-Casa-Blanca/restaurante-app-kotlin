@@ -29,6 +29,7 @@ import com.lacasablanca.mesero.databinding.DialogCobroExitosoBinding
 import com.lacasablanca.mesero.databinding.DialogDividirCuentaBinding
 import com.lacasablanca.mesero.databinding.DialogErrorPremiumBinding
 import com.lacasablanca.mesero.databinding.DialogSalirCobroBinding
+import com.lacasablanca.mesero.ui.common.aplicarMarcoMarea
 import com.lacasablanca.mesero.databinding.FragmentCobroBinding
 import com.lacasablanca.mesero.domain.model.DestinoCobro
 import com.lacasablanca.mesero.domain.model.MetodoPago
@@ -136,10 +137,12 @@ class CobroFragment : Fragment() {
         prepararAcciones()
         configurarAtras()
 
-        binding.barraCobro.title = when (val d = destino) {
+        binding.barraCobro.title = null
+        binding.textoTituloCobro.text = when (val d = destino) {
             is DestinoCobro.Mesa -> getString(R.string.cobro_titulo, d.numeroMesa)
             is DestinoCobro.Pedido -> getString(R.string.cobro_titulo_pedido, d.pedidoId)
         }
+        binding.badgeEstadoCobro.isVisible = destino is DestinoCobro.Mesa
 
         if (destino is DestinoCobro.Pedido) {
             // A87: sin descuento hasta que el backend de pedidos lo reciba.
@@ -148,6 +151,7 @@ class CobroFragment : Fragment() {
             // Sin mesa no hay pre-cuenta por mesa.
             binding.btnImprimir.isVisible = false
             binding.btnReimprimir.isVisible = false
+            binding.filaAccionesResumen.isVisible = false
         }
 
         observarEstado()
@@ -333,9 +337,9 @@ class CobroFragment : Fragment() {
         binding.filaDescuento.isVisible = descuento != null
         binding.btnAplicarDescuento.text = getString(
             if (descuento == null) {
-                R.string.cobro_aplicar_descuento
+                R.string.cobro_descuento_corto
             } else {
-                R.string.cobro_cambiar_descuento
+                R.string.cobro_editar_descuento
             }
         )
         binding.btnAplicarDescuento.isEnabled = !estado.loading
@@ -427,6 +431,11 @@ class CobroFragment : Fragment() {
         binding.textoTotalAPagar.text = getString(
             R.string.cobro_total_a_pagar,
             formatearMoneda(estado.totalConPropina)
+        )
+        binding.textoBarraPagadoSaldo.text = getString(
+            R.string.cobro_barra_pagado_saldo,
+            formatearMoneda(estado.totalPagado),
+            formatearMoneda(estado.saldoPendiente)
         )
         binding.btnConfirmarCobro.isEnabled = estado.confirmarHabilitado && !estado.loading
     }
@@ -650,12 +659,8 @@ class CobroFragment : Fragment() {
         val dialogo = AlertDialog.Builder(requireContext())
             .setView(contenido)
             .create()
-        dialogo.window?.apply {
-            setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-            val anchoMaximo = (480 * resources.displayMetrics.density).toInt()
-            val anchoPantalla = (resources.displayMetrics.widthPixels * 0.92f).toInt()
-            setLayout(minOf(anchoPantalla, anchoMaximo), ViewGroup.LayoutParams.WRAP_CONTENT)
-        }
+        dialogo.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        dialogo.setOnShowListener { dialogo.aplicarMarcoMarea(requireContext()) }
         return dialogo
     }
 

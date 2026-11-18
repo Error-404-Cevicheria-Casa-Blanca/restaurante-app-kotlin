@@ -8,6 +8,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.lacasablanca.mesero.R
 import com.lacasablanca.mesero.databinding.DialogAnularPlatoBinding
 import com.lacasablanca.mesero.domain.model.ItemCarrito
+import com.lacasablanca.mesero.ui.common.aplicarMarcoMarea
 import com.lacasablanca.mesero.ui.common.formatearMoneda
 
 /**
@@ -60,6 +61,7 @@ class AnularPlatoDialog(
             if (dialogo === nuevo) dialogo = null
         }
         nuevo.show()
+        nuevo.aplicarMarcoMarea(activity)
 
         dialogo = nuevo
     }

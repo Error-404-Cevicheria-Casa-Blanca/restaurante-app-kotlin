@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:bottom="-2dp"
+        android:left="-2dp"
+        android:right="-2dp"
+        android:top="0dp">
+        <shape android:shape="rectangle">
+            <solid android:color="@color/marea_s1" />
+            <corners
+                android:bottomLeftRadius="0dp"
+                android:bottomRightRadius="0dp"
+                android:topLeftRadius="@dimen/radio_sheet_login"
+                android:topRightRadius="@dimen/radio_sheet_login" />
+            <stroke
+                android:width="1dp"
+                android:color="@color/marea_line2" />
+        </shape>
+    </item>
+</layer-list>

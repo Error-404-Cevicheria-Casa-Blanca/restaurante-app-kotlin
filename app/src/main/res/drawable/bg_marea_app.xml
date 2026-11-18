@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="@color/marea_bg" />
+        </shape>
+    </item>
+    <item>
+        <shape android:shape="rectangle">
+            <gradient
+                android:centerX="0.88"
+                android:centerY="0.02"
+                android:endColor="@color/transparent"
+                android:gradientRadius="480dp"
+                android:startColor="@color/marea_glow_cy"
+                android:type="radial" />
+        </shape>
+    </item>
+    <item>
+        <shape android:shape="rectangle">
+            <gradient
+                android:centerX="0.05"
+                android:centerY="0.98"
+                android:endColor="@color/transparent"
+                android:gradientRadius="460dp"
+                android:startColor="@color/marea_glow_bl"
+                android:type="radial" />
+        </shape>
+    </item>
+</layer-list>

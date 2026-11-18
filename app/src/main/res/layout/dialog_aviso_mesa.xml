@@ -1,72 +1,106 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Aviso de mesa con el lenguaje visual de la app: icono, titulo teal y boton de marca. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:background="@drawable/bg_dialogo_premium"
     android:gravity="center_horizontal"
     android:orientation="vertical"
-    android:paddingHorizontal="@dimen/espacio_xl"
-    android:paddingTop="@dimen/espacio_xl"
-    android:paddingBottom="@dimen/espacio_l">
+    android:paddingHorizontal="22dp"
+    android:paddingTop="28dp"
+    android:paddingBottom="22dp">
 
-    <ImageView
-        android:id="@+id/iconoAviso"
-        android:layout_width="@dimen/icono_xl"
-        android:layout_height="@dimen/icono_xl"
-        android:contentDescription="@string/aviso_mesa_icono_cd"
-        android:src="@drawable/ic_error_outline"
-        app:tint="@color/primary" />
+    <FrameLayout
+        android:id="@+id/badgeIconoAviso"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:background="@drawable/bg_ib_info">
+
+        <ImageView
+            android:id="@+id/iconoAviso"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:layout_gravity="center"
+            android:contentDescription="@string/aviso_mesa_icono_cd"
+            android:src="@drawable/ic_error_outline"
+            app:tint="@color/sem_info_c" />
+    </FrameLayout>
 
     <TextView
         android:id="@+id/tituloAviso"
+        style="@style/Texto.TituloPantalla"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/espacio_m"
-        android:autoSizeMaxTextSize="20sp"
-        android:autoSizeMinTextSize="14sp"
+        android:layout_marginTop="16dp"
+        android:autoSizeMaxTextSize="24sp"
+        android:autoSizeMinTextSize="16sp"
         android:autoSizeStepGranularity="1sp"
         android:autoSizeTextType="uniform"
         android:breakStrategy="simple"
         android:gravity="center"
         android:hyphenationFrequency="none"
         android:maxLines="2"
-        android:textColor="@color/primary"
-        android:textSize="@dimen/texto_titulo_tarjeta"
-        android:textStyle="bold"
-        tools:text="Mesa 5" />
+        android:textColor="@color/marea_tx"
+        android:textSize="23sp"
+        tools:text="Sin mesas disponibles" />
 
     <TextView
         android:id="@+id/mensajeAviso"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/espacio_s"
-        android:autoSizeMaxTextSize="16sp"
-        android:autoSizeMinTextSize="11sp"
+        android:layout_marginTop="8dp"
+        android:autoSizeMaxTextSize="15sp"
+        android:autoSizeMinTextSize="12sp"
         android:autoSizeStepGranularity="1sp"
         android:autoSizeTextType="uniform"
         android:breakStrategy="simple"
+        android:fontFamily="@font/inter"
         android:gravity="center"
         android:hyphenationFrequency="none"
-        android:lineSpacingExtra="2dp"
-        android:maxLines="4"
-        android:textColor="@color/texto_principal"
-        android:textSize="@dimen/texto_cuerpo"
-        tools:text="La mesa 5 pidió la cuenta. Acércate a cobrar antes de abrir otra comanda." />
+        android:lineSpacingMultiplier="1.35"
+        android:maxLines="5"
+        android:textColor="@color/marea_tx2"
+        android:textSize="15sp"
+        tools:text="No hay mesas libres para recibir este pedido en este momento." />
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnEntendido"
-        style="@style/Boton.DialogoLiberar"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="@dimen/toque_minimo"
-        android:layout_marginTop="@dimen/espacio_l"
-        android:autoSizeMaxTextSize="16sp"
-        android:autoSizeMinTextSize="11sp"
-        android:autoSizeStepGranularity="1sp"
-        android:autoSizeTextType="uniform"
-        android:breakStrategy="simple"
-        android:hyphenationFrequency="none"
-        android:maxLines="1"
-        android:text="@string/accion_entendido" />
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:baselineAligned="false"
+        android:orientation="horizontal">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnEntendido"
+            style="@style/Boton.Primario"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/alto_boton_primario"
+            android:layout_weight="1"
+            android:autoSizeMaxTextSize="16sp"
+            android:autoSizeMinTextSize="11sp"
+            android:autoSizeStepGranularity="1sp"
+            android:autoSizeTextType="uniform"
+            android:breakStrategy="simple"
+            android:hyphenationFrequency="none"
+            android:maxLines="1"
+            android:text="@string/accion_entendido" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnSecundarioAviso"
+            style="@style/Boton.Outlined"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/alto_boton_primario"
+            android:layout_marginStart="10dp"
+            android:layout_weight="1"
+            android:autoSizeMaxTextSize="16sp"
+            android:autoSizeMinTextSize="11sp"
+            android:autoSizeStepGranularity="1sp"
+            android:autoSizeTextType="uniform"
+            android:breakStrategy="simple"
+            android:hyphenationFrequency="none"
+            android:maxLines="1"
+            android:text="@string/accion_cancelar"
+            android:visibility="gone" />
+    </LinearLayout>
 </LinearLayout>

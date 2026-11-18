@@ -1,94 +1,99 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-    Plato del catalogo (rediseno PRB-38): tarjeta de 16dp, imagen con
-    placeholder degradado y control de cantidad. Al agregar, el boton "+"
-    muta a "[-] 1 [+]" para confirmar visualmente la seleccion.
-    Mantiene los IDs en layout-sw600dp/item_catalogo_producto.xml.
--->
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/cardProducto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="@dimen/espacio_s"
-    app:cardBackgroundColor="@color/surface_container_lowest"
-    app:cardCornerRadius="@dimen/radio_tarjeta"
-    app:cardElevation="@dimen/elevacion_tarjeta"
-    app:strokeColor="@color/borde_suave"
-    app:strokeWidth="@dimen/borde_tarjeta">
+    android:layout_marginBottom="12dp"
+    app:cardBackgroundColor="@color/marea_s1"
+    app:cardCornerRadius="20dp"
+    app:cardElevation="0dp"
+    app:cardPreventCornerOverlap="false"
+    app:strokeColor="@color/marea_line"
+    app:strokeWidth="1dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:padding="@dimen/espacio_l">
+        android:minHeight="136dp"
+        android:orientation="horizontal">
 
-        <com.google.android.material.card.MaterialCardView
-            android:layout_width="@dimen/ancho_imagen_catalogo"
-            android:layout_height="@dimen/alto_imagen_catalogo"
-            app:cardBackgroundColor="@color/surface_container"
-            app:cardCornerRadius="@dimen/radio_tarjeta"
-            app:cardElevation="0dp"
-            app:strokeColor="@color/borde_suave"
-            app:strokeWidth="@dimen/borde_tarjeta">
-
-            <ImageView
-                android:id="@+id/imagenProducto"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@drawable/bg_placeholder_plato"
-                android:contentDescription="@string/comanda_catalogo_titulo"
-                android:padding="@dimen/espacio_l"
-                android:scaleType="centerInside"
-                android:src="@drawable/ic_restaurant_placeholder" />
-        </com.google.android.material.card.MaterialCardView>
+        <ImageView
+            android:id="@+id/imagenProducto"
+            android:layout_width="104dp"
+            android:layout_height="136dp"
+            android:background="@drawable/bg_placeholder_plato"
+            android:contentDescription="@null"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_restaurant_placeholder" />
 
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/espacio_l"
             android:layout_weight="1"
-            android:orientation="vertical">
+            android:minHeight="136dp"
+            android:orientation="vertical"
+            android:paddingStart="12dp"
+            android:paddingTop="10dp"
+            android:paddingEnd="12dp"
+            android:paddingBottom="10dp">
 
             <TextView
                 android:id="@+id/textoNombreProducto"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:autoSizeMaxTextSize="18sp"
-                android:autoSizeMinTextSize="12sp"
-                android:autoSizeStepGranularity="1sp"
-                android:autoSizeTextType="uniform"
                 android:breakStrategy="simple"
-                android:ellipsize="none"
+                android:ellipsize="end"
+                android:fontFamily="@font/plus_jakarta_sans_extrabold"
                 android:hyphenationFrequency="none"
+                android:includeFontPadding="false"
+                android:lineSpacingMultiplier="1.15"
                 android:maxLines="2"
-                android:textColor="@color/on_surface"
-                android:textSize="16sp"
-                android:textStyle="bold"
+                android:textColor="@color/marea_tx"
+                android:textSize="16.5sp"
                 tools:text="Ceviche Clásico La Casa Blanca" />
 
             <TextView
                 android:id="@+id/textoDescripcionProducto"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/espacio_xs"
-                android:autoSizeMaxTextSize="13sp"
-                android:autoSizeMinTextSize="10sp"
-                android:autoSizeStepGranularity="1sp"
-                android:autoSizeTextType="uniform"
+                android:layout_marginTop="4dp"
                 android:breakStrategy="simple"
-                android:ellipsize="none"
+                android:ellipsize="end"
+                android:fontFamily="@font/inter"
                 android:hyphenationFrequency="none"
-                android:maxLines="3"
-                android:textColor="@color/on_surface_variant"
-                android:textSize="12sp"
+                android:lineSpacingMultiplier="1.2"
+                android:maxLines="2"
+                android:textColor="@color/marea_tx2"
+                android:textSize="13sp"
                 tools:text="Pescado del día, camote glaseado y choclo tierno." />
+
+            <TextView
+                android:id="@+id/textoNoDisponible"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:background="@drawable/bg_pill_no_disponible"
+                android:fontFamily="@font/inter_bold"
+                android:paddingStart="10dp"
+                android:paddingTop="3dp"
+                android:paddingEnd="10dp"
+                android:paddingBottom="3dp"
+                android:text="@string/comanda_no_disponible"
+                android:textColor="@color/on_error_container"
+                android:textSize="11.5sp"
+                android:visibility="gone" />
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/espacio_s"
+                android:layout_marginTop="10dp"
                 android:gravity="center_vertical"
                 android:orientation="horizontal">
 
@@ -96,97 +101,80 @@
                     android:id="@+id/textoPrecioProducto"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
                     android:layout_weight="1"
-                    android:autoSizeMaxTextSize="18sp"
-                    android:autoSizeMinTextSize="13sp"
-                    android:autoSizeStepGranularity="1sp"
-                    android:autoSizeTextType="uniform"
-                    android:breakStrategy="simple"
-                    android:ellipsize="none"
-                    android:hyphenationFrequency="none"
-                    android:maxLines="1"
-                    android:textColor="@color/stitch_primary"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
+                    android:fontFamily="@font/plus_jakarta_sans_extrabold"
+                    android:fontFeatureSettings="tnum"
+                    android:includeFontPadding="false"
+                    android:textColor="@color/marea_tx"
+                    android:textSize="17sp"
                     tools:text="S/ 48.00" />
 
-                <ImageButton
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/botonAgregar"
-                    android:layout_width="@dimen/toque_minimo"
-                    android:layout_height="@dimen/toque_minimo"
-                    android:background="@drawable/bg_boton_circular_primario"
-                    android:contentDescription="@string/comanda_agregar"
-                    android:padding="@dimen/espacio_m"
-                    android:scaleType="centerInside"
-                    android:src="@drawable/ic_add"
-                    app:tint="@color/on_primary" />
+                    style="@style/Boton.PrimarioMediano"
+                    android:layout_width="wrap_content"
+                    android:layout_height="48dp"
+                    android:minWidth="0dp"
+                    android:minHeight="48dp"
+                    android:paddingStart="14dp"
+                    android:paddingEnd="14dp"
+                    android:text="@string/comanda_agregar"
+                    android:textSize="15sp"
+                    app:cornerRadius="@dimen/radio_boton"
+                    app:icon="@drawable/ic_marea_plus"
+                    app:iconPadding="6dp"
+                    app:iconSize="16dp"
+                    app:iconTint="@color/selector_texto_boton_primario" />
 
                 <LinearLayout
                     android:id="@+id/grupoCantidad"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:background="@drawable/bg_qty_marea"
                     android:gravity="center_vertical"
                     android:orientation="horizontal"
+                    android:padding="2dp"
                     android:visibility="gone"
                     tools:visibility="visible">
 
                     <ImageButton
                         android:id="@+id/btnDisminuirPlato"
-                        android:layout_width="@dimen/toque_minimo"
-                        android:layout_height="@dimen/toque_minimo"
-                        android:background="@drawable/bg_boton_circular_primario"
-                        android:contentDescription="@string/cd_disminuir"
-                        android:padding="@dimen/espacio_m"
+                        android:layout_width="44dp"
+                        android:layout_height="44dp"
+                        android:background="@drawable/bg_qty_minus_marea"
+                        android:contentDescription="@null"
+                        android:padding="12dp"
                         android:scaleType="centerInside"
-                        android:src="@drawable/ic_remove"
-                        app:tint="@color/on_primary" />
+                        android:src="@drawable/ic_marea_minus"
+                        app:tint="@color/marea_tx" />
 
                     <TextView
                         android:id="@+id/textoCantidadPlato"
-                        android:layout_width="@dimen/ancho_cantidad_stepper"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:breakStrategy="simple"
+                        android:fontFamily="@font/plus_jakarta_sans_extrabold"
+                        android:fontFeatureSettings="tnum"
                         android:gravity="center"
-                        android:hyphenationFrequency="none"
-                        android:maxLines="1"
-                        android:textColor="@color/on_surface"
+                        android:minWidth="28dp"
+                        android:paddingStart="2dp"
+                        android:paddingEnd="2dp"
+                        android:textColor="@color/marea_tx"
                         android:textSize="16sp"
-                        android:textStyle="bold"
-                        tools:text="1" />
+                        tools:text="2" />
 
                     <ImageButton
                         android:id="@+id/btnAumentarPlato"
-                        android:layout_width="@dimen/toque_minimo"
-                        android:layout_height="@dimen/toque_minimo"
-                        android:background="@drawable/bg_boton_circular_primario"
-                        android:contentDescription="@string/cd_aumentar"
-                        android:padding="@dimen/espacio_m"
+                        android:layout_width="44dp"
+                        android:layout_height="44dp"
+                        android:background="@drawable/bg_qty_plus_marea"
+                        android:contentDescription="@null"
+                        android:padding="12dp"
                         android:scaleType="centerInside"
-                        android:src="@drawable/ic_add"
-                        app:tint="@color/on_primary" />
+                        android:src="@drawable/ic_marea_plus"
+                        app:tint="@color/marea_oncy" />
                 </LinearLayout>
             </LinearLayout>
-
-            <TextView
-                android:id="@+id/textoNoDisponible"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/espacio_s"
-                android:autoSizeMaxTextSize="12sp"
-                android:autoSizeMinTextSize="10sp"
-                android:autoSizeStepGranularity="1sp"
-                android:autoSizeTextType="uniform"
-                android:background="@drawable/bg_pill_no_disponible"
-                android:breakStrategy="simple"
-                android:hyphenationFrequency="none"
-                android:paddingHorizontal="@dimen/espacio_s"
-                android:paddingVertical="@dimen/espacio_xs"
-                android:text="@string/comanda_no_disponible"
-                android:textColor="@color/on_error_container"
-                android:textSize="11sp"
-                android:textStyle="bold"
-                android:visibility="gone"
-                tools:visibility="visible" />
         </LinearLayout>
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

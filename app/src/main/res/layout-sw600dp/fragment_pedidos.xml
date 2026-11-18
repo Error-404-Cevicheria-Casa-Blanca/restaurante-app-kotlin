@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_marea_app"
+    android:orientation="vertical"
+    tools:context=".ui.pedidos.PedidosFragment">
+
+    <LinearLayout
+        android:id="@+id/encabezadoPedidos"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="32dp"
+        android:paddingTop="26dp"
+        android:paddingEnd="32dp"
+        android:paddingBottom="12dp">
+
+        <TextView
+            android:id="@+id/textoTituloPedidos"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:breakStrategy="simple"
+            android:fontFamily="@font/plus_jakarta_sans_extrabold"
+            android:hyphenationFrequency="none"
+            android:includeFontPadding="false"
+            android:maxLines="1"
+            android:text="@string/pedidos_titulo"
+            android:textColor="@color/marea_tx"
+            android:textSize="34sp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnActualizarPedidos"
+            style="@style/Boton.Outlined"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:contentDescription="@string/cd_actualizar_pedidos"
+            android:minHeight="48dp"
+            android:paddingStart="18dp"
+            android:paddingEnd="18dp"
+            android:text="@string/pedidos_actualizar"
+            android:textSize="14.5sp"
+            app:icon="@drawable/ic_refresh"
+            app:iconPadding="8dp"
+            app:iconSize="18dp"
+            app:iconTint="@color/marea_tx" />
+    </LinearLayout>
+
+    <HorizontalScrollView
+        android:id="@+id/scrollChipsPedidos"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:clipToPadding="false"
+        android:paddingStart="32dp"
+        android:paddingTop="4dp"
+        android:paddingEnd="32dp"
+        android:paddingBottom="14dp"
+        android:scrollbars="none">
+
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/chipsPedidos"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:chipSpacingHorizontal="10dp"
+            app:selectionRequired="true"
+            app:singleLine="true"
+            app:singleSelection="true">
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipTodos"
+                style="@style/Chip.FiltroPedido"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="true"
+                android:text="@string/pedidos_filtro_todos" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipMesa"
+                style="@style/Chip.FiltroPedido"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/pedidos_filtro_mesa" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipParaLlevar"
+                style="@style/Chip.FiltroPedido"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/pedidos_filtro_para_llevar" />
+        </com.google.android.material.chip.ChipGroup>
+    </HorizontalScrollView>
+
+    <FrameLayout
+        android:id="@+id/contenedorPedidos"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerPedidos"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:paddingStart="24dp"
+            android:paddingTop="2dp"
+            android:paddingEnd="24dp"
+            android:paddingBottom="28dp"
+            tools:listitem="@layout/item_pedido" />
+
+        <ProgressBar
+            android:id="@+id/progresoPedidos"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_gravity="center"
+            android:indeterminateTint="@color/marea_cyh"
+            android:visibility="gone"
+            tools:visibility="gone" />
+
+        <LinearLayout
+            android:id="@+id/grupoVacioPedidos"
+            android:layout_width="440dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:padding="32dp"
+            android:visibility="gone"
+            tools:visibility="gone">
+
+            <FrameLayout
+                android:layout_width="72dp"
+                android:layout_height="72dp"
+                android:background="@drawable/bg_ib_info">
+
+                <ImageView
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:layout_gravity="center"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/ic_inbox"
+                    app:tint="@color/sem_info_c" />
+            </FrameLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="18dp"
+                android:breakStrategy="simple"
+                android:fontFamily="@font/plus_jakarta_sans_extrabold"
+                android:gravity="center"
+                android:hyphenationFrequency="none"
+                android:text="@string/pedidos_vacio"
+                android:textColor="@color/marea_tx"
+                android:textSize="22sp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:breakStrategy="simple"
+                android:fontFamily="@font/inter"
+                android:gravity="center"
+                android:hyphenationFrequency="none"
+                android:lineSpacingMultiplier="1.35"
+                android:text="@string/pedidos_vacio_ayuda"
+                android:textColor="@color/marea_tx2"
+                android:textSize="15sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/grupoErrorPedidos"
+            android:layout_width="440dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:padding="32dp"
+            android:visibility="gone"
+            tools:visibility="gone">
+
+            <FrameLayout
+                android:layout_width="72dp"
+                android:layout_height="72dp"
+                android:background="@drawable/bg_ib_err">
+
+                <ImageView
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:layout_gravity="center"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/ic_alert_triangle"
+                    app:tint="@color/sem_err_c" />
+            </FrameLayout>
+
+            <TextView
+                android:id="@+id/textoErrorPedidos"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="18dp"
+                android:breakStrategy="simple"
+                android:fontFamily="@font/plus_jakarta_sans_bold"
+                android:gravity="center"
+                android:hyphenationFrequency="none"
+                android:lineSpacingMultiplier="1.25"
+                android:maxLines="3"
+                android:text="@string/pedidos_error"
+                android:textColor="@color/marea_tx"
+                android:textSize="18sp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnReintentarPedidos"
+                style="@style/Boton.Primario"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/alto_boton_primario"
+                android:layout_marginTop="20dp"
+                android:paddingStart="32dp"
+                android:paddingEnd="32dp"
+                android:text="@string/accion_reintentar" />
+        </LinearLayout>
+    </FrameLayout>
+</LinearLayout>

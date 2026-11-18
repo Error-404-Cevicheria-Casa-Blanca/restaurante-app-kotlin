@@ -18,6 +18,7 @@ import com.lacasablanca.mesero.databinding.DialogDividirMesaBinding
 import com.lacasablanca.mesero.databinding.DialogSeleccionarMesaBinding
 import com.lacasablanca.mesero.domain.model.ItemCarrito
 import com.lacasablanca.mesero.domain.model.Mesa
+import com.lacasablanca.mesero.ui.common.aplicarMarcoMarea
 import com.lacasablanca.mesero.ui.common.etiquetaRes
 
 /**
@@ -144,6 +145,12 @@ internal class AccionesMesaUi(
         if (accion == AccionMesa.DIVIDIR && itemIds.isEmpty()) return
 
         val binding = DialogSeleccionarMesaBinding.inflate(fragment.layoutInflater)
+        val iconoRes = when (accion) {
+            AccionMesa.DIVIDIR -> R.drawable.ic_call_split
+            AccionMesa.FUSIONAR -> R.drawable.ic_call_merge
+            AccionMesa.TRANSFERIR -> R.drawable.ic_swap_horiz
+        }
+        binding.iconoSeleccionMesa.setImageResource(iconoRes)
         binding.tituloSeleccionMesa.text = tituloDestino(accion, mesa)
         binding.mensajeSeleccionMesa.text = mensajeDestino(accion, mesa)
         binding.btnConfirmarDestino.isEnabled = false
@@ -227,14 +234,11 @@ internal class AccionesMesaUi(
             .create()
 
     private fun aplicarAncho(alerta: AlertDialog) {
-        val anchoPantalla = (fragment.resources.displayMetrics.widthPixels * FRACCION_ANCHO).toInt()
-        val anchoMaximo = fragment.resources.getDimensionPixelSize(
-            R.dimen.ancho_maximo_dialogo_acciones
-        )
-        alerta.window?.setLayout(
-            minOf(anchoPantalla, anchoMaximo),
-            ViewGroup.LayoutParams.WRAP_CONTENT
-        )
+        val maxAnchoDp = (
+            fragment.resources.getDimensionPixelSize(R.dimen.ancho_maximo_dialogo_acciones) /
+                fragment.resources.displayMetrics.density
+            ).toInt()
+        alerta.aplicarMarcoMarea(fragment.requireContext(), maxAnchoDp = maxAnchoDp)
     }
 
     private fun ponerEnProgreso(
@@ -269,7 +273,6 @@ internal class AccionesMesaUi(
 
     private companion object {
         const val ANCHO_TABLET_DP = 600
-        const val FRACCION_ANCHO = 0.92f
         const val DIM_AMOUNT = 0.5f
     }
 }
