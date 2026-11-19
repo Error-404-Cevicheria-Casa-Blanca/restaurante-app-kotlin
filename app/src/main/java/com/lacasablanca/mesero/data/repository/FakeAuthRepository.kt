@@ -4,6 +4,8 @@ import com.lacasablanca.mesero.data.local.SessionManager
 import com.lacasablanca.mesero.domain.ErrorApp
 import com.lacasablanca.mesero.domain.Resultado
 import com.lacasablanca.mesero.domain.model.Sesion
+import com.lacasablanca.mesero.domain.model.Terminal
+import com.lacasablanca.mesero.domain.model.Turno
 import com.lacasablanca.mesero.domain.model.Usuario
 import kotlinx.coroutines.delay
 
@@ -56,6 +58,17 @@ class FakeAuthRepository(
         const val LATENCIA_SIMULADA_MS = 700L
         const val TOKEN_FAKE = "token-fake-demo"
 
-        val USUARIO_FAKE = Usuario(id = 1L, nombre = "Mozo Demo", rol = "MOZO")
+        val USUARIO_FAKE = Usuario(
+            id = 1L,
+            nombre = "mozo",
+            rol = "MOZO",
+            nombreVisible = "Mozo Demo",
+            turno = Turno(id = 1L, nombre = "Turno Tarde", inicio = "12:00", fin = "20:00"),
+            terminal = Terminal(
+                id = 1L,
+                codigo = "TERM-01",
+                nombre = "Tablet Salón Principal"
+            )
+        )
     }
 }

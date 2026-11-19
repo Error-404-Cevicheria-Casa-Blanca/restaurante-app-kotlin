@@ -36,6 +36,15 @@ val bypassTunnel: String = providers.gradleProperty("bypassTunnel")
     .get()
 
 /**
+ * PRB-91: codigo de la terminal fisica que viaja en el login para que el
+ * backend asigne turno y terminal. Cada tablet se instala con el suyo:
+ * -PterminalCodigo=TERM-02 (TERM-01 = Salon Principal, TERM-02 = Segundo Piso).
+ */
+val terminalCodigo: String = providers.gradleProperty("terminalCodigo")
+    .orElse("TERM-01")
+    .get()
+
+/**
  * Firma local de produccion (PRB-72). Las credenciales viven en keystore.properties, que
  * NO se versiona (ver .gitignore). Sin ese archivo, release compila sin firmar.
  */
@@ -65,6 +74,9 @@ listOf("baseUrl debug" to baseUrlDebug, "baseUrl release" to baseUrlRelease).for
     if (!url.endsWith("/")) {
         throw GradleException("$nombre debe terminar en '/': '$url'.")
     }
+}
+if (terminalCodigo.isBlank()) {
+    throw GradleException("terminalCodigo no puede estar vacio.")
 }
 
 android {
@@ -100,6 +112,7 @@ android {
             buildConfigField("String", "BASE_URL", buildConfigString(baseUrlDebug))
             buildConfigField("boolean", "USE_FAKE_DATA", buildConfigBoolean(useFakeDataDebug))
             buildConfigField("boolean", "BYPASS_TUNNEL", buildConfigBoolean(bypassTunnel))
+            buildConfigField("String", "TERMINAL_CODIGO", buildConfigString(terminalCodigo.trim()))
         }
         release {
             optimization {
@@ -111,6 +124,7 @@ android {
             buildConfigField("String", "BASE_URL", buildConfigString(baseUrlRelease))
             buildConfigField("boolean", "USE_FAKE_DATA", buildConfigBoolean(useFakeDataRelease))
             buildConfigField("boolean", "BYPASS_TUNNEL", buildConfigBoolean(bypassTunnel))
+            buildConfigField("String", "TERMINAL_CODIGO", buildConfigString(terminalCodigo.trim()))
         }
     }
     buildFeatures {

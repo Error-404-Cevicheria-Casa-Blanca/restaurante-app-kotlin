@@ -4,5 +4,8 @@ package com.lacasablanca.mesero.domain.model
 data class Usuario(
     val id: Long,
     val nombre: String,
-    val rol: String
+    val rol: String,
+    val nombreVisible: String = "",
+    val turno: Turno? = null,
+    val terminal: Terminal? = null
 )

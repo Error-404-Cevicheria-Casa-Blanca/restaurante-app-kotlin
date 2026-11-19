@@ -25,6 +25,17 @@ class FakeAuthRepositoryTest {
     private val repository = FakeAuthRepository(SessionManager(tokenStore), latenciaMs = 0)
 
     @Test
+    fun `el usuario demo trae nombre visible turno y terminal`() {
+        val usuario = FakeAuthRepository.USUARIO_FAKE
+
+        assertEquals("mozo", usuario.nombre)
+        assertEquals("Mozo Demo", usuario.nombreVisible)
+        assertEquals("Turno Tarde", usuario.turno?.nombre)
+        assertEquals("TERM-01", usuario.terminal?.codigo)
+        assertEquals("Tablet Salón Principal", usuario.terminal?.nombre)
+    }
+
+    @Test
     fun `acepta el pin demo con un usuario no vacio`() = runTest {
         val resultado = repository.validarPin("Mozo Demo", FakeAuthRepository.PIN_DEMO)
 
