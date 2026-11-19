@@ -1,13 +1,18 @@
 package com.lacasablanca.mesero.data.repository
 
+import com.lacasablanca.mesero.BuildConfig
 import com.lacasablanca.mesero.data.local.SessionManager
 import com.lacasablanca.mesero.data.remote.AuthApi
 import com.lacasablanca.mesero.data.remote.dto.LoginRequestDto
 import com.lacasablanca.mesero.data.remote.dto.PinRequestDto
+import com.lacasablanca.mesero.data.remote.dto.TerminalDto
+import com.lacasablanca.mesero.data.remote.dto.TurnoDto
 import com.lacasablanca.mesero.domain.ErrorApp
 import com.lacasablanca.mesero.domain.Resultado
 import com.lacasablanca.mesero.domain.errorDesdeCodigoHttp
 import com.lacasablanca.mesero.domain.model.Sesion
+import com.lacasablanca.mesero.domain.model.Terminal
+import com.lacasablanca.mesero.domain.model.Turno
 import com.lacasablanca.mesero.domain.model.Usuario
 import retrofit2.HttpException
 import java.io.IOException
@@ -20,7 +25,13 @@ class RealAuthRepository(
 
     override suspend fun iniciarSesion(usuario: String, clave: String): Resultado<Sesion> {
         return try {
-            val respuesta = api.login(LoginRequestDto(usuario = usuario.trim(), clave = clave))
+            val respuesta = api.login(
+                LoginRequestDto(
+                    usuario = usuario.trim(),
+                    clave = clave,
+                    terminalCodigo = BuildConfig.TERMINAL_CODIGO
+                )
+            )
             val token = respuesta.token
             val usuarioDto = respuesta.usuario
             if (token.isNullOrBlank() || usuarioDto == null) {
@@ -35,7 +46,10 @@ class RealAuthRepository(
                         usuario = Usuario(
                             id = usuarioDto.id ?: 0L,
                             nombre = usuarioDto.nombre.orEmpty(),
-                            rol = rol
+                            rol = rol,
+                            nombreVisible = usuarioDto.nombreVisible.orEmpty(),
+                            turno = usuarioDto.turno?.aDominio(),
+                            terminal = usuarioDto.terminal?.aDominio()
                         )
                     )
                     sessionManager.iniciar(sesion)
@@ -88,6 +102,19 @@ class RealAuthRepository(
     override suspend fun cerrarSesion() {
         sessionManager.cerrar()
     }
+
+    private fun TurnoDto.aDominio(): Turno = Turno(
+        id = id ?: 0L,
+        nombre = nombre.orEmpty(),
+        inicio = inicio.orEmpty(),
+        fin = fin.orEmpty()
+    )
+
+    private fun TerminalDto.aDominio(): Terminal = Terminal(
+        id = id ?: 0L,
+        codigo = codigo.orEmpty(),
+        nombre = nombre.orEmpty()
+    )
 
     private companion object {
         const val ROL_MOZO = "MOZO"

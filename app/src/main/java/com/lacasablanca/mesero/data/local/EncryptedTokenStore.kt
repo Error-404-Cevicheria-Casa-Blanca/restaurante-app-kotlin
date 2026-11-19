@@ -8,6 +8,8 @@ import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.lacasablanca.mesero.domain.model.Sesion
+import com.lacasablanca.mesero.domain.model.Terminal
+import com.lacasablanca.mesero.domain.model.Turno
 import com.lacasablanca.mesero.domain.model.Usuario
 import kotlinx.coroutines.flow.first
 
@@ -31,6 +33,10 @@ class EncryptedTokenStore(
             prefs[CLAVE_USUARIO_ID] = sesion.usuario.id
             prefs[CLAVE_USUARIO_NOMBRE] = sesion.usuario.nombre
             prefs[CLAVE_USUARIO_ROL] = sesion.usuario.rol
+            prefs[CLAVE_USUARIO_NOMBRE_VISIBLE] = sesion.usuario.nombreVisible
+            prefs[CLAVE_USUARIO_TURNO_NOMBRE] = sesion.usuario.turno?.nombre.orEmpty()
+            prefs[CLAVE_USUARIO_TERMINAL_NOMBRE] = sesion.usuario.terminal?.nombre.orEmpty()
+            prefs[CLAVE_USUARIO_TERMINAL_CODIGO] = sesion.usuario.terminal?.codigo.orEmpty()
         }
     }
 
@@ -42,12 +48,22 @@ class EncryptedTokenStore(
             limpiar()
             return null
         }
+        val turnoNombre = prefs[CLAVE_USUARIO_TURNO_NOMBRE].orEmpty()
+        val terminalNombre = prefs[CLAVE_USUARIO_TERMINAL_NOMBRE].orEmpty()
+        val terminalCodigo = prefs[CLAVE_USUARIO_TERMINAL_CODIGO].orEmpty()
         return Sesion(
             token = token,
             usuario = Usuario(
                 id = prefs[CLAVE_USUARIO_ID] ?: 0L,
                 nombre = prefs[CLAVE_USUARIO_NOMBRE].orEmpty(),
-                rol = prefs[CLAVE_USUARIO_ROL].orEmpty()
+                rol = prefs[CLAVE_USUARIO_ROL].orEmpty(),
+                nombreVisible = prefs[CLAVE_USUARIO_NOMBRE_VISIBLE].orEmpty(),
+                turno = turnoNombre.takeIf { it.isNotBlank() }?.let { Turno(nombre = it) },
+                terminal = if (terminalNombre.isNotBlank() || terminalCodigo.isNotBlank()) {
+                    Terminal(codigo = terminalCodigo, nombre = terminalNombre)
+                } else {
+                    null
+                }
             )
         )
     }
@@ -58,6 +74,10 @@ class EncryptedTokenStore(
             prefs.remove(CLAVE_USUARIO_ID)
             prefs.remove(CLAVE_USUARIO_NOMBRE)
             prefs.remove(CLAVE_USUARIO_ROL)
+            prefs.remove(CLAVE_USUARIO_NOMBRE_VISIBLE)
+            prefs.remove(CLAVE_USUARIO_TURNO_NOMBRE)
+            prefs.remove(CLAVE_USUARIO_TERMINAL_NOMBRE)
+            prefs.remove(CLAVE_USUARIO_TERMINAL_CODIGO)
         }
     }
 
@@ -66,5 +86,9 @@ class EncryptedTokenStore(
         val CLAVE_USUARIO_ID = longPreferencesKey("usuario_id")
         val CLAVE_USUARIO_NOMBRE = stringPreferencesKey("usuario_nombre")
         val CLAVE_USUARIO_ROL = stringPreferencesKey("usuario_rol")
+        val CLAVE_USUARIO_NOMBRE_VISIBLE = stringPreferencesKey("usuario_nombre_visible")
+        val CLAVE_USUARIO_TURNO_NOMBRE = stringPreferencesKey("usuario_turno_nombre")
+        val CLAVE_USUARIO_TERMINAL_NOMBRE = stringPreferencesKey("usuario_terminal_nombre")
+        val CLAVE_USUARIO_TERMINAL_CODIGO = stringPreferencesKey("usuario_terminal_codigo")
     }
 }

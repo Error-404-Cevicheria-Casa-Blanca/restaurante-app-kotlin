@@ -22,8 +22,8 @@ import java.time.format.DateTimeFormatter
  * conoce Fragment, Activity ni Context, por lo que es independiente de la
  * pantalla y se puede probar con un repositorio fake.
  *
- * Terminal y turno siguen pendientes de backend (A74 / PRB-84 / PRB-85); se
- * dejan vacios y la UI los muestra como "No asignado".
+ * El login ya entrega nombre visible, turno y terminal (PRB-85); si el backend
+ * no asigna alguno, la UI los muestra como "No asignado".
  */
 class PerfilViewModel(
     private val authRepository: AuthRepository,
@@ -59,9 +59,13 @@ class PerfilViewModel(
             _estado.update {
                 it.copy(
                     cargando = false,
-                    nombre = usuario.nombre,
+                    nombre = usuario.nombreVisible.ifBlank { usuario.nombre },
                     rol = usuario.rol,
                     usuario = usuario.nombre,
+                    terminal = usuario.terminal
+                        ?.let { terminal -> terminal.nombre.ifBlank { terminal.codigo } }
+                        .orEmpty(),
+                    turno = usuario.turno?.nombre.orEmpty(),
                     fecha = fechaActual().format(FORMATO_FECHA)
                 )
             }
