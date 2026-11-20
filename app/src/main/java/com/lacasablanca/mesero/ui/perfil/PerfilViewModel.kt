@@ -90,6 +90,7 @@ class PerfilViewModel(
     private suspend fun aplicarFallo(error: ErrorApp) {
         when (error) {
             ErrorApp.SESION_EXPIRADA -> {
+                limpiarSesionExpirada()
                 _estado.update { it.copy(actualizando = false) }
                 _eventos.send(PerfilEvento.IrALogin)
             }
@@ -97,6 +98,21 @@ class PerfilViewModel(
             ErrorApp.RED -> _estado.update { it.copy(actualizando = false, avisoRed = true) }
 
             else -> _estado.update { it.copy(actualizando = false) }
+        }
+    }
+
+    /**
+     * Borra la sesion persistida cuando el token ya no es valido. No usa
+     * [cerrarSesion] porque ese metodo emite SesionCerrada y cambia
+     * cerrandoSesion; aqui la navegacion la dispara IrALogin, despues de que
+     * el borrado haya terminado, para que el login no recupere la sesion vieja.
+     * Si el borrado local falla, la pantalla vuelve al login igualmente.
+     */
+    private suspend fun limpiarSesionExpirada() {
+        try {
+            authRepository.cerrarSesion()
+        } catch (e: Exception) {
+            // La sesion local ya no es confiable; el login pedira de nuevo.
         }
     }
 

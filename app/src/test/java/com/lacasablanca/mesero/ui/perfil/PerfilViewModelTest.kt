@@ -9,6 +9,7 @@ import com.lacasablanca.mesero.domain.model.Terminal
 import com.lacasablanca.mesero.domain.model.Turno
 import com.lacasablanca.mesero.domain.model.Usuario
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -179,11 +180,28 @@ class PerfilViewModelTest {
         coEvery { authRepository.sesionGuardada() } returns sesionLocal()
         coEvery { authRepository.refrescarPerfil() } returns
             Resultado.Fallo(ErrorApp.SESION_EXPIRADA)
+        coEvery { authRepository.cerrarSesion() } returns Unit
 
         val viewModel = PerfilViewModel(authRepository, testDispatcher) { fechaFija }
         val eventos = escucharEventos(viewModel)
         advanceUntilIdle()
 
+        assertTrue(eventos.contains(PerfilEvento.IrALogin))
+        assertFalse(viewModel.estado.value.actualizando)
+    }
+
+    @Test
+    fun `un 401 cierra la sesion y emite IrALogin`() = runTest(testDispatcher) {
+        coEvery { authRepository.sesionGuardada() } returns sesionLocal()
+        coEvery { authRepository.refrescarPerfil() } returns
+            Resultado.Fallo(ErrorApp.SESION_EXPIRADA)
+        coEvery { authRepository.cerrarSesion() } returns Unit
+
+        val viewModel = PerfilViewModel(authRepository, testDispatcher) { fechaFija }
+        val eventos = escucharEventos(viewModel)
+        advanceUntilIdle()
+
+        coVerify(exactly = 1) { authRepository.cerrarSesion() }
         assertTrue(eventos.contains(PerfilEvento.IrALogin))
         assertFalse(viewModel.estado.value.actualizando)
     }
