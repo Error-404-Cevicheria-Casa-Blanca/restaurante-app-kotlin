@@ -26,6 +26,13 @@
     <string name="marca_footer_version">Versión %1$s · Cevichería Restaurante</string>
     <string name="login_modo_demo">Modo demostración: datos de prueba, sin conexión al servidor.</string>
     <string name="login_cargando">Ingresando…</string>
+    <string name="login_usar_pin">Ingresar con PIN</string>
+    <string name="login_usar_clave">Usar contraseña</string>
+    <string name="login_pin_instruccion">Escribe tu usuario y luego tu PIN de 4 dígitos</string>
+    <string name="login_error_usuario">Ingresa tu usuario para continuar</string>
+    <string name="login_error_pin">PIN incorrecto. Inténtalo de nuevo.</string>
+    <string name="login_error_pin_bloqueado">Cuenta bloqueada temporalmente tras varios intentos fallidos. Inténtalo de nuevo en 15 minutos.</string>
+    <string name="login_error_pin_formato">El PIN debe tener exactamente 4 dígitos numéricos.</string>
 
     <!-- Mesas -->
     <string name="mesas_titulo">Plano de Mesas</string>

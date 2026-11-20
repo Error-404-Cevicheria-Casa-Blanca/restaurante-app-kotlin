@@ -37,6 +37,18 @@ class FakeAuthRepository(
         return sessionManager.sesion
     }
 
+    /** En modo demostracion el PIN de login se valida localmente (PRB-101). */
+    override suspend fun iniciarSesionPorPin(usuario: String, pin: String): Resultado<Sesion> {
+        delay(latenciaMs)
+        return if (usuario.isNotBlank() && pin == PIN_DEMO) {
+            val sesion = Sesion(token = TOKEN_FAKE, usuario = USUARIO_FAKE)
+            sessionManager.iniciar(sesion)
+            Resultado.Exito(sesion)
+        } else {
+            Resultado.Fallo(ErrorApp.CREDENCIALES)
+        }
+    }
+
     /** En modo demostracion el PIN no viaja al backend: se valida localmente. */
     override suspend fun validarPin(usuario: String, pin: String): Resultado<Unit> {
         delay(latenciaMs)

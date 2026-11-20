@@ -1,0 +1,5 @@
+Archivos XML: 39
+Tests totales: 301
+Fallos: 0
+Errores: 0
+Omitidos: 0

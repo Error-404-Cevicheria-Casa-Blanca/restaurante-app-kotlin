@@ -13,7 +13,9 @@ data class LoginRequestDto(
 /** Request de POST /api/v1/auth/pin (PRB-54, verificado en el backend Java). */
 data class PinRequestDto(
     val usuario: String,
-    val pin: String
+    val pin: String,
+    @SerializedName("terminal_codigo")
+    val terminalCodigo: String? = null
 )
 
 /** Response de POST /api/v1/auth/login (contrato v1, propuesta D4). */

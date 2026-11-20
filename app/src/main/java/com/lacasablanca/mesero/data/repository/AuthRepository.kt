@@ -6,6 +6,14 @@ import com.lacasablanca.mesero.domain.model.Sesion
 /** Unica fuente de datos de autenticacion para la UI. */
 interface AuthRepository {
     suspend fun iniciarSesion(usuario: String, clave: String): Resultado<Sesion>
+
+    /**
+     * Inicia sesion con usuario y PIN de 4 digitos (PRB-101). A diferencia de
+     * [validarPin], esta operacion crea y persiste una sesion con el token que
+     * devuelve el backend.
+     */
+    suspend fun iniciarSesionPorPin(usuario: String, pin: String): Resultado<Sesion>
+
     suspend fun sesionGuardada(): Sesion?
 
     /**
