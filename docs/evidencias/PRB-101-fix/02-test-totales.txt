@@ -1,0 +1,5 @@
+TOTAL tests=323 failures=0 errors=0 skipped=0 suites=43
+com.lacasablanca.mesero.data.remote.dto.PinRequestDtoTest: tests=2 failures=0 errors=0 skipped=0
+com.lacasablanca.mesero.data.repository.FakeAuthRepositoryPinTest: tests=3 failures=0 errors=0 skipped=0
+com.lacasablanca.mesero.data.repository.RealAuthRepositoryPinTest: tests=7 failures=0 errors=0 skipped=0
+com.lacasablanca.mesero.ui.login.LoginPinViewModelTest: tests=9 failures=0 errors=0 skipped=0

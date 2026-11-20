@@ -165,6 +165,7 @@
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <TextView
+                        android:id="@+id/labelClave"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="20dp"
@@ -230,6 +231,227 @@
                         android:text="@string/login_ingresar"
                         app:icon="@drawable/ic_arrow_forward"
                         app:iconGravity="textEnd" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnIngresarPin"
+                        style="@style/Boton.Secundario"
+                        android:layout_width="match_parent"
+                        android:layout_marginTop="8dp"
+                        android:text="@string/login_usar_pin"
+                        app:icon="@drawable/ic_dialpad"
+                        app:iconGravity="textStart" />
+
+                    <LinearLayout
+                        android:id="@+id/panelPin"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:orientation="vertical"
+                        android:visibility="gone"
+                        tools:visibility="visible">
+
+                        <TextView
+                            style="@style/Texto.Secundario"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:text="@string/login_pin_instruccion"
+                            android:textSize="14sp" />
+
+                        <LinearLayout
+                            android:id="@+id/puntosPinLogin"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_horizontal"
+                            android:layout_marginTop="10dp"
+                            android:contentDescription="@string/bloqueo_puntos_descripcion"
+                            android:focusable="true"
+                            android:gravity="center"
+                            android:importantForAccessibility="yes"
+                            android:orientation="horizontal"
+                            android:padding="4dp">
+
+                            <View
+                                android:id="@+id/pinPunto1"
+                                android:layout_width="18dp"
+                                android:layout_height="18dp"
+                                android:layout_marginHorizontal="8dp"
+                                android:background="@drawable/bg_punto_pin"
+                                android:importantForAccessibility="no" />
+
+                            <View
+                                android:id="@+id/pinPunto2"
+                                android:layout_width="18dp"
+                                android:layout_height="18dp"
+                                android:layout_marginHorizontal="8dp"
+                                android:background="@drawable/bg_punto_pin"
+                                android:importantForAccessibility="no" />
+
+                            <View
+                                android:id="@+id/pinPunto3"
+                                android:layout_width="18dp"
+                                android:layout_height="18dp"
+                                android:layout_marginHorizontal="8dp"
+                                android:background="@drawable/bg_punto_pin"
+                                android:importantForAccessibility="no" />
+
+                            <View
+                                android:id="@+id/pinPunto4"
+                                android:layout_width="18dp"
+                                android:layout_height="18dp"
+                                android:layout_marginHorizontal="8dp"
+                                android:background="@drawable/bg_punto_pin"
+                                android:importantForAccessibility="no" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:id="@+id/tecladoPinLogin"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:orientation="vertical">
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal">
+
+                                <com.google.android.material.button.MaterialButton
+                                    android:id="@+id/btnPin1"
+                                    style="@style/Boton.PinTecla"
+                                    android:layout_width="0dp"
+                                    android:layout_marginEnd="8dp"
+                                    android:layout_weight="1"
+                                    android:text="@string/bloqueo_tecla_1" />
+
+                                <com.google.android.material.button.MaterialButton
+                                    android:id="@+id/btnPin2"
+                                    style="@style/Boton.PinTecla"
+                                    android:layout_width="0dp"
+                                    android:layout_marginEnd="8dp"
+                                    android:layout_weight="1"
+                                    android:text="@string/bloqueo_tecla_2" />
+
+                                <com.google.android.material.button.MaterialButton
+                                    android:id="@+id/btnPin3"
+                                    style="@style/Boton.PinTecla"
+                                    android:layout_width="0dp"
+                                    android:layout_weight="1"
+                                    android:text="@string/bloqueo_tecla_3" />
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="8dp"
+                                android:orientation="horizontal">
+
+                                <com.google.android.material.button.MaterialButton
+                                    android:id="@+id/btnPin4"
+                                    style="@style/Boton.PinTecla"
+                                    android:layout_width="0dp"
+                                    android:layout_marginEnd="8dp"
+                                    android:layout_weight="1"
+                                    android:text="@string/bloqueo_tecla_4" />
+
+                                <com.google.android.material.button.MaterialButton
+                                    android:id="@+id/btnPin5"
+                                    style="@style/Boton.PinTecla"
+                                    android:layout_width="0dp"
+                                    android:layout_marginEnd="8dp"
+                                    android:layout_weight="1"
+                                    android:text="@string/bloqueo_tecla_5" />
+
+                                <com.google.android.material.button.MaterialButton
+                                    android:id="@+id/btnPin6"
+                                    style="@style/Boton.PinTecla"
+                                    android:layout_width="0dp"
+                                    android:layout_weight="1"
+                                    android:text="@string/bloqueo_tecla_6" />
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="8dp"
+                                android:orientation="horizontal">
+
+                                <com.google.android.material.button.MaterialButton
+                                    android:id="@+id/btnPin7"
+                                    style="@style/Boton.PinTecla"
+                                    android:layout_width="0dp"
+                                    android:layout_marginEnd="8dp"
+                                    android:layout_weight="1"
+                                    android:text="@string/bloqueo_tecla_7" />
+
+                                <com.google.android.material.button.MaterialButton
+                                    android:id="@+id/btnPin8"
+                                    style="@style/Boton.PinTecla"
+                                    android:layout_width="0dp"
+                                    android:layout_marginEnd="8dp"
+                                    android:layout_weight="1"
+                                    android:text="@string/bloqueo_tecla_8" />
+
+                                <com.google.android.material.button.MaterialButton
+                                    android:id="@+id/btnPin9"
+                                    style="@style/Boton.PinTecla"
+                                    android:layout_width="0dp"
+                                    android:layout_weight="1"
+                                    android:text="@string/bloqueo_tecla_9" />
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="8dp"
+                                android:orientation="horizontal">
+
+                                <Space
+                                    android:layout_width="0dp"
+                                    android:layout_height="@dimen/alto_pin_tecla"
+                                    android:layout_marginEnd="8dp"
+                                    android:layout_weight="1" />
+
+                                <com.google.android.material.button.MaterialButton
+                                    android:id="@+id/btnPin0"
+                                    style="@style/Boton.PinTecla"
+                                    android:layout_width="0dp"
+                                    android:layout_marginEnd="8dp"
+                                    android:layout_weight="1"
+                                    android:text="@string/bloqueo_tecla_0" />
+
+                                <com.google.android.material.button.MaterialButton
+                                    android:id="@+id/btnPinBorrar"
+                                    style="@style/Boton.PinAccion"
+                                    android:layout_width="0dp"
+                                    android:layout_weight="1"
+                                    android:contentDescription="@string/bloqueo_borrar"
+                                    app:icon="@drawable/ic_backspace"
+                                    app:iconGravity="textStart"
+                                    app:iconPadding="0dp"
+                                    app:iconTint="@color/marea_tx" />
+                            </LinearLayout>
+                        </LinearLayout>
+
+                        <TextView
+                            android:id="@+id/textoPinDemo"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_horizontal"
+                            android:layout_marginTop="12dp"
+                            android:background="@drawable/bg_pill_demo"
+                            android:fontFamily="@font/inter_bold"
+                            android:gravity="center"
+                            android:maxLines="1"
+                            android:minHeight="30dp"
+                            android:paddingHorizontal="14dp"
+                            android:paddingVertical="4dp"
+                            android:textColor="@color/marea_banner_demo_fg"
+                            android:textSize="13sp"
+                            android:visibility="gone"
+                            tools:text="PIN de demostración: 1234"
+                            tools:visibility="visible" />
+                    </LinearLayout>
 
                     <ProgressBar
                         android:id="@+id/progresoLogin"

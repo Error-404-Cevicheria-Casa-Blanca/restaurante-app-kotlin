@@ -146,7 +146,7 @@ class PerfilViewModelTest {
             PerfilActualizado(remota, "2026-11-21T19:45:00-05:00")
         )
 
-        val viewModel = PerfilViewModel(authRepository, testDispatcher) { fechaFija }
+        val viewModel = PerfilViewModel(authRepository, testDispatcher, fechaActual = { fechaFija })
         advanceUntilIdle()
 
         val estado = viewModel.estado.value
@@ -164,7 +164,7 @@ class PerfilViewModelTest {
         coEvery { authRepository.refrescarPerfil() } returns
             Resultado.Fallo(ErrorApp.RED)
 
-        val viewModel = PerfilViewModel(authRepository, testDispatcher) { fechaFija }
+        val viewModel = PerfilViewModel(authRepository, testDispatcher, fechaActual = { fechaFija })
         advanceUntilIdle()
 
         val estado = viewModel.estado.value
@@ -182,7 +182,7 @@ class PerfilViewModelTest {
             Resultado.Fallo(ErrorApp.SESION_EXPIRADA)
         coEvery { authRepository.cerrarSesion() } returns Unit
 
-        val viewModel = PerfilViewModel(authRepository, testDispatcher) { fechaFija }
+        val viewModel = PerfilViewModel(authRepository, testDispatcher, fechaActual = { fechaFija })
         val eventos = escucharEventos(viewModel)
         advanceUntilIdle()
 
@@ -197,7 +197,7 @@ class PerfilViewModelTest {
             Resultado.Fallo(ErrorApp.SESION_EXPIRADA)
         coEvery { authRepository.cerrarSesion() } returns Unit
 
-        val viewModel = PerfilViewModel(authRepository, testDispatcher) { fechaFija }
+        val viewModel = PerfilViewModel(authRepository, testDispatcher, fechaActual = { fechaFija })
         val eventos = escucharEventos(viewModel)
         advanceUntilIdle()
 

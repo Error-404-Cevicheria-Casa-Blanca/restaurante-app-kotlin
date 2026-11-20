@@ -1,0 +1,23 @@
+ .../mesero/data/remote/dto/AuthDtos.kt             |   4 +-
+ .../mesero/data/repository/AuthRepository.kt       |   8 +
+ .../mesero/data/repository/FakeAuthRepository.kt   |  13 +-
+ .../mesero/data/repository/RealAuthRepository.kt   |  83 +++++---
+ .../lacasablanca/mesero/ui/login/LoginActivity.kt  |  97 ++++++++-
+ .../lacasablanca/mesero/ui/login/LoginUiState.kt   |  14 +-
+ .../lacasablanca/mesero/ui/login/LoginViewModel.kt |  62 +++++-
+ app/src/main/res/layout-sw600dp/activity_login.xml | 222 +++++++++++++++++++++
+ app/src/main/res/layout/activity_login.xml         | 222 +++++++++++++++++++++
+ app/src/main/res/values/strings.xml                |   7 +
+ .../mesero/data/remote/dto/PinRequestDtoTest.kt    |  31 +++
+ .../data/repository/FakeAuthRepositoryPinTest.kt   |  63 ++++++
+ .../data/repository/RealAuthRepositoryPinTest.kt   | 145 ++++++++++++++
+ .../mesero/ui/login/LoginPinViewModelTest.kt       | 222 +++++++++++++++++++++
+ .../mesero/ui/perfil/PerfilViewModelTest.kt        |   8 +-
+ .../01-clean-testDebugUnitTest-detekt-assemble.txt | 103 ++++++++++
+ docs/evidencias/PRB-101-fix/02-test-totales.txt    |   5 +
+ docs/evidencias/PRB-101-fix/CIERRE.md              |  62 ++++++
+ .../01-testDebugUnitTest-detekt-assemble.txt       | 105 ++++++++++
+ docs/evidencias/PRB-101/02-test-totales.txt        |   5 +
+ docs/evidencias/PRB-101/03-git-diff-stat.txt       |  37 ++++
+ docs/evidencias/PRB-101/CIERRE.md                  |  64 ++++++
+ 22 files changed, 1547 insertions(+), 35 deletions(-)

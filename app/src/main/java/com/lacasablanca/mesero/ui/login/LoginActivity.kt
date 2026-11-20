@@ -18,12 +18,14 @@ import androidx.core.widget.doAfterTextChanged
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.lacasablanca.mesero.BuildConfig
 import com.lacasablanca.mesero.MeseroApp
 import com.lacasablanca.mesero.R
 import com.lacasablanca.mesero.core.GenericViewModelFactory
+import com.lacasablanca.mesero.data.repository.FakeAuthRepository
 import com.lacasablanca.mesero.databinding.ActivityLoginBinding
 import com.lacasablanca.mesero.ui.main.MainActivity
 import kotlinx.coroutines.launch
@@ -48,6 +50,7 @@ class LoginActivity : AppCompatActivity() {
 
     private var mostrarClavePintado: Boolean? = null
     private var navegando = false
+    private var botonesPin: List<MaterialButton> = emptyList()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -60,7 +63,10 @@ class LoginActivity : AppCompatActivity() {
         binding.avisoDemo.isVisible = BuildConfig.USE_FAKE_DATA
 
         configurarCampos()
+        configurarTecladoPin()
+        configurarModoDemoPin()
         binding.btnIngresar.setOnClickListener { viewModel.ingresar() }
+        binding.btnIngresarPin.setOnClickListener { viewModel.alternarModoPin() }
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -101,6 +107,37 @@ class LoginActivity : AppCompatActivity() {
             } else {
                 false
             }
+        }
+    }
+
+    private fun configurarTecladoPin() {
+        val digitos = mapOf(
+            binding.btnPin0 to '0',
+            binding.btnPin1 to '1',
+            binding.btnPin2 to '2',
+            binding.btnPin3 to '3',
+            binding.btnPin4 to '4',
+            binding.btnPin5 to '5',
+            binding.btnPin6 to '6',
+            binding.btnPin7 to '7',
+            binding.btnPin8 to '8',
+            binding.btnPin9 to '9'
+        )
+        botonesPin = digitos.keys.toList()
+        digitos.forEach { (boton, digito) ->
+            boton.setOnClickListener { viewModel.agregarDigitoPin(digito) }
+        }
+        binding.btnPinBorrar.setOnClickListener { viewModel.borrarDigitoPin() }
+    }
+
+    /** En modo demostracion se rotula el PIN fake para poder probar el flujo. */
+    private fun configurarModoDemoPin() {
+        binding.textoPinDemo.isVisible = BuildConfig.USE_FAKE_DATA
+        if (BuildConfig.USE_FAKE_DATA) {
+            binding.textoPinDemo.text = getString(
+                R.string.bloqueo_pin_demo,
+                FakeAuthRepository.PIN_DEMO
+            )
         }
     }
 
@@ -150,18 +187,41 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun render(estado: LoginUiState) {
+        sincronizarCampos(estado)
+        aplicarModo(estado.modoPin)
+        aplicarCargando(estado)
+        aplicarError(estado.error)
+        aplicarPuntosPin(estado)
+    }
+
+    private fun sincronizarCampos(estado: LoginUiState) {
         if (binding.entradaUsuario.text?.toString() != estado.usuario) {
             binding.entradaUsuario.setText(estado.usuario)
         }
         if (binding.entradaClave.text?.toString() != estado.clave) {
             binding.entradaClave.setText(estado.clave)
         }
-
         if (mostrarClavePintado != estado.mostrarClave) {
             mostrarClavePintado = estado.mostrarClave
             aplicarVisibilidadClave(estado.mostrarClave)
         }
+    }
 
+    private fun aplicarModo(modoPin: Boolean) {
+        binding.labelClave.isVisible = !modoPin
+        binding.inputClave.isVisible = !modoPin
+        binding.btnIngresar.isVisible = !modoPin
+        binding.panelPin.isVisible = modoPin
+        binding.btnIngresarPin.text = getString(
+            if (modoPin) R.string.login_usar_clave else R.string.login_usar_pin
+        )
+        binding.btnIngresarPin.icon = ContextCompat.getDrawable(
+            this,
+            if (modoPin) R.drawable.ic_lock else R.drawable.ic_dialpad
+        )
+    }
+
+    private fun aplicarCargando(estado: LoginUiState) {
         binding.btnIngresar.isEnabled = !estado.cargando
         binding.btnIngresar.text = getString(
             if (estado.cargando) R.string.login_cargando else R.string.login_ingresar
@@ -172,11 +232,38 @@ class LoginActivity : AppCompatActivity() {
             ContextCompat.getDrawable(this, R.drawable.ic_arrow_forward)
         }
         binding.progresoLogin.isVisible = estado.cargando
+        binding.btnIngresarPin.isEnabled = !estado.cargando
+        botonesPin.forEach { it.isEnabled = !estado.cargando }
+        binding.btnPinBorrar.isEnabled = !estado.cargando
+    }
 
-        val hayError = estado.error != null
+    private fun aplicarError(error: ErrorLogin?) {
+        val hayError = error != null
         binding.textoError.isVisible = hayError
-        estado.error?.let { binding.textoError.text = getString(it.mensajeRes()) }
+        error?.let { binding.textoError.text = getString(it.mensajeRes()) }
         aplicarBordeErrorCampos(hayError)
+    }
+
+    private fun aplicarPuntosPin(estado: LoginUiState) {
+        val puntos = listOf(
+            binding.pinPunto1,
+            binding.pinPunto2,
+            binding.pinPunto3,
+            binding.pinPunto4
+        )
+        puntos.forEachIndexed { indice, punto ->
+            val fondo = when {
+                estado.error != null -> R.drawable.bg_punto_pin_error
+                indice < estado.digitosPin -> R.drawable.bg_punto_pin_lleno
+                else -> R.drawable.bg_punto_pin
+            }
+            punto.setBackgroundResource(fondo)
+        }
+        binding.puntosPinLogin.contentDescription = getString(
+            R.string.bloqueo_puntos_cd,
+            estado.digitosPin,
+            LoginUiState.LONGITUD_PIN
+        )
     }
 
     private fun aplicarBordeErrorCampos(hayError: Boolean) {
@@ -216,7 +303,11 @@ class LoginActivity : AppCompatActivity() {
     @StringRes
     private fun ErrorLogin.mensajeRes(): Int = when (this) {
         ErrorLogin.CAMPOS_VACIOS -> R.string.login_error_campos
+        ErrorLogin.USUARIO_REQUERIDO -> R.string.login_error_usuario
         ErrorLogin.CREDENCIALES -> R.string.login_error_credenciales
+        ErrorLogin.PIN_INCORRECTO -> R.string.login_error_pin
+        ErrorLogin.BLOQUEADO -> R.string.login_error_pin_bloqueado
+        ErrorLogin.VALIDACION -> R.string.login_error_pin_formato
         ErrorLogin.RED -> R.string.login_error_red
         ErrorLogin.ROL_NO_PERMITIDO -> R.string.login_error_rol
         ErrorLogin.DESCONOCIDO -> R.string.login_error_generico
