@@ -2,7 +2,12 @@ package com.lacasablanca.mesero.ui.perfil
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.lacasablanca.mesero.core.Sincronizacion
 import com.lacasablanca.mesero.data.repository.AuthRepository
+import com.lacasablanca.mesero.data.repository.PerfilActualizado
+import com.lacasablanca.mesero.domain.ErrorApp
+import com.lacasablanca.mesero.domain.Resultado
+import com.lacasablanca.mesero.domain.model.Sesion
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
@@ -13,6 +18,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.LocalDate
+import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
 
 /**
@@ -23,12 +29,15 @@ import java.time.format.DateTimeFormatter
  * pantalla y se puede probar con un repositorio fake.
  *
  * El login ya entrega nombre visible, turno y terminal (PRB-85); si el backend
- * no asigna alguno, la UI los muestra como "No asignado".
+ * no asigna alguno, la UI los muestra como "No asignado". Al abrir la pantalla
+ * se pinta primero la sesion local y luego se refresca con GET /auth/me
+ * (PRB-102): la fecha visible pasa a ser la del servidor.
  */
 class PerfilViewModel(
     private val authRepository: AuthRepository,
     private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
-    private val fechaActual: () -> LocalDate = { LocalDate.now() }
+    private val fechaActual: () -> LocalDate = { LocalDate.now() },
+    private val sincronizacion: Sincronizacion? = null
 ) : ViewModel() {
 
     private val _estado = MutableStateFlow(PerfilUiState())
@@ -42,7 +51,7 @@ class PerfilViewModel(
     }
 
     fun cargarPerfil() {
-        _estado.update { it.copy(cargando = true) }
+        _estado.update { it.copy(cargando = true, avisoRed = false) }
         viewModelScope.launch(ioDispatcher) {
             val sesion = try {
                 authRepository.sesionGuardada()
@@ -50,25 +59,87 @@ class PerfilViewModel(
                 null
             }
             if (sesion == null) {
-                _estado.update { it.copy(cargando = false) }
+                _estado.update { it.copy(cargando = false, actualizando = false) }
                 _eventos.send(PerfilEvento.IrALogin)
                 return@launch
             }
 
-            val usuario = sesion.usuario
+            // Primero se pinta la sesion local: la pantalla nunca queda en blanco.
             _estado.update {
-                it.copy(
-                    cargando = false,
-                    nombre = usuario.nombreVisible.ifBlank { usuario.nombre },
-                    rol = usuario.rol,
-                    usuario = usuario.nombre,
-                    terminal = usuario.terminal
-                        ?.let { terminal -> terminal.nombre.ifBlank { terminal.codigo } }
-                        .orEmpty(),
-                    turno = usuario.turno?.nombre.orEmpty(),
-                    fecha = fechaActual().format(FORMATO_FECHA)
-                )
+                it.conSesion(sesion, fechaLocal())
+                    .copy(cargando = false, actualizando = true)
             }
+
+            when (val resultado = refrescar()) {
+                is Resultado.Exito -> _estado.update {
+                    val fecha = fechaServidor(resultado.datos.fechaHoraServidor) ?: fechaLocal()
+                    it.conSesion(resultado.datos.sesion, fecha)
+                        .copy(actualizando = false, avisoRed = false)
+                }
+
+                is Resultado.Fallo -> aplicarFallo(resultado.error)
+            }
+        }
+    }
+
+    private suspend fun refrescar(): Resultado<PerfilActualizado> =
+        try {
+            authRepository.refrescarPerfil()
+        } catch (e: Exception) {
+            Resultado.Fallo(ErrorApp.DESCONOCIDO)
+        }
+
+    private suspend fun aplicarFallo(error: ErrorApp) {
+        when (error) {
+            ErrorApp.SESION_EXPIRADA -> {
+                limpiarSesionExpirada()
+                _estado.update { it.copy(actualizando = false) }
+                _eventos.send(PerfilEvento.IrALogin)
+            }
+
+            ErrorApp.RED -> _estado.update { it.copy(actualizando = false, avisoRed = true) }
+
+            else -> _estado.update { it.copy(actualizando = false) }
+        }
+    }
+
+    /**
+     * Borra la sesion persistida cuando el token ya no es valido. No usa
+     * [cerrarSesion] porque ese metodo emite SesionCerrada y cambia
+     * cerrandoSesion; aqui la navegacion la dispara IrALogin, despues de que
+     * el borrado haya terminado, para que el login no recupere la sesion vieja.
+     * Si el borrado local falla, la pantalla vuelve al login igualmente.
+     */
+    private suspend fun limpiarSesionExpirada() {
+        try {
+            authRepository.cerrarSesion()
+        } catch (e: Exception) {
+            // La sesion local ya no es confiable; el login pedira de nuevo.
+        }
+    }
+
+    private fun PerfilUiState.conSesion(sesion: Sesion, fecha: String): PerfilUiState {
+        val usuario = sesion.usuario
+        return copy(
+            nombre = usuario.nombreVisible.ifBlank { usuario.nombre },
+            rol = usuario.rol,
+            usuario = usuario.nombre,
+            terminal = usuario.terminal
+                ?.let { terminal -> terminal.nombre.ifBlank { terminal.codigo } }
+                .orEmpty(),
+            turno = usuario.turno?.nombre.orEmpty(),
+            fecha = fecha
+        )
+    }
+
+    private fun fechaLocal(): String = fechaActual().format(FORMATO_FECHA)
+
+    private fun fechaServidor(fechaHora: String?): String? {
+        if (fechaHora.isNullOrBlank()) return null
+        return try {
+            OffsetDateTime.parse(fechaHora).toLocalDate().format(FORMATO_FECHA)
+        } catch (e: Exception) {
+            null
         }
     }
 
@@ -85,6 +156,7 @@ class PerfilViewModel(
             } catch (e: Exception) {
                 // La sesion local ya no es confiable; el login pedira de nuevo.
             }
+            sincronizacion?.cancelar()
             _eventos.send(PerfilEvento.SesionCerrada)
         }
     }

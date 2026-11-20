@@ -1,0 +1,61 @@
+name: CI — App Android Mesero (PRB-111)
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+      - "feature/**"
+      - "fix/**"
+      - "bugfix/**"
+  pull_request:
+    branches:
+      - main
+      - develop
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-android-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ci-android:
+    name: Test, Detekt & AssembleDebug (JDK 17)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17 (Temurin)
+        uses: actions/setup-java@v4
+        with:
+          java-version: "17"
+          distribution: "temurin"
+          cache: "gradle"
+
+      - name: Accept Android SDK licenses
+        run: |
+          if [ -n "$ANDROID_HOME" ] && [ -x "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" ]; then
+            yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null || true
+          fi
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Run unit tests, Detekt and assembleDebug
+        run: ./gradlew testDebugUnitTest detekt assembleDebug --no-daemon --stacktrace
+
+      - name: Upload test and Detekt reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-ci-reports
+          path: |
+            app/build/reports/tests/testDebugUnitTest/
+            app/build/reports/detekt/
+          if-no-files-found: ignore
+          retention-days: 7

@@ -68,6 +68,10 @@ internal class AvisosMesasUi(
                 titulo = fragment.getString(R.string.error_red_titulo),
                 mensaje = fragment.getString(R.string.error_red)
             )
+
+            AvisoMesas.SIN_CONEXION -> mostrarSnackbar(
+                fragment.getString(R.string.mesas_sin_conexion_no_abrir)
+            )
         }
     }
 

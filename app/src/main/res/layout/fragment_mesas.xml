@@ -50,6 +50,59 @@
                 android:textSize="13.5sp" />
         </LinearLayout>
 
+        <LinearLayout
+            android:id="@+id/bannerOutbox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_banner_demo"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="14dp"
+            android:paddingVertical="6dp"
+            android:visibility="gone"
+            tools:visibility="visible">
+
+            <ImageView
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:importantForAccessibility="no"
+                android:src="@drawable/ic_info_circle"
+                app:tint="@color/marea_banner_demo_fg" />
+
+            <TextView
+                android:id="@+id/textoOutbox"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_weight="1"
+                android:fontFamily="@font/inter"
+                android:textColor="@color/marea_banner_demo_fg"
+                android:textFontWeight="600"
+                android:textSize="13.5sp"
+                tools:text="2 pedidos pendientes de sincronizar" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnDescartarConflictos"
+                style="@style/Widget.Material3.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minWidth="0dp"
+                android:text="@string/outbox_descartar"
+                android:textColor="@color/marea_banner_demo_fg"
+                android:visibility="gone"
+                tools:visibility="visible" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnReintentarSync"
+                style="@style/Widget.Material3.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minWidth="0dp"
+                android:text="@string/outbox_reintentar"
+                android:textColor="@color/marea_banner_demo_fg" />
+        </LinearLayout>
+
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/tabsZonas"
             android:layout_width="match_parent"

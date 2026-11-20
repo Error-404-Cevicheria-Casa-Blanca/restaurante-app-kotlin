@@ -76,6 +76,20 @@
     <string name="sesion_expirada">Tu sesión expiró. Vuelve a ingresar.</string>
     <string name="error_red">No se pudo conectar con el servidor. Revisa la red local.</string>
     <string name="offline_banner">Sin conexión. Mostrando los últimos datos guardados.</string>
+    <string name="mesas_sin_conexion_no_abrir">Sin conexión: no se puede abrir una mesa nueva. Se habilitará al recuperar la red.</string>
+    <plurals name="outbox_pendientes">
+        <item quantity="one">%1$d pedido pendiente de sincronizar</item>
+        <item quantity="other">%1$d pedidos pendientes de sincronizar</item>
+    </plurals>
+    <string name="outbox_con_conflictos">%1$d con conflicto</string>
+    <string name="outbox_reintentar">Reintentar</string>
+    <string name="outbox_reintentando">Sincronizando…</string>
+    <string name="outbox_sincronizado">Cola sincronizada.</string>
+    <string name="outbox_quedan_pendientes">Quedan pedidos pendientes; se reintentará al recuperar la red.</string>
+    <string name="outbox_descartar">Descartar conflictos</string>
+    <string name="outbox_descartar_titulo">Descartar pedidos con conflicto</string>
+    <string name="outbox_descartar_mensaje">Se quitarán de la cola local los pedidos rechazados (409). No se enviarán al backend.</string>
+    <string name="outbox_conflictos_descartados">Conflictos descartados.</string>
     <string name="error_abrir_mesa">No se pudo abrir la mesa. Inténtalo de nuevo.</string>
     <string name="error_liberar_mesa">No se pudo liberar la mesa %1$d.</string>
     <string name="error_generico">Ocurrió un error. Inténtalo de nuevo.</string>
@@ -342,6 +356,7 @@
     <string name="perfil_turno">Turno</string>
     <string name="perfil_fecha">Fecha</string>
     <string name="perfil_no_asignado">No asignado</string>
+<string name="perfil_aviso_red">Sin conexión. Se muestran los datos guardados de la sesión.</string>
     <string name="perfil_tema_automatico">Automático</string>
     <string name="perfil_desc_claro">Fondo claro de alto contraste para salón muy iluminado.</string>
     <string name="perfil_desc_oscuro">Fondo oscuro de bajo deslumbramiento, ideal para salón nocturno.</string>

@@ -1,5 +1,6 @@
 package com.lacasablanca.mesero.ui.login
 
+import com.lacasablanca.mesero.core.Sincronizacion
 import com.lacasablanca.mesero.data.repository.AuthRepository
 import com.lacasablanca.mesero.domain.ErrorApp
 import com.lacasablanca.mesero.domain.Resultado
@@ -8,6 +9,7 @@ import com.lacasablanca.mesero.domain.model.Usuario
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
+import io.mockk.verify
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.toList
@@ -32,6 +34,7 @@ class LoginPinViewModelTest {
 
     private val testDispatcher = StandardTestDispatcher()
     private val authRepository = mockk<AuthRepository>()
+    private val sincronizacion = mockk<Sincronizacion>(relaxed = true)
 
     private val sesion = Sesion(
         token = "token-pin",
@@ -84,6 +87,47 @@ class LoginPinViewModelTest {
         assertFalse(viewModel.estado.value.cargando)
         assertEquals(null, viewModel.estado.value.error)
         coVerify(exactly = 1) { authRepository.iniciarSesionPorPin("mozo_01", "1234") }
+    }
+
+    @Test
+    fun `el exito del pin programa la sincronizacion`() = runTest(testDispatcher) {
+        coEvery { authRepository.iniciarSesionPorPin("mozo_01", "1234") } returns
+            Resultado.Exito(sesion)
+
+        val viewModel = LoginViewModel(
+            authRepository = authRepository,
+            ioDispatcher = testDispatcher,
+            sincronizacion = sincronizacion
+        )
+        val eventos = escucharEventos(viewModel)
+        advanceUntilIdle()
+
+        viewModel.activarPinCon("mozo_01")
+        viewModel.ingresarPin("1234")
+        advanceUntilIdle()
+
+        assertTrue(eventos.contains(LoginEvento.IrAMesas))
+        verify(exactly = 1) { sincronizacion.programar() }
+    }
+
+    @Test
+    fun `un pin invalido no programa la sincronizacion`() = runTest(testDispatcher) {
+        coEvery { authRepository.iniciarSesionPorPin(any(), any()) } returns
+            Resultado.Fallo(ErrorApp.CREDENCIALES)
+
+        val viewModel = LoginViewModel(
+            authRepository = authRepository,
+            ioDispatcher = testDispatcher,
+            sincronizacion = sincronizacion
+        )
+        advanceUntilIdle()
+
+        viewModel.activarPinCon("mozo_01")
+        viewModel.ingresarPin("9999")
+        advanceUntilIdle()
+
+        assertEquals(ErrorLogin.PIN_INCORRECTO, viewModel.estado.value.error)
+        verify(exactly = 0) { sincronizacion.programar() }
     }
 
     @Test

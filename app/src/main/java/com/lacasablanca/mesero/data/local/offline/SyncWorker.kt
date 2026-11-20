@@ -16,6 +16,8 @@ class SyncWorker(
 
     override suspend fun doWork(): Result {
         val contenedor = (applicationContext as MeseroApp).container
+        contenedor.sessionManager.cargar()
+        if (contenedor.sessionManager.sesion == null) return Result.success()
         return try {
             if (contenedor.pedidoSync.sincronizar()) Result.success() else Result.retry()
         } catch (e: Exception) {

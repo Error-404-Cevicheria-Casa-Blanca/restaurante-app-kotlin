@@ -25,6 +25,16 @@ data class LoginResponseDto(
     val usuario: UsuarioDto? = null
 )
 
+/**
+ * Response de GET /api/v1/auth/me (PRB-102).
+ * Verificado en el backend: AuthService.obtenerPerfilActual.
+ */
+data class PerfilResponseDto(
+    val usuario: UsuarioDto? = null,
+    @SerializedName("fecha_hora_servidor")
+    val fechaHoraServidor: String? = null
+)
+
 data class UsuarioDto(
     val id: Long? = null,
     val nombre: String? = null,

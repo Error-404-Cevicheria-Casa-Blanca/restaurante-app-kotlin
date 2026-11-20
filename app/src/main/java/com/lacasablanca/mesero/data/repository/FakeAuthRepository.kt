@@ -8,6 +8,8 @@ import com.lacasablanca.mesero.domain.model.Terminal
 import com.lacasablanca.mesero.domain.model.Turno
 import com.lacasablanca.mesero.domain.model.Usuario
 import kotlinx.coroutines.delay
+import java.time.OffsetDateTime
+import java.time.ZoneId
 
 /**
  * DATOS FAKE (no reales). Se usa cuando BuildConfig.USE_FAKE_DATA = true,
@@ -49,6 +51,18 @@ class FakeAuthRepository(
         }
     }
 
+    /** En modo demostracion devuelve la sesion actual con una hora simulada. */
+    override suspend fun refrescarPerfil(): Resultado<PerfilActualizado> {
+        delay(latenciaMs)
+        sessionManager.cargar()
+        val sesion = sessionManager.sesion
+            ?: return Resultado.Fallo(ErrorApp.SESION_EXPIRADA)
+        return Resultado.Exito(PerfilActualizado(sesion, fechaHoraServidorFake()))
+    }
+
+    private fun fechaHoraServidorFake(): String =
+        OffsetDateTime.now(zonaLima).withNano(0).toString()
+
     /** En modo demostracion el PIN no viaja al backend: se valida localmente. */
     override suspend fun validarPin(usuario: String, pin: String): Resultado<Unit> {
         delay(latenciaMs)
@@ -69,6 +83,7 @@ class FakeAuthRepository(
         const val PIN_DEMO = "1234"
         const val LATENCIA_SIMULADA_MS = 700L
         const val TOKEN_FAKE = "token-fake-demo"
+        private val zonaLima: ZoneId = ZoneId.of("America/Lima")
 
         val USUARIO_FAKE = Usuario(
             id = 1L,

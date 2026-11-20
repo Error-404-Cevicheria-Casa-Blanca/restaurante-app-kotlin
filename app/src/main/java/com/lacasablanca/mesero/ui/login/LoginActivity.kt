@@ -40,7 +40,12 @@ class LoginActivity : AppCompatActivity() {
     private val contenedor get() = (application as MeseroApp).container
 
     private val viewModel: LoginViewModel by viewModels {
-        GenericViewModelFactory { LoginViewModel(contenedor.authRepository) }
+        GenericViewModelFactory {
+            LoginViewModel(
+                authRepository = contenedor.authRepository,
+                sincronizacion = contenedor
+            )
+        }
     }
 
     private var mostrarClavePintado: Boolean? = null
