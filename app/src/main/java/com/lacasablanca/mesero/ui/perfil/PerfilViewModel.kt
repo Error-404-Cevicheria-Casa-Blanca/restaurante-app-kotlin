@@ -2,6 +2,7 @@ package com.lacasablanca.mesero.ui.perfil
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.lacasablanca.mesero.core.Sincronizacion
 import com.lacasablanca.mesero.data.repository.AuthRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -28,7 +29,8 @@ import java.time.format.DateTimeFormatter
 class PerfilViewModel(
     private val authRepository: AuthRepository,
     private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
-    private val fechaActual: () -> LocalDate = { LocalDate.now() }
+    private val fechaActual: () -> LocalDate = { LocalDate.now() },
+    private val sincronizacion: Sincronizacion? = null
 ) : ViewModel() {
 
     private val _estado = MutableStateFlow(PerfilUiState())
@@ -85,6 +87,7 @@ class PerfilViewModel(
             } catch (e: Exception) {
                 // La sesion local ya no es confiable; el login pedira de nuevo.
             }
+            sincronizacion?.cancelar()
             _eventos.send(PerfilEvento.SesionCerrada)
         }
     }

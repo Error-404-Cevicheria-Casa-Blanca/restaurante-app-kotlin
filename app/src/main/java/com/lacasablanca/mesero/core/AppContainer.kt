@@ -11,6 +11,7 @@ import com.lacasablanca.mesero.data.local.offline.AppDatabase
 import com.lacasablanca.mesero.data.local.offline.OutboxPedidoStore
 import com.lacasablanca.mesero.data.local.offline.PedidoSync
 import com.lacasablanca.mesero.data.local.offline.RoomOutboxPedidoStore
+import com.lacasablanca.mesero.data.local.offline.SyncScheduler
 import com.lacasablanca.mesero.data.remote.ApiClient
 import com.lacasablanca.mesero.data.remote.AuthApi
 import com.lacasablanca.mesero.data.remote.CatalogoApi
@@ -21,6 +22,7 @@ import com.lacasablanca.mesero.data.repository.AuthRepository
 import com.lacasablanca.mesero.data.repository.CatalogoOfflineRepository
 import com.lacasablanca.mesero.data.repository.CatalogoRepository
 import com.lacasablanca.mesero.data.repository.CobroRepository
+import com.lacasablanca.mesero.data.repository.DefaultOutboxRepository
 import com.lacasablanca.mesero.data.repository.FakeAuthRepository
 import com.lacasablanca.mesero.data.repository.FakeCatalogoRepository
 import com.lacasablanca.mesero.data.repository.FakeCobroRepository
@@ -29,6 +31,7 @@ import com.lacasablanca.mesero.data.repository.FakeMesaRepository
 import com.lacasablanca.mesero.data.repository.FakePedidoRepository
 import com.lacasablanca.mesero.data.repository.MesaOfflineRepository
 import com.lacasablanca.mesero.data.repository.MesaRepository
+import com.lacasablanca.mesero.data.repository.OutboxRepository
 import com.lacasablanca.mesero.data.repository.PedidoRepository
 import com.lacasablanca.mesero.data.repository.RealAuthRepository
 import com.lacasablanca.mesero.data.repository.RealCatalogoRepository
@@ -41,7 +44,7 @@ import retrofit2.Retrofit
  * Inyeccion manual de dependencias (sin Hilt).
  * Con BuildConfig.USE_FAKE_DATA = true la app funciona sin backend (datos FAKE).
  */
-class AppContainer(private val contexto: Context) {
+class AppContainer(private val contexto: Context) : Sincronizacion {
 
     private val tokenStore: TokenStore = EncryptedTokenStore(contexto, CryptoManager())
 
@@ -104,6 +107,12 @@ class AppContainer(private val contexto: Context) {
 
     /** Logica del SyncWorker (PRB-63); WorkManager la ejecuta en segundo plano. */
     val pedidoSync: PedidoSync by lazy { PedidoSync(outbox, pedidosApi) }
+
+    val outboxRepository: OutboxRepository by lazy { DefaultOutboxRepository(outbox, pedidoSync) }
+
+    override fun programar() = SyncScheduler.programar(contexto)
+
+    override fun cancelar() = SyncScheduler.cancelar(contexto)
 
     val cobroRepository: CobroRepository =
         if (BuildConfig.USE_FAKE_DATA) {

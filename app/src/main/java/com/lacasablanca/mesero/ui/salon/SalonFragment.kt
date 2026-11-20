@@ -75,7 +75,10 @@ class SalonFragment : Fragment() {
                 MesasViewModel(
                     mesaRepository = contenedor.mesaRepository,
                     authRepository = contenedor.authRepository,
-                    pedidoRepository = contenedor.pedidoRepository
+                    pedidoRepository = contenedor.pedidoRepository,
+                    outboxRepository = contenedor.outboxRepository,
+                    conectividad = contenedor.networkMonitor,
+                    sincronizacion = contenedor
                 )
             }
         )[MesasViewModel::class.java]
@@ -182,6 +185,8 @@ class SalonFragment : Fragment() {
         binding.barra.btnBloquear.setOnClickListener { abrirBloqueo() }
         binding.barra.btnCerrarSesion.setOnClickListener { viewModel.cerrarSesion() }
         binding.btnReintentar.setOnClickListener { viewModel.cargar() }
+        binding.btnReintentarSync.setOnClickListener { viewModel.reintentarPendientes() }
+        binding.btnDescartarConflictos.setOnClickListener { confirmarDescartarConflictos() }
         binding.fabParaLlevar.setOnClickListener {
             ejecutarSiNoHayDetalleOculto { mostrarDialogoParaLlevar() }
         }
@@ -308,6 +313,7 @@ class SalonFragment : Fragment() {
 
         renderTabs(estado)
         renderChips(estado)
+        renderOutbox(estado)
         adapter.submitList(estado.mesasVisibles)
 
         // Fade + slide-up solo la primera vez que la cuadricula tiene datos.
@@ -317,6 +323,38 @@ class SalonFragment : Fragment() {
             animacionInicialEjecutada = true
             binding.recyclerMesas.aparecerConDesplazamiento()
         }
+    }
+
+    private fun renderOutbox(estado: MesasUiState) {
+        binding.bannerOutbox.isVisible = estado.pendientesSync > 0
+        if (estado.pendientesSync <= 0) return
+
+        val texto = resources.getQuantityString(
+            R.plurals.outbox_pendientes,
+            estado.pendientesSync,
+            estado.pendientesSync
+        )
+        binding.textoOutbox.text = if (estado.conflictosSync > 0) {
+            texto + " · " + getString(R.string.outbox_con_conflictos, estado.conflictosSync)
+        } else {
+            texto
+        }
+        binding.btnDescartarConflictos.isVisible = estado.conflictosSync > 0
+        binding.btnReintentarSync.isEnabled = !estado.sincronizando
+        binding.btnReintentarSync.text = getString(
+            if (estado.sincronizando) R.string.outbox_reintentando else R.string.outbox_reintentar
+        )
+    }
+
+    private fun confirmarDescartarConflictos() {
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle(R.string.outbox_descartar_titulo)
+            .setMessage(R.string.outbox_descartar_mensaje)
+            .setPositiveButton(R.string.outbox_descartar) { _, _ ->
+                viewModel.descartarConflictos()
+            }
+            .setNegativeButton(R.string.accion_cancelar, null)
+            .show()
     }
 
     private fun renderTabs(estado: MesasUiState) {
@@ -407,6 +445,20 @@ class SalonFragment : Fragment() {
                 }
                 mostrarAviso(evento)
             }
+            is MesasEvento.SincronizacionTerminada -> avisosUi.mostrarSnackbar(
+                getString(
+                    if (evento.exito) {
+                        R.string.outbox_sincronizado
+                    } else {
+                        R.string.outbox_quedan_pendientes
+                    }
+                )
+            )
+
+            MesasEvento.ConflictosDescartados -> avisosUi.mostrarSnackbar(
+                getString(R.string.outbox_conflictos_descartados)
+            )
+
             MesasEvento.SesionExpirada -> {
                 accionesUi.cerrar()
                 cerrarDialogoLiberarMesa()

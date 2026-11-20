@@ -1,0 +1,64 @@
+== git status ==
+## feature/PRB-100-offline-outbox
+ M app/src/main/java/com/lacasablanca/mesero/core/AppContainer.kt
+ M app/src/main/java/com/lacasablanca/mesero/core/NetworkMonitor.kt
+ M app/src/main/java/com/lacasablanca/mesero/data/local/offline/OfflineMappers.kt
+ M app/src/main/java/com/lacasablanca/mesero/data/local/offline/OutboxPedidoStore.kt
+ M app/src/main/java/com/lacasablanca/mesero/data/local/offline/PedidoSync.kt
+ M app/src/main/java/com/lacasablanca/mesero/data/local/offline/RoomOutboxPedidoStore.kt
+ M app/src/main/java/com/lacasablanca/mesero/data/local/offline/SyncScheduler.kt
+ M app/src/main/java/com/lacasablanca/mesero/data/local/offline/SyncWorker.kt
+ M app/src/main/java/com/lacasablanca/mesero/ui/login/LoginActivity.kt
+ M app/src/main/java/com/lacasablanca/mesero/ui/login/LoginViewModel.kt
+ M app/src/main/java/com/lacasablanca/mesero/ui/mesas/MesasUiState.kt
+ M app/src/main/java/com/lacasablanca/mesero/ui/mesas/MesasViewModel.kt
+ M app/src/main/java/com/lacasablanca/mesero/ui/perfil/PerfilFragment.kt
+ M app/src/main/java/com/lacasablanca/mesero/ui/perfil/PerfilViewModel.kt
+ M app/src/main/java/com/lacasablanca/mesero/ui/salon/AvisosMesasUi.kt
+ M app/src/main/java/com/lacasablanca/mesero/ui/salon/SalonFragment.kt
+ M app/src/main/res/layout-sw600dp-land/fragment_mesas.xml
+ M app/src/main/res/layout-sw600dp/fragment_mesas.xml
+ M app/src/main/res/layout/fragment_mesas.xml
+ M app/src/main/res/values/strings.xml
+ M app/src/test/java/com/lacasablanca/mesero/data/local/offline/PedidoSyncTest.kt
+ M app/src/test/java/com/lacasablanca/mesero/data/local/offline/RoomOutboxPedidoStoreTest.kt
+ M app/src/test/java/com/lacasablanca/mesero/ui/perfil/PerfilViewModelTest.kt
+?? app/src/main/java/com/lacasablanca/mesero/core/Conectividad.kt
+?? app/src/main/java/com/lacasablanca/mesero/core/Sincronizacion.kt
+?? app/src/main/java/com/lacasablanca/mesero/data/repository/OutboxRepository.kt
+?? app/src/main/java/com/lacasablanca/mesero/domain/model/PedidoPendiente.kt
+?? app/src/test/java/com/lacasablanca/mesero/data/repository/OutboxRepositoryTest.kt
+?? app/src/test/java/com/lacasablanca/mesero/ui/mesas/MesasViewModelOfflineTest.kt
+== diff stat ==
+warning: in the working copy of 'app/src/test/java/com/lacasablanca/mesero/ui/perfil/PerfilViewModelTest.kt', CRLF will be replaced by LF the next time Git touches it
+ .../com/lacasablanca/mesero/core/AppContainer.kt   | 11 +++-
+ .../com/lacasablanca/mesero/core/NetworkMonitor.kt | 13 ++--
+ .../mesero/data/local/offline/OfflineMappers.kt    |  9 +++
+ .../mesero/data/local/offline/OutboxPedidoStore.kt |  2 +
+ .../mesero/data/local/offline/PedidoSync.kt        | 72 ++++++++++++++++------
+ .../data/local/offline/RoomOutboxPedidoStore.kt    |  2 +
+ .../mesero/data/local/offline/SyncScheduler.kt     |  6 ++
+ .../mesero/data/local/offline/SyncWorker.kt        |  2 +
+ .../lacasablanca/mesero/ui/login/LoginActivity.kt  |  7 ++-
+ .../lacasablanca/mesero/ui/login/LoginViewModel.kt |  5 +-
+ .../lacasablanca/mesero/ui/mesas/MesasUiState.kt   | 18 +++++-
+ .../lacasablanca/mesero/ui/mesas/MesasViewModel.kt | 60 +++++++++++++++++-
+ .../mesero/ui/perfil/PerfilFragment.kt             |  7 ++-
+ .../mesero/ui/perfil/PerfilViewModel.kt            |  5 +-
+ .../lacasablanca/mesero/ui/salon/AvisosMesasUi.kt  |  4 ++
+ .../lacasablanca/mesero/ui/salon/SalonFragment.kt  | 54 +++++++++++++++-
+ .../res/layout-sw600dp-land/fragment_mesas.xml     | 50 +++++++++++++++
+ app/src/main/res/layout-sw600dp/fragment_mesas.xml | 50 +++++++++++++++
+ app/src/main/res/layout/fragment_mesas.xml         | 53 ++++++++++++++++
+ app/src/main/res/values/strings.xml                | 14 +++++
+ .../mesero/data/local/offline/PedidoSyncTest.kt    | 20 +++++-
+ .../local/offline/RoomOutboxPedidoStoreTest.kt     |  7 +++
+ .../mesero/ui/perfil/PerfilViewModelTest.kt        |  7 ++-
+ 23 files changed, 437 insertions(+), 41 deletions(-)
+== untracked ==
+app/src/main/java/com/lacasablanca/mesero/core/Conectividad.kt
+app/src/main/java/com/lacasablanca/mesero/core/Sincronizacion.kt
+app/src/main/java/com/lacasablanca/mesero/data/repository/OutboxRepository.kt
+app/src/main/java/com/lacasablanca/mesero/domain/model/PedidoPendiente.kt
+app/src/test/java/com/lacasablanca/mesero/data/repository/OutboxRepositoryTest.kt
+app/src/test/java/com/lacasablanca/mesero/ui/mesas/MesasViewModelOfflineTest.kt

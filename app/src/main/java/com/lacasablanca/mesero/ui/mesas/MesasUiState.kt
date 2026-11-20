@@ -22,6 +22,9 @@ enum class AvisoMesas {
     ERROR_LIBERAR,
     ERROR_RED,
 
+    /** PRB-100: sin red no se permite abrir una mesa nueva. */
+    SIN_CONEXION,
+
     /** PRB-93: la mesa no tiene platos enviados que se puedan dividir. */
     SIN_PLATOS_DIVIDIR,
 
@@ -91,6 +94,13 @@ sealed interface MesasEvento {
     ) : MesasEvento
 
     data class Aviso(val tipo: AvisoMesas, val mesa: Mesa? = null) : MesasEvento
+
+    /** PRB-100: termino un reintento manual del outbox. */
+    data class SincronizacionTerminada(val exito: Boolean) : MesasEvento
+
+    /** PRB-100: se descartaron los pedidos con conflicto. */
+    object ConflictosDescartados : MesasEvento
+
     object SesionExpirada : MesasEvento
     object SesionCerrada : MesasEvento
 }
@@ -106,7 +116,13 @@ data class MesasUiState(
     val error: ErrorMesas? = null,
     val mesaAbriendo: Long? = null,
     /** PRB-93: operacion en curso; bloquea un segundo envio mientras dura. */
-    val accionEnCurso: AccionMesa? = null
+    val accionEnCurso: AccionMesa? = null,
+    /** PRB-100: pedidos en la cola local de sincronizacion. */
+    val pendientesSync: Int = 0,
+    /** PRB-100: pedidos en cola que el backend rechazo con 409. */
+    val conflictosSync: Int = 0,
+    /** PRB-100: hay un reintento manual en vuelo. */
+    val sincronizando: Boolean = false
 ) {
     /** Mesas de la zona elegida (base para contadores y chips). */
     val mesasDeZona: List<Mesa>

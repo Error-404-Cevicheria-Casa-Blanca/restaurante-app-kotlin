@@ -2,8 +2,12 @@ package com.lacasablanca.mesero.ui.mesas
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.lacasablanca.mesero.core.Conectividad
+import com.lacasablanca.mesero.core.ConectividadSiempreEnLinea
+import com.lacasablanca.mesero.core.Sincronizacion
 import com.lacasablanca.mesero.data.repository.AuthRepository
 import com.lacasablanca.mesero.data.repository.MesaRepository
+import com.lacasablanca.mesero.data.repository.OutboxRepository
 import com.lacasablanca.mesero.data.repository.PedidoRepository
 import com.lacasablanca.mesero.domain.ErrorApp
 import com.lacasablanca.mesero.domain.Resultado
@@ -41,7 +45,10 @@ class MesasViewModel(
      * Es opcional para no romper construcciones antiguas; la app real siempre
      * lo inyecta desde AppContainer.
      */
-    private val pedidoRepository: PedidoRepository? = null
+    private val pedidoRepository: PedidoRepository? = null,
+    private val outboxRepository: OutboxRepository? = null,
+    private val conectividad: Conectividad = ConectividadSiempreEnLinea,
+    private val sincronizacion: Sincronizacion? = null
 ) : ViewModel() {
 
     private val _estado = MutableStateFlow(MesasUiState())
@@ -117,6 +124,7 @@ class MesasViewModel(
         mostrarCargando: Boolean = true,
         silencioso: Boolean = false
     ) {
+        actualizarOutbox()
         if (mostrarCargando) {
             _estado.update { it.copy(cargando = true, error = null) }
         } else if (!silencioso) {
@@ -172,6 +180,10 @@ class MesasViewModel(
 
     private fun abrirMesaLibre(mesa: Mesa) {
         if (_estado.value.mesaAbriendo != null) return
+        if (!conectividad.estaEnLineaAhora()) {
+            _eventos.trySend(MesasEvento.Aviso(AvisoMesas.SIN_CONEXION, mesa))
+            return
+        }
 
         _estado.update { it.copy(mesaAbriendo = mesa.id) }
         viewModelScope.launch(ioDispatcher) {
@@ -419,8 +431,42 @@ class MesasViewModel(
             }
             .sortedBy { it.numero }
 
+    /** PRB-100: reintenta la cola local y refresca el contador del badge. */
+    fun reintentarPendientes() {
+        val repositorio = outboxRepository ?: return
+        if (_estado.value.sincronizando) return
+
+        _estado.update { it.copy(sincronizando = true) }
+        viewModelScope.launch(ioDispatcher) {
+            val resumen = runCatching {
+                repositorio.sincronizar()
+                repositorio.resumen()
+            }.getOrNull()
+            _estado.update {
+                it.copy(
+                    sincronizando = false,
+                    pendientesSync = resumen?.total ?: it.pendientesSync,
+                    conflictosSync = resumen?.conflictos ?: it.conflictosSync
+                )
+            }
+            _eventos.send(MesasEvento.SincronizacionTerminada(resumen != null && resumen.total == 0))
+            cargarMesas(mostrarCargando = false, silencioso = true)
+        }
+    }
+
+    /** PRB-100: elimina de la cola los pedidos rechazados con 409. */
+    fun descartarConflictos() {
+        val repositorio = outboxRepository ?: return
+        viewModelScope.launch(ioDispatcher) {
+            repositorio.descartarConflictos()
+            actualizarOutbox()
+            _eventos.send(MesasEvento.ConflictosDescartados)
+        }
+    }
+
     fun cerrarSesion() {
         viewModelScope.launch(ioDispatcher) {
+            sincronizacion?.cancelar()
             authRepository.cerrarSesion()
             _eventos.send(MesasEvento.SesionCerrada)
         }
@@ -488,9 +534,21 @@ class MesasViewModel(
     }
 
     private suspend fun manejarSesionExpirada() {
+        sincronizacion?.cancelar()
         authRepository.cerrarSesion()
         _estado.update { it.copy(cargando = false, mesaAbriendo = null, accionEnCurso = null) }
         _eventos.send(MesasEvento.SesionExpirada)
+    }
+
+    private suspend fun actualizarOutbox() {
+        val repositorio = outboxRepository ?: return
+        val resumen = runCatching { repositorio.resumen() }.getOrNull() ?: return
+        _estado.update {
+            it.copy(
+                pendientesSync = resumen.total,
+                conflictosSync = resumen.conflictos
+            )
+        }
     }
 
     private fun reemplazarMesa(mesa: Mesa) {

@@ -52,4 +52,10 @@ object SyncScheduler {
         )
         gestor.enqueueUniqueWork(TRABAJO_AHORA, ExistingWorkPolicy.KEEP, ahora)
     }
+
+    fun cancelar(contexto: Context) {
+        val gestor = WorkManager.getInstance(contexto)
+        gestor.cancelUniqueWork(TRABAJO_AHORA)
+        gestor.cancelUniqueWork(TRABAJO)
+    }
 }

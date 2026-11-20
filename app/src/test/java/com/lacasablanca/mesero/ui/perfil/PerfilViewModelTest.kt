@@ -65,7 +65,7 @@ class PerfilViewModelTest {
             )
         )
 
-        val viewModel = PerfilViewModel(authRepository, testDispatcher) { fechaFija }
+        val viewModel = PerfilViewModel(authRepository, testDispatcher, fechaActual = { fechaFija })
         advanceUntilIdle()
 
         val estado = viewModel.estado.value
@@ -84,7 +84,7 @@ class PerfilViewModelTest {
             usuario = Usuario(id = 2L, nombre = "mozo_02", rol = "MOZO")
         )
 
-        val viewModel = PerfilViewModel(authRepository, testDispatcher) { fechaFija }
+        val viewModel = PerfilViewModel(authRepository, testDispatcher, fechaActual = { fechaFija })
         advanceUntilIdle()
 
         val estado = viewModel.estado.value
@@ -97,7 +97,7 @@ class PerfilViewModelTest {
     fun `sin sesion emite IrALogin y deja de cargar`() = runTest(testDispatcher) {
         coEvery { authRepository.sesionGuardada() } returns null
 
-        val viewModel = PerfilViewModel(authRepository, testDispatcher) { fechaFija }
+        val viewModel = PerfilViewModel(authRepository, testDispatcher, fechaActual = { fechaFija })
         val eventos = escucharEventos(viewModel)
         advanceUntilIdle()
 

@@ -42,7 +42,12 @@ class PerfilFragment : Fragment() {
     private val viewModel: PerfilViewModel by lazy {
         ViewModelProvider(
             this,
-            GenericViewModelFactory { PerfilViewModel(contenedor.authRepository) }
+            GenericViewModelFactory {
+                PerfilViewModel(
+                    authRepository = contenedor.authRepository,
+                    sincronizacion = contenedor
+                )
+            }
         )[PerfilViewModel::class.java]
     }
 
