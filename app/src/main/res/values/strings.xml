@@ -349,6 +349,7 @@
     <string name="perfil_turno">Turno</string>
     <string name="perfil_fecha">Fecha</string>
     <string name="perfil_no_asignado">No asignado</string>
+<string name="perfil_aviso_red">Sin conexión. Se muestran los datos guardados de la sesión.</string>
     <string name="perfil_tema_automatico">Automático</string>
     <string name="perfil_desc_claro">Fondo claro de alto contraste para salón muy iluminado.</string>
     <string name="perfil_desc_oscuro">Fondo oscuro de bajo deslumbramiento, ideal para salón nocturno.</string>

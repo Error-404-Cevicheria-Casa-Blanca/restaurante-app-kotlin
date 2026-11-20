@@ -1,0 +1,9 @@
+SUITE com.lacasablanca.mesero.ui.perfil.PerfilViewModelTest tests=7 failures=0 errors=0
+TESTCASE [PASS] un 401 al refrescar navega a login
+TESTCASE [PASS] con turno y terminal llena nombre visible y asignaciones
+TESTCASE [PASS] el refresco exitoso usa los datos y la fecha del servidor
+TESTCASE [PASS] un fallo de red conserva la sesion local y avisa
+TESTCASE [PASS] un 401 cierra la sesion y emite IrALogin
+TESTCASE [PASS] sin sesion emite IrALogin y deja de cargar
+TESTCASE [PASS] sin turno ni terminal deja los campos vacios
+EXIT=0

@@ -49,6 +49,49 @@
             android:paddingEnd="16dp"
             android:paddingBottom="16dp">
 
+            <ProgressBar
+                android:id="@+id/progresoPerfil"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="3dp"
+                android:layout_marginBottom="10dp"
+                android:indeterminate="true"
+                android:indeterminateTint="@color/marea_cyh"
+                android:visibility="gone"
+                tools:visibility="visible" />
+
+            <LinearLayout
+                android:id="@+id/avisoPerfilRed"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:background="@drawable/bg_banner_warn"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingHorizontal="14dp"
+                android:paddingVertical="10dp"
+                android:visibility="gone"
+                tools:visibility="visible">
+
+                <ImageView
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/ic_wifi_off"
+                    app:tint="@color/marea_banner_warn_fg" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:layout_weight="1"
+                    android:fontFamily="@font/inter"
+                    android:text="@string/perfil_aviso_red"
+                    android:textColor="@color/marea_banner_warn_fg"
+                    android:textFontWeight="600"
+                    android:textSize="13.5sp" />
+            </LinearLayout>
+
             <com.google.android.material.card.MaterialCardView
                 style="@style/Tarjeta.Superficie"
                 android:layout_width="match_parent"

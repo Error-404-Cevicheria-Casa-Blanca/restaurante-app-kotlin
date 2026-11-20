@@ -1,11 +1,15 @@
 package com.lacasablanca.mesero.ui.perfil
 
 import com.lacasablanca.mesero.data.repository.AuthRepository
+import com.lacasablanca.mesero.data.repository.PerfilActualizado
+import com.lacasablanca.mesero.domain.ErrorApp
+import com.lacasablanca.mesero.domain.Resultado
 import com.lacasablanca.mesero.domain.model.Sesion
 import com.lacasablanca.mesero.domain.model.Terminal
 import com.lacasablanca.mesero.domain.model.Turno
 import com.lacasablanca.mesero.domain.model.Usuario
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -51,9 +55,21 @@ class PerfilViewModelTest {
         return eventos
     }
 
+    private fun sesionLocal(nombreVisible: String = "Mozo Local"): Sesion = Sesion(
+        token = "token-prueba",
+        usuario = Usuario(
+            id = 1L,
+            nombre = "mozo_01",
+            rol = "MOZO",
+            nombreVisible = nombreVisible,
+            turno = Turno(nombre = "Turno Tarde"),
+            terminal = Terminal(codigo = "TERM-01", nombre = "Tablet Salón Principal")
+        )
+    )
+
     @Test
     fun `con turno y terminal llena nombre visible y asignaciones`() = runTest(testDispatcher) {
-        coEvery { authRepository.sesionGuardada() } returns Sesion(
+        val sesion = Sesion(
             token = "token-prueba",
             usuario = Usuario(
                 id = 1L,
@@ -64,6 +80,9 @@ class PerfilViewModelTest {
                 terminal = Terminal(codigo = "TERM-01", nombre = "Tablet Salón Principal")
             )
         )
+        coEvery { authRepository.sesionGuardada() } returns sesion
+        coEvery { authRepository.refrescarPerfil() } returns
+            Resultado.Exito(PerfilActualizado(sesion, null))
 
         val viewModel = PerfilViewModel(authRepository, testDispatcher, fechaActual = { fechaFija })
         advanceUntilIdle()
@@ -79,10 +98,13 @@ class PerfilViewModelTest {
 
     @Test
     fun `sin turno ni terminal deja los campos vacios`() = runTest(testDispatcher) {
-        coEvery { authRepository.sesionGuardada() } returns Sesion(
+        val sesion = Sesion(
             token = "token-prueba",
             usuario = Usuario(id = 2L, nombre = "mozo_02", rol = "MOZO")
         )
+        coEvery { authRepository.sesionGuardada() } returns sesion
+        coEvery { authRepository.refrescarPerfil() } returns
+            Resultado.Exito(PerfilActualizado(sesion, null))
 
         val viewModel = PerfilViewModel(authRepository, testDispatcher, fechaActual = { fechaFija })
         advanceUntilIdle()
@@ -103,5 +125,84 @@ class PerfilViewModelTest {
 
         assertTrue(eventos.contains(PerfilEvento.IrALogin))
         assertFalse(viewModel.estado.value.cargando)
+    }
+
+    @Test
+    fun `el refresco exitoso usa los datos y la fecha del servidor`() = runTest(testDispatcher) {
+        val local = sesionLocal()
+        val remota = Sesion(
+            token = "token-prueba",
+            usuario = Usuario(
+                id = 1L,
+                nombre = "mozo_01",
+                rol = "MOZO",
+                nombreVisible = "David Rojas",
+                turno = Turno(nombre = "Turno Noche"),
+                terminal = Terminal(codigo = "TERM-02", nombre = "Tablet Barra")
+            )
+        )
+        coEvery { authRepository.sesionGuardada() } returns local
+        coEvery { authRepository.refrescarPerfil() } returns Resultado.Exito(
+            PerfilActualizado(remota, "2026-11-21T19:45:00-05:00")
+        )
+
+        val viewModel = PerfilViewModel(authRepository, testDispatcher) { fechaFija }
+        advanceUntilIdle()
+
+        val estado = viewModel.estado.value
+        assertEquals("David Rojas", estado.nombre)
+        assertEquals("Turno Noche", estado.turno)
+        assertEquals("Tablet Barra", estado.terminal)
+        assertEquals("21/11/2026", estado.fecha)
+        assertFalse(estado.actualizando)
+        assertFalse(estado.avisoRed)
+    }
+
+    @Test
+    fun `un fallo de red conserva la sesion local y avisa`() = runTest(testDispatcher) {
+        coEvery { authRepository.sesionGuardada() } returns sesionLocal("Mozo Local")
+        coEvery { authRepository.refrescarPerfil() } returns
+            Resultado.Fallo(ErrorApp.RED)
+
+        val viewModel = PerfilViewModel(authRepository, testDispatcher) { fechaFija }
+        advanceUntilIdle()
+
+        val estado = viewModel.estado.value
+        assertEquals("Mozo Local", estado.nombre)
+        assertEquals("Turno Tarde", estado.turno)
+        assertEquals("18/11/2026", estado.fecha)
+        assertTrue(estado.avisoRed)
+        assertFalse(estado.actualizando)
+    }
+
+    @Test
+    fun `un 401 al refrescar navega a login`() = runTest(testDispatcher) {
+        coEvery { authRepository.sesionGuardada() } returns sesionLocal()
+        coEvery { authRepository.refrescarPerfil() } returns
+            Resultado.Fallo(ErrorApp.SESION_EXPIRADA)
+        coEvery { authRepository.cerrarSesion() } returns Unit
+
+        val viewModel = PerfilViewModel(authRepository, testDispatcher) { fechaFija }
+        val eventos = escucharEventos(viewModel)
+        advanceUntilIdle()
+
+        assertTrue(eventos.contains(PerfilEvento.IrALogin))
+        assertFalse(viewModel.estado.value.actualizando)
+    }
+
+    @Test
+    fun `un 401 cierra la sesion y emite IrALogin`() = runTest(testDispatcher) {
+        coEvery { authRepository.sesionGuardada() } returns sesionLocal()
+        coEvery { authRepository.refrescarPerfil() } returns
+            Resultado.Fallo(ErrorApp.SESION_EXPIRADA)
+        coEvery { authRepository.cerrarSesion() } returns Unit
+
+        val viewModel = PerfilViewModel(authRepository, testDispatcher) { fechaFija }
+        val eventos = escucharEventos(viewModel)
+        advanceUntilIdle()
+
+        coVerify(exactly = 1) { authRepository.cerrarSesion() }
+        assertTrue(eventos.contains(PerfilEvento.IrALogin))
+        assertFalse(viewModel.estado.value.actualizando)
     }
 }
