@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
@@ -79,6 +80,8 @@ class PerfilFragment : Fragment() {
     }
 
     private fun render(estado: PerfilUiState) {
+        binding.progresoPerfil.isVisible = estado.actualizando
+        binding.avisoPerfilRed.isVisible = estado.avisoRed
         val nombreVisible = estado.nombre.ifBlank {
             getString(R.string.perfil_nombre_vacio)
         }

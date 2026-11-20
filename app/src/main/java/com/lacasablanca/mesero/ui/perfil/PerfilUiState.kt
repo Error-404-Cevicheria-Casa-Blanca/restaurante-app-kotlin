@@ -8,6 +8,8 @@ package com.lacasablanca.mesero.ui.perfil
  */
 data class PerfilUiState(
     val cargando: Boolean = true,
+    val actualizando: Boolean = false,
+    val avisoRed: Boolean = false,
     val nombre: String = "",
     val rol: String = "",
     val usuario: String = "",

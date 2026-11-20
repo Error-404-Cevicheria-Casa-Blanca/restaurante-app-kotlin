@@ -1,0 +1,43 @@
+RESULTADOS=37
+TESTS=290
+FAILURES=0
+ERRORS=0
+SKIPPED=0
+---
+TEST-com.lacasablanca.mesero.data.local.offline.PedidoSyncTest.xml: tests=6 failures=0 errors=0 skipped=0
+TEST-com.lacasablanca.mesero.data.local.offline.RoomOutboxPedidoStoreTest.xml: tests=4 failures=0 errors=0 skipped=0
+TEST-com.lacasablanca.mesero.data.local.TemaPreferenciasTest.xml: tests=4 failures=0 errors=0 skipped=0
+TEST-com.lacasablanca.mesero.data.remote.dto.AccionesMesaMapeoTest.xml: tests=6 failures=0 errors=0 skipped=0
+TEST-com.lacasablanca.mesero.data.remote.dto.ModificadoresMapeoTest.xml: tests=5 failures=0 errors=0 skipped=0
+TEST-com.lacasablanca.mesero.data.remote.dto.PedidoActivoMapeoTest.xml: tests=5 failures=0 errors=0 skipped=0
+TEST-com.lacasablanca.mesero.data.remote.dto.PedidoExistenteMapeoTest.xml: tests=4 failures=0 errors=0 skipped=0
+TEST-com.lacasablanca.mesero.data.remote.dto.PerfilResponseMapeoTest.xml: tests=2 failures=0 errors=0 skipped=0
+TEST-com.lacasablanca.mesero.data.repository.CatalogoOfflineRepositoryTest.xml: tests=6 failures=0 errors=0 skipped=0
+TEST-com.lacasablanca.mesero.data.repository.CatalogoRepositoryTest.xml: tests=11 failures=0 errors=0 skipped=0
+TEST-com.lacasablanca.mesero.data.repository.CobroRepositoryTest.xml: tests=4 failures=0 errors=0 skipped=0
+TEST-com.lacasablanca.mesero.data.repository.FakeAuthRepositoryTest.xml: tests=4 failures=0 errors=0 skipped=0
+TEST-com.lacasablanca.mesero.data.repository.MesaOfflineRepositoryTest.xml: tests=5 failures=0 errors=0 skipped=0
+TEST-com.lacasablanca.mesero.data.repository.MesaRepositoryTest.xml: tests=13 failures=0 errors=0 skipped=0
+TEST-com.lacasablanca.mesero.data.repository.PedidoDeliveryMapeoTest.xml: tests=6 failures=0 errors=0 skipped=0
+TEST-com.lacasablanca.mesero.data.repository.PedidoOutboxTest.xml: tests=2 failures=0 errors=0 skipped=0
+TEST-com.lacasablanca.mesero.data.repository.PedidoRepositoryTest.xml: tests=11 failures=0 errors=0 skipped=0
+TEST-com.lacasablanca.mesero.data.repository.RealAuthRepositoryTest.xml: tests=3 failures=0 errors=0 skipped=0
+TEST-com.lacasablanca.mesero.DependenciasSmokeTest.xml: tests=5 failures=0 errors=0 skipped=0
+TEST-com.lacasablanca.mesero.domain.model.EstadoPlatoTest.xml: tests=8 failures=0 errors=0 skipped=0
+TEST-com.lacasablanca.mesero.domain.model.ModificadorTest.xml: tests=3 failures=0 errors=0 skipped=0
+TEST-com.lacasablanca.mesero.domain.model.TemaAppTest.xml: tests=4 failures=0 errors=0 skipped=0
+TEST-com.lacasablanca.mesero.ExampleUnitTest.xml: tests=1 failures=0 errors=0 skipped=0
+TEST-com.lacasablanca.mesero.ui.bloqueo.BloqueoViewModelTest.xml: tests=15 failures=0 errors=0 skipped=0
+TEST-com.lacasablanca.mesero.ui.cobro.CobroViewModelPedidoTest.xml: tests=3 failures=0 errors=0 skipped=0
+TEST-com.lacasablanca.mesero.ui.cobro.CobroViewModelTest.xml: tests=23 failures=0 errors=0 skipped=0
+TEST-com.lacasablanca.mesero.ui.comanda.CarritoViewModelDeliveryTest.xml: tests=5 failures=0 errors=0 skipped=0
+TEST-com.lacasablanca.mesero.ui.comanda.CarritoViewModelModificadoresTest.xml: tests=9 failures=0 errors=0 skipped=0
+TEST-com.lacasablanca.mesero.ui.comanda.CarritoViewModelPollingTest.xml: tests=10 failures=0 errors=0 skipped=0
+TEST-com.lacasablanca.mesero.ui.comanda.CarritoViewModelTest.xml: tests=30 failures=0 errors=0 skipped=0
+TEST-com.lacasablanca.mesero.ui.comanda.ComandaViewModelTest.xml: tests=11 failures=0 errors=0 skipped=0
+TEST-com.lacasablanca.mesero.ui.impresion.ImpresionPrecuentaViewModelTest.xml: tests=8 failures=0 errors=0 skipped=0
+TEST-com.lacasablanca.mesero.ui.login.LoginViewModelTest.xml: tests=8 failures=0 errors=0 skipped=0
+TEST-com.lacasablanca.mesero.ui.mesas.MesasViewModelPollingTest.xml: tests=5 failures=0 errors=0 skipped=0
+TEST-com.lacasablanca.mesero.ui.mesas.MesasViewModelTest.xml: tests=28 failures=0 errors=0 skipped=0
+TEST-com.lacasablanca.mesero.ui.pedidos.PedidosViewModelTest.xml: tests=7 failures=0 errors=0 skipped=0
+TEST-com.lacasablanca.mesero.ui.perfil.PerfilViewModelTest.xml: tests=6 failures=0 errors=0 skipped=0

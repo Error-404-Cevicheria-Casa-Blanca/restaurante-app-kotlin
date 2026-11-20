@@ -77,6 +77,46 @@ class RealAuthRepository(
     }
 
     /**
+     * GET /api/v1/auth/me (PRB-102). Conserva el token de la sesion activa y
+     * persiste los datos refrescados (nombre visible, turno y terminal).
+     */
+    override suspend fun refrescarPerfil(): Resultado<PerfilActualizado> {
+        return try {
+            val sesionActual = sesionVigente()
+                ?: return Resultado.Fallo(ErrorApp.SESION_EXPIRADA)
+            val respuesta = api.perfil()
+            val usuarioDto = respuesta.usuario
+                ?: return Resultado.Fallo(ErrorApp.SERVIDOR)
+            val anterior = sesionActual.usuario
+            val actualizada = Sesion(
+                token = sesionActual.token,
+                usuario = Usuario(
+                    id = usuarioDto.id ?: anterior.id,
+                    nombre = usuarioDto.nombre?.takeIf { it.isNotBlank() } ?: anterior.nombre,
+                    rol = usuarioDto.rol?.uppercase()?.takeIf { it.isNotBlank() } ?: anterior.rol,
+                    nombreVisible = usuarioDto.nombreVisible?.takeIf { it.isNotBlank() }
+                        ?: anterior.nombreVisible,
+                    turno = usuarioDto.turno?.aDominio(),
+                    terminal = usuarioDto.terminal?.aDominio()
+                )
+            )
+            sessionManager.iniciar(actualizada)
+            Resultado.Exito(PerfilActualizado(actualizada, respuesta.fechaHoraServidor))
+        } catch (e: HttpException) {
+            Resultado.Fallo(errorDesdeCodigoHttp(e.code()))
+        } catch (e: IOException) {
+            Resultado.Fallo(ErrorApp.RED)
+        } catch (e: Exception) {
+            Resultado.Fallo(ErrorApp.DESCONOCIDO)
+        }
+    }
+
+    private suspend fun sesionVigente(): Sesion? {
+        sessionManager.cargar()
+        return sessionManager.sesion
+    }
+
+    /**
      * POST /api/v1/auth/pin (PRB-54). El backend devuelve un token nuevo, pero
      * la app conserva el de la sesion: este endpoint solo confirma el PIN.
      */

@@ -1,0 +1,45 @@
+== git status --short --branch ==
+## feature/PRB-102-auth-me
+ M app/src/main/java/com/lacasablanca/mesero/data/remote/AuthApi.kt
+ M app/src/main/java/com/lacasablanca/mesero/data/remote/dto/AuthDtos.kt
+ M app/src/main/java/com/lacasablanca/mesero/data/repository/AuthRepository.kt
+ M app/src/main/java/com/lacasablanca/mesero/data/repository/FakeAuthRepository.kt
+ M app/src/main/java/com/lacasablanca/mesero/data/repository/RealAuthRepository.kt
+ M app/src/main/java/com/lacasablanca/mesero/ui/perfil/PerfilFragment.kt
+ M app/src/main/java/com/lacasablanca/mesero/ui/perfil/PerfilUiState.kt
+ M app/src/main/java/com/lacasablanca/mesero/ui/perfil/PerfilViewModel.kt
+ M app/src/main/res/layout-sw600dp/fragment_perfil.xml
+ M app/src/main/res/layout/fragment_perfil.xml
+ M app/src/main/res/values/strings.xml
+ M app/src/test/java/com/lacasablanca/mesero/ui/perfil/PerfilViewModelTest.kt
+?? app/src/test/java/com/lacasablanca/mesero/data/remote/dto/PerfilResponseMapeoTest.kt
+?? app/src/test/java/com/lacasablanca/mesero/data/repository/RealAuthRepositoryTest.kt
+== git diff --stat ==
+warning: in the working copy of 'app/src/main/java/com/lacasablanca/mesero/data/repository/FakeAuthRepository.kt', CRLF will be replaced by LF the next time Git touches it
+ .../com/lacasablanca/mesero/data/remote/AuthApi.kt |  7 +-
+ .../mesero/data/remote/dto/AuthDtos.kt             | 10 +++
+ .../mesero/data/repository/AuthRepository.kt       | 12 +++
+ .../mesero/data/repository/FakeAuthRepository.kt   | 16 ++++
+ .../mesero/data/repository/RealAuthRepository.kt   | 40 ++++++++++
+ .../mesero/ui/perfil/PerfilFragment.kt             |  3 +
+ .../lacasablanca/mesero/ui/perfil/PerfilUiState.kt |  2 +
+ .../mesero/ui/perfil/PerfilViewModel.kt            | 83 +++++++++++++++++----
+ .../main/res/layout-sw600dp/fragment_perfil.xml    | 43 +++++++++++
+ app/src/main/res/layout/fragment_perfil.xml        | 43 +++++++++++
+ app/src/main/res/values/strings.xml                |  1 +
+ .../mesero/ui/perfil/PerfilViewModelTest.kt        | 87 +++++++++++++++++++++-
+ 12 files changed, 329 insertions(+), 18 deletions(-)
+== git diff --numstat ==
+warning: in the working copy of 'app/src/main/java/com/lacasablanca/mesero/data/repository/FakeAuthRepository.kt', CRLF will be replaced by LF the next time Git touches it
+6	1	app/src/main/java/com/lacasablanca/mesero/data/remote/AuthApi.kt
+10	0	app/src/main/java/com/lacasablanca/mesero/data/remote/dto/AuthDtos.kt
+12	0	app/src/main/java/com/lacasablanca/mesero/data/repository/AuthRepository.kt
+16	0	app/src/main/java/com/lacasablanca/mesero/data/repository/FakeAuthRepository.kt
+40	0	app/src/main/java/com/lacasablanca/mesero/data/repository/RealAuthRepository.kt
+3	0	app/src/main/java/com/lacasablanca/mesero/ui/perfil/PerfilFragment.kt
+2	0	app/src/main/java/com/lacasablanca/mesero/ui/perfil/PerfilUiState.kt
+68	15	app/src/main/java/com/lacasablanca/mesero/ui/perfil/PerfilViewModel.kt
+43	0	app/src/main/res/layout-sw600dp/fragment_perfil.xml
+43	0	app/src/main/res/layout/fragment_perfil.xml
+1	0	app/src/main/res/values/strings.xml
+85	2	app/src/test/java/com/lacasablanca/mesero/ui/perfil/PerfilViewModelTest.kt
