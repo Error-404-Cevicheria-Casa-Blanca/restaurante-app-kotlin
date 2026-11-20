@@ -5,6 +5,7 @@ import com.lacasablanca.mesero.domain.model.Categoria
 import com.lacasablanca.mesero.domain.model.EstadoMesa
 import com.lacasablanca.mesero.domain.model.Mesa
 import com.lacasablanca.mesero.domain.model.Modificador
+import com.lacasablanca.mesero.domain.model.PedidoPendiente
 import com.lacasablanca.mesero.domain.model.Producto
 import java.math.BigDecimal
 
@@ -72,6 +73,14 @@ fun MesaEntity.aDominio(): Mesa = Mesa(
     capacidad = capacidad,
     ubicacion = ubicacion,
     estado = EstadoMesa.desdeApi(estado)
+)
+
+fun PedidoPendienteEntity.aPendiente(): PedidoPendiente = PedidoPendiente(
+    id = id,
+    mesaId = mesaId,
+    creadoEn = creadoEn,
+    intentos = intentos,
+    ultimoError = ultimoError
 )
 
 private fun String.aBigDecimalSeguro(): BigDecimal = try {

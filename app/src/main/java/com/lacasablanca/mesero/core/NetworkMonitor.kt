@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.asStateFlow
  * Estado de conectividad para el banner offline (PRB-62).
  * Usa la red por defecto del sistema y se actualiza con un callback.
  */
-class NetworkMonitor(contexto: Context) {
+class NetworkMonitor(contexto: Context) : Conectividad {
 
     private val gestor = contexto.applicationContext
         .getSystemService(ConnectivityManager::class.java)
@@ -35,7 +35,7 @@ class NetworkMonitor(contexto: Context) {
             network: Network,
             capacidades: NetworkCapabilities
         ) {
-            _enLinea.value = capacidades.tieneInternet()
+            _enLinea.value = capacidades.tieneRed()
         }
     }
 
@@ -53,14 +53,13 @@ class NetworkMonitor(contexto: Context) {
         registrado = false
     }
 
-    fun estaEnLineaAhora(): Boolean {
+    override fun estaEnLineaAhora(): Boolean {
         val conexiones = gestor ?: return false
         val red = conexiones.activeNetwork ?: return false
         val capacidades = conexiones.getNetworkCapabilities(red) ?: return false
-        return capacidades.tieneInternet()
+        return capacidades.tieneRed()
     }
 
-    private fun NetworkCapabilities.tieneInternet(): Boolean =
-        hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) &&
-            hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
+    private fun NetworkCapabilities.tieneRed(): Boolean =
+        hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
 }

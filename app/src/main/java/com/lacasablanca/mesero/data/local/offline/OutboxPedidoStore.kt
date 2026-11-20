@@ -13,6 +13,8 @@ interface OutboxPedidoStore {
 
     suspend fun pendientes(): List<PedidoPendienteEntity>
 
+    suspend fun contar(): Int
+
     suspend fun eliminar(id: Long)
 
     suspend fun registrarFallo(id: Long, error: String?)

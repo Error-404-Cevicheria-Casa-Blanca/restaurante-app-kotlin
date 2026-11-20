@@ -5,6 +5,7 @@ import com.lacasablanca.mesero.data.remote.PedidosApi
 import com.lacasablanca.mesero.data.remote.dto.CrearPedidoRequest
 import com.lacasablanca.mesero.data.remote.dto.ItemPedidoRequest
 import com.lacasablanca.mesero.data.remote.dto.PedidoResponseDto
+import com.lacasablanca.mesero.domain.model.ErroresOutbox
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.just
@@ -74,13 +75,26 @@ class PedidoSyncTest {
     }
 
     @Test
-    fun `un 409 no se reintenta pero se conserva para revision`() = runTest {
+    fun `un 409 se marca como conflicto y se conserva para revision`() = runTest {
         coEvery { outbox.pendientes() } returns listOf(pendiente())
         coEvery { api.crearPedido(any(), any()) } throws errorHttp(409)
-        coEvery { outbox.registrarFallo(1L, "HTTP 409") } just Runs
+        coEvery { outbox.registrarFallo(1L, ErroresOutbox.CONFLICTO) } just Runs
 
         assertTrue(sync.sincronizar())
-        coVerify(exactly = 1) { outbox.registrarFallo(1L, "HTTP 409") }
+        coVerify(exactly = 1) { outbox.registrarFallo(1L, ErroresOutbox.CONFLICTO) }
+        coVerify(exactly = 0) { outbox.eliminar(any()) }
+    }
+
+    @Test
+    fun `un 401 marca sesion expirada y detiene la cola`() = runTest {
+        coEvery { outbox.pendientes() } returns listOf(pendiente())
+        coEvery { api.crearPedido(any(), any()) } throws errorHttp(401)
+        coEvery {
+            outbox.registrarFallo(1L, ErroresOutbox.SESION_EXPIRADA)
+        } just Runs
+
+        assertTrue(sync.sincronizar())
+        coVerify(exactly = 1) { outbox.registrarFallo(1L, ErroresOutbox.SESION_EXPIRADA) }
         coVerify(exactly = 0) { outbox.eliminar(any()) }
     }
 

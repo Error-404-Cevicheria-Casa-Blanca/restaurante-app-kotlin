@@ -64,6 +64,13 @@ class RoomOutboxPedidoStoreTest {
     }
 
     @Test
+    fun `contar delega en el dao`() = runTest {
+        coEvery { dao.contar() } returns 3
+
+        assertEquals(3, store.contar())
+    }
+
+    @Test
     fun `eliminar y registrar fallo delegan en el dao`() = runTest {
         coEvery { dao.eliminar(1L) } just Runs
         coEvery { dao.registrarFallo(1L, "RED") } just Runs

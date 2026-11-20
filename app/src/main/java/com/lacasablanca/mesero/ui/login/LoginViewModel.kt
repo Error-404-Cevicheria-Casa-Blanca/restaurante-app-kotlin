@@ -2,6 +2,7 @@ package com.lacasablanca.mesero.ui.login
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.lacasablanca.mesero.core.Sincronizacion
 import com.lacasablanca.mesero.data.repository.AuthRepository
 import com.lacasablanca.mesero.domain.ErrorApp
 import com.lacasablanca.mesero.domain.Resultado
@@ -17,7 +18,8 @@ import kotlinx.coroutines.launch
 
 class LoginViewModel(
     private val authRepository: AuthRepository,
-    private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
+    private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
+    private val sincronizacion: Sincronizacion? = null
 ) : ViewModel() {
 
     private val _estado = MutableStateFlow(LoginUiState())
@@ -55,6 +57,7 @@ class LoginViewModel(
         viewModelScope.launch(ioDispatcher) {
             when (val resultado = authRepository.iniciarSesion(actual.usuario, actual.clave)) {
                 is Resultado.Exito -> {
+                    sincronizacion?.programar()
                     _estado.update { it.copy(cargando = false) }
                     _eventos.send(LoginEvento.IrAMesas)
                 }

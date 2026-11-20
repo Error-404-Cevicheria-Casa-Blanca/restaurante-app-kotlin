@@ -32,6 +32,8 @@ class RoomOutboxPedidoStore(
 
     override suspend fun pendientes(): List<PedidoPendienteEntity> = dao.pendientes()
 
+    override suspend fun contar(): Int = dao.contar()
+
     override suspend fun eliminar(id: Long) {
         dao.eliminar(id)
     }
