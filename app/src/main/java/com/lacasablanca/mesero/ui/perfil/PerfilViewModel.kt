@@ -128,7 +128,8 @@ class PerfilViewModel(
                 ?.let { terminal -> terminal.nombre.ifBlank { terminal.codigo } }
                 .orEmpty(),
             turno = usuario.turno?.nombre.orEmpty(),
-            fecha = fecha
+            fecha = fecha,
+            esAdmin = usuario.rol.equals(ROL_ADMIN, ignoreCase = true)
         )
     }
 
@@ -162,6 +163,7 @@ class PerfilViewModel(
     }
 
     private companion object {
+        const val ROL_ADMIN = "ADMIN"
         val FORMATO_FECHA: DateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
     }
 }

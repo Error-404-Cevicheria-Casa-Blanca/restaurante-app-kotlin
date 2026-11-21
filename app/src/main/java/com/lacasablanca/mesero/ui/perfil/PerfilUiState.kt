@@ -16,6 +16,7 @@ data class PerfilUiState(
     val terminal: String = "",
     val turno: String = "",
     val fecha: String = "",
+    val esAdmin: Boolean = false,
     val cerrandoSesion: Boolean = false
 )
 

@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_dialogo_premium"
+    android:orientation="vertical"
+    android:paddingStart="22dp"
+    android:paddingTop="28dp"
+    android:paddingEnd="22dp"
+    android:paddingBottom="22dp">
+
+    <FrameLayout
+        android:layout_width="52dp"
+        android:layout_height="52dp"
+        android:layout_gravity="center_horizontal"
+        android:background="@drawable/bg_ib_info">
+
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_gravity="center"
+            android:contentDescription="@null"
+            android:src="@drawable/ic_tablet"
+            app:tint="@color/sem_info_c" />
+    </FrameLayout>
+
+    <TextView
+        android:id="@+id/tituloAjustesEquipo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="14dp"
+        android:gravity="center"
+        android:text="@string/ajustes_equipo_titulo"
+        android:textAppearance="@style/Texto.TituloPantalla"
+        android:textColor="@color/marea_tx"
+        android:textSize="18sp"
+        android:textStyle="bold" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/inputAjustesUrl"
+        style="@style/Campo.Marea"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:hint="@string/ajustes_equipo_url">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/entradaAjustesUrl"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/inter_medium"
+            android:imeOptions="actionNext"
+            android:inputType="textUri"
+            android:maxLines="1"
+            android:textColor="@color/marea_tx"
+            android:textSize="14sp"
+            tools:text="https://casa-blanca.local/" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <TextView
+        android:id="@+id/textoAjustesAyuda"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:fontFamily="@font/inter"
+        android:text="@string/ajustes_equipo_url_ayuda"
+        android:textColor="@color/marea_tx3"
+        android:textSize="11.5sp" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/inputAjustesTerminal"
+        style="@style/Campo.Marea"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="14dp"
+        android:hint="@string/ajustes_equipo_terminal">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/entradaAjustesTerminal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/inter_medium"
+            android:imeOptions="actionDone"
+            android:inputType="textCapCharacters"
+            android:maxLength="30"
+            android:maxLines="1"
+            android:textColor="@color/marea_tx"
+            android:textSize="14sp"
+            tools:text="TERM-02" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <LinearLayout
+        android:id="@+id/filaGuardandoAjustes"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:visibility="gone"
+        tools:visibility="visible">
+
+        <ProgressBar
+            android:id="@+id/progresoAjustes"
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:indeterminateTint="@color/marea_cyh" />
+
+        <TextView
+            android:id="@+id/textoAjustesGuardando"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_weight="1"
+            android:fontFamily="@font/inter_medium"
+            android:text="@string/ajustes_equipo_guardando"
+            android:textColor="@color/marea_tx2"
+            android:textSize="12.5sp" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/textoAjustesExito"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/bg_banner_ok"
+        android:fontFamily="@font/inter_medium"
+        android:paddingHorizontal="12dp"
+        android:paddingVertical="10dp"
+        android:text="@string/ajustes_equipo_guardado"
+        android:textColor="@color/sem_ok_c"
+        android:textSize="12.5sp"
+        android:visibility="gone"
+        tools:visibility="visible" />
+
+    <TextView
+        android:id="@+id/textoAjustesErrorGeneral"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/bg_error_banner"
+        android:fontFamily="@font/inter_medium"
+        android:paddingHorizontal="12dp"
+        android:paddingVertical="10dp"
+        android:text="@string/ajustes_equipo_error_guardar"
+        android:textColor="@color/marea_banner_err_fg"
+        android:textSize="12.5sp"
+        android:visibility="gone"
+        tools:visibility="visible" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="18dp"
+        android:orientation="horizontal">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnGuardarAjustes"
+            style="@style/Boton.Primario"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="6dp"
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="@string/ajustes_equipo_guardar" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnCancelarAjustes"
+            style="@style/Boton.Outlined"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="@string/accion_cancelar" />
+    </LinearLayout>
+
+</LinearLayout>
