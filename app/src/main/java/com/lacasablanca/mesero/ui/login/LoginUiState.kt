@@ -10,6 +10,7 @@ enum class ErrorLogin {
     VALIDACION,
     RED,
     ROL_NO_PERMITIDO,
+    TERMINAL_INVALIDO,
     DESCONOCIDO
 }
 
