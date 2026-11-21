@@ -21,7 +21,8 @@ import java.io.IOException
 /** Login contra la API real (POST /api/v1/auth/login). */
 class RealAuthRepository(
     private val api: AuthApi,
-    private val sessionManager: SessionManager
+    private val sessionManager: SessionManager,
+    private val terminalCodigo: () -> String = { BuildConfig.TERMINAL_CODIGO }
 ) : AuthRepository {
 
     override suspend fun iniciarSesion(usuario: String, clave: String): Resultado<Sesion> {
@@ -30,7 +31,7 @@ class RealAuthRepository(
                 LoginRequestDto(
                     usuario = usuario.trim(),
                     clave = clave,
-                    terminalCodigo = BuildConfig.TERMINAL_CODIGO
+                    terminalCodigo = terminalConfigurado()
                 )
             )
             persistirSesion(respuesta)
@@ -60,7 +61,7 @@ class RealAuthRepository(
                 PinRequestDto(
                     usuario = usuario.trim(),
                     pin = pin,
-                    terminalCodigo = BuildConfig.TERMINAL_CODIGO
+                    terminalCodigo = terminalConfigurado()
                 )
             )
             persistirSesion(respuesta)
@@ -157,7 +158,13 @@ class RealAuthRepository(
      */
     override suspend fun validarPin(usuario: String, pin: String): Resultado<Unit> {
         return try {
-            api.validarPin(PinRequestDto(usuario = usuario.trim(), pin = pin))
+            api.validarPin(
+                PinRequestDto(
+                    usuario = usuario.trim(),
+                    pin = pin,
+                    terminalCodigo = terminalConfigurado()
+                )
+            )
             Resultado.Exito(Unit)
         } catch (e: HttpException) {
             val error = when (e.code()) {
@@ -177,6 +184,10 @@ class RealAuthRepository(
     override suspend fun cerrarSesion() {
         sessionManager.cerrar()
     }
+
+    /** Terminal configurado en Ajustes; BuildConfig solo es el valor inicial. */
+    private fun terminalConfigurado(): String? =
+        terminalCodigo().trim().takeIf { it.isNotBlank() }
 
     private fun TurnoDto.aDominio(): Turno = Turno(
         id = id ?: 0L,

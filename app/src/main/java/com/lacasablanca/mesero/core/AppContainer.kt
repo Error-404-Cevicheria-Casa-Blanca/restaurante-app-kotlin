@@ -3,8 +3,10 @@ package com.lacasablanca.mesero.core
 import android.content.Context
 import com.lacasablanca.mesero.BuildConfig
 import com.lacasablanca.mesero.data.local.CryptoManager
+import com.lacasablanca.mesero.data.local.DataStoreEquipoAlmacen
 import com.lacasablanca.mesero.data.local.EncryptedTokenStore
 import com.lacasablanca.mesero.data.local.SessionManager
+import com.lacasablanca.mesero.data.local.SharedPreferencesCacheEquipo
 import com.lacasablanca.mesero.data.local.TemaPreferencias
 import com.lacasablanca.mesero.data.local.TokenStore
 import com.lacasablanca.mesero.data.local.offline.AppDatabase
@@ -22,7 +24,9 @@ import com.lacasablanca.mesero.data.repository.AuthRepository
 import com.lacasablanca.mesero.data.repository.CatalogoOfflineRepository
 import com.lacasablanca.mesero.data.repository.CatalogoRepository
 import com.lacasablanca.mesero.data.repository.CobroRepository
+import com.lacasablanca.mesero.data.repository.ConfiguracionEquipoRepository
 import com.lacasablanca.mesero.data.repository.DefaultOutboxRepository
+import com.lacasablanca.mesero.data.repository.EquipoPreferencias
 import com.lacasablanca.mesero.data.repository.FakeAuthRepository
 import com.lacasablanca.mesero.data.repository.FakeCatalogoRepository
 import com.lacasablanca.mesero.data.repository.FakeCobroRepository
@@ -52,6 +56,12 @@ class AppContainer(private val contexto: Context) : Sincronizacion {
 
     val temaPreferencias = TemaPreferencias(contexto)
 
+    /** URL y terminal por tablet (PRB-99); BuildConfig solo es el valor inicial. */
+    val equipoPreferencias: ConfiguracionEquipoRepository = EquipoPreferencias(
+        almacen = DataStoreEquipoAlmacen(contexto),
+        cache = SharedPreferencesCacheEquipo(contexto)
+    )
+
     /** Room: cache del catalogo/mesas + outbox de pedidos (PRB-62/63). */
     private val database: AppDatabase by lazy { AppDatabase.crear(contexto) }
 
@@ -65,7 +75,11 @@ class AppContainer(private val contexto: Context) : Sincronizacion {
     private val fakeConsumoStore = FakeConsumoStore()
 
     private val retrofit: Retrofit by lazy {
-        ApiClient.crear(BuildConfig.BASE_URL) { sessionManager.token }
+        ApiClient.crear(
+            baseUrl = BuildConfig.BASE_URL,
+            proveedorToken = { sessionManager.token },
+            proveedorBaseUrl = { equipoPreferencias.urlActual() }
+        )
     }
 
     private val authApi: AuthApi by lazy { retrofit.create(AuthApi::class.java) }
@@ -78,7 +92,7 @@ class AppContainer(private val contexto: Context) : Sincronizacion {
         if (BuildConfig.USE_FAKE_DATA) {
             FakeAuthRepository(sessionManager)
         } else {
-            RealAuthRepository(authApi, sessionManager)
+            RealAuthRepository(authApi, sessionManager) { equipoPreferencias.terminalActual() }
         }
 
     val mesaRepository: MesaRepository =

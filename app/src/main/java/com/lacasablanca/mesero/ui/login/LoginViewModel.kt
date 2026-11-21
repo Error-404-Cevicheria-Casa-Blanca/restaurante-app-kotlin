@@ -137,6 +137,9 @@ class LoginViewModel(
         ErrorApp.CREDENCIALES -> ErrorLogin.CREDENCIALES
         ErrorApp.RED -> ErrorLogin.RED
         ErrorApp.ROL_NO_PERMITIDO -> ErrorLogin.ROL_NO_PERMITIDO
+        // El backend solo devuelve 400 en /auth/login cuando el terminal no
+        // existe o esta inactivo (los campos vacios se validan en la app).
+        ErrorApp.VALIDACION -> ErrorLogin.TERMINAL_INVALIDO
         else -> ErrorLogin.DESCONOCIDO
     }
 
