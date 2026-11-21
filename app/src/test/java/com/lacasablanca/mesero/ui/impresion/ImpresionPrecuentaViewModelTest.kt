@@ -322,4 +322,19 @@ class ImpresionPrecuentaViewModelTest {
 
         assertNull(viewModel.estado.value.aviso)
     }
+
+    @Test
+    fun `un estado desconocido no se pinta como impreso`() = runTest(testDispatcher) {
+        coEvery { repositorio.imprimirPrecuenta(7L) } returns Resultado.Exito(cuenta)
+        coEvery { repositorio.obtenerEstadoImpresion(7L) } returns
+            Resultado.Exito(trabajo("EN_PROCESO"))
+
+        val viewModel = crearViewModel()
+        viewModel.imprimirPrecuenta()
+        advanceUntilIdle()
+
+        assertEquals(EstadoColaImpresion.DESCONOCIDO, viewModel.estado.value.estadoCola)
+        assertNotEquals(EstadoColaImpresion.IMPRESO, viewModel.estado.value.estadoCola)
+        assertTrue(viewModel.estado.value.sinConfirmacion)
+    }
 }
