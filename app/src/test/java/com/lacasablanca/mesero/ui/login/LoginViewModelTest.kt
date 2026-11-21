@@ -133,6 +133,22 @@ class LoginViewModelTest {
     }
 
     @Test
+    fun `un terminal invalido en el login muestra su mensaje`() = runTest(testDispatcher) {
+        coEvery { authRepository.iniciarSesion(any(), any()) } returns
+            Resultado.Fallo(ErrorApp.VALIDACION)
+
+        val viewModel = LoginViewModel(authRepository, testDispatcher)
+        advanceUntilIdle()
+
+        viewModel.onUsuarioCambiado("mozo")
+        viewModel.onClaveCambiada("mozo123")
+        viewModel.ingresar()
+        advanceUntilIdle()
+
+        assertEquals(ErrorLogin.TERMINAL_INVALIDO, viewModel.estado.value.error)
+    }
+
+    @Test
     fun `si ya hay sesion guardada navega sin pedir credenciales`() = runTest(testDispatcher) {
         coEvery { authRepository.sesionGuardada() } returns sesion
 
