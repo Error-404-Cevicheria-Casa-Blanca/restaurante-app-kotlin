@@ -43,7 +43,7 @@ internal object ComandaMensajes {
     }
 
     fun avisoImpresion(context: Context, aviso: AvisoImpresion): String = when (aviso) {
-        AvisoImpresion.ENVIADA -> context.getString(R.string.impresion_enviada)
+        AvisoImpresion.ENCOLADA -> context.getString(R.string.impresion_encolada)
         AvisoImpresion.ERROR_CONEXION -> context.getString(R.string.impresion_error_conexion)
         AvisoImpresion.SESION_EXPIRADA -> context.getString(R.string.impresion_sesion_expirada)
         AvisoImpresion.ERROR -> context.getString(R.string.impresion_error)

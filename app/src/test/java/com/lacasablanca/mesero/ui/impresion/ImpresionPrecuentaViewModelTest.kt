@@ -11,14 +11,18 @@ import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import java.math.BigDecimal
@@ -39,12 +43,9 @@ class ImpresionPrecuentaViewModelTest {
         propinaSugerida = BigDecimal.ZERO
     )
 
-    private val trabajo = TrabajoImpresionDto(
-        jobId = "job-1",
-        mesaId = 7L,
-        tipo = "PRECUENTA_80MM",
-        estado = "PENDIENTE"
-    )
+    private val trabajoPendiente = trabajo("PENDIENTE")
+    private val trabajoImpreso = trabajo("IMPRESO")
+    private val trabajoFallido = trabajo("FALLIDO", "Sin papel en la ticketera")
 
     @Before
     fun preparar() {
@@ -56,26 +57,180 @@ class ImpresionPrecuentaViewModelTest {
         Dispatchers.resetMain()
     }
 
+    private fun trabajo(estado: String, mensajeError: String? = null) = TrabajoImpresionDto(
+        jobId = "job-1",
+        mesaId = 7L,
+        tipo = "PRECUENTA_80MM",
+        estado = estado,
+        intentos = 0,
+        mensajeError = mensajeError
+    )
+
     private fun crearViewModel(mesaId: Long = 7L) =
         ImpresionPrecuentaViewModel(mesaId, repositorio, testDispatcher)
 
     @Test
-    fun `imprimir la precuenta avisa que se envio a la impresora`() =
+    fun `imprimir encola y deja la cola en pendiente sin marca impreso`() =
         runTest(testDispatcher) {
             coEvery { repositorio.imprimirPrecuenta(7L) } returns Resultado.Exito(cuenta)
+            coEvery { repositorio.obtenerEstadoImpresion(7L) } returns
+                Resultado.Exito(trabajoPendiente)
 
             val viewModel = crearViewModel()
             viewModel.imprimirPrecuenta()
             advanceUntilIdle()
 
             coVerify(exactly = 1) { repositorio.imprimirPrecuenta(7L) }
-            assertEquals(AvisoImpresion.ENVIADA, viewModel.estado.value.aviso)
+            assertEquals(AvisoImpresion.ENCOLADA, viewModel.estado.value.aviso)
+            assertEquals(EstadoColaImpresion.PENDIENTE, viewModel.estado.value.estadoCola)
+            assertNotEquals(EstadoColaImpresion.IMPRESO, viewModel.estado.value.estadoCola)
             assertFalse(viewModel.estado.value.imprimiendo)
         }
 
     @Test
-    fun `reimprimir usa el endpoint de reimpresion`() = runTest(testDispatcher) {
-        coEvery { repositorio.reimprimirPrecuenta(7L) } returns Resultado.Exito(trabajo)
+    fun `la cola pasa de pendiente a impreso y corta las consultas`() =
+        runTest(testDispatcher) {
+            coEvery { repositorio.imprimirPrecuenta(7L) } returns Resultado.Exito(cuenta)
+            coEvery { repositorio.obtenerEstadoImpresion(7L) } returnsMany listOf(
+                Resultado.Exito(trabajoPendiente),
+                Resultado.Exito(trabajoImpreso),
+                Resultado.Exito(trabajoImpreso)
+            )
+
+            val viewModel = crearViewModel()
+            viewModel.imprimirPrecuenta()
+            advanceUntilIdle()
+
+            assertEquals(EstadoColaImpresion.IMPRESO, viewModel.estado.value.estadoCola)
+            assertFalse(viewModel.estado.value.consultando)
+            coVerify(exactly = 2) { repositorio.obtenerEstadoImpresion(7L) }
+        }
+
+    @Test
+    fun `un trabajo fallido expone el mensaje y detiene el polling`() =
+        runTest(testDispatcher) {
+            coEvery { repositorio.imprimirPrecuenta(7L) } returns Resultado.Exito(cuenta)
+            coEvery { repositorio.obtenerEstadoImpresion(7L) } returnsMany listOf(
+                Resultado.Exito(trabajoPendiente),
+                Resultado.Exito(trabajoFallido)
+            )
+
+            val viewModel = crearViewModel()
+            viewModel.imprimirPrecuenta()
+            advanceUntilIdle()
+
+            assertEquals(EstadoColaImpresion.FALLIDO, viewModel.estado.value.estadoCola)
+            assertEquals("Sin papel en la ticketera", viewModel.estado.value.mensajeError)
+            assertFalse(viewModel.estado.value.consultando)
+            coVerify(exactly = 2) { repositorio.obtenerEstadoImpresion(7L) }
+        }
+
+    @Test
+    fun `reintentar vuelve a reimprimir y reanuda el polling`() =
+        runTest(testDispatcher) {
+            coEvery { repositorio.imprimirPrecuenta(7L) } returns Resultado.Exito(cuenta)
+            coEvery { repositorio.reimprimirPrecuenta(7L) } returns
+                Resultado.Exito(trabajoPendiente)
+            coEvery { repositorio.obtenerEstadoImpresion(7L) } returnsMany listOf(
+                Resultado.Exito(trabajoPendiente),
+                Resultado.Exito(trabajoPendiente),
+                Resultado.Exito(trabajoImpreso)
+            )
+
+            val viewModel = crearViewModel()
+            viewModel.imprimirPrecuenta()
+            runCurrent()
+            assertEquals(EstadoColaImpresion.PENDIENTE, viewModel.estado.value.estadoCola)
+
+            viewModel.reintentar()
+            runCurrent()
+            assertEquals(EstadoColaImpresion.PENDIENTE, viewModel.estado.value.estadoCola)
+            coVerify(exactly = 1) { repositorio.reimprimirPrecuenta(7L) }
+
+            advanceTimeBy(ImpresionPrecuentaViewModel.INTERVALO_POLLING_MS)
+            runCurrent()
+
+            assertEquals(EstadoColaImpresion.IMPRESO, viewModel.estado.value.estadoCola)
+            coVerify(exactly = 3) { repositorio.obtenerEstadoImpresion(7L) }
+        }
+
+    @Test
+    fun `sin confirmacion en 30 segundos no marca impreso ni sigue consultando`() =
+        runTest(testDispatcher) {
+            coEvery { repositorio.imprimirPrecuenta(7L) } returns Resultado.Exito(cuenta)
+            coEvery { repositorio.obtenerEstadoImpresion(7L) } returns
+                Resultado.Exito(trabajoPendiente)
+
+            val viewModel = crearViewModel()
+            viewModel.imprimirPrecuenta()
+            runCurrent()
+
+            advanceTimeBy(ImpresionPrecuentaViewModel.TIMEOUT_POLLING_MS)
+            runCurrent()
+
+            assertEquals(EstadoColaImpresion.PENDIENTE, viewModel.estado.value.estadoCola)
+            assertTrue(viewModel.estado.value.sinConfirmacion)
+            assertFalse(viewModel.estado.value.consultando)
+            coVerify(exactly = 16) { repositorio.obtenerEstadoImpresion(7L) }
+
+            advanceTimeBy(ImpresionPrecuentaViewModel.TIMEOUT_POLLING_MS)
+            runCurrent()
+            coVerify(exactly = 16) { repositorio.obtenerEstadoImpresion(7L) }
+        }
+
+    @Test
+    fun `un error de red conserva el ultimo estado y no marca impreso`() =
+        runTest(testDispatcher) {
+            var consulta = 0
+            coEvery { repositorio.imprimirPrecuenta(7L) } returns Resultado.Exito(cuenta)
+            coEvery { repositorio.obtenerEstadoImpresion(7L) } answers {
+                consulta += 1
+                if (consulta == 2) {
+                    Resultado.Fallo(ErrorApp.RED)
+                } else {
+                    Resultado.Exito(trabajoPendiente)
+                }
+            }
+
+            val viewModel = crearViewModel()
+            viewModel.imprimirPrecuenta()
+            runCurrent()
+            advanceTimeBy(ImpresionPrecuentaViewModel.INTERVALO_POLLING_MS)
+            runCurrent()
+
+            assertEquals(EstadoColaImpresion.PENDIENTE, viewModel.estado.value.estadoCola)
+            assertNotEquals(EstadoColaImpresion.IMPRESO, viewModel.estado.value.estadoCola)
+            assertEquals(AvisoImpresion.ERROR_CONEXION, viewModel.estado.value.aviso)
+
+            advanceUntilIdle()
+            assertNotEquals(EstadoColaImpresion.IMPRESO, viewModel.estado.value.estadoCola)
+        }
+
+    @Test
+    fun `una sesion expirada corta el polling y emite su aviso`() =
+        runTest(testDispatcher) {
+            coEvery { repositorio.imprimirPrecuenta(7L) } returns Resultado.Exito(cuenta)
+            coEvery { repositorio.obtenerEstadoImpresion(7L) } returns
+                Resultado.Fallo(ErrorApp.SESION_EXPIRADA)
+
+            val viewModel = crearViewModel()
+            viewModel.imprimirPrecuenta()
+            advanceUntilIdle()
+
+            assertEquals(AvisoImpresion.SESION_EXPIRADA, viewModel.estado.value.aviso)
+            assertFalse(viewModel.estado.value.consultando)
+            coVerify(exactly = 1) { repositorio.obtenerEstadoImpresion(7L) }
+
+            advanceTimeBy(ImpresionPrecuentaViewModel.TIMEOUT_POLLING_MS)
+            runCurrent()
+            coVerify(exactly = 1) { repositorio.obtenerEstadoImpresion(7L) }
+        }
+
+    @Test
+    fun `reimprimir usa el endpoint de reimpresion y encola`() = runTest(testDispatcher) {
+        coEvery { repositorio.reimprimirPrecuenta(7L) } returns Resultado.Exito(trabajoPendiente)
+        coEvery { repositorio.obtenerEstadoImpresion(7L) } returns
+            Resultado.Exito(trabajoImpreso)
 
         val viewModel = crearViewModel()
         viewModel.reimprimirPrecuenta()
@@ -83,23 +238,25 @@ class ImpresionPrecuentaViewModelTest {
 
         coVerify(exactly = 1) { repositorio.reimprimirPrecuenta(7L) }
         coVerify(exactly = 0) { repositorio.imprimirPrecuenta(any()) }
-        assertEquals(AvisoImpresion.ENVIADA, viewModel.estado.value.aviso)
+        assertEquals(AvisoImpresion.ENCOLADA, viewModel.estado.value.aviso)
     }
 
     @Test
-    fun `un fallo de red avisa error de conexion`() = runTest(testDispatcher) {
-        coEvery { repositorio.imprimirPrecuenta(7L) } returns Resultado.Fallo(ErrorApp.RED)
+    fun `un fallo de red del post avisa error de conexion y no consulta la cola`() =
+        runTest(testDispatcher) {
+            coEvery { repositorio.imprimirPrecuenta(7L) } returns Resultado.Fallo(ErrorApp.RED)
 
-        val viewModel = crearViewModel()
-        viewModel.imprimirPrecuenta()
-        advanceUntilIdle()
+            val viewModel = crearViewModel()
+            viewModel.imprimirPrecuenta()
+            advanceUntilIdle()
 
-        assertEquals(AvisoImpresion.ERROR_CONEXION, viewModel.estado.value.aviso)
-        assertFalse(viewModel.estado.value.imprimiendo)
-    }
+            assertEquals(AvisoImpresion.ERROR_CONEXION, viewModel.estado.value.aviso)
+            assertFalse(viewModel.estado.value.imprimiendo)
+            coVerify(exactly = 0) { repositorio.obtenerEstadoImpresion(any()) }
+        }
 
     @Test
-    fun `una sesion expirada tiene su propio aviso`() = runTest(testDispatcher) {
+    fun `una sesion expirada al reimprimir tiene su propio aviso`() = runTest(testDispatcher) {
         coEvery { repositorio.reimprimirPrecuenta(7L) } returns
             Resultado.Fallo(ErrorApp.SESION_EXPIRADA)
 
@@ -108,10 +265,11 @@ class ImpresionPrecuentaViewModelTest {
         advanceUntilIdle()
 
         assertEquals(AvisoImpresion.SESION_EXPIRADA, viewModel.estado.value.aviso)
+        coVerify(exactly = 0) { repositorio.obtenerEstadoImpresion(any()) }
     }
 
     @Test
-    fun `un error del servidor avisa error generico`() = runTest(testDispatcher) {
+    fun `un error del servidor al imprimir avisa error generico`() = runTest(testDispatcher) {
         coEvery { repositorio.imprimirPrecuenta(7L) } returns
             Resultado.Fallo(ErrorApp.SERVIDOR)
 
@@ -120,23 +278,28 @@ class ImpresionPrecuentaViewModelTest {
         advanceUntilIdle()
 
         assertEquals(AvisoImpresion.ERROR, viewModel.estado.value.aviso)
+        coVerify(exactly = 0) { repositorio.obtenerEstadoImpresion(any()) }
     }
 
     @Test
-    fun `un id invalido no llama al repositorio`() = runTest(testDispatcher) {
-        val viewModel = crearViewModel(mesaId = 0L)
-        viewModel.imprimirPrecuenta()
-        viewModel.reimprimirPrecuenta()
-        advanceUntilIdle()
+    fun `un id invalido no llama al repositorio ni consulta la cola`() =
+        runTest(testDispatcher) {
+            val viewModel = crearViewModel(mesaId = 0L)
+            viewModel.imprimirPrecuenta()
+            viewModel.reimprimirPrecuenta()
+            advanceUntilIdle()
 
-        coVerify(exactly = 0) { repositorio.imprimirPrecuenta(any()) }
-        coVerify(exactly = 0) { repositorio.reimprimirPrecuenta(any()) }
-        assertNull(viewModel.estado.value.aviso)
-    }
+            coVerify(exactly = 0) { repositorio.imprimirPrecuenta(any()) }
+            coVerify(exactly = 0) { repositorio.reimprimirPrecuenta(any()) }
+            coVerify(exactly = 0) { repositorio.obtenerEstadoImpresion(any()) }
+            assertNull(viewModel.estado.value.aviso)
+        }
 
     @Test
     fun `los toques repetidos no duplican la peticion`() = runTest(testDispatcher) {
         coEvery { repositorio.imprimirPrecuenta(7L) } returns Resultado.Exito(cuenta)
+        coEvery { repositorio.obtenerEstadoImpresion(7L) } returns
+            Resultado.Exito(trabajoImpreso)
 
         val viewModel = crearViewModel()
         viewModel.imprimirPrecuenta()
@@ -149,6 +312,8 @@ class ImpresionPrecuentaViewModelTest {
     @Test
     fun `consumir el aviso lo limpia`() = runTest(testDispatcher) {
         coEvery { repositorio.imprimirPrecuenta(7L) } returns Resultado.Exito(cuenta)
+        coEvery { repositorio.obtenerEstadoImpresion(7L) } returns
+            Resultado.Exito(trabajoImpreso)
 
         val viewModel = crearViewModel()
         viewModel.imprimirPrecuenta()

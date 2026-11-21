@@ -34,7 +34,9 @@ import com.lacasablanca.mesero.domain.model.PedidoEnviado
 import com.lacasablanca.mesero.ui.bloqueo.BloqueoActivity
 import com.lacasablanca.mesero.ui.common.aparecerConDesplazamiento
 import com.lacasablanca.mesero.ui.common.formatearMoneda
+import com.lacasablanca.mesero.ui.impresion.EstadoColaImpresion
 import com.lacasablanca.mesero.ui.impresion.ImpresionPrecuentaViewModel
+import com.lacasablanca.mesero.ui.impresion.ImpresionTextos
 import com.lacasablanca.mesero.ui.impresion.ImpresionUiState
 import com.lacasablanca.mesero.ui.login.LoginActivity
 import com.lacasablanca.mesero.ui.main.MainActivity
@@ -289,6 +291,7 @@ class ComandaFragment : Fragment(), CarritoBottomSheet.Listener {
             // Sin mesa no hay "Pedir Cuenta" ni pre-cuenta por mesa.
             binding.btnPedirCuenta.isVisible = false
             binding.grupoImpresion.isVisible = false
+            binding.grupoEstadoImpresion.isVisible = false
         } else {
             binding.textoTitulo.text = getString(
                 R.string.comanda_titulo,
@@ -350,6 +353,7 @@ class ComandaFragment : Fragment(), CarritoBottomSheet.Listener {
         binding.btnPedirCuenta.setOnClickListener { comandaViewModel.pedirCuenta(mesaId) }
         binding.btnImprimir.setOnClickListener { impresionViewModel.imprimirPrecuenta() }
         binding.btnReimprimir.setOnClickListener { impresionViewModel.reimprimirPrecuenta() }
+        binding.btnReintentar.setOnClickListener { impresionViewModel.reintentar() }
         binding.barraComanda.setOnMenuItemClickListener { item ->
             when (item.itemId) {
                 R.id.accionBloquear -> {
@@ -571,12 +575,22 @@ class ComandaFragment : Fragment(), CarritoBottomSheet.Listener {
     }
 
     private fun renderImpresion(estado: ImpresionUiState) {
-        binding.btnImprimir.isEnabled = !estado.imprimiendo
-        binding.btnReimprimir.isEnabled = !estado.imprimiendo
+        val bloqueado = estado.imprimiendo || estado.consultando
+        binding.btnImprimir.isEnabled = !bloqueado
+        binding.btnReimprimir.isEnabled = !bloqueado
+        binding.btnReintentar.isEnabled = !bloqueado
+        renderEstadoImpresion(estado)
 
         val aviso = estado.aviso ?: return
         impresionViewModel.consumirAviso()
         mostrarSnackbar(ComandaMensajes.avisoImpresion(requireContext(), aviso))
+    }
+
+    private fun renderEstadoImpresion(estado: ImpresionUiState) {
+        val texto = ImpresionTextos.estado(requireContext(), estado)
+        binding.grupoEstadoImpresion.isVisible = texto != null
+        binding.btnReintentar.isVisible = estado.estadoCola == EstadoColaImpresion.FALLIDO
+        if (texto != null) binding.txtEstadoImpresion.text = texto
     }
 
     private fun cerrarDialogoAnular() {
