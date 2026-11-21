@@ -28,4 +28,10 @@ interface CobroRepository {
 
     /** Reencola la ultima pre-cuenta impresa (PRB-73). */
     suspend fun reimprimirPrecuenta(mesaId: Long): Resultado<TrabajoImpresionDto>
+
+    /**
+     * PRB-109: consulta el estado real del trabajo de pre-cuenta en la cola
+     * de impresion (`GET /api/v1/mesas/{id}/impresion`).
+     */
+    suspend fun obtenerEstadoImpresion(mesaId: Long): Resultado<TrabajoImpresionDto>
 }
