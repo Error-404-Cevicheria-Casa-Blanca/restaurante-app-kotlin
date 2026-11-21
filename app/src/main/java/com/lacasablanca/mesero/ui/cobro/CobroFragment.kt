@@ -37,7 +37,9 @@ import com.lacasablanca.mesero.domain.model.TipoDescuento
 import com.lacasablanca.mesero.ui.bloqueo.BloqueoActivity
 import com.lacasablanca.mesero.ui.common.formatearMoneda
 import com.lacasablanca.mesero.ui.impresion.AvisoImpresion
+import com.lacasablanca.mesero.ui.impresion.EstadoColaImpresion
 import com.lacasablanca.mesero.ui.impresion.ImpresionPrecuentaViewModel
+import com.lacasablanca.mesero.ui.impresion.ImpresionTextos
 import com.lacasablanca.mesero.ui.impresion.ImpresionUiState
 import com.lacasablanca.mesero.ui.main.MainActivity
 import kotlinx.coroutines.launch
@@ -152,6 +154,7 @@ class CobroFragment : Fragment() {
             binding.btnImprimir.isVisible = false
             binding.btnReimprimir.isVisible = false
             binding.filaAccionesResumen.isVisible = false
+            binding.grupoEstadoImpresion.isVisible = false
         }
 
         observarEstado()
@@ -223,6 +226,7 @@ class CobroFragment : Fragment() {
         binding.btnAplicarDescuento.setOnClickListener { mostrarDialogoDescuento() }
         binding.btnImprimir.setOnClickListener { impresionViewModel.imprimirPrecuenta() }
         binding.btnReimprimir.setOnClickListener { impresionViewModel.reimprimirPrecuenta() }
+        binding.btnReintentar.setOnClickListener { impresionViewModel.reintentar() }
 
         binding.grupoMediosPago.setOnCheckedStateChangeListener { _, ids ->
             if (actualizandoChips) return@setOnCheckedStateChangeListener
@@ -287,8 +291,11 @@ class CobroFragment : Fragment() {
     }
 
     private fun renderImpresion(estado: ImpresionUiState) {
-        binding.btnImprimir.isEnabled = !estado.imprimiendo
-        binding.btnReimprimir.isEnabled = !estado.imprimiendo
+        val bloqueado = estado.imprimiendo || estado.consultando
+        binding.btnImprimir.isEnabled = !bloqueado
+        binding.btnReimprimir.isEnabled = !bloqueado
+        binding.btnReintentar.isEnabled = !bloqueado
+        renderEstadoImpresion(estado)
 
         val aviso = estado.aviso ?: return
         impresionViewModel.consumirAviso()
@@ -303,8 +310,15 @@ class CobroFragment : Fragment() {
             ContextCompat.getDrawable(requireContext(), R.drawable.bg_snackbar)
     }
 
+    private fun renderEstadoImpresion(estado: ImpresionUiState) {
+        val texto = ImpresionTextos.estado(requireContext(), estado)
+        binding.grupoEstadoImpresion.isVisible = texto != null
+        binding.btnReintentar.isVisible = estado.estadoCola == EstadoColaImpresion.FALLIDO
+        if (texto != null) binding.txtEstadoImpresion.text = texto
+    }
+
     private fun textoAvisoImpresion(aviso: AvisoImpresion): String = when (aviso) {
-        AvisoImpresion.ENVIADA -> getString(R.string.impresion_enviada)
+        AvisoImpresion.ENCOLADA -> getString(R.string.impresion_encolada)
         AvisoImpresion.ERROR_CONEXION -> getString(R.string.impresion_error_conexion)
         AvisoImpresion.SESION_EXPIRADA -> getString(R.string.impresion_sesion_expirada)
         AvisoImpresion.ERROR -> getString(R.string.impresion_error)

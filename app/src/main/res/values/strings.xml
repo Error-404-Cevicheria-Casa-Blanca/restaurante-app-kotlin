@@ -461,13 +461,21 @@
     <string name="cobro_salir_icono_cd">Advertencia: la mesa seguirá ocupada</string>
 
     <!-- Cobro desde la comanda (PRB-56) -->
-    <!-- Impresion de pre-cuenta (PRB-73) -->
+    <!-- Impresion de pre-cuenta (PRB-73 / PRB-109) -->
     <string name="impresion_imprimir">Imprimir</string>
     <string name="impresion_reimprimir">Reimprimir</string>
-    <string name="impresion_enviada">Enviado a impresora</string>
+    <string name="impresion_reintentar">Reintentar</string>
+    <string name="impresion_encolada">Enviado a la cola de impresión</string>
     <string name="impresion_error_conexion">Error de conexión</string>
     <string name="impresion_error">No se pudo imprimir</string>
     <string name="impresion_sesion_expirada">Tu sesión expiró. Vuelve a ingresar.</string>
+    <string name="impresion_estado_en_cola">En cola de impresión…</string>
+    <string name="impresion_estado_impreso">Impreso (confirmado por la cola)</string>
+    <string name="impresion_estado_fallido">No se pudo imprimir: %1$s</string>
+    <string name="impresion_estado_fallido_sin_mensaje">No se pudo imprimir</string>
+    <string name="impresion_estado_sin_confirmacion">La impresora no confirmó el trabajo. Revisa la ticketera y reintenta.</string>
+    <string name="impresion_estado_desconocido">Estado de impresión desconocido</string>
+    <string name="impresion_estado_con_demo">%1$s · Datos de demostración</string>
     <string name="comanda_cobrar">Cobrar</string>
     <string name="comanda_cobrar_ahora">Cobrar ahora</string>
 

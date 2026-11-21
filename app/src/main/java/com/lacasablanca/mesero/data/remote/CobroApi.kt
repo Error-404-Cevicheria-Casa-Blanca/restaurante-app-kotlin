@@ -33,6 +33,13 @@ interface CobroApi {
     suspend fun reimprimirPrecuenta(@Path("id") mesaId: Long): Response<TrabajoImpresionDto>
 
     /**
+     * PRB-109: estado real del ultimo trabajo de pre-cuenta en la cola de
+     * impresion. `PENDIENTE`, `IMPRESO` o `FALLIDO`; nunca se asume IMPRESO.
+     */
+    @GET("api/v1/mesas/{id}/impresion")
+    suspend fun obtenerEstadoImpresion(@Path("id") mesaId: Long): Response<TrabajoImpresionDto>
+
+    /**
      * PRB-88: cuenta de un pedido sin mesa para el cobro de delivery.
      * El backend devuelve el pedido consolidado con items y totales.
      */

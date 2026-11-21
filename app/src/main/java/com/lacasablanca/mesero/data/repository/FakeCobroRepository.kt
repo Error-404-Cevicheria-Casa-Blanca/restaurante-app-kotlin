@@ -24,8 +24,12 @@ class FakeCobroRepository(
     private val mesaRepository: MesaRepository? = null,
     private val consumoStore: FakeConsumoStore? = null,
     private val latenciaMs: Long = LATENCIA_SIMULADA_MS,
-    private val pedidoRepository: FakePedidoRepository? = null
+    private val pedidoRepository: FakePedidoRepository? = null,
+    private val simularFalloImpresion: Boolean = false
 ) : CobroRepository {
+
+    /** DATO FAKE: consultas de estado por mesa para simular la cola. */
+    private val consultasEstadoImpresion = mutableMapOf<Long, Int>()
 
     override suspend fun obtenerCuenta(mesaId: Long): Resultado<CuentaResponse> {
         delay(latenciaMs)
@@ -136,28 +140,63 @@ class FakeCobroRepository(
 
     override suspend fun imprimirPrecuenta(mesaId: Long): Resultado<CuentaResponse> {
         delay(latenciaMs)
-        return if (mesaId <= 0L) {
-            Resultado.Fallo(ErrorApp.VALIDACION)
-        } else {
-            Resultado.Exito(cuentaDe(mesaId))
-        }
+        if (mesaId <= 0L) return Resultado.Fallo(ErrorApp.VALIDACION)
+        consultasEstadoImpresion[mesaId] = 0
+        return Resultado.Exito(cuentaDe(mesaId))
     }
 
     override suspend fun reimprimirPrecuenta(mesaId: Long): Resultado<TrabajoImpresionDto> {
         delay(latenciaMs)
         if (mesaId <= 0L) return Resultado.Fallo(ErrorApp.VALIDACION)
+        consultasEstadoImpresion[mesaId] = 0
         return Resultado.Exito(
             TrabajoImpresionDto(
                 jobId = "fake-precuenta-$mesaId",
                 mesaId = mesaId,
                 tipo = FAKE_TIPO_IMPRESION,
-                estado = FAKE_ESTADO_IMPRESION,
+                estado = FAKE_ESTADO_PENDIENTE,
                 intentos = 0,
                 mensajeError = null,
                 fechaSolicitud = null
             )
         )
     }
+
+    /**
+     * DATO FAKE (no real): simula la cola con una secuencia fija.
+     * 1.a y 2.a consulta = PENDIENTE; 3.a en adelante = IMPRESO. Con
+     * [simularFalloImpresion] responde FALLIDO con `mensaje_error`.
+     */
+    override suspend fun obtenerEstadoImpresion(mesaId: Long): Resultado<TrabajoImpresionDto> {
+        delay(latenciaMs)
+        if (mesaId <= 0L) return Resultado.Fallo(ErrorApp.VALIDACION)
+
+        val numeroConsulta = (consultasEstadoImpresion[mesaId] ?: 0) + 1
+        consultasEstadoImpresion[mesaId] = numeroConsulta
+
+        if (simularFalloImpresion) {
+            return Resultado.Exito(
+                trabajoFake(mesaId, FAKE_ESTADO_FALLIDO, FAKE_MENSAJE_FALLO)
+            )
+        }
+
+        val estado = if (numeroConsulta <= 2) FAKE_ESTADO_PENDIENTE else FAKE_ESTADO_IMPRESO
+        return Resultado.Exito(trabajoFake(mesaId, estado, null))
+    }
+
+    private fun trabajoFake(
+        mesaId: Long,
+        estado: String,
+        mensajeError: String?
+    ): TrabajoImpresionDto = TrabajoImpresionDto(
+        jobId = "fake-precuenta-$mesaId",
+        mesaId = mesaId,
+        tipo = FAKE_TIPO_IMPRESION,
+        estado = estado,
+        intentos = 0,
+        mensajeError = mensajeError,
+        fechaSolicitud = null
+    )
 
     private fun cuentaDe(mesaId: Long): CuentaResponse {
         val desglose = CalculoIgv.desglosar(totalDe(mesaId))
@@ -237,8 +276,11 @@ class FakeCobroRepository(
         /** DATO FAKE: rotula el trabajo de impresion simulado. */
         private const val FAKE_TIPO_IMPRESION = "PRECUENTA_80MM"
 
-        /** DATO FAKE: estado simulado de la cola de impresion. */
-        private const val FAKE_ESTADO_IMPRESION = "PENDIENTE"
+        /** DATO FAKE: estados simulados de la cola de impresion. */
+        private const val FAKE_ESTADO_PENDIENTE = "PENDIENTE"
+        private const val FAKE_ESTADO_IMPRESO = "IMPRESO"
+        private const val FAKE_ESTADO_FALLIDO = "FALLIDO"
+        private const val FAKE_MENSAJE_FALLO = "Sin papel en la ticketera (dato de demostracion)"
         private val TOTAL_POR_DEFECTO = BigDecimal("96.00")
         private val PROPINA_SUGERIDA = BigDecimal("0.10")
     }

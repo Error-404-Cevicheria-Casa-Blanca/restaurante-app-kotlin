@@ -67,6 +67,10 @@ class RealCobroRepository(private val api: CobroApi) : CobroRepository {
     override suspend fun reimprimirPrecuenta(mesaId: Long): Resultado<TrabajoImpresionDto> =
         ejecutar { api.reimprimirPrecuenta(mesaId) }
 
+    /** PRB-109: estado real de la cola; 401/403 se mapean a sesion expirada. */
+    override suspend fun obtenerEstadoImpresion(mesaId: Long): Resultado<TrabajoImpresionDto> =
+        ejecutar { api.obtenerEstadoImpresion(mesaId) }
+
     /** Mapea el pedido consolidado a la cuenta que dibuja CobroFragment. */
     private fun PedidoResponseDto.aCuenta(): CuentaResponse {
         val totalPedido = total ?: BigDecimal.ZERO
