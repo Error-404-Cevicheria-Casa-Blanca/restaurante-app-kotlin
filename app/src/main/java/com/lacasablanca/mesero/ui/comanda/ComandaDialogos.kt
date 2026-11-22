@@ -14,11 +14,15 @@ import com.lacasablanca.mesero.ui.common.aplicarMarcoMarea
 /** Dialogos simples de la comanda (avisos y confirmaciones). */
 object ComandaDialogos {
 
+    /** Tono visual del aviso; se decide en el punto de llamada, no por el texto. */
+    enum class TipoAviso { ERROR, ADVERTENCIA }
+
     fun crear(
         activity: AppCompatActivity,
         titulo: CharSequence,
         mensaje: CharSequence,
         cancelable: Boolean,
+        tipo: TipoAviso = TipoAviso.ADVERTENCIA,
         textoPositivo: Int = R.string.accion_aceptar,
         alAceptar: (() -> Unit)? = null,
         textoNegativo: Int? = null,
@@ -28,7 +32,7 @@ object ComandaDialogos {
         contenido.tituloAviso.text = titulo
         contenido.mensajeAviso.text = mensaje
         contenido.btnEntendido.setText(textoPositivo)
-        configurarIcono(activity, contenido, titulo, cancelable, textoNegativo)
+        configurarIcono(activity, contenido, titulo, tipo, cancelable, textoNegativo)
 
         val dialogo = MaterialAlertDialogBuilder(activity)
             .setView(contenido.root)
@@ -56,15 +60,13 @@ object ComandaDialogos {
         activity: AppCompatActivity,
         contenido: DialogAvisoMesaBinding,
         titulo: CharSequence,
+        tipo: TipoAviso,
         cancelable: Boolean,
         textoNegativo: Int?
     ) {
+        // Las confirmaciones (con boton secundario o no cancelables) conservan el tono neutro.
         val esConfirmacion = textoNegativo != null || !cancelable
-        val textoTitulo = titulo.toString()
-        val esError = !esConfirmacion && (
-            textoTitulo.contains("error", ignoreCase = true) ||
-                textoTitulo.contains("no se pudo", ignoreCase = true)
-            )
+        val esError = tipo == TipoAviso.ERROR && !esConfirmacion
         val (fondoRes, iconoRes, colorRes) = if (esError) {
             Triple(R.drawable.bg_ib_err, R.drawable.ic_error_outline, R.color.sem_err_c)
         } else {
