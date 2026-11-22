@@ -109,6 +109,8 @@ android {
 
     buildTypes {
         debug {
+            // PRB-103: cobertura de los tests unitarios con JaCoCo (AGP).
+            enableUnitTestCoverage = true
             buildConfigField("String", "BASE_URL", buildConfigString(baseUrlDebug))
             buildConfigField("boolean", "USE_FAKE_DATA", buildConfigBoolean(useFakeDataDebug))
             buildConfigField("boolean", "BYPASS_TUNNEL", buildConfigBoolean(bypassTunnel))
