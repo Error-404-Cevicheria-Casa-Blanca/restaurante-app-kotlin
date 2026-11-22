@@ -6,18 +6,26 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.annotation.StringRes
+import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
+import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.lacasablanca.mesero.MeseroApp
 import com.lacasablanca.mesero.R
 import com.lacasablanca.mesero.core.GenericViewModelFactory
+import com.lacasablanca.mesero.databinding.DialogAjustesEquipoBinding
 import com.lacasablanca.mesero.databinding.FragmentPerfilBinding
+import com.lacasablanca.mesero.domain.equipo.ErrorTerminal
+import com.lacasablanca.mesero.domain.equipo.ErrorUrl
 import com.lacasablanca.mesero.domain.model.TemaApp
+import com.lacasablanca.mesero.ui.common.aplicarMarcoMarea
 import com.lacasablanca.mesero.ui.login.LoginActivity
 import com.lacasablanca.mesero.ui.main.MainActivity
 import kotlinx.coroutines.launch
@@ -52,7 +60,19 @@ class PerfilFragment : Fragment() {
         )[PerfilViewModel::class.java]
     }
 
+    /** Logica del dialogo de URL y terminal (PRB-99). */
+    private val ajustesViewModel: AjustesEquipoViewModel by lazy {
+        ViewModelProvider(
+            this,
+            GenericViewModelFactory {
+                AjustesEquipoViewModel(contenedor.equipoPreferencias)
+            }
+        )[AjustesEquipoViewModel::class.java]
+    }
+
     private var navegando = false
+    private var dialogoAjustes: AlertDialog? = null
+    private var ajustesBinding: DialogAjustesEquipoBinding? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -74,12 +94,14 @@ class PerfilFragment : Fragment() {
         binding.opcionTemaOscuro.setOnClickListener { cambiarTema(TemaApp.OSCURO) }
         binding.opcionTemaAuto.setOnClickListener { cambiarTema(TemaApp.AUTOMATICO) }
         actualizarSelectorTema(contenedor.temaPreferencias.leerTemaSincrono())
+        binding.tarjetaAjustesEquipo.setOnClickListener { mostrarAjustes() }
 
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch { viewModel.estado.collect(::render) }
                 launch { viewModel.eventos.collect(::manejarEvento) }
                 launch { contenedor.temaPreferencias.temaActual.collect(::actualizarSelectorTema) }
+                launch { ajustesViewModel.estado.collect(::renderAjustes) }
             }
         }
     }
@@ -87,6 +109,7 @@ class PerfilFragment : Fragment() {
     private fun render(estado: PerfilUiState) {
         binding.progresoPerfil.isVisible = estado.actualizando
         binding.avisoPerfilRed.isVisible = estado.avisoRed
+        binding.tarjetaAjustesEquipo.isVisible = estado.esAdmin
         val nombreVisible = estado.nombre.ifBlank {
             getString(R.string.perfil_nombre_vacio)
         }
@@ -153,6 +176,76 @@ class PerfilFragment : Fragment() {
         }
     }
 
+    private fun mostrarAjustes() {
+        if (dialogoAjustes != null) return
+        ajustesViewModel.abrir()
+        val contenido = DialogAjustesEquipoBinding.inflate(layoutInflater)
+        val dialogo = MaterialAlertDialogBuilder(requireContext())
+            .setView(contenido.root)
+            .setCancelable(true)
+            .create()
+        contenido.entradaAjustesUrl.doAfterTextChanged {
+            ajustesViewModel.onUrlCambiada(it?.toString().orEmpty())
+        }
+        contenido.entradaAjustesTerminal.doAfterTextChanged {
+            ajustesViewModel.onTerminalCambiada(it?.toString().orEmpty())
+        }
+        contenido.btnGuardarAjustes.setOnClickListener { ajustesViewModel.guardar() }
+        contenido.btnCancelarAjustes.setOnClickListener { ajustesViewModel.cerrar() }
+        dialogo.setOnDismissListener {
+            if (dialogoAjustes === dialogo) {
+                dialogoAjustes = null
+                ajustesBinding = null
+                ajustesViewModel.cerrar()
+            }
+        }
+        dialogo.setCanceledOnTouchOutside(true)
+        dialogo.show()
+        dialogo.aplicarMarcoMarea(requireContext())
+        dialogoAjustes = dialogo
+        ajustesBinding = contenido
+        renderAjustes(ajustesViewModel.estado.value)
+    }
+
+    private fun renderAjustes(estado: AjustesEquipoUiState) {
+        val contenido = ajustesBinding ?: return
+        if (!estado.abierto) {
+            dialogoAjustes?.dismiss()
+            return
+        }
+        if (contenido.entradaAjustesUrl.text?.toString() != estado.url) {
+            contenido.entradaAjustesUrl.setText(estado.url)
+        }
+        if (contenido.entradaAjustesTerminal.text?.toString() != estado.terminal) {
+            contenido.entradaAjustesTerminal.setText(estado.terminal)
+        }
+        contenido.inputAjustesUrl.error = estado.errorUrl?.let { getString(it.mensajeRes()) }
+        contenido.inputAjustesTerminal.error = estado.errorTerminal?.let { getString(it.mensajeRes()) }
+        contenido.textoAjustesAyuda.isVisible = estado.errorUrl == null
+        contenido.filaGuardandoAjustes.isVisible = estado.guardando
+        contenido.textoAjustesExito.isVisible = estado.guardado
+        contenido.textoAjustesErrorGeneral.isVisible = estado.errorGeneral
+        contenido.btnGuardarAjustes.isEnabled = !estado.guardando
+        contenido.btnCancelarAjustes.isEnabled = !estado.guardando
+    }
+
+    @StringRes
+    private fun ErrorUrl.mensajeRes(): Int = when (this) {
+        ErrorUrl.VACIA -> R.string.ajustes_equipo_error_url_vacia
+        ErrorUrl.SIN_ESQUEMA -> R.string.ajustes_equipo_error_url_sin_esquema
+        ErrorUrl.ESQUEMA_NO_PERMITIDO -> R.string.ajustes_equipo_error_url_esquema
+        ErrorUrl.SIN_HOST -> R.string.ajustes_equipo_error_url_host
+        ErrorUrl.CREDENCIALES -> R.string.ajustes_equipo_error_url_credenciales
+        ErrorUrl.CONSULTA -> R.string.ajustes_equipo_error_url_consulta
+        ErrorUrl.FORMATO -> R.string.ajustes_equipo_error_url_formato
+    }
+
+    @StringRes
+    private fun ErrorTerminal.mensajeRes(): Int = when (this) {
+        ErrorTerminal.VACIO -> R.string.ajustes_equipo_error_terminal_vacio
+        ErrorTerminal.FORMATO -> R.string.ajustes_equipo_error_terminal_formato
+    }
+
     private fun volverASalon() {
         (requireActivity() as? MainActivity)?.seleccionarTab(R.id.navSalon)
     }
@@ -168,6 +261,9 @@ class PerfilFragment : Fragment() {
     }
 
     override fun onDestroyView() {
+        dialogoAjustes?.dismiss()
+        dialogoAjustes = null
+        ajustesBinding = null
         _binding = null
         super.onDestroyView()
     }

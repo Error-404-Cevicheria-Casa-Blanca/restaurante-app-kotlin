@@ -310,6 +310,7 @@ class LoginActivity : AppCompatActivity() {
         ErrorLogin.VALIDACION -> R.string.login_error_pin_formato
         ErrorLogin.RED -> R.string.login_error_red
         ErrorLogin.ROL_NO_PERMITIDO -> R.string.login_error_rol
+        ErrorLogin.TERMINAL_INVALIDO -> R.string.login_error_terminal
         ErrorLogin.DESCONOCIDO -> R.string.login_error_generico
     }
 

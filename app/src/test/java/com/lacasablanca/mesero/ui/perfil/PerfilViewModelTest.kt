@@ -205,4 +205,38 @@ class PerfilViewModelTest {
         assertTrue(eventos.contains(PerfilEvento.IrALogin))
         assertFalse(viewModel.estado.value.actualizando)
     }
+
+    @Test
+    fun `un administrador puede ver los ajustes de equipo`() = runTest(testDispatcher) {
+        val sesion = Sesion(
+            token = "token-prueba",
+            usuario = Usuario(
+                id = 9L,
+                nombre = "admin_01",
+                rol = "ADMIN",
+                nombreVisible = "Administrador"
+            )
+        )
+        coEvery { authRepository.sesionGuardada() } returns sesion
+        coEvery { authRepository.refrescarPerfil() } returns
+            Resultado.Exito(PerfilActualizado(sesion, null))
+
+        val viewModel = PerfilViewModel(authRepository, testDispatcher, fechaActual = { fechaFija })
+        advanceUntilIdle()
+
+        assertTrue(viewModel.estado.value.esAdmin)
+    }
+
+    @Test
+    fun `un mozo no ve los ajustes de equipo`() = runTest(testDispatcher) {
+        val sesion = sesionLocal()
+        coEvery { authRepository.sesionGuardada() } returns sesion
+        coEvery { authRepository.refrescarPerfil() } returns
+            Resultado.Exito(PerfilActualizado(sesion, null))
+
+        val viewModel = PerfilViewModel(authRepository, testDispatcher, fechaActual = { fechaFija })
+        advanceUntilIdle()
+
+        assertFalse(viewModel.estado.value.esAdmin)
+    }
 }
