@@ -551,6 +551,7 @@ class ComandaFragment : Fragment(), CarritoBottomSheet.Listener {
             titulo = getString(R.string.anular_plato_error_titulo),
             mensaje = ComandaMensajes.errorAnular(requireContext(), error),
             cancelable = true,
+            tipo = ComandaDialogos.TipoAviso.ERROR,
             textoPositivo = R.string.accion_entendido
         )
     }
@@ -608,6 +609,7 @@ class ComandaFragment : Fragment(), CarritoBottomSheet.Listener {
             titulo = getString(R.string.comanda_error_envio_titulo),
             mensaje = ComandaMensajes.errorEnvio(requireContext(), error),
             cancelable = true,
+            tipo = ComandaDialogos.TipoAviso.ADVERTENCIA,
             textoPositivo = R.string.accion_reintentar,
             alAceptar = { carritoViewModel.enviarPedido() },
             textoNegativo = R.string.accion_cancelar
@@ -708,6 +710,7 @@ class ComandaFragment : Fragment(), CarritoBottomSheet.Listener {
             titulo = getString(R.string.comanda_cuenta_error_titulo),
             mensaje = ComandaMensajes.errorCuenta(requireContext(), error),
             cancelable = true,
+            tipo = ComandaDialogos.TipoAviso.ADVERTENCIA,
             textoPositivo = R.string.accion_reintentar,
             alAceptar = { comandaViewModel.pedirCuenta(mesaId) },
             textoNegativo = R.string.accion_cancelar
@@ -726,6 +729,7 @@ class ComandaFragment : Fragment(), CarritoBottomSheet.Listener {
             titulo = getString(R.string.comanda_pedido_existente_error_titulo),
             mensaje = mensaje,
             cancelable = true,
+            tipo = ComandaDialogos.TipoAviso.ADVERTENCIA,
             textoPositivo = R.string.accion_reintentar,
             alAceptar = {
                 errorPedidoExistenteMostrado = false
@@ -745,6 +749,7 @@ class ComandaFragment : Fragment(), CarritoBottomSheet.Listener {
             titulo = getString(R.string.error_liberar_mesa_titulo),
             mensaje = mensaje,
             cancelable = false,
+            tipo = ComandaDialogos.TipoAviso.ADVERTENCIA,
             textoPositivo = R.string.accion_reintentar,
             alAceptar = ::intentarSalir,
             textoNegativo = R.string.comanda_salir_sin_liberar,
@@ -757,6 +762,7 @@ class ComandaFragment : Fragment(), CarritoBottomSheet.Listener {
             titulo = getString(R.string.sesion_expirada_titulo),
             mensaje = getString(R.string.sesion_expirada),
             cancelable = false,
+            tipo = ComandaDialogos.TipoAviso.ADVERTENCIA,
             alAceptar = ::irALogin
         )
     }
@@ -765,6 +771,7 @@ class ComandaFragment : Fragment(), CarritoBottomSheet.Listener {
         titulo: CharSequence,
         mensaje: CharSequence,
         cancelable: Boolean,
+        tipo: ComandaDialogos.TipoAviso = ComandaDialogos.TipoAviso.ADVERTENCIA,
         textoPositivo: Int = R.string.accion_aceptar,
         alAceptar: (() -> Unit)? = null,
         textoNegativo: Int? = null,
@@ -777,6 +784,7 @@ class ComandaFragment : Fragment(), CarritoBottomSheet.Listener {
             titulo = titulo,
             mensaje = mensaje,
             cancelable = cancelable,
+            tipo = tipo,
             textoPositivo = textoPositivo,
             alAceptar = alAceptar,
             textoNegativo = textoNegativo,
